@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getRandomAvatarForRole, type UserRole } from "./avatars";
 
 export const demoUsers = [
   { email: "student@demo.com", password: "demo123", fullName: "Demo Student", role: "student" as const },
@@ -39,6 +40,17 @@ export const createDemoUsers = async () => {
 
         if (roleError) {
           console.error(`Failed to set role for ${user.email}:`, roleError);
+        }
+
+        // Assign a random avatar based on role
+        const avatarUrl = getRandomAvatarForRole(user.role as UserRole);
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({ avatar_url: avatarUrl })
+          .eq("id", data.user.id);
+
+        if (profileError) {
+          console.error(`Failed to set avatar for ${user.email}:`, profileError);
         }
       }
 

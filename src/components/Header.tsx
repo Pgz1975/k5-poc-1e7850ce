@@ -1,9 +1,10 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Menu, X, LogOut, User } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,8 +17,27 @@ import {
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const { t } = useLanguage();
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setAvatarUrl(data.avatar_url);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   const navItems = [
     { label: t("Inicio", "Home"), href: "/" },
@@ -56,7 +76,7 @@ export const Header = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.user_metadata?.avatar_url} />
+                    <AvatarImage src={avatarUrl || undefined} />
                     <AvatarFallback className="bg-gradient-hero text-white text-sm">
                       {user.email?.charAt(0).toUpperCase()}
                     </AvatarFallback>
