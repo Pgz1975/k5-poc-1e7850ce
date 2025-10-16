@@ -30,7 +30,6 @@ import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { defaultAvatars, generateAvatarUrl } from "@/utils/avatars";
 
 const profileSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters").max(100),
@@ -361,50 +360,6 @@ const Profile = () => {
                         "Optional URL for your profile picture"
                       )}
                     </p>
-                  </div>
-
-                  {/* Avatar Gallery */}
-                  <div className="space-y-3">
-                    <Label>
-                      {t("O elige un avatar prediseñado", "Or choose a pre-designed avatar")}
-                    </Label>
-                    <div className="grid grid-cols-5 gap-3">
-                      {defaultAvatars.map((avatar, index) => (
-                        <button
-                          key={index}
-                          type="button"
-                          onClick={() => setAvatarUrl(avatar)}
-                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
-                            avatarUrl === avatar 
-                              ? 'border-primary ring-2 ring-primary/20' 
-                              : 'border-border hover:border-primary/50'
-                          }`}
-                        >
-                          <img 
-                            src={avatar} 
-                            alt={`Avatar ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (user?.id) {
-                            setAvatarUrl(generateAvatarUrl(user.id));
-                          }
-                        }}
-                      >
-                        {t("Generar avatar único", "Generate unique avatar")}
-                      </Button>
-                      <p className="text-xs text-muted-foreground">
-                        {t("Basado en tu ID de usuario", "Based on your user ID")}
-                      </p>
-                    </div>
                   </div>
 
                   <Button type="submit" className="w-full gap-2" disabled={saving}>
