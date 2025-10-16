@@ -84,7 +84,7 @@ const Profile = () => {
         setRole(userRole.role);
         setCreatedAt(profile.created_at);
 
-        // Auto-update student avatar if needed (one-time fix)
+        // Auto-update avatars if needed (one-time fix)
         if (user.email === "student@demo.com" && profile.avatar_url !== "/avatars/student-2.jpg") {
           const { error: updateError } = await supabase
             .from("profiles")
@@ -93,6 +93,15 @@ const Profile = () => {
           
           if (!updateError) {
             setAvatarUrl("/avatars/student-2.jpg");
+          }
+        } else if (user.email === "teacher@demo.com" && profile.avatar_url !== "/avatars/teacher-2.jpg") {
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update({ avatar_url: "/avatars/teacher-2.jpg" })
+            .eq("id", user.id);
+          
+          if (!updateError) {
+            setAvatarUrl("/avatars/teacher-2.jpg");
           }
         }
       } catch (err: any) {

@@ -13,7 +13,7 @@ export const demoUsers = [
     password: "demo123", 
     fullName: "Demo Teacher", 
     role: "teacher" as const,
-    avatar: "/avatars/teacher-1.jpg"
+    avatar: "/avatars/teacher-2.jpg"
   },
   { 
     email: "family@demo.com", 
