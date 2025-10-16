@@ -1,9 +1,11 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Menu, X, LogOut, User } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { getAvatarUrl } from "@/utils/avatars";
+import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -16,8 +18,30 @@ import {
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileData, setProfileData] = useState<{ full_name?: string; avatar_url?: string | null } | null>(null);
   const { t } = useLanguage();
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .single();
+
+      if (data) {
+        setProfileData(data);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
+
+  const displayName = profileData?.full_name || user?.user_metadata?.full_name || t("Usuario", "User");
+  const avatarUrlToUse = getAvatarUrl(user?.id, profileData?.avatar_url);
 
   const navItems = [
     { label: t("Inicio", "Home"), href: "/" },
@@ -56,9 +80,9 @@ export const Header = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.user_metadata?.avatar_url} />
+                    <AvatarImage src={avatarUrlToUse} />
                     <AvatarFallback className="bg-gradient-hero text-white text-sm">
-                      {user.email?.charAt(0).toUpperCase()}
+                      {displayName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -67,7 +91,7 @@ export const Header = () => {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user.user_metadata?.full_name || t("Usuario", "User")}
+                      {displayName}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user.email}
