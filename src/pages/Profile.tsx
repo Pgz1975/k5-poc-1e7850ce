@@ -83,6 +83,18 @@ const Profile = () => {
         setAvatarUrl(profile.avatar_url || "");
         setRole(userRole.role);
         setCreatedAt(profile.created_at);
+
+        // Auto-update student avatar if needed (one-time fix)
+        if (user.email === "student@demo.com" && profile.avatar_url !== "/avatars/student-2.jpg") {
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update({ avatar_url: "/avatars/student-2.jpg" })
+            .eq("id", user.id);
+          
+          if (!updateError) {
+            setAvatarUrl("/avatars/student-2.jpg");
+          }
+        }
       } catch (err: any) {
         console.error("Error fetching profile:", err);
         setError(err.message);

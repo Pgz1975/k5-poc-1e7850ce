@@ -6,7 +6,7 @@ export const demoUsers = [
     password: "demo123", 
     fullName: "Demo Student", 
     role: "student" as const,
-    avatar: "/avatars/student-1.jpg"
+    avatar: "/avatars/student-2.jpg"
   },
   { 
     email: "teacher@demo.com", 
