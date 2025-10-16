@@ -10,7 +10,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Save, Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  User, 
+  Mail, 
+  Save, 
+  Loader2, 
+  BookOpen, 
+  Trophy, 
+  TrendingUp, 
+  Calendar,
+  Star,
+  Brain,
+  Clock,
+  Award
+} from "lucide-react";
 import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +44,7 @@ const Profile = () => {
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [role, setRole] = useState<string>("");
+  const [createdAt, setCreatedAt] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -66,6 +82,7 @@ const Profile = () => {
         setFullName(profile.full_name || "");
         setAvatarUrl(profile.avatar_url || "");
         setRole(userRole.role);
+        setCreatedAt(profile.created_at);
       } catch (err: any) {
         console.error("Error fetching profile:", err);
         setError(err.message);
@@ -138,6 +155,71 @@ const Profile = () => {
     }
   };
 
+  const getRoleStats = () => {
+    switch (role) {
+      case "student":
+        return {
+          stat1: { label: t("Actividades completadas", "Activities completed"), value: "24", icon: BookOpen },
+          stat2: { label: t("Racha actual", "Current streak"), value: "7 días", icon: TrendingUp },
+          stat3: { label: t("Nivel de lectura", "Reading level"), value: "3.2", icon: Star },
+          stat4: { label: t("Sesiones con AI", "AI sessions"), value: "12", icon: Brain },
+        };
+      case "teacher":
+        return {
+          stat1: { label: t("Estudiantes", "Students"), value: "28", icon: User },
+          stat2: { label: t("Clases activas", "Active classes"), value: "3", icon: BookOpen },
+          stat3: { label: t("Promedio de clase", "Class average"), value: "85%", icon: TrendingUp },
+          stat4: { label: t("Evaluaciones creadas", "Assessments created"), value: "15", icon: Award },
+        };
+      case "family":
+        return {
+          stat1: { label: t("Estudiantes vinculados", "Linked students"), value: "2", icon: User },
+          stat2: { label: t("Progreso semanal", "Weekly progress"), value: "+12%", icon: TrendingUp },
+          stat3: { label: t("Tiempo de lectura", "Reading time"), value: "5.2h", icon: Clock },
+          stat4: { label: t("Logros obtenidos", "Achievements earned"), value: "8", icon: Trophy },
+        };
+      default:
+        return null;
+    }
+  };
+
+  const getRecentActivity = () => {
+    switch (role) {
+      case "student":
+        return [
+          { icon: Trophy, text: t("Completó 'La Fotosíntesis'", "Completed 'Photosynthesis'"), time: t("Hace 2 horas", "2 hours ago") },
+          { icon: Star, text: t("Obtuvo insignia '7 Días'", "Earned '7 Days' badge"), time: t("Ayer", "Yesterday") },
+          { icon: Brain, text: t("Sesión de AI Mentor", "AI Mentor session"), time: t("Hace 1 día", "1 day ago") },
+        ];
+      case "teacher":
+        return [
+          { icon: BookOpen, text: t("Creó evaluación de comprensión", "Created comprehension assessment"), time: t("Hace 1 hora", "1 hour ago") },
+          { icon: User, text: t("Agregó 3 nuevos estudiantes", "Added 3 new students"), time: t("Hace 2 días", "2 days ago") },
+          { icon: Award, text: t("Revisó 15 actividades", "Reviewed 15 activities"), time: t("Hace 3 días", "3 days ago") },
+        ];
+      case "family":
+        return [
+          { icon: TrendingUp, text: t("Revisó progreso semanal", "Reviewed weekly progress"), time: t("Hace 1 hora", "1 hour ago") },
+          { icon: Trophy, text: t("Hijo completó 5 actividades", "Child completed 5 activities"), time: t("Ayer", "Yesterday") },
+          { icon: BookOpen, text: t("Activó recordatorios diarios", "Enabled daily reminders"), time: t("Hace 2 días", "2 days ago") },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(t("es-PR", "en-US"), { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  const stats = getRoleStats();
+  const recentActivity = getRecentActivity();
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -157,24 +239,75 @@ const Profile = () => {
         <Header />
 
         <main className="flex-1 py-8">
-          <div className="container max-w-2xl px-4 md:px-6">
+          <div className="container max-w-6xl px-4 md:px-6 space-y-6">
+            {/* Profile Header Card */}
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-20 w-20">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                  <Avatar className="h-24 w-24">
                     <AvatarImage src={avatarUrl} alt={fullName} />
-                    <AvatarFallback className="bg-gradient-hero text-white text-2xl">
+                    <AvatarFallback className="bg-gradient-hero text-white text-3xl">
                       {fullName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <CardTitle>{t("Mi Perfil", "My Profile")}</CardTitle>
-                    <CardDescription className="flex items-center gap-2 mt-2">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <CardTitle className="text-2xl">{fullName}</CardTitle>
+                      <Badge className={getRoleBadgeColor(role)}>{getRoleLabel(role)}</Badge>
+                    </div>
+                    <CardDescription className="flex items-center gap-2">
                       <Mail className="h-4 w-4" />
                       {user?.email}
                     </CardDescription>
+                    <CardDescription className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      {t("Miembro desde", "Member since")} {createdAt && formatDate(createdAt)}
+                    </CardDescription>
                   </div>
-                  <Badge className={getRoleBadgeColor(role)}>{getRoleLabel(role)}</Badge>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Stats Cards */}
+            {stats && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {Object.values(stats).map((stat, index) => {
+                  const IconComponent = stat.icon;
+                  return (
+                    <Card key={index}>
+                      <CardHeader className="flex flex-row items-center justify-between pb-2">
+                        <CardTitle className="text-sm font-medium">
+                          {stat.label}
+                        </CardTitle>
+                        <IconComponent className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{stat.value}</div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Tabs for Profile Details and Activity */}
+            <Tabs defaultValue="details" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="details">{t("Detalles del Perfil", "Profile Details")}</TabsTrigger>
+                <TabsTrigger value="activity">{t("Actividad Reciente", "Recent Activity")}</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="details" className="space-y-4">
+                <Card>
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <User className="h-5 w-5 text-primary" />
+                  <div>
+                    <CardTitle>{t("Editar Perfil", "Edit Profile")}</CardTitle>
+                    <CardDescription>
+                      {t("Actualiza tu información personal", "Update your personal information")}
+                    </CardDescription>
+                  </div>
                 </div>
               </CardHeader>
 
@@ -245,6 +378,74 @@ const Profile = () => {
                 </form>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="activity" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("Actividad Reciente", "Recent Activity")}</CardTitle>
+                <CardDescription>
+                  {t("Tus últimas acciones en la plataforma", "Your latest actions on the platform")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentActivity.map((activity, index) => {
+                    const IconComponent = activity.icon;
+                    return (
+                      <div key={index} className="flex items-start gap-4 pb-4 border-b last:border-0">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <IconComponent className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium">{activity.text}</p>
+                          <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Progress Section for Students */}
+            {role === "student" && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("Progreso del Mes", "Monthly Progress")}</CardTitle>
+                  <CardDescription>
+                    {t("Tu avance en los últimos 30 días", "Your progress in the last 30 days")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{t("Actividades completadas", "Activities completed")}</span>
+                      <span className="font-medium">24/30</span>
+                    </div>
+                    <Progress value={80} className="h-2" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{t("Tiempo de práctica", "Practice time")}</span>
+                      <span className="font-medium">8.5h / 10h</span>
+                    </div>
+                    <Progress value={85} className="h-2" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{t("Sesiones con AI Mentor", "AI Mentor sessions")}</span>
+                      <span className="font-medium">12/15</span>
+                    </div>
+                    <Progress value={80} className="h-2" />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+         </Tabs>
           </div>
         </main>
 
