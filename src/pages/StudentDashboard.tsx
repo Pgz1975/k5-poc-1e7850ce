@@ -9,6 +9,7 @@ import { Helmet } from "react-helmet";
 import { ReadingActivities } from "@/components/StudentDashboard/ReadingActivities";
 import { ProgressChart } from "@/components/StudentDashboard/ProgressChart";
 import { AIMentorChat } from "@/components/StudentDashboard/AIMentorChat";
+import { VoiceTraining } from "@/components/StudentDashboard/VoiceTraining";
 
 const StudentDashboard = () => {
   const { t } = useLanguage();
@@ -200,6 +201,9 @@ const StudentDashboard = () => {
                 </Card>
               </div>
             </div>
+
+            {/* Voice Training Section */}
+            <VoiceTraining />
 
             {/* AI Mentor Section */}
             <AIMentorChat />
