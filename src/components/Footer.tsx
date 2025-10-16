@@ -1,7 +1,9 @@
 import { BookOpen, Mail, Phone } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="border-t bg-muted/50">
@@ -14,33 +16,36 @@ export const Footer = () => {
               <span className="font-bold text-lg">LecturaPR</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Plataforma educativa bilingüe para el desarrollo de la lectura.
+              {t(
+                "Plataforma educativa bilingüe para el desarrollo de la lectura.",
+                "Bilingual educational platform for reading development."
+              )}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold mb-4">Enlaces Rápidos</h3>
+            <h3 className="font-semibold mb-4">{t("Enlaces Rápidos", "Quick Links")}</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#students" className="text-muted-foreground hover:text-primary transition-colors">Estudiantes</a></li>
-              <li><a href="#teachers" className="text-muted-foreground hover:text-primary transition-colors">Maestros</a></li>
-              <li><a href="#families" className="text-muted-foreground hover:text-primary transition-colors">Familias</a></li>
+              <li><a href="#students" className="text-muted-foreground hover:text-primary transition-colors">{t("Estudiantes", "Students")}</a></li>
+              <li><a href="#teachers" className="text-muted-foreground hover:text-primary transition-colors">{t("Maestros", "Teachers")}</a></li>
+              <li><a href="#families" className="text-muted-foreground hover:text-primary transition-colors">{t("Familias", "Families")}</a></li>
             </ul>
           </div>
 
           {/* Resources */}
           <div>
-            <h3 className="font-semibold mb-4">Recursos</h3>
+            <h3 className="font-semibold mb-4">{t("Recursos", "Resources")}</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Ayuda</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacidad</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">Términos</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("Ayuda", "Help")}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("Privacidad", "Privacy")}</a></li>
+              <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors">{t("Términos", "Terms")}</a></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h3 className="font-semibold mb-4">Contacto</h3>
+            <h3 className="font-semibold mb-4">{t("Contacto", "Contact")}</h3>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
@@ -55,7 +60,12 @@ export const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© {currentYear} Departamento de Educación de Puerto Rico. Todos los derechos reservados.</p>
+          <p>
+            © {currentYear} {t(
+              "Departamento de Educación de Puerto Rico. Todos los derechos reservados.",
+              "Puerto Rico Department of Education. All rights reserved."
+            )}
+          </p>
         </div>
       </div>
     </footer>

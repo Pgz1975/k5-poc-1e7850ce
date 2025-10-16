@@ -2,15 +2,17 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   const navItems = [
-    { label: "Inicio", labelEn: "Home", href: "/" },
-    { label: "Estudiantes", labelEn: "Students", href: "#students" },
-    { label: "Maestros", labelEn: "Teachers", href: "#teachers" },
-    { label: "Familias", labelEn: "Families", href: "#families" },
+    { label: t("Inicio", "Home"), href: "/" },
+    { label: t("Estudiantes", "Students"), href: "#students" },
+    { label: t("Maestros", "Teachers"), href: "#teachers" },
+    { label: t("Familias", "Families"), href: "#families" },
   ];
 
   return (
@@ -39,7 +41,7 @@ export const Header = () => {
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
           <Button size="sm" className="hidden md:flex">
-            Ingresar
+            {t("Ingresar", "Sign In")}
           </Button>
           
           {/* Mobile Menu Button */}
@@ -69,7 +71,7 @@ export const Header = () => {
               </a>
             ))}
             <Button size="sm" className="w-full mt-2">
-              Ingresar
+              {t("Ingresar", "Sign In")}
             </Button>
           </nav>
         </div>

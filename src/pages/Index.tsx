@@ -5,10 +5,11 @@ import { FeaturesSection } from "@/components/FeaturesSection";
 import { AIPlaceholder } from "@/components/AIPlaceholder";
 import { CTASection } from "@/components/CTASection";
 import { Helmet } from "react-helmet";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const Index = () => {
   return (
-    <>
+    <LanguageProvider>
       <Helmet>
         <title>LecturaPR - Plataforma Educativa Bilingüe con AI para Puerto Rico</title>
         <meta 
@@ -40,7 +41,7 @@ const Index = () => {
 
         <Footer />
       </div>
-    </>
+    </LanguageProvider>
   );
 };
 

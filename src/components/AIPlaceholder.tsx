@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Bot, Sparkles } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const AIPlaceholder = () => {
+  const { t } = useLanguage();
   return (
     <section className="py-20 md:py-32">
       <div className="container px-4 md:px-6">
@@ -13,26 +15,48 @@ export const AIPlaceholder = () => {
                   <Bot className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-2xl">Mentor AI Inteligente</h3>
-                  <p className="text-muted-foreground">Powered by OpenAI Realtime API & Gemini AI</p>
+                  <h3 className="font-bold text-2xl">
+                    {t("Mentor AI Inteligente", "Intelligent AI Mentor")}
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {t("Powered by OpenAI Realtime API & Gemini AI", "Powered by OpenAI Realtime API & Gemini AI")}
+                  </p>
                 </div>
               </div>
 
               <div className="space-y-4 mb-8">
                 <p className="text-muted-foreground">
-                  Nuestro asistente AI bilingüe utiliza tecnología de vanguardia para:
+                  {t(
+                    "Nuestro asistente AI bilingüe utiliza tecnología de vanguardia para:",
+                    "Our bilingual AI assistant uses cutting-edge technology to:"
+                  )}
                 </p>
                 <ul className="space-y-2">
                   {[
-                    "Adaptar el contenido al nivel de cada estudiante",
-                    "Proporcionar retroalimentación inmediata en tiempo real",
-                    "Detectar y corregir errores de pronunciación",
-                    "Crear planes de aprendizaje personalizados",
-                    "Comunicarse naturalmente en español e inglés",
+                    {
+                      es: "Adaptar el contenido al nivel de cada estudiante",
+                      en: "Adapt content to each student's level",
+                    },
+                    {
+                      es: "Proporcionar retroalimentación inmediata en tiempo real",
+                      en: "Provide immediate real-time feedback",
+                    },
+                    {
+                      es: "Detectar y corregir errores de pronunciación",
+                      en: "Detect and correct pronunciation errors",
+                    },
+                    {
+                      es: "Crear planes de aprendizaje personalizados",
+                      en: "Create personalized learning plans",
+                    },
+                    {
+                      es: "Comunicarse naturalmente en español e inglés",
+                      en: "Communicate naturally in Spanish and English",
+                    },
                   ].map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
                       <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>{item}</span>
+                      <span>{t(item.es, item.en)}</span>
                     </li>
                   ))}
                 </ul>
@@ -40,9 +64,16 @@ export const AIPlaceholder = () => {
 
               <div className="bg-card rounded-xl p-6 border-2 border-dashed border-primary/30">
                 <div className="text-center text-sm text-muted-foreground space-y-2">
-                  <p className="font-medium text-foreground">🔧 Placeholder para integración AI</p>
+                  <p className="font-medium text-foreground">
+                    {t("🔧 Placeholder para integración AI", "🔧 Placeholder for AI integration")}
+                  </p>
                   <p>OpenAI Realtime API + Gemini AI + Edge Functions</p>
-                  <p className="text-xs">WebSocket connections, voice recognition, y conversational AI</p>
+                  <p className="text-xs">
+                    {t(
+                      "WebSocket connections, voice recognition, y conversational AI",
+                      "WebSocket connections, voice recognition, and conversational AI"
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
