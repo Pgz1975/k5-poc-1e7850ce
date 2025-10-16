@@ -245,7 +245,7 @@ const Profile = () => {
               <CardHeader>
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={avatarUrl} alt={fullName} />
+                    <AvatarImage src={avatarUrl || undefined} alt={fullName} />
                     <AvatarFallback className="bg-gradient-hero text-white text-3xl">
                       {fullName.charAt(0).toUpperCase()}
                     </AvatarFallback>
