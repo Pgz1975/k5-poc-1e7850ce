@@ -1,12 +1,14 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X } from "lucide-react";
+import { BookOpen, Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
+  const { user, signOut } = useAuth();
 
   const navItems = [
     { label: t("Inicio", "Home"), href: "/" },
@@ -40,11 +42,18 @@ export const Header = () => {
 
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
-          <Button size="sm" className="hidden md:flex" asChild>
-            <a href="/auth">
-              {t("Ingresar", "Sign In")}
-            </a>
-          </Button>
+          {user ? (
+            <Button size="sm" className="hidden md:flex gap-2" onClick={signOut} variant="outline">
+              <LogOut className="h-4 w-4" />
+              {t("Salir", "Sign Out")}
+            </Button>
+          ) : (
+            <Button size="sm" className="hidden md:flex" asChild>
+              <a href="/auth">
+                {t("Ingresar", "Sign In")}
+              </a>
+            </Button>
+          )}
           
           {/* Mobile Menu Button */}
           <Button
@@ -72,11 +81,18 @@ export const Header = () => {
                 {item.label}
               </a>
             ))}
-            <Button size="sm" className="w-full mt-2" asChild>
-              <a href="/auth">
-                {t("Ingresar", "Sign In")}
-              </a>
-            </Button>
+            {user ? (
+              <Button size="sm" className="w-full mt-2 gap-2" onClick={signOut} variant="outline">
+                <LogOut className="h-4 w-4" />
+                {t("Salir", "Sign Out")}
+              </Button>
+            ) : (
+              <Button size="sm" className="w-full mt-2" asChild>
+                <a href="/auth">
+                  {t("Ingresar", "Sign In")}
+                </a>
+              </Button>
+            )}
           </nav>
         </div>
       )}
