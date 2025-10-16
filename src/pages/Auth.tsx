@@ -12,6 +12,7 @@ import { BookOpen, Mail, Lock, User, Chrome } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { demoUsers, createDemoUsers } from "@/utils/createDemoUsers";
 
 const emailSchema = z.string().email();
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
@@ -28,13 +29,20 @@ const Auth = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [demoUsersCreated, setDemoUsersCreated] = useState(false);
 
-  // Demo users for testing
-  const demoUsers = [
-    { email: "student@demo.com", password: "demo123", role: "student" as const },
-    { email: "teacher@demo.com", password: "demo123", role: "teacher" as const },
-    { email: "family@demo.com", password: "demo123", role: "family" as const },
-  ];
+  // Create demo users on component mount
+  useEffect(() => {
+    const initDemoUsers = async () => {
+      const created = localStorage.getItem("demoUsersCreated");
+      if (!created) {
+        await createDemoUsers();
+        localStorage.setItem("demoUsersCreated", "true");
+        setDemoUsersCreated(true);
+      }
+    };
+    initDemoUsers();
+  }, []);
 
   useEffect(() => {
     if (user && !loading) {
