@@ -1,1 +1,4 @@
 project_id = "onltdmwsjnvqfzxagmrw"
+
+[auth]
+enabled = true

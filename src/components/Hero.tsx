@@ -33,13 +33,15 @@ export const Hero = () => {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" className="gap-2 shadow-medium hover:shadow-strong transition-all" asChild>
-                <a href="/dashboard">
+                <a href="/auth">
                   {t("Comenzar Ahora", "Get Started")}
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
-              <Button size="lg" variant="outline">
-                {t("Ver Demo", "View Demo")}
+              <Button size="lg" variant="outline" asChild>
+                <a href="/dashboard">
+                  {t("Ver Demo", "View Demo")}
+                </a>
               </Button>
             </div>
 
