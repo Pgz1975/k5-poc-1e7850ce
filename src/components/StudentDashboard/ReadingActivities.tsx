@@ -1,11 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Clock, Star, Play } from "lucide-react";
+import { BookOpen, Clock, Star, Play, ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useState } from "react";
+import { VoiceTraining } from "./VoiceTraining";
 
 export const ReadingActivities = () => {
   const { t } = useLanguage();
+  const [showVoiceTraining, setShowVoiceTraining] = useState(false);
 
   const activities = [
     {
@@ -39,6 +42,22 @@ export const ReadingActivities = () => {
       type: t("Aventura", "Adventure"),
     },
   ];
+
+  if (showVoiceTraining) {
+    return (
+      <div className="space-y-4">
+        <Button 
+          variant="ghost" 
+          onClick={() => setShowVoiceTraining(false)}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {t("Volver a Actividades", "Back to Activities")}
+        </Button>
+        <VoiceTraining />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -84,7 +103,12 @@ export const ReadingActivities = () => {
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{activity.difficulty}</Badge>
                 </div>
-                <Button size="sm" className="gap-2" disabled={activity.completed}>
+                <Button 
+                  size="sm" 
+                  className="gap-2" 
+                  disabled={activity.completed}
+                  onClick={() => !activity.completed && setShowVoiceTraining(true)}
+                >
                   {activity.completed ? (
                     <>
                       <Star className="h-4 w-4" />

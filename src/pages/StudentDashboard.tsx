@@ -203,7 +203,9 @@ const StudentDashboard = () => {
             </div>
 
             {/* Voice Training Section */}
-            <VoiceTraining />
+            <div className="lg:col-span-2">
+              <VoiceTraining />
+            </div>
 
             {/* AI Mentor Section */}
             <AIMentorChat />
