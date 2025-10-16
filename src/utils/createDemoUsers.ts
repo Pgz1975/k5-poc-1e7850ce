@@ -1,10 +1,27 @@
 import { supabase } from "@/integrations/supabase/client";
-import { getRandomAvatarForRole, type UserRole } from "./avatars";
 
 export const demoUsers = [
-  { email: "student@demo.com", password: "demo123", fullName: "Demo Student", role: "student" as const },
-  { email: "teacher@demo.com", password: "demo123", fullName: "Demo Teacher", role: "teacher" as const },
-  { email: "family@demo.com", password: "demo123", fullName: "Demo Family", role: "family" as const },
+  { 
+    email: "student@demo.com", 
+    password: "demo123", 
+    fullName: "Demo Student", 
+    role: "student" as const,
+    avatar: "/avatars/student-1.jpg"
+  },
+  { 
+    email: "teacher@demo.com", 
+    password: "demo123", 
+    fullName: "Demo Teacher", 
+    role: "teacher" as const,
+    avatar: "/avatars/teacher-1.jpg"
+  },
+  { 
+    email: "family@demo.com", 
+    password: "demo123", 
+    fullName: "Demo Family", 
+    role: "family" as const,
+    avatar: "/avatars/family-1.jpg"
+  },
 ];
 
 export const createDemoUsers = async () => {
@@ -42,11 +59,10 @@ export const createDemoUsers = async () => {
           console.error(`Failed to set role for ${user.email}:`, roleError);
         }
 
-        // Assign a random avatar based on role
-        const avatarUrl = getRandomAvatarForRole(user.role as UserRole);
+        // Assign the specific avatar for this demo user
         const { error: profileError } = await supabase
           .from("profiles")
-          .update({ avatar_url: avatarUrl })
+          .update({ avatar_url: user.avatar })
           .eq("id", data.user.id);
 
         if (profileError) {
