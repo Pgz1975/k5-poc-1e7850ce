@@ -1,9 +1,18 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, LogOut } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -43,10 +52,42 @@ export const Header = () => {
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
           {user ? (
-            <Button size="sm" className="hidden md:flex gap-2" onClick={signOut} variant="outline">
-              <LogOut className="h-4 w-4" />
-              {t("Salir", "Sign Out")}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.user_metadata?.avatar_url} />
+                    <AvatarFallback className="bg-gradient-hero text-white text-sm">
+                      {user.email?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user.user_metadata?.full_name || t("Usuario", "User")}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <a href="/profile" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    {t("Mi Perfil", "My Profile")}
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  {t("Salir", "Sign Out")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Button size="sm" className="hidden md:flex" asChild>
               <a href="/auth">
@@ -81,6 +122,16 @@ export const Header = () => {
                 {item.label}
               </a>
             ))}
+            {user && (
+              <a
+                href="/profile"
+                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors py-2 flex items-center gap-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User className="h-4 w-4" />
+                {t("Mi Perfil", "My Profile")}
+              </a>
+            )}
             {user ? (
               <Button size="sm" className="w-full mt-2 gap-2" onClick={signOut} variant="outline">
                 <LogOut className="h-4 w-4" />
