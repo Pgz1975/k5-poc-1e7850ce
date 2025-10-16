@@ -103,6 +103,15 @@ const Profile = () => {
           if (!updateError) {
             setAvatarUrl("/avatars/teacher-2.jpg");
           }
+        } else if (user.email === "family@demo.com" && profile.avatar_url !== "/avatars/family-2.jpg") {
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update({ avatar_url: "/avatars/family-2.jpg" })
+            .eq("id", user.id);
+          
+          if (!updateError) {
+            setAvatarUrl("/avatars/family-2.jpg");
+          }
         }
       } catch (err: any) {
         console.error("Error fetching profile:", err);

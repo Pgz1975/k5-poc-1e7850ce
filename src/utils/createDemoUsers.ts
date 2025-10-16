@@ -20,7 +20,7 @@ export const demoUsers = [
     password: "demo123", 
     fullName: "Demo Family", 
     role: "family" as const,
-    avatar: "/avatars/family-1.jpg"
+    avatar: "/avatars/family-2.jpg"
   },
 ];
 
