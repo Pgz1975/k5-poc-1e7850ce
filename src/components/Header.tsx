@@ -40,8 +40,10 @@ export const Header = () => {
 
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
-          <Button size="sm" className="hidden md:flex">
-            {t("Ingresar", "Sign In")}
+          <Button size="sm" className="hidden md:flex" asChild>
+            <a href="/auth">
+              {t("Ingresar", "Sign In")}
+            </a>
           </Button>
           
           {/* Mobile Menu Button */}
@@ -70,8 +72,10 @@ export const Header = () => {
                 {item.label}
               </a>
             ))}
-            <Button size="sm" className="w-full mt-2">
-              {t("Ingresar", "Sign In")}
+            <Button size="sm" className="w-full mt-2" asChild>
+              <a href="/auth">
+                {t("Ingresar", "Sign In")}
+              </a>
             </Button>
           </nav>
         </div>
