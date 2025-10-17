@@ -88,7 +88,7 @@ export const Hero = () => {
             <div className="relative z-10 animate-bounce-gentle">
               <CoquiMascot 
                 state="excited"
-                size="large"
+                size="medium"
                 position="inline"
                 className="drop-shadow-2xl"
               />
