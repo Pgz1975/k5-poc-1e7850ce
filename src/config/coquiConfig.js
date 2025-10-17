@@ -1,18 +1,18 @@
 // Coquí mascot state configuration
 export const coquiStates = {
   // Idle and neutral states
-  idle: '/assets/coqui/waiting.webp',
+  idle: '/assets/coqui/waiting.png',
   neutral: '/assets/coqui/neutral_waiting.png',
-  loading: '/assets/coqui/waiting.webp',
+  loading: '/assets/coqui/waiting.png',
   
   // Activity states
-  thinking: '/assets/coqui/thinking.webp',
-  speaking: '/assets/coqui/speaking.webp',
-  recording: '/assets/coqui/speaking.webp',
-  reading: '/assets/coqui/reading_book.webp',
-  pointing: '/assets/coqui/pointing_at_text.webp',
-  exploring: '/assets/coqui/using_magnifying_glass.webp',
-  writing: '/assets/coqui/writing_taking_notes.webp',
+  thinking: '/assets/coqui/thinking.png',
+  speaking: '/assets/coqui/speaking.png',
+  recording: '/assets/coqui/speaking.png',
+  reading: '/assets/coqui/reading_book.png',
+  pointing: '/assets/coqui/pointing_at_text.png',
+  exploring: '/assets/coqui/using_magnifying_glass.png',
+  writing: '/assets/coqui/writing_taking_notes.png',
   
   // Feedback states
   correct: '/assets/coqui/happy.png',
@@ -23,7 +23,7 @@ export const coquiStates = {
   // Achievement states
   showingScore: '/assets/coqui/holding_up_score_card.png',
   score: '/assets/coqui/holding_up_score_card.png',
-  dailyStreak: '/assets/coqui/wearing_gold_medal.webp',
+  dailyStreak: '/assets/coqui/wearing_gold_medal.png',
   levelComplete: '/assets/coqui/holding_trophy.png',
   gradeAdvancement: '/assets/coqui/graduation_cap_moment.png',
   graduation: '/assets/coqui/graduation_cap_moment.png',
