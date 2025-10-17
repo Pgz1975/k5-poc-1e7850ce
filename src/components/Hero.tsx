@@ -1,101 +1,102 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BookOpen, Brain, TrendingUp } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import CoquiMascot from "@/components/CoquiMascot";
 
 export const Hero = () => {
   const { t } = useLanguage();
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-hero opacity-5" />
+    <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-b from-sky-100 via-green-50 to-yellow-50">
+      {/* Animated Jungle Background */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-10 left-10 text-6xl animate-sway">🌴</div>
+        <div className="absolute top-20 right-20 text-5xl animate-sway-delayed">🍃</div>
+        <div className="absolute bottom-32 left-1/4 text-4xl animate-float">🦜</div>
+        <div className="absolute top-1/3 right-1/3 text-7xl animate-sway">🌿</div>
+        <div className="absolute bottom-20 right-10 text-5xl animate-sway-delayed">🌺</div>
+      </div>
       
       <div className="container relative px-4 md:px-6">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
-          <div className="space-y-8">
-            <div className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              {t("Plataforma Educativa del DEPR", "PRDE Educational Platform")}
+          <div className="space-y-8 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary/20 text-primary text-lg font-bold animate-bounce-once shadow-soft">
+              <Sparkles className="h-5 w-5" />
+              {t("¡Tu Amigo de El Yunque!", "Your Friend from El Yunque!")}
             </div>
             
-            <h1 className="font-bold tracking-tight">
-              {t("Aprende a Leer con", "Learn to Read with")}{" "}
-              <span className="bg-gradient-hero bg-clip-text text-transparent">
-                {t("Inteligencia Artificial", "Artificial Intelligence")}
+            <h1 className="font-heading font-bold text-5xl md:text-6xl lg:text-7xl leading-tight">
+              <span className="text-primary animate-fade-in">
+                {t("¡Aprende a Leer con Coquí!", "Learn to Read with Coquí!")}
               </span>
             </h1>
             
-            <p className="text-xl text-muted-foreground max-w-2xl">
-              {t(
-                "Una plataforma bilingüe innovadora que combina tecnología AI avanzada con métodos educativos probados para estudiantes de K-5 en Puerto Rico.",
-                "An innovative bilingual platform that combines advanced AI technology with proven educational methods for K-5 students in Puerto Rico."
-              )}
+            <p className="text-2xl md:text-3xl font-bold text-accent">
+              {t("Tu amigo bilingüe de El Yunque", "Your bilingual friend from El Yunque")}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="gap-2 shadow-medium hover:shadow-strong transition-all" asChild>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Button 
+                size="lg" 
+                className="gap-2 text-xl py-7 px-10 bg-gradient-to-r from-primary via-accent to-secondary hover:scale-110 shadow-hover animate-pulse-slow" 
+                asChild
+              >
                 <a href="/auth">
-                  {t("Comenzar Ahora", "Get Started")}
-                  <ArrowRight className="h-4 w-4" />
+                  {t("🚀 Comenzar Aventura", "🚀 Start Adventure")}
+                  <ArrowRight className="h-6 w-6" />
                 </a>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" className="text-xl py-7 px-10 border-4 border-primary hover:bg-primary/10" asChild>
                 <a href="/dashboard">
-                  {t("Ver Demo", "View Demo")}
+                  {t("👀 Ver Demo", "👀 View Demo")}
                 </a>
               </Button>
             </div>
 
-            {/* Stats */}
+            {/* Fun Stats */}
             <div className="grid grid-cols-3 gap-6 pt-8">
-              <div>
-                <div className="text-3xl font-bold text-primary">K-5</div>
-                <div className="text-sm text-muted-foreground">{t("Grados", "Grades")}</div>
+              <div className="bg-white/80 backdrop-blur rounded-2xl p-4 shadow-soft hover:shadow-medium transition-all hover:-translate-y-1">
+                <div className="text-4xl font-bold text-primary">📚 K-5</div>
+                <div className="text-sm font-semibold text-foreground/70">{t("Grados", "Grades")}</div>
               </div>
-              <div>
-                <div className="text-3xl font-bold text-primary">2</div>
-                <div className="text-sm text-muted-foreground">{t("Idiomas", "Languages")}</div>
+              <div className="bg-white/80 backdrop-blur rounded-2xl p-4 shadow-soft hover:shadow-medium transition-all hover:-translate-y-1">
+                <div className="text-4xl font-bold text-accent">🌎 2</div>
+                <div className="text-sm font-semibold text-foreground/70">{t("Idiomas", "Languages")}</div>
               </div>
-              <div>
-                <div className="text-3xl font-bold text-primary">AI</div>
-                <div className="text-sm text-muted-foreground">{t("Mentoría", "Mentoring")}</div>
+              <div className="bg-white/80 backdrop-blur rounded-2xl p-4 shadow-soft hover:shadow-medium transition-all hover:-translate-y-1">
+                <div className="text-4xl font-bold text-secondary">✨ AI</div>
+                <div className="text-sm font-semibold text-foreground/70">{t("Mentor", "Mentor")}</div>
               </div>
             </div>
           </div>
 
-          {/* Feature Cards */}
-          <div className="grid gap-6">
-            <div className="bg-card rounded-2xl p-6 shadow-medium hover:shadow-strong transition-all border">
-              <BookOpen className="h-10 w-10 text-primary mb-4" />
-              <h3 className="font-semibold mb-2">{t("Lectura Adaptativa", "Adaptive Reading")}</h3>
-              <p className="text-muted-foreground text-sm">
-                {t(
-                  "Contenido que se ajusta automáticamente al nivel de cada estudiante.",
-                  "Content that automatically adjusts to each student's level."
-                )}
-              </p>
+          {/* Coquí Animation Area */}
+          <div className="relative h-[500px] flex items-center justify-center">
+            {/* Spanish Book */}
+            <div className="absolute left-10 top-20 animate-float bg-white rounded-xl p-6 shadow-strong transform rotate-[-15deg] hover:rotate-[-10deg] transition-transform">
+              <div className="text-6xl">📖</div>
+              <div className="text-lg font-bold text-primary mt-2">Español</div>
             </div>
 
-            <div className="bg-card rounded-2xl p-6 shadow-medium hover:shadow-strong transition-all border">
-              <Brain className="h-10 w-10 text-secondary mb-4" />
-              <h3 className="font-semibold mb-2">{t("Mentor AI Bilingüe", "Bilingual AI Mentor")}</h3>
-              <p className="text-muted-foreground text-sm">
-                {t(
-                  "Asistente inteligente que guía en español e inglés con retroalimentación inmediata.",
-                  "Intelligent assistant that guides in Spanish and English with immediate feedback."
-                )}
-              </p>
+            {/* English Book */}
+            <div className="absolute right-10 top-32 animate-float-delayed bg-white rounded-xl p-6 shadow-strong transform rotate-[15deg] hover:rotate-[10deg] transition-transform">
+              <div className="text-6xl">📕</div>
+              <div className="text-lg font-bold text-accent mt-2">English</div>
             </div>
 
-            <div className="bg-card rounded-2xl p-6 shadow-medium hover:shadow-strong transition-all border">
-              <TrendingUp className="h-10 w-10 text-success mb-4" />
-              <h3 className="font-semibold mb-2">{t("Seguimiento de Progreso", "Progress Tracking")}</h3>
-              <p className="text-muted-foreground text-sm">
-                {t(
-                  "Monitoreo en tiempo real para estudiantes, maestros y familias.",
-                  "Real-time monitoring for students, teachers, and families."
-                )}
-              </p>
+            {/* Main Coquí - using excited pose for hero */}
+            <div className="relative z-10 animate-bounce-gentle">
+              <CoquiMascot 
+                state="excited"
+                size="large"
+                position="inline"
+                className="drop-shadow-2xl"
+              />
             </div>
+
+            {/* Decorative elements */}
+            <div className="absolute bottom-10 left-1/4 text-4xl animate-spin-slow">⭐</div>
+            <div className="absolute top-10 right-1/4 text-3xl animate-spin-slow-reverse">✨</div>
           </div>
         </div>
       </div>

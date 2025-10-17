@@ -1,87 +1,92 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, Users, LineChart, Mic, BookOpenCheck, Shield } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import CoquiMascot from "@/components/CoquiMascot";
 
 export const FeaturesSection = () => {
   const { t } = useLanguage();
   const features = [
     {
-      icon: GraduationCap,
-      titleEs: "Para Estudiantes",
-      titleEn: "For Students",
-      descriptionEs: "Actividades interactivas, juegos educativos y evaluaciones adaptativas que hacen el aprendizaje divertido.",
-      descriptionEn: "Interactive activities, educational games, and adaptive assessments that make learning fun.",
-      color: "text-primary",
+      coquiState: "reading",
+      titleEs: "📚 Lectura Adaptativa",
+      titleEn: "📚 Adaptive Reading",
+      descriptionEs: "¡Coquí lee contigo! Historias que se adaptan a tu nivel y crecen contigo.",
+      descriptionEn: "Coquí reads with you! Stories that adapt to your level and grow with you.",
+      bgColor: "bg-gradient-to-br from-primary/10 via-green-50 to-primary/5",
+      emoji: "📚",
     },
     {
-      icon: Users,
-      titleEs: "Para Maestros",
-      titleEn: "For Teachers",
-      descriptionEs: "Herramientas de seguimiento, recursos didácticos y reportes detallados de progreso por estudiante.",
-      descriptionEn: "Tracking tools, teaching resources, and detailed progress reports per student.",
-      color: "text-secondary",
+      coquiState: "graduation",
+      titleEs: "🎓 Mentor AI Bilingüe",
+      titleEn: "🎓 Bilingual AI Mentor",
+      descriptionEs: "¡Coquí te ayuda en español e inglés! Respuestas al instante y mucho ánimo.",
+      descriptionEn: "Coquí helps you in Spanish and English! Instant answers and lots of encouragement.",
+      bgColor: "bg-gradient-to-br from-accent/10 via-blue-50 to-accent/5",
+      emoji: "🎓",
     },
     {
-      icon: LineChart,
-      titleEs: "Panel de Control",
-      titleEn: "Dashboard",
-      descriptionEs: "Visualización de métricas en tiempo real a nivel de estudiante, grupo, escuela y región.",
-      descriptionEn: "Real-time metrics visualization at student, group, school, and regional levels.",
-      color: "text-success",
-    },
-    {
-      icon: Mic,
-      titleEs: "Reconocimiento de Voz",
-      titleEn: "Voice Recognition",
-      descriptionEs: "Tecnología AI que escucha la lectura del estudiante y corrige pronunciación, ritmo y entonación.",
-      descriptionEn: "AI technology that listens to student reading and corrects pronunciation, rhythm, and intonation.",
-      color: "text-accent",
-    },
-    {
-      icon: BookOpenCheck,
-      titleEs: "Evaluaciones Integradas",
-      titleEn: "Integrated Assessments",
-      descriptionEs: "Tests diagnósticos tres veces al año alineados con estándares del DEPR en ambos idiomas.",
-      descriptionEn: "Diagnostic tests three times a year aligned with PRDE standards in both languages.",
-      color: "text-primary",
-    },
-    {
-      icon: Shield,
-      titleEs: "Seguro y Privado",
-      titleEn: "Safe and Private",
-      descriptionEs: "Cumple con FERPA, ADA y COPPA. Datos protegidos con infraestructura segura en la nube.",
-      descriptionEn: "Complies with FERPA, ADA, and COPPA. Data protected with secure cloud infrastructure.",
-      color: "text-secondary",
+      coquiState: "score",
+      titleEs: "⭐ Seguimiento de Progreso",
+      titleEn: "⭐ Progress Tracking",
+      descriptionEs: "¡Mira cuánto has crecido! Gana estrellas y comparte con tu familia.",
+      descriptionEn: "See how much you've grown! Earn stars and share with your family.",
+      bgColor: "bg-gradient-to-br from-secondary/10 via-yellow-50 to-secondary/5",
+      emoji: "⭐",
     },
   ];
 
   return (
-    <section className="py-20 md:py-32 bg-muted/30">
-      <div className="container px-4 md:px-6">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-yellow-50 via-white to-green-50 relative overflow-hidden">
+      {/* Decorative jungle elements */}
+      <div className="absolute top-0 left-0 text-6xl opacity-20 animate-sway">🌴</div>
+      <div className="absolute bottom-0 right-0 text-6xl opacity-20 animate-sway-delayed">🌺</div>
+      
+      <div className="container px-4 md:px-6 relative">
         <div className="text-center mb-16 space-y-4">
-          <h2 className="font-bold">{t("Características Principales", "Key Features")}</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <h2 className="font-heading font-bold text-primary">
+            {t("¿Qué Haremos Juntos?", "What Will We Do Together?")}
+          </h2>
+          <p className="text-2xl font-bold text-accent max-w-2xl mx-auto">
             {t(
-              "Una plataforma completa diseñada para transformar la educación de lectura en Puerto Rico",
-              "A comprehensive platform designed to transform reading education in Puerto Rico"
+              "¡Aventuras de lectura con tu amigo Coquí!",
+              "Reading adventures with your friend Coquí!"
             )}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {features.map((feature, index) => (
-            <Card key={index} className="border-2 hover:border-primary/50 transition-all hover:shadow-medium">
-              <CardHeader>
-                <feature.icon className={`h-12 w-12 ${feature.color} mb-4`} />
-                <CardTitle>{t(feature.titleEs, feature.titleEn)}</CardTitle>
+            <Card 
+              key={index} 
+              className={`${feature.bgColor} border-4 border-primary/20 hover:border-primary hover:scale-105 transition-all duration-300 shadow-soft hover:shadow-hover overflow-hidden group`}
+            >
+              <CardHeader className="text-center pb-4">
+                {/* Coquí Mascot */}
+                <div className="flex justify-center mb-4 group-hover:animate-bounce-once">
+                  <CoquiMascot 
+                    state={feature.coquiState}
+                    size="medium"
+                    position="inline"
+                    className="drop-shadow-lg"
+                  />
+                </div>
+                <CardTitle className="text-2xl font-heading">
+                  {t(feature.titleEs, feature.titleEn)}
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
+              <CardContent className="text-center">
+                <CardDescription className="text-lg font-semibold text-foreground/80">
                   {t(feature.descriptionEs, feature.descriptionEn)}
                 </CardDescription>
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Call to action */}
+        <div className="text-center mt-16">
+          <p className="text-2xl font-bold text-primary mb-4">
+            {t("🎉 ¡Lista para tu primera aventura!", "🎉 Ready for your first adventure!")}
+          </p>
         </div>
       </div>
     </section>

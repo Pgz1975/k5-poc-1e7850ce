@@ -4,6 +4,7 @@ import { Hero } from "@/components/Hero";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { AIPlaceholder } from "@/components/AIPlaceholder";
 import { CTASection } from "@/components/CTASection";
+import { ParentTeacherSection } from "@/components/ParentTeacherSection";
 import { Helmet } from "react-helmet";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
@@ -36,6 +37,7 @@ const Index = () => {
           <Hero />
           <FeaturesSection />
           <AIPlaceholder />
+          <ParentTeacherSection />
           <CTASection />
         </main>
 

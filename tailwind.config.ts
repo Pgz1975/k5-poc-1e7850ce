@@ -118,6 +118,14 @@ export default {
             transform: "translateY(-3px)",
           },
         },
+        "bounce-gentle": {
+          "0%, 100%": {
+            transform: "translateY(0)",
+          },
+          "50%": {
+            transform: "translateY(-10px)",
+          },
+        },
         "jump": {
           "0%": {
             transform: "translateY(0) scale(1)",
@@ -161,16 +169,72 @@ export default {
             transform: "rotate(3deg)",
           },
         },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-20px)",
+          },
+        },
+        "float-delayed": {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-15px)",
+          },
+        },
+        "sway": {
+          "0%, 100%": {
+            transform: "rotate(-5deg)",
+          },
+          "50%": {
+            transform: "rotate(5deg)",
+          },
+        },
+        "sway-delayed": {
+          "0%, 100%": {
+            transform: "rotate(5deg)",
+          },
+          "50%": {
+            transform: "rotate(-5deg)",
+          },
+        },
+        "spin-slow": {
+          "0%": {
+            transform: "rotate(0deg)",
+          },
+          "100%": {
+            transform: "rotate(360deg)",
+          },
+        },
+        "spin-slow-reverse": {
+          "0%": {
+            transform: "rotate(360deg)",
+          },
+          "100%": {
+            transform: "rotate(0deg)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "breathe": "breathe 3s ease-in-out infinite",
         "bounce-once": "bounce-once 0.6s ease-out",
+        "bounce-gentle": "bounce-gentle 2s ease-in-out infinite",
         "jump": "jump 0.5s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
         "scale-success": "scale-success 0.4s ease-out",
         "wiggle": "wiggle 0.3s ease-in-out infinite",
+        "float": "float 3s ease-in-out infinite",
+        "float-delayed": "float-delayed 3s ease-in-out infinite 0.5s",
+        "sway": "sway 4s ease-in-out infinite",
+        "sway-delayed": "sway-delayed 4s ease-in-out infinite 0.7s",
+        "spin-slow": "spin-slow 20s linear infinite",
+        "spin-slow-reverse": "spin-slow-reverse 15s linear infinite",
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },
   },

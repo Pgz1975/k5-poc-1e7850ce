@@ -22,9 +22,11 @@ export const coquiStates = {
   
   // Achievement states
   showingScore: '/assets/coqui/holding_up_score_card.webp',
+  score: '/assets/coqui/holding_up_score_card.webp',
   dailyStreak: '/assets/coqui/wearing_gold_medal.webp',
   levelComplete: '/assets/coqui/holding_trophy.webp',
   gradeAdvancement: '/assets/coqui/graduation_cap_moment.webp',
+  graduation: '/assets/coqui/graduation_cap_moment.webp',
   celebration: '/assets/coqui/confetti_celebration.webp',
   perfectScore: '/assets/coqui/confetti_celebration.webp',
   
@@ -56,9 +58,9 @@ export const coquiAnimations = {
 // Size presets
 export const coquiSizes = {
   small: 'h-20',
-  medium: 'h-24 md:h-28',
+  medium: 'h-28 md:h-32',
   default: 'h-[100px] md:h-[120px]',
-  large: 'h-32 md:h-40',
+  large: 'h-48 md:h-64',
 };
 
 // Position presets
