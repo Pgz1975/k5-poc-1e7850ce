@@ -185,13 +185,15 @@ export default function ReadingExercise() {
       {mode !== 'comprehension' && (
         <ControlPanel
           mode={mode}
-          onStartListening={startListening}
+          onStartListening={() => startListening(currentText, language)}
           onStartPracticing={startPracticing}
           onRepeat={resetExercise}
           onNext={nextExercise}
           canGoNext={pronunciationScore >= 60}
           pronunciationScore={pronunciationScore}
           onPronunciationUpdate={handleWordPronunciation}
+          currentText={currentText}
+          language={language}
         />
       )}
 

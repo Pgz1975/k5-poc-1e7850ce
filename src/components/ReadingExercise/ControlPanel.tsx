@@ -12,6 +12,8 @@ interface ControlPanelProps {
   canGoNext: boolean;
   pronunciationScore: number;
   onPronunciationUpdate: (score: number) => void;
+  currentText: string;
+  language: string;
 }
 
 export const ControlPanel = ({
@@ -22,7 +24,9 @@ export const ControlPanel = ({
   onNext,
   canGoNext,
   pronunciationScore,
-  onPronunciationUpdate
+  onPronunciationUpdate,
+  currentText,
+  language
 }: ControlPanelProps) => {
   const { t } = useLanguage();
   const [isRecording, setIsRecording] = useState(false);

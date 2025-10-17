@@ -20,7 +20,7 @@ interface UseReadingExerciseReturn {
   nextExercise: () => void;
   previousExercise: () => void;
   setMode: (mode: ReadingMode) => void;
-  startListening: () => void;
+  startListening: (text: string, language: string) => void;
   startPracticing: () => void;
   handleWordPronunciation: (score: number) => void;
   selectWord: (index: number) => void;
@@ -92,14 +92,13 @@ export const useReadingExercise = (): UseReadingExerciseReturn => {
     }
   }, [currentWordIndex, currentExercise]);
 
-  const startListening = useCallback(() => {
+  const startListening = useCallback((text: string, language: string) => {
     setMode('listen');
     setCurrentWordIndex(0);
     setWordStatuses([]);
     setPronunciationScore(0);
     
     // Auto-read words sequentially
-    const text = currentExercise.textEs;
     const words = text.split(/\s+/);
     
     words.forEach((word, index) => {
@@ -109,11 +108,11 @@ export const useReadingExercise = (): UseReadingExerciseReturn => {
         // Use speech synthesis to read the word
         const utterance = new SpeechSynthesisUtterance(word);
         utterance.rate = 0.8;
-        utterance.lang = 'es-ES';
+        utterance.lang = language === 'es' ? 'es-ES' : 'en-US';
         window.speechSynthesis.speak(utterance);
       }, index * 800); // 800ms per word
     });
-  }, [currentExercise]);
+  }, []);
 
   const startPracticing = useCallback(async () => {
     setMode('practice');
