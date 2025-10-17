@@ -118,41 +118,62 @@ export default function ReadingExercise() {
           />
         ) : (
           <>
-            <div className="grid lg:grid-cols-5 gap-6 mb-6">
-              {/* Text Display Area - 60% */}
-              <div className="lg:col-span-3">
-                <TextDisplay
-                  text={currentText}
-                  currentWordIndex={currentWordIndex}
-                  wordStatuses={wordStatuses}
-                  onWordClick={selectWord}
-                  pronunciationScore={pronunciationScore}
-                  mode={mode}
-                />
+            {/* Image, Mascot, and Progress Row */}
+            <div className="flex items-start gap-6 mb-8 justify-center">
+              {/* Illustration Panel - Left */}
+              <div className="w-[450px]">
+                <IllustrationPanel imagePath={currentExercise.imagePath} />
               </div>
 
-              {/* Illustration Panel - 40% */}
-              <div className="lg:col-span-2">
-                <IllustrationPanel imageQuery={currentExercise.imageQuery} />
+              {/* Right Side: Mascot + Progress */}
+              <div className="flex flex-col gap-4 w-[200px]">
+                {/* Coquí Mascot */}
+                <div className="mx-auto">
+                  <CoquiMascot
+                    state={getCoquiState()}
+                    size="reading"
+                    position="inline"
+                    className="drop-shadow-2xl"
+                  />
+                  
+                  {/* Speech Bubble */}
+                  {pronunciationScore >= 90 && mode === 'practice' && (
+                    <div className="mt-2 bg-card rounded-2xl px-4 py-2 shadow-lg animate-bounce-once text-center">
+                      <p className="text-sm font-bold text-primary">
+                        {t("¡Muy bien!", "Great job!")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Progress Indicator */}
+                <div className="bg-card/80 backdrop-blur rounded-lg p-3 shadow-soft">
+                  <div className="flex items-center justify-between text-xs mb-2">
+                    <span className="font-semibold">
+                      {t("Progreso", "Progress")}
+                    </span>
+                    <span className="font-bold text-primary">
+                      {exerciseIndex + 1}/{readingExercises.length}
+                    </span>
+                  </div>
+                  <Progress
+                    value={((exerciseIndex + 1) / readingExercises.length) * 100}
+                    className="h-2"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Progress Indicator */}
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-card/80 backdrop-blur rounded-lg p-4 shadow-soft">
-                <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="font-semibold">
-                    {t("Progreso del ejercicio", "Exercise progress")}
-                  </span>
-                  <span className="font-bold text-primary">
-                    {exerciseIndex + 1} {t("de", "of")} {readingExercises.length}
-                  </span>
-                </div>
-                <Progress
-                  value={((exerciseIndex + 1) / readingExercises.length) * 100}
-                  className="h-2"
-                />
-              </div>
+            {/* Text Display Area - Full Width, Centered */}
+            <div className="max-w-5xl mx-auto">
+              <TextDisplay
+                text={currentText}
+                currentWordIndex={currentWordIndex}
+                wordStatuses={wordStatuses}
+                onWordClick={selectWord}
+                pronunciationScore={pronunciationScore}
+                mode={mode}
+              />
             </div>
           </>
         )}
@@ -172,26 +193,6 @@ export default function ReadingExercise() {
         />
       )}
 
-      {/* Coquí Mascot */}
-      {mode !== 'comprehension' && (
-        <div className="fixed bottom-28 right-8 z-50 w-[80px]">
-          <CoquiMascot
-            state={getCoquiState()}
-            size="small"
-            position="inline"
-            className="drop-shadow-2xl"
-          />
-          
-          {/* Speech Bubble */}
-          {pronunciationScore >= 90 && mode === 'practice' && (
-            <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-card rounded-2xl px-4 py-2 shadow-lg animate-bounce-once whitespace-nowrap">
-              <p className="text-sm font-bold text-primary">
-                {t("¡Muy bien!", "Great job!")}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@ export interface ReadingExercise {
   levelName: string;
   textEs: string;
   textEn: string;
-  imageQuery: string;
+  imagePath: string;
   comprehensionQuestions: {
     es: { question: string; options: string[]; correctIndex: number }[];
     en: { question: string; options: string[]; correctIndex: number }[];
@@ -18,7 +18,7 @@ export const readingExercises: ReadingExercise[] = [
     levelName: "Kindergarten",
     textEs: "El sapo verde salta alto",
     textEn: "The green frog jumps high",
-    imageQuery: "green frog jumping",
+    imagePath: "/exercises/frog-rainforest.jpg",
     comprehensionQuestions: {
       es: [
         {
@@ -62,7 +62,7 @@ export const readingExercises: ReadingExercise[] = [
     levelName: "Grade 1",
     textEs: "María va a la playa. Ella construye un castillo de arena grande.",
     textEn: "Maria goes to the beach. She builds a big sand castle.",
-    imageQuery: "child building sand castle beach",
+    imagePath: "/exercises/family-beach.jpg",
     comprehensionQuestions: {
       es: [
         {
@@ -106,7 +106,7 @@ export const readingExercises: ReadingExercise[] = [
     levelName: "Grade 2-3",
     textEs: "El coquí vive en El Yunque, el bosque tropical de Puerto Rico. Cada noche canta su melodía especial. Su canto suena como 'co-quí, co-quí'. Los coquís son muy pequeños pero tienen voces grandes.",
     textEn: "The coquí lives in El Yunque, Puerto Rico's rainforest. Every night it sings its special melody. Its song sounds like 'co-kee, co-kee'. Coquís are very small but have big voices.",
-    imageQuery: "puerto rico rainforest el yunque",
+    imagePath: "/exercises/rainforest-waterfall.jpg",
     comprehensionQuestions: {
       es: [
         {
@@ -150,7 +150,7 @@ export const readingExercises: ReadingExercise[] = [
     levelName: "Grade 4",
     textEs: "La tortuga marina nadaba lentamente por el océano azul. De repente, vio algo brillante en el agua. '¿Qué será?' pensó curiosa. Se acercó con cuidado y descubrió que era un pez de colores hermosos. 'Hola amiga', dijo el pez. 'Ven, te mostraré mi arrecife de coral favorito.'",
     textEn: "The sea turtle swam slowly through the blue ocean. Suddenly, she saw something shiny in the water. 'What could it be?' she thought curiously. She approached carefully and discovered it was a beautifully colored fish. 'Hello friend', said the fish. 'Come, I'll show you my favorite coral reef.'",
-    imageQuery: "sea turtle coral reef ocean",
+    imagePath: "/exercises/turtle-ocean.jpg",
     comprehensionQuestions: {
       es: [
         {
@@ -194,7 +194,7 @@ export const readingExercises: ReadingExercise[] = [
     levelName: "Grade 5",
     textEs: "El ecosistema del bosque tropical de El Yunque es único en su tipo. Miles de especies de plantas y animales coexisten en perfecta armonía. El coquí, símbolo nacional de Puerto Rico, juega un papel importante en el ecosistema al controlar las poblaciones de insectos. Los árboles centenarios alcanzan alturas impresionantes, creando un dosel que protege la biodiversidad del suelo del bosque. Las lluvias frecuentes mantienen todo verde y lleno de vida.",
     textEn: "The ecosystem of El Yunque rainforest is unique in its kind. Thousands of species of plants and animals coexist in perfect harmony. The coquí, Puerto Rico's national symbol, plays an important role in the ecosystem by controlling insect populations. Century-old trees reach impressive heights, creating a canopy that protects the forest floor's biodiversity. Frequent rains keep everything green and full of life.",
-    imageQuery: "el yunque rainforest puerto rico canopy",
+    imagePath: "/exercises/sun-bright.jpg",
     comprehensionQuestions: {
       es: [
         {

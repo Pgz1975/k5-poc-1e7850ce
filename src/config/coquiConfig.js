@@ -59,6 +59,7 @@ export const coquiAnimations = {
 export const coquiSizes = {
   small: 'h-20 md:h-24',
   medium: 'h-28 md:h-32',
+  reading: 'h-[150px]',
   default: 'h-[100px] md:h-[120px]',
   large: 'h-48 md:h-64',
 };
