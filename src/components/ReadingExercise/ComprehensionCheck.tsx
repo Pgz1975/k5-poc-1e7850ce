@@ -64,7 +64,7 @@ export const ComprehensionCheck = ({
       </div>
 
       <div className="max-w-5xl mx-auto">
-        <div className="flex gap-6 items-start">
+        <div className="flex gap-6 items-end">
           {/* Questions Section */}
           <Card className="flex-1 p-8 bg-card shadow-soft">
             <div className="mb-6">
@@ -137,8 +137,8 @@ export const ComprehensionCheck = ({
             )}
           </Card>
 
-          {/* Coqui Mascot on the Right */}
-          <div className="flex-shrink-0 w-48 sticky top-8">
+          {/* Coqui Mascot on the Right - Aligned to bottom */}
+          <div className="flex-shrink-0 w-48 flex items-end pb-8">
             <CoquiMascot
               state={currentPose}
               size="large"
