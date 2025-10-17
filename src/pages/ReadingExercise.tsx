@@ -174,10 +174,10 @@ export default function ReadingExercise() {
 
       {/* Coquí Mascot */}
       {mode !== 'comprehension' && (
-        <div className="fixed bottom-28 right-8 z-50">
+        <div className="fixed bottom-28 right-8 z-50 w-[80px]">
           <CoquiMascot
             state={getCoquiState()}
-            size="medium"
+            size="small"
             position="inline"
             className="drop-shadow-2xl"
           />

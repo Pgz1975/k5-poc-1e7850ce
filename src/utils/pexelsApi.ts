@@ -1,5 +1,4 @@
-const PEXELS_API_KEY = 'qkM4YgMsvvJKCWtfUWepvjVBRGFwqRHPsgxiCcZFRfMzqq8RJE8KJYkd';
-const PEXELS_BASE_URL = 'https://api.pexels.com/v1';
+import { supabase } from "@/integrations/supabase/client";
 
 export interface PexelsImage {
   id: number;
@@ -20,22 +19,15 @@ export interface PexelsImage {
 
 export const searchPexelsImage = async (query: string): Promise<PexelsImage | null> => {
   try {
-    const response = await fetch(
-      `${PEXELS_BASE_URL}/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`,
-      {
-        headers: {
-          Authorization: PEXELS_API_KEY,
-        },
-      }
-    );
+    const { data, error } = await supabase.functions.invoke('fetch-pexels-image', {
+      body: { query }
+    });
 
-    if (!response.ok) {
-      console.error('Pexels API error:', response.statusText);
+    if (error) {
+      console.error('Error fetching Pexels image:', error);
       return null;
     }
 
-    const data = await response.json();
-    
     if (data.photos && data.photos.length > 0) {
       return data.photos[0];
     }
