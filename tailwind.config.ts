@@ -32,6 +32,10 @@ export default {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
@@ -54,17 +58,21 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Nunito Sans', 'system-ui', 'sans-serif'],
+        heading: ['Nunito', 'Fredoka One', 'system-ui', 'sans-serif'],
+        playful: ['Fredoka One', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         soft: 'var(--shadow-soft)',
         medium: 'var(--shadow-medium)',
         strong: 'var(--shadow-strong)',
+        hover: 'var(--shadow-hover)',
       },
       backgroundImage: {
         'gradient-hero': 'var(--gradient-hero)',
         'gradient-card': 'var(--gradient-card)',
         'gradient-success': 'var(--gradient-success)',
+        'gradient-primary-button': 'var(--gradient-primary-button)',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -127,6 +135,32 @@ export default {
             transform: "translateY(0) scale(1)",
           },
         },
+        "fade-in": {
+          "0%": {
+            opacity: "0",
+            transform: "translateY(10px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "scale-success": {
+          "0%, 100%": {
+            transform: "scale(1)",
+          },
+          "50%": {
+            transform: "scale(1.1)",
+          },
+        },
+        "wiggle": {
+          "0%, 100%": {
+            transform: "rotate(-3deg)",
+          },
+          "50%": {
+            transform: "rotate(3deg)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -134,6 +168,9 @@ export default {
         "breathe": "breathe 3s ease-in-out infinite",
         "bounce-once": "bounce-once 0.6s ease-out",
         "jump": "jump 0.5s ease-out",
+        "fade-in": "fade-in 0.3s ease-out",
+        "scale-success": "scale-success 0.4s ease-out",
+        "wiggle": "wiggle 0.3s ease-in-out infinite",
       },
     },
   },
