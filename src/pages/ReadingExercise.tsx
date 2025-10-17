@@ -115,6 +115,7 @@ export default function ReadingExercise() {
             questions={currentQuestions}
             currentQuestionIndex={currentQuestionIndex}
             onAnswer={answerQuestion}
+            imagePath={currentExercise.imagePath}
           />
         ) : (
           <>
