@@ -13,6 +13,7 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import FamilyDashboard from "./pages/FamilyDashboard";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import ReadingExercise from "./pages/ReadingExercise";
 import CoquiBackgroundRemover from "./pages/CoquiBackgroundRemover";
 import NotFound from "./pages/NotFound";
 
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/student-dashboard" element={<StudentDashboard />} />
               <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
               <Route path="/family-dashboard" element={<FamilyDashboard />} />
+              <Route path="/reading-exercise" element={<ReadingExercise />} />
               <Route path="/coqui-bg-remover" element={<CoquiBackgroundRemover />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
