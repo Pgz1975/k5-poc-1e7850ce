@@ -119,49 +119,51 @@ export default function ReadingExercise() {
         ) : (
           <>
             {/* Image, Mascot, and Progress Row */}
-            <div className="flex items-start gap-6 mb-8 justify-center">
-              {/* Illustration Panel - Left */}
-              <div className="w-[450px]">
-                <IllustrationPanel imagePath={currentExercise.imagePath} />
-              </div>
-
-              {/* Right Side: Mascot + Progress */}
-              <div className="flex flex-col gap-4 w-[200px]">
-                {/* Coquí Mascot */}
-                <div className="mx-auto">
-                  <CoquiMascot
-                    state={getCoquiState()}
-                    size="reading"
-                    position="inline"
-                    className="drop-shadow-2xl"
-                  />
-                  
-                  {/* Speech Bubble */}
-                  {pronunciationScore >= 90 && mode === 'practice' && (
-                    <div className="mt-2 bg-card rounded-2xl px-4 py-2 shadow-lg animate-bounce-once text-center">
-                      <p className="text-sm font-bold text-primary">
-                        {t("¡Muy bien!", "Great job!")}
-                      </p>
-                    </div>
-                  )}
+            <div className="max-w-5xl mx-auto mb-8">
+              <div className="flex items-start gap-6 mb-4">
+                {/* Illustration Panel - Left */}
+                <div className="flex-1">
+                  <IllustrationPanel imagePath={currentExercise.imagePath} />
                 </div>
 
-                {/* Progress Indicator */}
-                <div className="bg-card/80 backdrop-blur rounded-lg p-3 shadow-soft">
-                  <div className="flex items-center justify-between text-xs mb-2">
-                    <span className="font-semibold">
-                      {t("Progreso", "Progress")}
-                    </span>
-                    <span className="font-bold text-primary">
-                      {exerciseIndex + 1}/{readingExercises.length}
-                    </span>
+                {/* Right Side: Mascot + Progress */}
+                <div className="flex flex-col justify-between" style={{ width: '200px', height: '300px' }}>
+                  {/* Coquí Mascot */}
+                  <div className="flex justify-center">
+                    <CoquiMascot
+                      state={getCoquiState()}
+                      size="reading"
+                      position="inline"
+                      className="drop-shadow-2xl"
+                    />
                   </div>
-                  <Progress
-                    value={((exerciseIndex + 1) / readingExercises.length) * 100}
-                    className="h-2"
-                  />
+
+                  {/* Progress Indicator - Aligned to bottom */}
+                  <div className="bg-card/80 backdrop-blur rounded-lg p-3 shadow-soft">
+                    <div className="flex items-center justify-between text-xs mb-2">
+                      <span className="font-semibold">
+                        {t("Progreso", "Progress")}
+                      </span>
+                      <span className="font-bold text-primary">
+                        {exerciseIndex + 1}/{readingExercises.length}
+                      </span>
+                    </div>
+                    <Progress
+                      value={((exerciseIndex + 1) / readingExercises.length) * 100}
+                      className="h-2"
+                    />
+                  </div>
                 </div>
               </div>
+
+              {/* Speech Bubble - Below layout */}
+              {pronunciationScore >= 90 && mode === 'practice' && (
+                <div className="mt-2 bg-card rounded-2xl px-4 py-2 shadow-lg animate-bounce-once text-center max-w-xs mx-auto">
+                  <p className="text-sm font-bold text-primary">
+                    {t("¡Muy bien!", "Great job!")}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Text Display Area - Full Width, Centered */}

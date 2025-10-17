@@ -11,7 +11,7 @@ export const IllustrationPanel = ({ imagePath }: IllustrationPanelProps) => {
         <img
           src={imagePath}
           alt="Exercise illustration"
-          className="w-full h-full object-cover rounded-lg"
+          className="w-full h-full object-contain rounded-lg"
         />
       </div>
     </Card>

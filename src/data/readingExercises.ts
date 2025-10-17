@@ -194,7 +194,7 @@ export const readingExercises: ReadingExercise[] = [
     levelName: "Grade 5",
     textEs: "El ecosistema del bosque tropical de El Yunque es único en su tipo. Miles de especies de plantas y animales coexisten en perfecta armonía. El coquí, símbolo nacional de Puerto Rico, juega un papel importante en el ecosistema al controlar las poblaciones de insectos. Los árboles centenarios alcanzan alturas impresionantes, creando un dosel que protege la biodiversidad del suelo del bosque. Las lluvias frecuentes mantienen todo verde y lleno de vida.",
     textEn: "The ecosystem of El Yunque rainforest is unique in its kind. Thousands of species of plants and animals coexist in perfect harmony. The coquí, Puerto Rico's national symbol, plays an important role in the ecosystem by controlling insect populations. Century-old trees reach impressive heights, creating a canopy that protects the forest floor's biodiversity. Frequent rains keep everything green and full of life.",
-    imagePath: "/exercises/sun-bright.jpg",
+    imagePath: "/exercises/rainforest-waterfall.jpg",
     comprehensionQuestions: {
       es: [
         {
