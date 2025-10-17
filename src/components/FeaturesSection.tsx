@@ -29,7 +29,7 @@ export const FeaturesSection = () => {
       titleEn: "⭐ Progress Tracking",
       descriptionEs: "¡Mira cuánto has crecido! Gana estrellas y comparte con tu familia.",
       descriptionEn: "See how much you've grown! Earn stars and share with your family.",
-      bgColor: "bg-gradient-to-br from-secondary/10 via-yellow-50 to-secondary/5",
+      bgColor: "bg-gradient-to-br from-yellow-100 via-yellow-50 to-secondary/10",
       emoji: "⭐",
     },
   ];
