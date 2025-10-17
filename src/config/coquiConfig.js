@@ -2,7 +2,7 @@
 export const coquiStates = {
   // Idle and neutral states
   idle: '/assets/coqui/waiting.webp',
-  neutral: '/assets/coqui/neutral_waiting.webp',
+  neutral: '/assets/coqui/neutral_waiting.png',
   loading: '/assets/coqui/waiting.webp',
   
   // Activity states
@@ -15,23 +15,23 @@ export const coquiStates = {
   writing: '/assets/coqui/writing_taking_notes.webp',
   
   // Feedback states
-  correct: '/assets/coqui/happy.webp',
-  excellent: '/assets/coqui/excited.webp',
-  happy: '/assets/coqui/happy.webp',
-  excited: '/assets/coqui/excited.webp',
+  correct: '/assets/coqui/happy.png',
+  excellent: '/assets/coqui/excited.png',
+  happy: '/assets/coqui/happy.png',
+  excited: '/assets/coqui/excited.png',
   
   // Achievement states
-  showingScore: '/assets/coqui/holding_up_score_card.webp',
-  score: '/assets/coqui/holding_up_score_card.webp',
+  showingScore: '/assets/coqui/holding_up_score_card.png',
+  score: '/assets/coqui/holding_up_score_card.png',
   dailyStreak: '/assets/coqui/wearing_gold_medal.webp',
-  levelComplete: '/assets/coqui/holding_trophy.webp',
-  gradeAdvancement: '/assets/coqui/graduation_cap_moment.webp',
-  graduation: '/assets/coqui/graduation_cap_moment.webp',
-  celebration: '/assets/coqui/confetti_celebration.webp',
-  perfectScore: '/assets/coqui/confetti_celebration.webp',
+  levelComplete: '/assets/coqui/holding_trophy.png',
+  gradeAdvancement: '/assets/coqui/graduation_cap_moment.png',
+  graduation: '/assets/coqui/graduation_cap_moment.png',
+  celebration: '/assets/coqui/confetti_celebration.png',
+  perfectScore: '/assets/coqui/confetti_celebration.png',
   
   // Fallback
-  default: '/assets/coqui/coqui.webp',
+  default: '/assets/coqui/coqui.png',
 };
 
 // Animation classes for each state
