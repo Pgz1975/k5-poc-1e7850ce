@@ -1,6 +1,6 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon, Mic } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -66,9 +66,9 @@ export const Header = () => {
     
     if (userRole === "student") {
       return [
-        homeItem,
-        { label: t("Mi Panel", "My Dashboard"), href: "/student-dashboard", icon: GraduationCap },
-        { label: t("Actividades", "Activities"), href: "/activities", icon: Sparkles },
+        { label: t("Mi Panel", "My Dashboard"), href: "/student-dashboard", icon: HomeIcon },
+        { label: t("Practicar Lectura", "Practice Reading"), href: "/reading-exercise", icon: BookOpen },
+        { label: t("Práctica de Pronunciación", "Pronunciation Practice"), href: "/activities", icon: Mic },
       ];
     }
     
