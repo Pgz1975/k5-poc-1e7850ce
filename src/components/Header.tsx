@@ -1,6 +1,6 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -72,9 +72,18 @@ export const Header = () => {
       ];
     }
     
-    // Teacher and family only see home
-    if (userRole === "teacher" || userRole === "family") {
-      return [homeItem];
+    if (userRole === "teacher") {
+      return [
+        homeItem,
+        { label: t("Panel de Maestro", "Teacher Dashboard"), href: "/teacher-dashboard", icon: GraduationCap },
+      ];
+    }
+
+    if (userRole === "family") {
+      return [
+        homeItem,
+        { label: t("Panel Familiar", "Family Dashboard"), href: "/family-dashboard", icon: Users },
+      ];
     }
     
     // Default for non-authenticated users
