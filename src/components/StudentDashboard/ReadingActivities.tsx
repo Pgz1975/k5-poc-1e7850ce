@@ -61,67 +61,64 @@ export const ReadingActivities = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">
-          {t("Actividades de Lectura", "Reading Activities")}
-        </h2>
-        <p className="text-muted-foreground">
-          {t("Continúa aprendiendo con estas lecturas adaptadas a tu nivel", "Continue learning with these readings adapted to your level")}
-        </p>
-      </div>
-
-      <div className="grid gap-4">
+      <div className="grid gap-6 md:gap-8">
         {activities.map((activity) => (
-          <Card key={activity.id} className={activity.completed ? "opacity-75" : ""}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <BookOpen className="h-6 w-6 text-primary" />
+          <Card 
+            key={activity.id} 
+            className={`group cursor-pointer transition-all hover:scale-[1.02] border-2 ${
+              activity.completed 
+                ? "bg-success/5 border-success/20" 
+                : "hover:border-primary hover:shadow-lg"
+            }`}
+          >
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className={`h-16 w-16 md:h-20 md:w-20 rounded-2xl flex items-center justify-center shrink-0 ${
+                    activity.completed 
+                      ? "bg-success/20" 
+                      : "bg-gradient-to-br from-primary/20 to-secondary/20"
+                  }`}>
+                    {activity.completed ? (
+                      <Star className="h-8 w-8 md:h-10 md:w-10 text-success fill-success" />
+                    ) : (
+                      <BookOpen className="h-8 w-8 md:h-10 md:w-10 text-primary" />
+                    )}
                   </div>
-                  <div>
-                    <CardTitle className="text-lg mb-1">
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-xl md:text-2xl mb-2">
                       {t(activity.titleEs, activity.titleEn)}
                     </CardTitle>
-                    <CardDescription className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="secondary">{activity.type}</Badge>
-                      <span className="flex items-center gap-1 text-xs">
-                        <Clock className="h-3 w-3" />
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge className="text-sm px-3 py-1">{activity.type}</Badge>
+                      <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Clock className="h-4 w-4" />
                         {activity.duration}
                       </span>
-                      <span className="text-xs">· {activity.level}</span>
-                    </CardDescription>
+                    </div>
                   </div>
                 </div>
-                {activity.completed && (
-                  <Star className="h-5 w-5 text-success fill-success" />
-                )}
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">{activity.difficulty}</Badge>
-                </div>
-                <Button 
-                  size="sm" 
-                  className="gap-2" 
-                  disabled={activity.completed}
-                  onClick={() => !activity.completed && setShowVoiceTraining(true)}
-                >
-                  {activity.completed ? (
-                    <>
-                      <Star className="h-4 w-4" />
-                      {t("Completado", "Completed")}
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-4 w-4" />
-                      {t("Comenzar", "Start")}
-                    </>
-                  )}
-                </Button>
-              </div>
+              <Button 
+                size="lg"
+                className="w-full text-lg gap-2 h-12 md:h-14" 
+                disabled={activity.completed}
+                onClick={() => !activity.completed && setShowVoiceTraining(true)}
+              >
+                {activity.completed ? (
+                  <>
+                    <Star className="h-5 w-5" />
+                    {t("¡Completado! 🎉", "Completed! 🎉")}
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-5 w-5" />
+                    {t("¡Empezar! 🚀", "Start! 🚀")}
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
         ))}

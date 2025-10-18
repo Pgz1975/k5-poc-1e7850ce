@@ -148,57 +148,60 @@ export const VoiceTraining = () => {
   }, []);
 
   return (
-    <Card className="lg:col-span-2">
-      <CardHeader>
-        <div className="flex items-center justify-between">
+    <Card className="border-2 border-primary/20">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              <Mic className="h-5 w-5 text-primary" />
-              {t("Entrenamiento de Voz", "Voice Training")}
+            <CardTitle className="text-2xl md:text-3xl flex items-center gap-3">
+              <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-primary/20 flex items-center justify-center">
+                <Mic className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+              </div>
+              {t("¡Practica tu Voz! 🎤", "Practice Your Voice! 🎤")}
             </CardTitle>
-            <CardDescription>
-              {t("Practica tu pronunciación y fluidez", "Practice your pronunciation and fluency")}
+            <CardDescription className="text-base mt-2">
+              {t("Lee en voz alta y gana estrellas", "Read out loud and earn stars")}
             </CardDescription>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-primary">
-              {sessionScore.total > 0 
-                ? Math.round((sessionScore.correct / sessionScore.total) * 100) 
-                : 0}%
+          {sessionScore.total > 0 && (
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold text-primary">
+                {Math.round((sessionScore.correct / sessionScore.total) * 100)}%
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {sessionScore.correct}/{sessionScore.total} ⭐
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {sessionScore.correct}/{sessionScore.total} {t("correctas", "correct")}
-            </p>
-          </div>
+          )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 md:space-y-8">
         {/* Current Phrase Card */}
-        <div className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl p-6 border border-primary/10">
-          <div className="flex items-start justify-between mb-4">
-            <Badge className={getDifficultyColor(currentPhrase.difficulty)}>
+        <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-6 md:p-8 border-2 border-primary/20">
+          <div className="flex items-center justify-between mb-6">
+            <Badge className={`${getDifficultyColor(currentPhrase.difficulty)} text-base px-4 py-2`}>
               {t(
-                currentPhrase.difficulty === "easy" ? "Fácil" : currentPhrase.difficulty === "medium" ? "Medio" : "Difícil",
-                currentPhrase.difficulty === "easy" ? "Easy" : currentPhrase.difficulty === "medium" ? "Medium" : "Hard"
+                currentPhrase.difficulty === "easy" ? "Fácil ✨" : currentPhrase.difficulty === "medium" ? "Medio 💪" : "Difícil 🔥",
+                currentPhrase.difficulty === "easy" ? "Easy ✨" : currentPhrase.difficulty === "medium" ? "Medium 💪" : "Hard 🔥"
               )}
             </Badge>
-            <Badge variant="outline">{currentPhrase.category}</Badge>
           </div>
           
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              {t("Repite esta frase:", "Repeat this phrase:")}
+          <div className="space-y-4">
+            <p className="text-lg md:text-xl font-medium text-muted-foreground">
+              {t("Lee esta frase:", "Read this phrase:")}
             </p>
-            <div className="flex items-center gap-3">
-              <p className="text-2xl font-semibold">{currentText}</p>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={playAudio}
-                className="shrink-0 hover:bg-primary/10"
-              >
-                <Volume2 className="h-5 w-5 text-primary" />
-              </Button>
+            <div className="bg-background/80 rounded-xl p-4 md:p-6 border-2 border-primary/20">
+              <div className="flex items-center gap-3">
+                <p className="text-2xl md:text-3xl font-bold flex-1">{currentText}</p>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={playAudio}
+                  className="shrink-0 hover:bg-primary/20 h-12 w-12 md:h-14 md:w-14"
+                >
+                  <Volume2 className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

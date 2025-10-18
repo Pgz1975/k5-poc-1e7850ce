@@ -9,6 +9,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import StudentDashboard from "./pages/StudentDashboard";
+import Activities from "./pages/Activities";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import FamilyDashboard from "./pages/FamilyDashboard";
 import Auth from "./pages/Auth";
@@ -33,7 +34,8 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/activities" element={<Activities />} />
               <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
               <Route path="/family-dashboard" element={<FamilyDashboard />} />
               <Route path="/reading-exercise" element={<ReadingExercise />} />
