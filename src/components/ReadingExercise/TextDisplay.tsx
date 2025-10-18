@@ -2,6 +2,8 @@ import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useEffect, useRef } from "react";
 
 interface TextDisplayProps {
   text: string;
@@ -22,6 +24,29 @@ export const TextDisplay = ({
 }: TextDisplayProps) => {
   const { t } = useLanguage();
   const words = text.split(" ");
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const currentWordRef = useRef<HTMLSpanElement>(null);
+
+  // Auto-scroll to keep current word visible
+  useEffect(() => {
+    if (currentWordRef.current && scrollAreaRef.current && (mode === 'listen' || mode === 'practice')) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        const wordElement = currentWordRef.current;
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const wordRect = wordElement.getBoundingClientRect();
+        
+        // Calculate scroll position to center the word
+        const scrollTop = scrollContainer.scrollTop;
+        const targetScroll = scrollTop + (wordRect.top - containerRect.top) - (containerRect.height / 2) + (wordRect.height / 2);
+        
+        scrollContainer.scrollTo({
+          top: targetScroll,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [currentWordIndex, mode]);
 
   const getWordStyle = (index: number) => {
     const status = wordStatuses[index];
@@ -59,20 +84,23 @@ export const TextDisplay = ({
 
   return (
     <Card className="p-10 bg-card shadow-soft">
-      <div
-        className="text-[40px] leading-relaxed flex flex-wrap gap-3 mb-8 justify-center"
-        style={{ fontFamily: "'Comic Sans MS', 'Nunito', sans-serif" }}
-      >
-        {words.map((word, index) => (
-          <span
-            key={index}
-            onClick={() => playWord(word, index)}
-            className={`${getWordStyle(index)} px-3 py-2 rounded-xl transition-all duration-300 font-semibold`}
-          >
-            {word}
-          </span>
-        ))}
-      </div>
+      <ScrollArea ref={scrollAreaRef} className="h-[400px]">
+        <div
+          className="text-[40px] leading-relaxed flex flex-wrap gap-3 mb-8 justify-center px-4"
+          style={{ fontFamily: "'Comic Sans MS', 'Nunito', sans-serif" }}
+        >
+          {words.map((word, index) => (
+            <span
+              key={index}
+              ref={index === currentWordIndex ? currentWordRef : null}
+              onClick={() => playWord(word, index)}
+              className={`${getWordStyle(index)} px-3 py-2 rounded-xl transition-all duration-300 font-semibold`}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+      </ScrollArea>
 
       {mode === 'practice' && (
         <div className="space-y-3">
