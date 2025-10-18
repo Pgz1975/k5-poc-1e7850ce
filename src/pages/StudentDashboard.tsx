@@ -2,7 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Star, Sparkles, MessageCircle } from "lucide-react";
+import { BookOpen, Star, Sparkles, Mic } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import { AIMentorChat } from "@/components/StudentDashboard/AIMentorChat";
@@ -49,8 +49,8 @@ const StudentDashboard = () => {
 
             {/* Big Action Cards */}
             <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-              {/* Practice Activities */}
-              <Link to="/activities">
+              {/* Practice Reading */}
+              <Link to="/reading-exercise">
                 <Card className="group cursor-pointer transition-all hover:scale-105 hover:shadow-xl border-2 hover:border-primary bg-gradient-to-br from-primary/5 to-primary/10 h-full">
                   <CardContent className="p-8 md:p-10 flex flex-col items-center text-center space-y-4">
                     <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
@@ -66,23 +66,22 @@ const StudentDashboard = () => {
                 </Card>
               </Link>
 
-              {/* AI Mentor Card */}
-              <Card 
-                onClick={() => setMascotState("speaking")}
-                className="group cursor-pointer transition-all hover:scale-105 hover:shadow-xl border-2 hover:border-secondary bg-gradient-to-br from-secondary/5 to-accent/10 h-full"
-              >
-                <CardContent className="p-8 md:p-10 flex flex-col items-center text-center space-y-4">
-                  <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-secondary/20 flex items-center justify-center group-hover:bg-secondary/30 transition-colors">
-                    <MessageCircle className="h-10 w-10 md:h-12 md:w-12 text-secondary" />
-                  </div>
-                  <h2 className="text-2xl md:text-3xl font-bold">
-                    {t("Hablar con Coquí", "Talk to Coquí")}
-                  </h2>
-                  <p className="text-muted-foreground text-base md:text-lg">
-                    {t("Tu amigo que te ayuda a aprender 🐸", "Your friend who helps you learn 🐸")}
-                  </p>
-                </CardContent>
-              </Card>
+              {/* Pronunciation Practice */}
+              <Link to="/activities">
+                <Card className="group cursor-pointer transition-all hover:scale-105 hover:shadow-xl border-2 hover:border-secondary bg-gradient-to-br from-secondary/5 to-accent/10 h-full">
+                  <CardContent className="p-8 md:p-10 flex flex-col items-center text-center space-y-4">
+                    <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-secondary/20 flex items-center justify-center group-hover:bg-secondary/30 transition-colors">
+                      <Mic className="h-10 w-10 md:h-12 md:w-12 text-secondary" />
+                    </div>
+                    <h2 className="text-2xl md:text-3xl font-bold">
+                      {t("Práctica de Pronunciación", "Pronunciation Practice")}
+                    </h2>
+                    <p className="text-muted-foreground text-base md:text-lg">
+                      {t("Mejora tu fluidez y claridad 🎤", "Improve your fluency and clarity 🎤")}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             </div>
 
             {/* Fun Stats */}
