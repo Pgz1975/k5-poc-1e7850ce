@@ -63,9 +63,9 @@ export default function ReadingExercise() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#E6F7FF] to-white pb-32">
+    <div className="min-h-screen bg-gradient-to-b from-[#E6F7FF] to-white flex flex-col">
       {/* Header */}
-      <header className="bg-card/80 backdrop-blur border-b border-border px-6 py-4 sticky top-0 z-40">
+      <header className="bg-card/80 backdrop-blur border-b border-border px-6 py-3 sticky top-0 z-40 shrink-0">
         <div className="container mx-auto flex items-center justify-between">
           <Button
             variant="ghost"
@@ -108,8 +108,8 @@ export default function ReadingExercise() {
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="container mx-auto px-6 py-8">
+      {/* Main Content Area - Centered Vertically */}
+      <main className="flex-1 flex items-center justify-center px-6 py-6">
         {mode === 'comprehension' ? (
           <ComprehensionCheck
             questions={currentQuestions}
@@ -118,9 +118,9 @@ export default function ReadingExercise() {
             imagePath={currentExercise.imagePath}
           />
         ) : (
-          <>
+          <div className="w-full max-w-6xl">
             {/* Image, Mascot, and Progress Row */}
-            <div className="max-w-5xl mx-auto mb-8">
+            <div className="mb-8">
               <div className="flex items-start gap-6 mb-4">
                 {/* Illustration Panel - Left */}
                 <div className="flex-1">
@@ -168,7 +168,7 @@ export default function ReadingExercise() {
             </div>
 
             {/* Text Display Area - Full Width, Centered */}
-            <div className="max-w-5xl mx-auto">
+            <div>
               <TextDisplay
                 text={currentText}
                 currentWordIndex={currentWordIndex}
@@ -178,7 +178,7 @@ export default function ReadingExercise() {
                 mode={mode}
               />
             </div>
-          </>
+          </div>
         )}
       </main>
 

@@ -58,16 +58,16 @@ export const TextDisplay = ({
   };
 
   return (
-    <Card className="p-8 bg-card shadow-soft">
+    <Card className="p-10 bg-card shadow-soft">
       <div
-        className="text-[28px] leading-relaxed flex flex-wrap gap-2 mb-8"
+        className="text-[40px] leading-relaxed flex flex-wrap gap-3 mb-8 justify-center"
         style={{ fontFamily: "'Comic Sans MS', 'Nunito', sans-serif" }}
       >
         {words.map((word, index) => (
           <span
             key={index}
             onClick={() => playWord(word, index)}
-            className={`${getWordStyle(index)} px-2 py-1 rounded-lg transition-all duration-300`}
+            className={`${getWordStyle(index)} px-3 py-2 rounded-xl transition-all duration-300 font-semibold`}
           >
             {word}
           </span>

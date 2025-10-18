@@ -6,7 +6,7 @@ interface IllustrationPanelProps {
 
 export const IllustrationPanel = ({ imagePath }: IllustrationPanelProps) => {
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-primary/5 to-primary/10 shadow-soft h-[300px] flex items-center justify-center">
+    <Card className="relative overflow-hidden bg-gradient-to-br from-primary/5 to-primary/10 shadow-lg border-2 border-primary/10 h-[300px] flex items-center justify-center">
       <div className="relative w-full h-full">
         <img
           src={imagePath}
