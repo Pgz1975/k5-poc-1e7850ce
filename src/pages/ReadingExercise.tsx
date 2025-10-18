@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Home } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import CoquiMascot from "@/components/CoquiMascot";
 import { useNavigate } from "react-router-dom";
@@ -10,8 +9,9 @@ import { IllustrationPanel } from "@/components/ReadingExercise/IllustrationPane
 import { ControlPanel } from "@/components/ReadingExercise/ControlPanel";
 import { ComprehensionCheck } from "@/components/ReadingExercise/ComprehensionCheck";
 import { CompletionCelebration } from "@/components/ReadingExercise/CompletionCelebration";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Header } from "@/components/Header";
 import { readingExercises } from "@/data/readingExercises";
+import { Card } from "@/components/ui/card";
 
 export default function ReadingExercise() {
   const { t, language } = useLanguage();
@@ -64,49 +64,59 @@ export default function ReadingExercise() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#E6F7FF] to-white flex flex-col">
-      {/* Header */}
-      <header className="bg-card/80 backdrop-blur border-b border-border px-6 py-3 sticky top-0 z-40 shrink-0">
-        <div className="container mx-auto flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/")}
-            className="hover:bg-primary/10"
-          >
-            <Home className="h-5 w-5" />
-          </Button>
+      {/* Main Navigation Header */}
+      <Header />
 
-          {/* Progress Dots */}
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-muted-foreground mr-2">
-              {currentExercise.levelName}
-            </span>
-            <div className="flex gap-2">
-              {readingExercises.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-3 w-3 rounded-full transition-all ${
-                    i <= exerciseIndex
-                      ? "bg-primary scale-110"
-                      : "bg-muted"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+      {/* Stats Bar - K5 Friendly */}
+      <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-b-4 border-primary/20 px-6 py-4 sticky top-16 z-30">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            {/* Level and Progress Dots */}
+            <Card className="bg-white/90 backdrop-blur px-4 py-2 shadow-lg border-2 border-primary/20">
+              <div className="flex items-center gap-3">
+                <span className="text-lg font-bold text-primary">
+                  {currentExercise.levelName}
+                </span>
+                <div className="flex gap-1.5">
+                  {readingExercises.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-4 w-4 rounded-full transition-all ${
+                        i <= exerciseIndex
+                          ? "bg-primary scale-110 shadow-lg"
+                          : "bg-muted"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </Card>
 
-          {/* Gamification Stats */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-sm font-bold">
-              🔥 {streakDays} {t("días", "days")}
+            {/* Fun Stats */}
+            <div className="flex items-center gap-3">
+              <Card className="bg-gradient-to-br from-orange-100 to-orange-50 border-2 border-orange-300 px-4 py-2 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🔥</span>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-orange-600">{streakDays}</span>
+                    <span className="text-xs font-medium text-orange-600/80">{t("días", "days")}</span>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-yellow-100 to-yellow-50 border-2 border-yellow-300 px-4 py-2 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">⭐</span>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-yellow-600">{pointsEarned}</span>
+                    <span className="text-xs font-medium text-yellow-600/80">{t("puntos", "points")}</span>
+                  </div>
+                </div>
+              </Card>
             </div>
-            <div className="flex items-center gap-1 text-sm font-bold text-secondary">
-              ⭐ {pointsEarned} {t("puntos", "points")}
-            </div>
-            <LanguageSwitcher />
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content Area - Centered Vertically */}
       <main className="flex-1 flex items-center justify-center px-6 py-6">
