@@ -1,10 +1,11 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, LogOut, User } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -14,37 +15,78 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LucideIcon } from "lucide-react";
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon?: LucideIcon;
+}
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const { t } = useLanguage();
   const { user, signOut } = useAuth();
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchUserData = async () => {
       if (!user) return;
       
-      const { data, error } = await supabase
+      // Fetch profile
+      const { data: profileData } = await supabase
         .from("profiles")
         .select("avatar_url")
         .eq("id", user.id)
         .single();
 
-      if (!error && data) {
-        setAvatarUrl(data.avatar_url);
+      if (profileData) {
+        setAvatarUrl(profileData.avatar_url);
+      }
+
+      // Fetch role
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (roleData) {
+        setUserRole(roleData.role);
       }
     };
 
-    fetchProfile();
+    fetchUserData();
   }, [user]);
 
-  const navItems = [
-    { label: t("Inicio", "Home"), href: "/" },
-    { label: t("Estudiantes", "Students"), href: "#students" },
-    { label: t("Maestros", "Teachers"), href: "#teachers" },
-    { label: t("Familias", "Families"), href: "#families" },
-  ];
+  // Role-based navigation
+  const getNavItems = (): NavItem[] => {
+    const homeItem: NavItem = { label: t("Inicio", "Home"), href: "/" };
+    
+    if (userRole === "student") {
+      return [
+        homeItem,
+        { label: t("Mi Panel", "My Dashboard"), href: "/student-dashboard", icon: GraduationCap },
+        { label: t("Actividades", "Activities"), href: "/activities", icon: Sparkles },
+      ];
+    }
+    
+    // Teacher and family only see home
+    if (userRole === "teacher" || userRole === "family") {
+      return [homeItem];
+    }
+    
+    // Default for non-authenticated users
+    return [
+      homeItem,
+      { label: t("Estudiantes", "Students"), href: "#students" },
+      { label: t("Maestros", "Teachers"), href: "#teachers" },
+      { label: t("Familias", "Families"), href: "#families" },
+    ];
+  };
+
+  const navItems = getNavItems();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 shadow-soft">
@@ -58,15 +100,28 @@ export const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
-            >
-              {item.label}
-            </a>
-          ))}
+          {navItems.map((item) => {
+            const isInternalLink = item.href.startsWith('/') && !item.href.startsWith('/#');
+            
+            return isInternalLink ? (
+              <Link
+                key={item.href}
+                to={item.href}
+                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors flex items-center gap-2"
+              >
+                {item.icon && <item.icon className="h-4 w-4" />}
+                {item.label}
+              </Link>
+            ) : (
+              <a
+                key={item.href}
+                href={item.href}
+                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+              >
+                {item.label}
+              </a>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-4">
@@ -132,16 +187,30 @@ export const Header = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-t bg-card/95 backdrop-blur">
           <nav className="container flex flex-col gap-4 py-4 px-4">
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.label}
-              </a>
-            ))}
+            {navItems.map((item) => {
+              const isInternalLink = item.href.startsWith('/') && !item.href.startsWith('/#');
+              
+              return isInternalLink ? (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors py-2 flex items-center gap-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.icon && <item.icon className="h-4 w-4" />}
+                  {item.label}
+                </Link>
+              ) : (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
             {user && (
               <a
                 href="/profile"
