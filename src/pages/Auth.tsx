@@ -54,11 +54,17 @@ const Auth = () => {
   const redirectBasedOnRole = async () => {
     if (!user) return;
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error fetching user role:", error);
+      navigate("/dashboard");
+      return;
+    }
 
     if (data?.role === "student") {
       navigate("/student-dashboard");
@@ -288,24 +294,38 @@ const Auth = () => {
                   Google
                 </Button>
 
-                <div className="space-y-2">
-                  <p className="text-sm text-center text-muted-foreground">
-                    {t("Usuarios de demostración:", "Demo users:")}
+                <div className="mt-6 space-y-3">
+                  <p className="text-sm font-medium text-center">
+                    {t("Acceso rápido - Cuentas de demostración:", "Quick access - Demo accounts:")}
                   </p>
                   <div className="grid gap-2">
                     {demoUsers.map((demo) => (
                       <Button
                         key={demo.email}
                         type="button"
-                        variant="outline"
-                        size="sm"
+                        variant="secondary"
+                        className="w-full justify-start gap-3 h-auto py-3"
                         onClick={() => handleDemoLogin(demo)}
                         disabled={isLoading}
                       >
-                        {t(
-                          demo.role === "student" ? "Estudiante" : demo.role === "teacher" ? "Maestro" : "Familia",
-                          demo.role === "student" ? "Student" : demo.role === "teacher" ? "Teacher" : "Family"
-                        )} - {demo.email}
+                        <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-muted">
+                          <img 
+                            src={demo.avatar} 
+                            alt={demo.fullName}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-col items-start flex-1 min-w-0">
+                          <span className="font-semibold text-sm">
+                            {t(
+                              demo.role === "student" ? "Estudiante" : demo.role === "teacher" ? "Maestro" : "Familia",
+                              demo.role === "student" ? "Student" : demo.role === "teacher" ? "Teacher" : "Family"
+                            )}
+                          </span>
+                          <span className="text-xs text-muted-foreground truncate w-full">
+                            {demo.email}
+                          </span>
+                        </div>
                       </Button>
                     ))}
                   </div>
