@@ -1,0 +1,11 @@
+# Ignore local test files
+test-uploads/
+*.test.pdf
+*.test.jpg
+
+# Ignore backup data
+backups/
+*.backup
+
+# Ignore local config
+.env.local

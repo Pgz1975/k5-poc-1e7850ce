@@ -1,0 +1,1379 @@
+openapi: 3.0.0
+info:
+  title: K5 Platform API
+  version: 1.0.0
+  description: |
+    Comprehensive API for K5 educational content platform with PDF processing,
+    bilingual content retrieval, assessment generation, and analytics.
+  contact:
+    name: K5 Platform Team
+    email: support@k5platform.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.k5platform.com/v1
+    description: Production server
+  - url: https://staging-api.k5platform.com/v1
+    description: Staging server
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+
+tags:
+  - name: PDF Processing
+    description: Upload, process, and manage PDF documents
+  - name: Content Retrieval
+    description: Access extracted and processed content
+  - name: Assessment
+    description: Question generation and validation
+  - name: Analytics
+    description: Quality metrics and usage statistics
+  - name: Admin
+    description: Administrative operations
+
+security:
+  - bearerAuth: []
+
+paths:
+  # PDF Processing APIs
+  /pdf/upload:
+    post:
+      tags:
+        - PDF Processing
+      summary: Upload and queue PDF
+      description: Upload a PDF file for processing with grade level and metadata
+      operationId: uploadPdf
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - gradeLevel
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF file to upload
+                gradeLevel:
+                  type: string
+                  enum: [K, '1', '2', '3', '4', '5']
+                  description: Target grade level
+                subject:
+                  type: string
+                  enum: [math, science, reading, writing, social-studies]
+                  description: Subject area
+                language:
+                  type: string
+                  enum: [en, ko, bilingual]
+                  default: bilingual
+                  description: Content language
+                metadata:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    author:
+                      type: string
+                    publisher:
+                      type: string
+                    isbn:
+                      type: string
+      responses:
+        '201':
+          description: PDF uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        example: 550e8400-e29b-41d4-a716-446655440000
+                      filename:
+                        type: string
+                        example: math-workbook-grade3.pdf
+                      status:
+                        type: string
+                        enum: [queued, processing, completed, failed]
+                        example: queued
+                      queuePosition:
+                        type: integer
+                        example: 3
+                      estimatedProcessingTime:
+                        type: integer
+                        description: Estimated time in seconds
+                        example: 120
+                      uploadedAt:
+                        type: string
+                        format: date-time
+                      gradeLevel:
+                        type: string
+                        example: '3'
+                  message:
+                    type: string
+                    example: PDF uploaded and queued for processing
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: FILE_TOO_LARGE
+                  message: File size exceeds maximum limit of 50MB
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /pdf/status/{id}:
+    get:
+      tags:
+        - PDF Processing
+      summary: Check processing status
+      description: Get current processing status and progress for a PDF
+      operationId: getPdfStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: PDF document ID
+      responses:
+        '200':
+          description: Status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+                        enum: [queued, processing, completed, failed]
+                        example: processing
+                      progress:
+                        type: object
+                        properties:
+                          percentage:
+                            type: number
+                            minimum: 0
+                            maximum: 100
+                            example: 65
+                          currentStep:
+                            type: string
+                            example: Extracting images
+                          stepsCompleted:
+                            type: array
+                            items:
+                              type: string
+                            example: [Text extraction, Layout analysis]
+                      startedAt:
+                        type: string
+                        format: date-time
+                      completedAt:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      error:
+                        type: object
+                        nullable: true
+                        properties:
+                          code:
+                            type: string
+                          message:
+                            type: string
+                          details:
+                            type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /pdf/process:
+    post:
+      tags:
+        - PDF Processing
+      summary: Trigger processing
+      description: Manually trigger or retry processing for a queued PDF
+      operationId: processPdf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: PDF document ID
+                priority:
+                  type: string
+                  enum: [low, normal, high, urgent]
+                  default: normal
+                  description: Processing priority
+                options:
+                  type: object
+                  properties:
+                    extractImages:
+                      type: boolean
+                      default: true
+                    generateQuestions:
+                      type: boolean
+                      default: true
+                    bilingual:
+                      type: boolean
+                      default: true
+      responses:
+        '200':
+          description: Processing started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+                        example: processing
+                      priority:
+                        type: string
+                        example: high
+                  message:
+                    type: string
+                    example: Processing started successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /pdf/results/{id}:
+    get:
+      tags:
+        - PDF Processing
+      summary: Retrieve processed content
+      description: Get complete processing results including text, images, and metadata
+      operationId: getPdfResults
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [text, images, metadata, questions, analytics]
+          description: Specific data to include
+          example: [text, images]
+      responses:
+        '200':
+          description: Results retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/ProcessedPdf'
+
+  # Content Retrieval APIs
+  /content/text/{pdfId}:
+    get:
+      tags:
+        - Content Retrieval
+      summary: Get extracted text
+      description: Retrieve extracted and structured text content from a PDF
+      operationId: getExtractedText
+      parameters:
+        - name: pdfId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: language
+          in: query
+          schema:
+            type: string
+            enum: [en, ko, both]
+            default: both
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+          description: Specific page number
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [plain, structured, markdown]
+            default: structured
+      responses:
+        '200':
+          description: Text content retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      pdfId:
+                        type: string
+                        format: uuid
+                      totalPages:
+                        type: integer
+                      content:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            page:
+                              type: integer
+                            text:
+                              type: object
+                              properties:
+                                en:
+                                  type: string
+                                ko:
+                                  type: string
+                            structure:
+                              type: object
+                              properties:
+                                headings:
+                                  type: array
+                                  items:
+                                    type: string
+                                paragraphs:
+                                  type: array
+                                  items:
+                                    type: string
+                                lists:
+                                  type: array
+                                  items:
+                                    type: object
+
+  /content/images/{pdfId}:
+    get:
+      tags:
+        - Content Retrieval
+      summary: List extracted images
+      description: Get list of all images extracted from PDF with metadata
+      operationId: getExtractedImages
+      parameters:
+        - name: pdfId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [diagram, photo, chart, illustration]
+      responses:
+        '200':
+          description: Images list retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      pdfId:
+                        type: string
+                        format: uuid
+                      totalImages:
+                        type: integer
+                      images:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ExtractedImage'
+
+  /content/search:
+    get:
+      tags:
+        - Content Retrieval
+      summary: Full-text search
+      description: Search across all processed content with bilingual support
+      operationId: searchContent
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query
+        - name: language
+          in: query
+          schema:
+            type: string
+            enum: [en, ko, both]
+            default: both
+        - name: gradeLevel
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [K, '1', '2', '3', '4', '5']
+        - name: subject
+          in: query
+          schema:
+            type: string
+            enum: [math, science, reading, writing, social-studies]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      query:
+                        type: string
+                      totalResults:
+                        type: integer
+                      page:
+                        type: integer
+                      results:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SearchResult'
+
+  /content/by-grade/{level}:
+    get:
+      tags:
+        - Content Retrieval
+      summary: Content by grade level
+      description: Get all content filtered by specific grade level
+      operationId: getContentByGrade
+      parameters:
+        - name: level
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [K, '1', '2', '3', '4', '5']
+        - name: subject
+          in: query
+          schema:
+            type: string
+            enum: [math, science, reading, writing, social-studies]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Grade level content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      gradeLevel:
+                        type: string
+                      totalDocuments:
+                        type: integer
+                      documents:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ContentDocument'
+
+  # Assessment APIs
+  /assessment/questions/{pdfId}:
+    get:
+      tags:
+        - Assessment
+      summary: Get questions
+      description: Retrieve generated assessment questions for a PDF
+      operationId: getAssessmentQuestions
+      parameters:
+        - name: pdfId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [multiple-choice, short-answer, essay, true-false]
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum: [easy, medium, hard]
+        - name: count
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Questions retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      pdfId:
+                        type: string
+                        format: uuid
+                      totalQuestions:
+                        type: integer
+                      questions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Question'
+
+  /assessment/validate:
+    post:
+      tags:
+        - Assessment
+      summary: Validate answers
+      description: Check student answers against correct answers
+      operationId: validateAnswers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - questionId
+                - answer
+              properties:
+                questionId:
+                  type: string
+                  format: uuid
+                answer:
+                  oneOf:
+                    - type: string
+                    - type: array
+                      items:
+                        type: string
+                studentId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Answer validated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      questionId:
+                        type: string
+                        format: uuid
+                      isCorrect:
+                        type: boolean
+                      score:
+                        type: number
+                        minimum: 0
+                        maximum: 100
+                      feedback:
+                        type: object
+                        properties:
+                          en:
+                            type: string
+                          ko:
+                            type: string
+                      correctAnswer:
+                        type: string
+                      explanation:
+                        type: object
+                        properties:
+                          en:
+                            type: string
+                          ko:
+                            type: string
+
+  /assessment/standards/{grade}:
+    get:
+      tags:
+        - Assessment
+      summary: By curriculum standard
+      description: Get questions aligned to specific curriculum standards
+      operationId: getQuestionsByStandard
+      parameters:
+        - name: grade
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [K, '1', '2', '3', '4', '5']
+        - name: standard
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Curriculum standard code (e.g., CCSS.MATH.3.OA.A.1)
+        - name: subject
+          in: query
+          schema:
+            type: string
+            enum: [math, science, reading, writing, social-studies]
+      responses:
+        '200':
+          description: Standards-aligned questions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      standard:
+                        type: string
+                      description:
+                        type: string
+                      gradeLevel:
+                        type: string
+                      questions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Question'
+
+  # Analytics APIs
+  /analytics/quality/{pdfId}:
+    get:
+      tags:
+        - Analytics
+      summary: Quality metrics
+      description: Get quality assessment metrics for processed PDF
+      operationId: getQualityMetrics
+      parameters:
+        - name: pdfId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Quality metrics retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/QualityMetrics'
+
+  /analytics/usage:
+    get:
+      tags:
+        - Analytics
+      summary: Usage statistics
+      description: Get platform usage statistics and trends
+      operationId: getUsageStatistics
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: groupBy
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: day
+      responses:
+        '200':
+          description: Usage statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      period:
+                        type: object
+                        properties:
+                          start:
+                            type: string
+                            format: date
+                          end:
+                            type: string
+                            format: date
+                      totalUploads:
+                        type: integer
+                      totalProcessed:
+                        type: integer
+                      totalSearches:
+                        type: integer
+                      totalQuestions:
+                        type: integer
+                      byGrade:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                      bySubject:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                      timeline:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            date:
+                              type: string
+                              format: date
+                            uploads:
+                              type: integer
+                            searches:
+                              type: integer
+
+  /analytics/feedback:
+    post:
+      tags:
+        - Analytics
+      summary: User feedback
+      description: Submit user feedback for content or questions
+      operationId: submitFeedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceType
+                - resourceId
+                - rating
+              properties:
+                resourceType:
+                  type: string
+                  enum: [pdf, question, search-result]
+                resourceId:
+                  type: string
+                  format: uuid
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+                  maxLength: 1000
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    enum: [helpful, confusing, incorrect, too-easy, too-hard]
+      responses:
+        '201':
+          description: Feedback submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      feedbackId:
+                        type: string
+                        format: uuid
+                      submittedAt:
+                        type: string
+                        format: date-time
+                  message:
+                    type: string
+                    example: Thank you for your feedback
+
+  # Admin APIs
+  /admin/queue:
+    get:
+      tags:
+        - Admin
+      summary: Processing queue status
+      description: View current processing queue and job status
+      operationId: getQueueStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [queued, processing, completed, failed]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, normal, high, urgent]
+      responses:
+        '200':
+          description: Queue status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      totalJobs:
+                        type: integer
+                      queued:
+                        type: integer
+                      processing:
+                        type: integer
+                      completed:
+                        type: integer
+                      failed:
+                        type: integer
+                      jobs:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            filename:
+                              type: string
+                            status:
+                              type: string
+                            priority:
+                              type: string
+                            queuedAt:
+                              type: string
+                              format: date-time
+                            startedAt:
+                              type: string
+                              format: date-time
+                            estimatedCompletion:
+                              type: string
+                              format: date-time
+
+  /admin/reprocess/{id}:
+    post:
+      tags:
+        - Admin
+      summary: Reprocess PDF
+      description: Trigger reprocessing of a failed or completed PDF
+      operationId: reprocessPdf
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                clearCache:
+                  type: boolean
+                  default: false
+                priority:
+                  type: string
+                  enum: [low, normal, high, urgent]
+                  default: normal
+      responses:
+        '200':
+          description: Reprocessing initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+                        example: queued
+                      queuePosition:
+                        type: integer
+                  message:
+                    type: string
+
+  /admin/pdf/{id}:
+    delete:
+      tags:
+        - Admin
+      summary: Remove PDF and data
+      description: Permanently delete PDF and all associated data
+      operationId: deletePdf
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: cascade
+          in: query
+          schema:
+            type: boolean
+            default: true
+          description: Also delete related content and questions
+      responses:
+        '200':
+          description: PDF deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                    example: PDF and all associated data deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication endpoint
+
+  schemas:
+    ProcessedPdf:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        filename:
+          type: string
+        gradeLevel:
+          type: string
+        subject:
+          type: string
+        status:
+          type: string
+          enum: [completed]
+        processedAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          properties:
+            title:
+              type: string
+            author:
+              type: string
+            pageCount:
+              type: integer
+            language:
+              type: string
+        content:
+          type: object
+          properties:
+            text:
+              type: array
+              items:
+                type: object
+            images:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExtractedImage'
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+        analytics:
+          $ref: '#/components/schemas/QualityMetrics'
+
+    ExtractedImage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+        page:
+          type: integer
+        type:
+          type: string
+          enum: [diagram, photo, chart, illustration]
+        dimensions:
+          type: object
+          properties:
+            width:
+              type: integer
+            height:
+              type: integer
+        caption:
+          type: object
+          properties:
+            en:
+              type: string
+            ko:
+              type: string
+        description:
+          type: object
+          properties:
+            en:
+              type: string
+            ko:
+              type: string
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [multiple-choice, short-answer, essay, true-false]
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+        question:
+          type: object
+          properties:
+            en:
+              type: string
+            ko:
+              type: string
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              text:
+                type: object
+                properties:
+                  en:
+                    type: string
+                  ko:
+                    type: string
+        correctAnswer:
+          type: string
+        explanation:
+          type: object
+          properties:
+            en:
+              type: string
+            ko:
+              type: string
+        standards:
+          type: array
+          items:
+            type: string
+        bloomsLevel:
+          type: string
+          enum: [remember, understand, apply, analyze, evaluate, create]
+
+    SearchResult:
+      type: object
+      properties:
+        pdfId:
+          type: string
+          format: uuid
+        filename:
+          type: string
+        gradeLevel:
+          type: string
+        subject:
+          type: string
+        relevanceScore:
+          type: number
+          minimum: 0
+          maximum: 1
+        matches:
+          type: array
+          items:
+            type: object
+            properties:
+              page:
+                type: integer
+              snippet:
+                type: string
+              language:
+                type: string
+
+    ContentDocument:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        filename:
+          type: string
+        title:
+          type: string
+        gradeLevel:
+          type: string
+        subject:
+          type: string
+        pageCount:
+          type: integer
+        uploadedAt:
+          type: string
+          format: date-time
+        processedAt:
+          type: string
+          format: date-time
+        questionCount:
+          type: integer
+        imageCount:
+          type: integer
+
+    QualityMetrics:
+      type: object
+      properties:
+        pdfId:
+          type: string
+          format: uuid
+        overallScore:
+          type: number
+          minimum: 0
+          maximum: 100
+        textQuality:
+          type: object
+          properties:
+            score:
+              type: number
+            readability:
+              type: number
+            accuracy:
+              type: number
+        imageQuality:
+          type: object
+          properties:
+            score:
+              type: number
+            resolution:
+              type: string
+            clarity:
+              type: number
+        questionQuality:
+          type: object
+          properties:
+            score:
+              type: number
+            appropriateLevel:
+              type: number
+            standardsAlignment:
+              type: number
+        processingMetrics:
+          type: object
+          properties:
+            duration:
+              type: integer
+              description: Processing time in seconds
+            confidence:
+              type: number
+            errors:
+              type: integer
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: VALIDATION_ERROR
+              message: Invalid request parameters
+              details:
+                field: gradeLevel
+                issue: Must be one of K, 1, 2, 3, 4, 5
+
+    Unauthorized:
+      description: Unauthorized - Invalid or missing authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: UNAUTHORIZED
+              message: Valid authentication token required
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: NOT_FOUND
+              message: Requested resource not found
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error:
+              code: RATE_LIMIT_EXCEEDED
+              message: Too many requests. Please try again later.
+              details:
+                limit: 100
+                window: 60
+                retryAfter: 45

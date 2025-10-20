@@ -1,0 +1,27 @@
+{
+  "name": "@k5-poc/language-processing",
+  "version": "1.0.0",
+  "description": "Bilingual language processing system for K5 educational platform (Spanish/English)",
+  "main": "index.ts",
+  "types": "index.ts",
+  "keywords": [
+    "language-detection",
+    "spanish",
+    "english",
+    "puerto-rican",
+    "bilingual",
+    "education",
+    "k-5",
+    "nlp",
+    "phonetics",
+    "translation",
+    "reading-level",
+    "vocabulary"
+  ],
+  "dependencies": {
+    "franc": "^6.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}

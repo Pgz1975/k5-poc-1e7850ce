@@ -1,0 +1,36 @@
+{
+  "name": "@k5/monitoring",
+  "version": "1.0.0",
+  "description": "Comprehensive monitoring, alerting, and observability platform for K5 POC",
+  "main": "index.ts",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "monitoring",
+    "observability",
+    "prometheus",
+    "grafana",
+    "sentry",
+    "alerting",
+    "metrics",
+    "logging",
+    "coppa"
+  ],
+  "dependencies": {
+    "prom-client": "^15.1.0",
+    "@sentry/node": "^7.100.0",
+    "@sentry/profiling-node": "^7.100.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.7",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
