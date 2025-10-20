@@ -38,7 +38,7 @@ const StudentDashboard = () => {
               </div>
               
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-hero bg-clip-text text-transparent">
+                <h1 className="text-4xl md:text-5xl font-bold mb-3 text-primary">
                   {t("¡Hola, María! 👋", "Hello, María! 👋")}
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground">
