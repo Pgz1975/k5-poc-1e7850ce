@@ -13,8 +13,9 @@ server.on("upgrade", async (req, socket, head) => {
   const jwt = url.searchParams.get('jwt');
   const studentId = url.searchParams.get('student_id');
   const language = url.searchParams.get('language') || 'es-PR';
+  const model = url.searchParams.get('model') || 'gpt-4o-realtime-preview-2024-12-17';
 
-  console.log(`[Relay] Auth check - JWT: ${jwt ? 'present' : 'missing'}, Student: ${studentId}, Language: ${language}`);
+  console.log(`[Relay] Auth check - JWT: ${jwt ? 'present' : 'missing'}, Student: ${studentId}, Language: ${language}, Model: ${model}`);
 
   if (!jwt) {
     console.error("[Relay] No JWT token provided");
@@ -25,14 +26,14 @@ server.on("upgrade", async (req, socket, head) => {
 
   wss.handleUpgrade(req, socket, head, (ws) => {
     console.log("[Relay] WebSocket upgraded successfully");
-    wss.emit('connection', ws, req, { studentId, language });
+    wss.emit('connection', ws, req, { studentId, language, model });
   });
 });
 
 wss.on("connection", async (clientWS: any, req: any, context: any) => {
-  const { studentId, language } = context;
+  const { studentId, language, model } = context;
   
-  console.log(`[Relay] WebSocket connection established - Student: ${studentId}, Language: ${language}`);
+  console.log(`[Relay] WebSocket connection established - Student: ${studentId}, Language: ${language}, Model: ${model}`);
 
   if (!OPENAI_API_KEY) {
     console.error("[Relay] OPENAI_API_KEY not configured");
@@ -40,10 +41,10 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
     return;
   }
 
-  console.log("[Relay] Connecting to OpenAI Realtime API...");
+  console.log(`[Relay] Connecting to OpenAI Realtime API with model: ${model}...`);
   
   const openaiWS = new WebSocket(
-    'wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17',
+    `wss://api.openai.com/v1/realtime?model=${model}`,
     [
       'realtime',
       `openai-insecure-api-key.${OPENAI_API_KEY}`,
@@ -55,12 +56,24 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
   let audioOutputTokens = 0;
   let sessionStartTime = Date.now();
   let isOpenAIConnected = false;
+  let sessionConfigSent = false;
 
   openaiWS.addEventListener('open', () => {
-    console.log("[Relay] ✅ Connected to OpenAI Realtime API");
+    console.log("[Relay] ✅ Connected to OpenAI Realtime API - waiting for session.created");
     isOpenAIConnected = true;
+  });
 
-    const instructions = language === 'es-PR' 
+  openaiWS.addEventListener('message', (event) => {
+    try {
+      const message = JSON.parse(event.data as string);
+      const eventTime = Date.now() - sessionStartTime;
+      
+      // Send session config only after session.created
+      if (message.type === 'session.created' && !sessionConfigSent) {
+        console.log(`[Relay] [+${eventTime}ms] ✅ Session created - sending configuration`);
+        sessionConfigSent = true;
+
+        const instructions = language === 'es-PR'
       ? `Eres Coquí, un asistente bilingüe amigable para estudiantes de K-5 en Puerto Rico.
          Tu rol es:
          1. Escuchar a los estudiantes leer en español o inglés
@@ -86,53 +99,52 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
          - First, praise their effort
          - Gently demonstrate the correct pronunciation
          - Encourage them to try again
-         - Make it fun and engaging`;
+          - Make it fun and engaging`;
 
-    const sessionConfig = {
-      type: 'session.update',
-      session: {
-        modalities: ['text', 'audio'],
-        instructions,
-        voice: 'alloy',
-        input_audio_format: 'pcm16',
-        output_audio_format: 'pcm16',
-        input_audio_transcription: {
-          model: 'whisper-1'
-        },
-        turn_detection: {
-          type: 'server_vad',
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 1000
-        },
-        temperature: 0.8,
-        max_response_output_tokens: 4096
+        const sessionConfig = {
+          type: 'session.update',
+          session: {
+            modalities: ['text', 'audio'],
+            instructions,
+            voice: 'alloy',
+            input_audio_format: 'pcm16',
+            output_audio_format: 'pcm16',
+            input_audio_transcription: {
+              model: 'whisper-1'
+            },
+            turn_detection: {
+              type: 'server_vad',
+              threshold: 0.5,
+              prefix_padding_ms: 300,
+              silence_duration_ms: 1000
+            },
+            temperature: 0.8,
+            max_response_output_tokens: 4096
+          }
+        };
+
+        console.log("[Relay] Sending session configuration");
+        openaiWS.send(JSON.stringify(sessionConfig));
+        return;
       }
-    };
-
-    console.log("[Relay] Sending session configuration:", JSON.stringify(sessionConfig, null, 2));
-    openaiWS.send(JSON.stringify(sessionConfig));
-  });
-
-  openaiWS.addEventListener('message', (event) => {
-    try {
-      const message = JSON.parse(event.data as string);
       
       // Log important events
-      if (message.type === 'session.created') {
-        console.log("[Relay] ✅ Session created");
-      } else if (message.type === 'session.updated') {
-        console.log("[Relay] ✅ Session updated");
+      if (message.type === 'session.updated') {
+        console.log(`[Relay] [+${eventTime}ms] ✅ Session updated`);
       } else if (message.type === 'response.audio.delta') {
         audioOutputTokens += estimateTokens(message.delta);
       } else if (message.type === 'conversation.item.input_audio_transcription.completed') {
-        console.log(`[Relay] 🎤 Student transcription: "${message.transcript}"`);
+        console.log(`[Relay] [+${eventTime}ms] 🎤 Student transcription: "${message.transcript}"`);
       } else if (message.type === 'response.audio_transcript.delta') {
-        console.log(`[Relay] 🔊 AI response: "${message.delta}"`);
+        console.log(`[Relay] [+${eventTime}ms] 🔊 AI response: "${message.delta}"`);
       } else if (message.type === 'error') {
-        console.error("[Relay] ❌ OpenAI error:", message.error);
+        console.error(`[Relay] [+${eventTime}ms] ❌ OpenAI error:`, message.error);
+      } else if (message.type === 'response.created') {
+        console.log(`[Relay] [+${eventTime}ms] 🎙️ Response started`);
+      } else if (message.type === 'response.done') {
+        console.log(`[Relay] [+${eventTime}ms] ✅ Response complete`);
       } else {
-        console.log(`[Relay] OpenAI event: ${message.type}`);
+        console.log(`[Relay] [+${eventTime}ms] OpenAI event: ${message.type}`);
       }
 
       if (clientWS.readyState === WebSocket.OPEN) {
