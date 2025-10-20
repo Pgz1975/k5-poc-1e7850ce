@@ -81,3 +81,4 @@ claude-flow
 hive-mind-prompt-*.txt
 # Claude Flow metrics folders
 **/.claude-flow/
+.env
