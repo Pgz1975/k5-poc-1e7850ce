@@ -18,6 +18,7 @@ export class RealtimeVoiceClient {
   private audioQueue: Int16Array[] = [];
   private isPlayingAudio = false;
   private projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'meertwtenhlmnlpwxhyz';
+  private nextScheduledTime = 0;
 
   constructor(config: RealtimeVoiceConfig) {
     this.config = config;
@@ -185,6 +186,8 @@ export class RealtimeVoiceClient {
   private async playNextAudioChunk(): Promise<void> {
     if (this.audioQueue.length === 0) {
       this.isPlayingAudio = false;
+      this.nextScheduledTime = 0;
+      this.config.onAudioPlayback?.(false);
       return;
     }
 
@@ -206,7 +209,11 @@ export class RealtimeVoiceClient {
       const audioBuffer = this.audioContext.createBuffer(1, float32Data.length, 24000);
       audioBuffer.getChannelData(0).set(float32Data);
 
-      // Play audio
+      // Schedule audio for seamless playback
+      const now = this.audioContext.currentTime;
+      const scheduledTime = Math.max(now, this.nextScheduledTime || now);
+      const duration = audioBuffer.duration;
+
       const source = this.audioContext.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(this.audioContext.destination);
@@ -215,8 +222,12 @@ export class RealtimeVoiceClient {
         this.playNextAudioChunk();
       };
 
-      source.start(0);
-      console.log('[RealtimeVoice] Playing audio chunk:', pcm16Data.length, 'samples');
+      source.start(scheduledTime);
+      
+      // Update next scheduled time for gapless playback
+      this.nextScheduledTime = scheduledTime + duration;
+      
+      console.log(`[RealtimeVoice] Playing chunk: ${pcm16Data.length} samples, scheduled at ${scheduledTime.toFixed(3)}s, next at ${this.nextScheduledTime.toFixed(3)}s`);
 
     } catch (error) {
       console.error('[RealtimeVoice] Error playing audio:', error);
@@ -294,6 +305,7 @@ export class RealtimeVoiceClient {
     this.isConnected = false;
     this.audioQueue = [];
     this.isPlayingAudio = false;
+    this.nextScheduledTime = 0;
     
     console.log('[RealtimeVoice] Disconnected');
   }
