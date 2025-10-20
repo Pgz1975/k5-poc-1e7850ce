@@ -51,10 +51,10 @@ const StudentDashboard = () => {
             <div className="grid md:grid-cols-2 gap-6 md:gap-8">
               {/* Practice Reading */}
               <Link to="/reading-exercise">
-                <Card className="group cursor-pointer transition-all hover:scale-105 hover:shadow-xl border-2 hover:border-primary bg-gradient-to-br from-primary/5 to-primary/10 h-full">
+                <Card className="group cursor-pointer transition-all hover:scale-105 hover:shadow-xl border-2 hover:border-primary bg-gradient-to-br from-primary/5 to-primary-glow/10 h-full">
                   <CardContent className="p-8 md:p-10 flex flex-col items-center text-center space-y-4">
-                    <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
-                      <BookOpen className="h-10 w-10 md:h-12 md:w-12 text-primary" />
+                    <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <BookOpen className="h-10 w-10 md:h-12 md:w-12 text-white" />
                     </div>
                     <h2 className="text-2xl md:text-3xl font-bold">
                       {t("Practicar Lectura", "Practice Reading")}
@@ -68,10 +68,10 @@ const StudentDashboard = () => {
 
               {/* Pronunciation Practice */}
               <Link to="/activities">
-                <Card className="group cursor-pointer transition-all hover:scale-105 hover:shadow-xl border-2 hover:border-secondary bg-gradient-to-br from-secondary/5 to-accent/10 h-full">
+                <Card className="group cursor-pointer transition-all hover:scale-105 hover:shadow-xl border-2 hover:border-primary bg-gradient-to-br from-primary/5 to-primary-glow/10 h-full">
                   <CardContent className="p-8 md:p-10 flex flex-col items-center text-center space-y-4">
-                    <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-secondary/20 flex items-center justify-center group-hover:bg-secondary/30 transition-colors">
-                      <Mic className="h-10 w-10 md:h-12 md:w-12 text-secondary" />
+                    <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Mic className="h-10 w-10 md:h-12 md:w-12 text-white" />
                     </div>
                     <h2 className="text-2xl md:text-3xl font-bold">
                       {t("Práctica de Pronunciación", "Pronunciation Practice")}
@@ -86,22 +86,26 @@ const StudentDashboard = () => {
 
             {/* Fun Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+              <Card className="bg-gradient-to-br from-primary/10 to-primary-glow/5 border-primary/20">
                 <CardContent className="p-4 md:p-6 text-center space-y-2">
                   <div className="flex justify-center">
-                    <Star className="h-8 w-8 md:h-10 md:w-10 text-success fill-success" />
+                    <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+                      <Star className="h-6 w-6 md:h-7 md:w-7 text-white fill-white" />
+                    </div>
                   </div>
-                  <div className="text-3xl md:text-4xl font-bold text-success">24</div>
+                  <div className="text-3xl md:text-4xl font-bold text-primary">24</div>
                   <p className="text-xs md:text-sm text-muted-foreground font-medium">
                     {t("Actividades", "Activities")}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+              <Card className="bg-gradient-to-br from-primary/10 to-primary-glow/5 border-primary/20">
                 <CardContent className="p-4 md:p-6 text-center space-y-2">
                   <div className="flex justify-center">
-                    <Sparkles className="h-8 w-8 md:h-10 md:w-10 text-primary" />
+                    <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+                      <Sparkles className="h-6 w-6 md:h-7 md:w-7 text-white" />
+                    </div>
                   </div>
                   <div className="text-3xl md:text-4xl font-bold text-primary">7</div>
                   <p className="text-xs md:text-sm text-muted-foreground font-medium">
@@ -110,24 +114,28 @@ const StudentDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-secondary/20">
+              <Card className="bg-gradient-to-br from-primary/10 to-primary-glow/5 border-primary/20">
                 <CardContent className="p-4 md:p-6 text-center space-y-2">
                   <div className="flex justify-center">
-                    <BookOpen className="h-8 w-8 md:h-10 md:w-10 text-secondary" />
+                    <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+                      <BookOpen className="h-6 w-6 md:h-7 md:w-7 text-white" />
+                    </div>
                   </div>
-                  <div className="text-3xl md:text-4xl font-bold text-secondary">3.2</div>
+                  <div className="text-3xl md:text-4xl font-bold text-primary">3.2</div>
                   <p className="text-xs md:text-sm text-muted-foreground font-medium">
                     {t("Nivel", "Level")}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+              <Card className="bg-gradient-to-br from-primary/10 to-primary-glow/5 border-primary/20">
                 <CardContent className="p-4 md:p-6 text-center space-y-2">
                   <div className="flex justify-center">
-                    <Star className="h-8 w-8 md:h-10 md:w-10 text-accent" />
+                    <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+                      <Star className="h-6 w-6 md:h-7 md:w-7 text-white fill-white" />
+                    </div>
                   </div>
-                  <div className="text-3xl md:text-4xl font-bold text-accent">12</div>
+                  <div className="text-3xl md:text-4xl font-bold text-primary">12</div>
                   <p className="text-xs md:text-sm text-muted-foreground font-medium">
                     {t("Estrellas", "Stars")}
                   </p>
