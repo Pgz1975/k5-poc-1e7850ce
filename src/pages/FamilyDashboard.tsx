@@ -243,8 +243,8 @@ const FamilyDashboard = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-success/10 flex items-center justify-center">
-                      <Star className="h-6 w-6 text-success" />
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+                      <Star className="h-6 w-6 text-white fill-white" />
                     </div>
                     <div>
                       <p className="font-medium text-sm">
@@ -257,8 +257,8 @@ const FamilyDashboard = () => {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <BookOpen className="h-6 w-6 text-primary" />
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+                      <BookOpen className="h-6 w-6 text-white" />
                     </div>
                     <div>
                       <p className="font-medium text-sm">
@@ -271,8 +271,8 @@ const FamilyDashboard = () => {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                      <TrendingUp className="h-6 w-6 text-secondary" />
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+                      <TrendingUp className="h-6 w-6 text-white" />
                     </div>
                     <div>
                       <p className="font-medium text-sm">
