@@ -222,11 +222,11 @@ const FamilyDashboard = () => {
                       <span className="text-sm font-medium">
                         {t("Pronunciación", "Pronunciation")}
                       </span>
-                      <span className="text-sm font-medium text-secondary">82%</span>
+                      <span className="text-sm font-medium text-primary">82%</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-secondary to-accent transition-all" 
+                        className="h-full bg-gradient-success transition-all" 
                         style={{ width: '82%' }}
                       />
                     </div>
