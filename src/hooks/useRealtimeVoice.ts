@@ -18,25 +18,36 @@ export function useRealtimeVoice({ studentId, language, onTranscription }: UseRe
   const { toast } = useToast();
 
   const connect = useCallback(async () => {
+    console.log('[useRealtimeVoice] 🎯 Connect called');
+    console.log('[useRealtimeVoice] 📊 State:', { isConnecting, isConnected });
+    
     if (isConnecting || isConnected) {
-      console.log('[useRealtimeVoice] Already connecting or connected');
+      console.log('[useRealtimeVoice] ⚠️ Already connecting or connected, aborting');
       return;
     }
 
     setIsConnecting(true);
-    console.log('[useRealtimeVoice] Starting connection...');
+    console.log('[useRealtimeVoice] 🚀 Starting connection process...');
 
     try {
       // Get current session token
+      console.log('[useRealtimeVoice] 🔐 Fetching Supabase session...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError || !session) {
+      if (sessionError) {
+        console.error('[useRealtimeVoice] ❌ Session error:', sessionError);
+        throw new Error('Session error: ' + sessionError.message);
+      }
+      
+      if (!session) {
+        console.error('[useRealtimeVoice] ❌ No active session');
         throw new Error('No active session. Please log in.');
       }
 
-      console.log('[useRealtimeVoice] Session token obtained');
+      console.log('[useRealtimeVoice] ✅ Session token obtained, user:', session.user?.id);
 
       // Create client
+      console.log('[useRealtimeVoice] 🏗️ Creating RealtimeVoiceClient...');
       clientRef.current = new RealtimeVoiceClient({
         studentId,
         language,
@@ -46,11 +57,11 @@ export function useRealtimeVoice({ studentId, language, onTranscription }: UseRe
           onTranscription?.(text, isUser);
         },
         onAudioPlayback: (isPlaying) => {
-          console.log('[useRealtimeVoice] Audio playback:', isPlaying);
+          console.log('[useRealtimeVoice] 🔊 Audio playback:', isPlaying);
           setIsAIPlaying(isPlaying);
         },
         onError: (error) => {
-          console.error('[useRealtimeVoice] Error:', error);
+          console.error('[useRealtimeVoice] ❌ Error callback triggered:', error);
           toast({
             title: 'Voice Error',
             description: error.message,
@@ -58,12 +69,14 @@ export function useRealtimeVoice({ studentId, language, onTranscription }: UseRe
           });
         },
         onConnectionChange: (connected) => {
-          console.log('[useRealtimeVoice] Connection status:', connected);
+          console.log('[useRealtimeVoice] 📡 Connection status changed:', connected);
           setIsConnected(connected);
         }
       });
 
+      console.log('[useRealtimeVoice] 🔌 Calling client.connect()...');
       await clientRef.current.connect(session.access_token);
+      console.log('[useRealtimeVoice] ✅ Client connected successfully');
       
       toast({
         title: language === 'es-PR' ? '¡Conectado!' : 'Connected!',
@@ -73,7 +86,8 @@ export function useRealtimeVoice({ studentId, language, onTranscription }: UseRe
       });
 
     } catch (error) {
-      console.error('[useRealtimeVoice] Connection error:', error);
+      console.error('[useRealtimeVoice] ❌ Connection error:', error);
+      console.error('[useRealtimeVoice] 📋 Error stack:', error instanceof Error ? error.stack : 'No stack');
       toast({
         title: 'Connection Error',
         description: error instanceof Error ? error.message : 'Failed to connect',
@@ -81,6 +95,7 @@ export function useRealtimeVoice({ studentId, language, onTranscription }: UseRe
       });
       setIsConnected(false);
     } finally {
+      console.log('[useRealtimeVoice] 🏁 Connection attempt finished');
       setIsConnecting(false);
     }
   }, [studentId, language, isConnecting, isConnected, onTranscription, toast]);
@@ -101,8 +116,9 @@ export function useRealtimeVoice({ studentId, language, onTranscription }: UseRe
 
   // Cleanup on unmount
   useEffect(() => {
+    console.log('[useRealtimeVoice] 🎬 Hook mounted');
     return () => {
-      console.log('[useRealtimeVoice] Cleanup on unmount');
+      console.log('[useRealtimeVoice] 🧹 Cleanup on unmount');
       clientRef.current?.disconnect();
     };
   }, []);

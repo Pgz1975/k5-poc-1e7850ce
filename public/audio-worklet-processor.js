@@ -1,4 +1,11 @@
+console.log('[AudioWorklet] 📦 audio-worklet-processor.js loaded');
+
 class PCM16Processor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    console.log('[AudioWorklet] 🏗️ PCM16Processor constructor called');
+  }
+
   process(inputs) {
     const input = inputs[0];
     if (!input || !input[0]) {
@@ -21,4 +28,6 @@ class PCM16Processor extends AudioWorkletProcessor {
   }
 }
 
+console.log('[AudioWorklet] 📝 Registering pcm16-processor');
 registerProcessor('pcm16-processor', PCM16Processor);
+console.log('[AudioWorklet] ✅ pcm16-processor registered successfully');

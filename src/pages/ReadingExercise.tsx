@@ -12,10 +12,20 @@ import { CompletionCelebration } from "@/components/ReadingExercise/CompletionCe
 import { Header } from "@/components/Header";
 import { readingExercises } from "@/data/readingExercises";
 import { Card } from "@/components/ui/card";
+import { useEffect } from "react";
 
 export default function ReadingExercise() {
+  console.log('[ReadingExercise] 🎬 Component rendering');
+  
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log('[ReadingExercise] ✅ Component mounted');
+    return () => {
+      console.log('[ReadingExercise] 🧹 Component unmounting');
+    };
+  }, []);
   
   const {
     currentExercise,

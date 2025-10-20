@@ -20,22 +20,35 @@ export class RealtimeVoiceClient {
 
   constructor(config: RealtimeVoiceConfig) {
     this.config = config;
-    console.log('[RealtimeVoice] Client initialized with config:', config);
+    console.log('[RealtimeVoice] 🎯 Client initialized with config:', {
+      studentId: config.studentId,
+      language: config.language,
+      hasCallbacks: {
+        onTranscription: !!config.onTranscription,
+        onAudioPlayback: !!config.onAudioPlayback,
+        onError: !!config.onError,
+        onConnectionChange: !!config.onConnectionChange
+      }
+    });
   }
 
   async connect(token: string): Promise<void> {
     try {
-      console.log('[RealtimeVoice] Starting connection...');
+      console.log('[RealtimeVoice] 🚀 Starting connection process...');
+      console.log('[RealtimeVoice] 🔑 Token length:', token?.length || 0);
       
       // Initialize audio context
+      console.log('[RealtimeVoice] 🎵 Creating AudioContext...');
       this.audioContext = new AudioContext({ sampleRate: 24000 });
-      console.log('[RealtimeVoice] AudioContext created, sample rate:', this.audioContext.sampleRate);
+      console.log('[RealtimeVoice] ✅ AudioContext created, sample rate:', this.audioContext.sampleRate);
 
       // Load audio worklet for PCM16 processing
+      console.log('[RealtimeVoice] 📦 Loading audio worklet module...');
       await this.audioContext.audioWorklet.addModule('/audio-worklet-processor.js');
-      console.log('[RealtimeVoice] Audio worklet loaded');
+      console.log('[RealtimeVoice] ✅ Audio worklet loaded successfully');
 
       // Get microphone access
+      console.log('[RealtimeVoice] 🎤 Requesting microphone access...');
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           sampleRate: 24000,
@@ -45,7 +58,10 @@ export class RealtimeVoiceClient {
           autoGainControl: true
         }
       });
-      console.log('[RealtimeVoice] Microphone access granted');
+      console.log('[RealtimeVoice] ✅ Microphone access granted:', {
+        tracks: this.mediaStream.getTracks().length,
+        settings: this.mediaStream.getAudioTracks()[0]?.getSettings()
+      });
 
       // Create audio worklet node for input processing
       const source = this.audioContext.createMediaStreamSource(this.mediaStream);
@@ -69,9 +85,12 @@ export class RealtimeVoiceClient {
 
       // Connect to WebSocket relay
       const wsUrl = `wss://${this.projectId}.supabase.co/functions/v1/realtime-voice-relay?jwt=${token}&student_id=${this.config.studentId}&language=${this.config.language}`;
-      console.log('[RealtimeVoice] Connecting to WebSocket:', wsUrl.replace(token, 'TOKEN'));
+      console.log('[RealtimeVoice] 🔌 Connecting to WebSocket...');
+      console.log('[RealtimeVoice] 📍 Project ID:', this.projectId);
+      console.log('[RealtimeVoice] 🌐 WebSocket URL:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
       
       this.ws = new WebSocket(wsUrl);
+      console.log('[RealtimeVoice] 🔄 WebSocket state:', this.ws.readyState);
 
       this.ws.onopen = () => {
         console.log('[RealtimeVoice] ✅ WebSocket connected');
