@@ -142,7 +142,7 @@ export class K5Client {
       .eq('document_id', documentId);
 
     if (options.language) {
-      query = query.eq('detected_language', options.language);
+      query = query.eq('detected_language', options.language as any);
     }
 
     if (options.page) {
