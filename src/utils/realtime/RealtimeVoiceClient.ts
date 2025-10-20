@@ -18,11 +18,6 @@ export class RealtimeVoiceClient {
   private audioQueue: Int16Array[] = [];
   private isPlayingAudio = false;
   private projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'meertwtenhlmnlpwxhyz';
-  private nextScheduledTime = 0;
-  private audioInputEnabled = false;
-  private audioChunkBuffer: Int16Array[] = [];
-  private MIN_BUFFER_SIZE = 3;
-  private sessionStartTime = 0;
 
   constructor(config: RealtimeVoiceConfig) {
     this.config = config;
@@ -74,31 +69,14 @@ export class RealtimeVoiceClient {
       this.audioWorklet = new AudioWorkletNode(this.audioContext, 'pcm16-processor');
       
       this.audioWorklet.port.onmessage = (event) => {
-        if (!this.audioInputEnabled || this.ws?.readyState !== WebSocket.OPEN) {
-          return;
-        }
-
-        const pcm16Data = event.data as Int16Array;
-        this.audioChunkBuffer.push(pcm16Data);
-
-        // Batch audio chunks to ~100ms before sending
-        if (this.audioChunkBuffer.length >= 2) {
-          const totalLength = this.audioChunkBuffer.reduce((sum, chunk) => sum + chunk.length, 0);
-          const combined = new Int16Array(totalLength);
-          let offset = 0;
+        if (this.ws?.readyState === WebSocket.OPEN) {
+          const pcm16Data = event.data as Int16Array;
+          const base64Audio = this.encodePCM16ToBase64(pcm16Data);
           
-          for (const chunk of this.audioChunkBuffer) {
-            combined.set(chunk, offset);
-            offset += chunk.length;
-          }
-          
-          const base64Audio = this.encodePCM16ToBase64(combined);
           this.ws.send(JSON.stringify({
             type: 'input_audio_buffer.append',
             audio: base64Audio
           }));
-          
-          this.audioChunkBuffer = [];
         }
       };
 
@@ -120,7 +98,6 @@ export class RealtimeVoiceClient {
       this.ws.onopen = () => {
         console.log('[RealtimeVoice] ✅ WebSocket connected');
         this.isConnected = true;
-        this.sessionStartTime = Date.now();
         this.config.onConnectionChange?.(true);
       };
 
@@ -152,13 +129,11 @@ export class RealtimeVoiceClient {
   }
 
   private handleServerMessage(message: any): void {
-    const eventTime = Date.now() - this.sessionStartTime;
-    console.log(`[RealtimeVoice] [+${eventTime}ms] Server message:`, message.type);
+    console.log('[RealtimeVoice] Server message:', message.type);
 
     switch (message.type) {
       case 'session.created':
-        console.log('[RealtimeVoice] ✅ Session created - enabling audio input');
-        this.enableAudioInput();
+        console.log('[RealtimeVoice] ✅ Session created');
         break;
 
       case 'session.updated':
@@ -199,11 +174,7 @@ export class RealtimeVoiceClient {
       const pcm16Data = this.decodeBase64ToPCM16(base64Audio);
       this.audioQueue.push(pcm16Data);
       
-      console.log(`[RealtimeVoice] Audio delta received - Queue: ${this.audioQueue.length} chunks`);
-      
-      // Start playback once we have minimum buffer
-      if (!this.isPlayingAudio && this.audioQueue.length >= this.MIN_BUFFER_SIZE) {
-        console.log('[RealtimeVoice] Buffer filled, starting playback');
+      if (!this.isPlayingAudio) {
         this.playNextAudioChunk();
       }
     } catch (error) {
@@ -214,8 +185,6 @@ export class RealtimeVoiceClient {
   private async playNextAudioChunk(): Promise<void> {
     if (this.audioQueue.length === 0) {
       this.isPlayingAudio = false;
-      this.nextScheduledTime = 0;
-      this.config.onAudioPlayback?.(false);
       return;
     }
 
@@ -237,12 +206,7 @@ export class RealtimeVoiceClient {
       const audioBuffer = this.audioContext.createBuffer(1, float32Data.length, 24000);
       audioBuffer.getChannelData(0).set(float32Data);
 
-      // Calculate when to play this chunk
-      const now = this.audioContext.currentTime;
-      const scheduledTime = Math.max(now, this.nextScheduledTime || now);
-      const duration = audioBuffer.duration;
-
-      // Play audio at scheduled time
+      // Play audio
       const source = this.audioContext.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(this.audioContext.destination);
@@ -251,23 +215,13 @@ export class RealtimeVoiceClient {
         this.playNextAudioChunk();
       };
 
-      source.start(scheduledTime);
-      
-      // Update next scheduled time for seamless playback
-      this.nextScheduledTime = scheduledTime + duration;
-      
-      const bufferAhead = (this.nextScheduledTime - now) * 1000;
-      console.log(`[RealtimeVoice] Playing chunk: ${pcm16Data.length} samples, duration: ${(duration * 1000).toFixed(0)}ms, buffer ahead: ${bufferAhead.toFixed(0)}ms, queue: ${this.audioQueue.length}`);
+      source.start(0);
+      console.log('[RealtimeVoice] Playing audio chunk:', pcm16Data.length, 'samples');
 
     } catch (error) {
       console.error('[RealtimeVoice] Error playing audio:', error);
       this.playNextAudioChunk();
     }
-  }
-
-  private enableAudioInput(): void {
-    console.log('[RealtimeVoice] 🎤 Audio input enabled');
-    this.audioInputEnabled = true;
   }
 
   private encodePCM16ToBase64(pcm16Data: Int16Array): string {
@@ -339,10 +293,7 @@ export class RealtimeVoiceClient {
 
     this.isConnected = false;
     this.audioQueue = [];
-    this.audioChunkBuffer = [];
     this.isPlayingAudio = false;
-    this.audioInputEnabled = false;
-    this.nextScheduledTime = 0;
     
     console.log('[RealtimeVoice] Disconnected');
   }
