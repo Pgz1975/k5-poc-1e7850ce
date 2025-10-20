@@ -177,7 +177,7 @@ const FamilyDashboard = () => {
                       <span className="text-sm font-medium">
                         {t("Comprensión", "Comprehension")}
                       </span>
-                      <Badge variant="default">88%</Badge>
+                      <span className="text-sm font-medium text-primary">88%</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div 
@@ -192,7 +192,7 @@ const FamilyDashboard = () => {
                       <span className="text-sm font-medium">
                         {t("Fluidez", "Fluency")}
                       </span>
-                      <Badge variant="default">85%</Badge>
+                      <span className="text-sm font-medium text-primary">85%</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div 
@@ -207,7 +207,7 @@ const FamilyDashboard = () => {
                       <span className="text-sm font-medium">
                         {t("Vocabulario", "Vocabulary")}
                       </span>
-                      <Badge variant="default">90%</Badge>
+                      <span className="text-sm font-medium text-primary">90%</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div 
@@ -222,7 +222,7 @@ const FamilyDashboard = () => {
                       <span className="text-sm font-medium">
                         {t("Pronunciación", "Pronunciation")}
                       </span>
-                      <Badge variant="secondary">82%</Badge>
+                      <span className="text-sm font-medium text-secondary">82%</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div 
