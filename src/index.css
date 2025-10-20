@@ -8,103 +8,105 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Coqui Theme Colors */
-    --background: 208 100% 97%; /* Soft sky blue #F0F8FF */
-    --foreground: 0 0% 20%; /* Softer text #333333 */
+    /* Learn Aid Professional Theme - Teal, Navy, Warm Gray */
+    --background: 40 8% 96%; /* Warm gray background */
+    --foreground: 222 47% 25%; /* Navy text */
 
-    /* Card backgrounds - white with soft shadows */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 20%;
+    /* Card backgrounds - soft warm gray */
+    --card: 40 8% 98%;
+    --card-foreground: 222 47% 25%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 20%;
+    --popover: 40 8% 98%;
+    --popover-foreground: 222 47% 25%;
 
-    /* Primary: Coqui Green #52C41A */
-    --primary: 102 76% 44%;
+    /* Primary: Educational Teal */
+    --primary: 176 84% 41%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 102 76% 64%;
+    --primary-glow: 176 84% 55%;
 
-    /* Secondary: Belly Yellow #FFD93D */
-    --secondary: 48 100% 62%;
-    --secondary-foreground: 102 76% 24%; /* Dark green text */
+    /* Secondary: Professional Navy */
+    --secondary: 222 47% 35%;
+    --secondary-foreground: 0 0% 100%;
 
-    /* Success: Coqui Green */
-    --success: 102 76% 44%;
+    /* Success: Teal variant */
+    --success: 176 84% 41%;
     --success-foreground: 0 0% 100%;
 
     /* Muted for subtle elements */
-    --muted: 120 60% 97%; /* Light green tint #F6FFED */
-    --muted-foreground: 0 0% 45%;
+    --muted: 40 8% 92%;
+    --muted-foreground: 222 20% 50%;
 
-    /* Accent: Glasses Blue #1890FF */
-    --accent: 208 100% 55%;
+    /* Accent: Lighter Teal */
+    --accent: 176 84% 55%;
     --accent-foreground: 0 0% 100%;
 
-    /* Warning: Soft Orange #FFA940 */
-    --warning: 33 100% 63%;
-    --warning-foreground: 0 0% 20%;
+    /* Warning: Warm amber */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    /* Destructive: Soft Red #FF7875 */
-    --destructive: 3 100% 73%;
+    /* Destructive: Professional red */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 120 40% 90%; /* Green tint #E8F5E9 */
-    --input: 120 40% 90%;
-    --ring: 102 76% 44%;
+    --border: 40 8% 88%;
+    --input: 40 8% 88%;
+    --ring: 176 84% 41%;
 
-    --radius: 1rem; /* 16px for playful rounded corners */
+    --radius: 1rem;
 
-    /* Custom gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(208 100% 97%) 0%, hsl(0 0% 100%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(208 100% 97%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(102 76% 44%) 0%, hsl(102 76% 64%) 100%);
-    --gradient-primary-button: linear-gradient(135deg, hsl(102 76% 44%) 0%, hsl(102 76% 54%) 100%);
+    /* Professional gradients with teal */
+    --gradient-hero: linear-gradient(135deg, hsl(40 8% 96%) 0%, hsl(40 8% 98%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(40 8% 98%) 0%, hsl(40 8% 96%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(176 84% 41%) 0%, hsl(176 84% 55%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(176 84% 41%) 0%, hsl(176 84% 55%) 100%);
+    --gradient-primary-button: linear-gradient(135deg, hsl(176 84% 41%) 0%, hsl(176 84% 48%) 100%);
+    --gradient-navy: linear-gradient(135deg, hsl(222 47% 35%) 0%, hsl(222 47% 45%) 100%);
     
-    /* Playful shadows */
+    /* Professional shadows with teal tint */
     --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.07);
     --shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.1);
     --shadow-strong: 0 8px 16px rgba(0, 0, 0, 0.12);
-    --shadow-hover: 0 8px 16px rgba(82, 196, 26, 0.15);
+    --shadow-hover: 0 8px 16px rgba(23, 162, 184, 0.2);
 
-    /* Smooth transitions */
+    /* Smooth transitions with hover states */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 
   .dark {
-    --background: 215 25% 12%;
-    --foreground: 210 40% 98%;
+    --background: 222 47% 11%;
+    --foreground: 40 8% 95%;
 
-    --card: 215 25% 16%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 47% 15%;
+    --card-foreground: 40 8% 95%;
 
-    --popover: 215 25% 16%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222 47% 15%;
+    --popover-foreground: 40 8% 95%;
 
-    --primary: 102 76% 54%;
+    --primary: 176 84% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 48 100% 62%;
-    --secondary-foreground: 102 76% 24%;
+    --secondary: 222 47% 45%;
+    --secondary-foreground: 0 0% 100%;
 
-    --success: 102 76% 54%;
+    --success: 176 84% 55%;
     --success-foreground: 0 0% 100%;
 
-    --muted: 215 25% 20%;
-    --muted-foreground: 215 20% 70%;
+    --muted: 222 30% 20%;
+    --muted-foreground: 40 8% 70%;
 
-    --accent: 208 100% 60%;
+    --accent: 176 84% 65%;
     --accent-foreground: 0 0% 100%;
 
-    --warning: 33 100% 63%;
-    --warning-foreground: 0 0% 20%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    --destructive: 3 100% 73%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 25% 25%;
-    --input: 215 25% 25%;
-    --ring: 102 76% 54%;
+    --border: 222 30% 25%;
+    --input: 222 30% 25%;
+    --ring: 176 84% 55%;
   }
 }
 
@@ -116,7 +118,7 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
     font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(180deg, hsl(208 100% 97%) 0%, hsl(0 0% 100%) 100%);
+    background: linear-gradient(180deg, hsl(40 8% 96%) 0%, hsl(40 8% 98%) 100%);
     min-height: 100vh;
   }
 
@@ -137,13 +139,14 @@ All colors MUST be HSL.
     @apply text-2xl md:text-3xl;
   }
 
-  /* Playful link styles */
+  /* Professional link styles with hover states */
   a {
     @apply transition-colors;
     color: hsl(var(--primary));
   }
 
   a:hover {
+    color: hsl(var(--primary-glow));
     text-decoration: underline;
   }
 
@@ -153,36 +156,48 @@ All colors MUST be HSL.
     line-height: 1.6;
   }
 
-  /* Playful button base */
+  /* Professional button base with hover states */
   button {
-    @apply transition-transform;
+    @apply transition-all duration-300;
     border-radius: 12px;
   }
 
-  button:active {
+  button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  button:active:not(:disabled) {
     transform: scale(0.98);
   }
 
-  /* Form inputs with playful borders */
+  /* Professional form inputs with teal focus */
   input, textarea, select {
     border-radius: 8px;
     border: 2px solid hsl(var(--border));
+    @apply transition-all duration-300;
   }
 
   input:focus, textarea:focus, select:focus {
     border-color: hsl(var(--primary));
-    box-shadow: 0 0 0 3px hsla(102, 76%, 44%, 0.1);
+    box-shadow: 0 0 0 3px hsla(176, 84%, 41%, 0.15);
   }
 
-  /* Playful card styles */
+  input:hover:not(:focus), textarea:hover:not(:focus), select:hover:not(:focus) {
+    border-color: hsl(var(--accent));
+  }
+
+  /* Professional card styles with teal hover */
   .card-playful {
     border-radius: 16px;
     box-shadow: var(--shadow-soft);
     transition: var(--transition-smooth);
+    border: 1px solid hsl(var(--border));
   }
 
   .card-playful:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-hover);
+    border-color: hsl(var(--primary) / 0.3);
   }
 }
