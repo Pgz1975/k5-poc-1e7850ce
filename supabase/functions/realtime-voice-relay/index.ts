@@ -29,7 +29,7 @@ server.on("upgrade", async (req, socket, head) => {
   });
 });
 
-wss.on("connection", async (clientWS, req, context) => {
+wss.on("connection", async (clientWS: any, req: any, context: any) => {
   const { studentId, language } = context;
   
   console.log(`[Relay] WebSocket connection established - Student: ${studentId}, Language: ${language}`);
@@ -143,7 +143,7 @@ wss.on("connection", async (clientWS, req, context) => {
     }
   });
 
-  clientWS.on('message', (data) => {
+  clientWS.on('message', (data: any) => {
     try {
       const message = JSON.parse(data.toString());
 
@@ -180,7 +180,7 @@ wss.on("connection", async (clientWS, req, context) => {
     }
   };
 
-  clientWS.on('close', (code, reason) => {
+  clientWS.on('close', (code: any, reason: any) => {
     console.log(`[Relay] Client disconnected - Code: ${code}, Reason: ${reason}`);
     cleanup();
   });
@@ -192,7 +192,7 @@ wss.on("connection", async (clientWS, req, context) => {
     }
   });
 
-  clientWS.on('error', (error) => {
+  clientWS.on('error', (error: any) => {
     console.error("[Relay] Client WebSocket error:", error);
     cleanup();
   });
