@@ -160,13 +160,12 @@ function calculateSemanticSimilarity(text: string, image: any): number {
 function determineCorrelationType(textBlock: any, image: any): string {
   const text = textBlock.text_content.toLowerCase();
 
-  if (text.includes('diagram') || text.includes('chart')) return 'diagram';
-  if (text.includes('photo') || text.includes('picture')) return 'illustration';
-  if (text.includes('map')) return 'illustration';
-  if (text.includes('see') || text.includes('shown')) return 'reference';
+  if (text.includes('caption') || text.includes('figure')) return 'caption';
+  if (text.includes('diagram') || text.includes('chart')) return 'spatial';
+  if (text.includes('see') || text.includes('shown') || text.includes('reference')) return 'reference';
 
-  // Default
-  return 'contextual';
+  // Default to semantic for general correlations
+  return 'semantic';
 }
 
 function extractSharedConcepts(text: string): string[] {
