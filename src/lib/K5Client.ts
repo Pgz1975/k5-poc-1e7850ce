@@ -175,14 +175,70 @@ export class K5Client {
   /**
    * Get assessment questions for a document
    */
-  async getAssessments(documentId: string): Promise<AssessmentQuestion[]> {
-    const { data, error } = await supabase
+  async getAssessments(documentId: string, options: { 
+    questionType?: string;
+    skillAssessed?: string;
+    limit?: number;
+  } = {}): Promise<AssessmentQuestion[]> {
+    let query = supabase
       .from('assessment_questions')
       .select('*')
       .eq('document_id', documentId);
 
+    if (options.questionType) {
+      query = query.eq('question_type', options.questionType as any);
+    }
+
+    if (options.skillAssessed) {
+      query = query.eq('skill_assessed', options.skillAssessed);
+    }
+
+    query = query.limit(options.limit || 50);
+
+    const { data, error } = await query;
     if (error) throw error;
     return data || [];
+  }
+
+  /**
+   * Get text-image correlations for a document
+   */
+  async getCorrelations(documentId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('text_image_correlations')
+      .select(`
+        *,
+        text_content:pdf_text_content(*),
+        image:pdf_images(*)
+      `)
+      .eq('text_content.document_id', documentId);
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  /**
+   * Detect language of text
+   */
+  async detectLanguage(text: string): Promise<any> {
+    const { data, error } = await supabase.functions.invoke('language-detector', {
+      body: { text }
+    });
+
+    if (error) throw error;
+    return data;
+  }
+
+  /**
+   * Process multiple documents in batch
+   */
+  async batchProcess(documentIds: string[]): Promise<any> {
+    const { data, error } = await supabase.functions.invoke('batch-processor', {
+      body: { documentIds }
+    });
+
+    if (error) throw error;
+    return data;
   }
 
   /**
