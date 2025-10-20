@@ -6,10 +6,11 @@ import { useToast } from '@/hooks/use-toast';
 interface UseRealtimeVoiceProps {
   studentId: string;
   language: 'es-PR' | 'en-US';
+  model?: string;
   onTranscription?: (text: string, isUser: boolean) => void;
 }
 
-export function useRealtimeVoice({ studentId, language, onTranscription }: UseRealtimeVoiceProps) {
+export function useRealtimeVoice({ studentId, language, model, onTranscription }: UseRealtimeVoiceProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
@@ -51,6 +52,7 @@ export function useRealtimeVoice({ studentId, language, onTranscription }: UseRe
       clientRef.current = new RealtimeVoiceClient({
         studentId,
         language,
+        model,
         onTranscription: (text, isUser) => {
           console.log(`[useRealtimeVoice] ${isUser ? '🎤 User' : '🔊 AI'}:`, text);
           setTranscript(prev => [...prev, { text, isUser }]);
@@ -98,7 +100,7 @@ export function useRealtimeVoice({ studentId, language, onTranscription }: UseRe
       console.log('[useRealtimeVoice] 🏁 Connection attempt finished');
       setIsConnecting(false);
     }
-  }, [studentId, language, isConnecting, isConnected, onTranscription, toast]);
+  }, [studentId, language, model, isConnecting, isConnected, onTranscription, toast]);
 
   const disconnect = useCallback(() => {
     console.log('[useRealtimeVoice] Disconnecting...');

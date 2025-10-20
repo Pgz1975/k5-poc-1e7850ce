@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRealtimeVoice } from '@/hooks/useRealtimeVoice';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mic, MicOff, Activity, Trash2 } from 'lucide-react';
@@ -13,6 +14,7 @@ export default function VoiceTest() {
   
   const { user } = useAuth();
   const [language, setLanguage] = useState<'es-PR' | 'en-US'>('es-PR');
+  const [model, setModel] = useState('gpt-4o-realtime-preview-2024-12-17');
   const [logs, setLogs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -41,6 +43,7 @@ export default function VoiceTest() {
   } = useRealtimeVoice({
     studentId: user?.id || 'test-student',
     language,
+    model,
     onTranscription: (text, isUser) => {
       addLog(`${isUser ? '🎤 User' : '🔊 AI'}: ${text}`);
     }
@@ -111,6 +114,34 @@ export default function VoiceTest() {
                     {user?.id?.slice(0, 8)}...
                   </Badge>
                 </div>
+              </div>
+
+              {/* Model Selection */}
+              <div className="space-y-2 mb-6">
+                <label className="font-medium text-sm">Model:</label>
+                <Select 
+                  value={model} 
+                  onValueChange={(value) => {
+                    setModel(value);
+                    addLog(`🤖 Model changed to ${value}`);
+                  }}
+                  disabled={isConnected}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gpt-4o-realtime-preview-2024-12-17">
+                      GPT-4o Realtime (2024-12-17)
+                    </SelectItem>
+                    <SelectItem value="gpt-5-realtime-preview">
+                      GPT-5 Realtime (Latest)
+                    </SelectItem>
+                    <SelectItem value="gpt-5-mini-realtime-preview">
+                      GPT-5 Mini Realtime
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Language Toggle */}
@@ -268,9 +299,9 @@ export default function VoiceTest() {
               </code>
             </div>
             <div>
-              <span className="font-medium">OpenAI Model:</span>
+              <span className="font-medium">Selected Model:</span>
               <code className="ml-2 px-2 py-1 bg-muted rounded text-xs">
-                gpt-4o-realtime-preview-2024-12-17
+                {model}
               </code>
             </div>
             <div>

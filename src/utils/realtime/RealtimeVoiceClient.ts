@@ -1,6 +1,7 @@
 export interface RealtimeVoiceConfig {
   studentId: string;
   language: 'es-PR' | 'en-US';
+  model?: string;
   onTranscription?: (text: string, isUser: boolean) => void;
   onAudioPlayback?: (isPlaying: boolean) => void;
   onError?: (error: Error) => void;
@@ -84,9 +85,11 @@ export class RealtimeVoiceClient {
       console.log('[RealtimeVoice] Audio pipeline connected');
 
       // Connect to WebSocket relay
-      const wsUrl = `wss://${this.projectId}.supabase.co/functions/v1/realtime-voice-relay?jwt=${token}&student_id=${this.config.studentId}&language=${this.config.language}`;
+      const modelParam = this.config.model ? `&model=${encodeURIComponent(this.config.model)}` : '';
+      const wsUrl = `wss://${this.projectId}.supabase.co/functions/v1/realtime-voice-relay?jwt=${token}&student_id=${this.config.studentId}&language=${this.config.language}${modelParam}`;
       console.log('[RealtimeVoice] 🔌 Connecting to WebSocket...');
       console.log('[RealtimeVoice] 📍 Project ID:', this.projectId);
+      console.log('[RealtimeVoice] 🎯 Model:', this.config.model || 'default');
       console.log('[RealtimeVoice] 🌐 WebSocket URL:', wsUrl.replace(token, 'TOKEN_HIDDEN'));
       
       this.ws = new WebSocket(wsUrl);
