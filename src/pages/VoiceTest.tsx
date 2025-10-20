@@ -132,16 +132,16 @@ export default function VoiceTest() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="gpt-4o-realtime-preview-2024-12-17">
-                      GPT-4o Realtime (2024-12-17)
+                      GPT-4o Realtime (Dec 2024) - Recommended
                     </SelectItem>
-                    <SelectItem value="gpt-5-realtime-preview">
-                      GPT-5 Realtime (Latest)
-                    </SelectItem>
-                    <SelectItem value="gpt-5-mini-realtime-preview">
-                      GPT-5 Mini Realtime
+                    <SelectItem value="gpt-4o-realtime-preview-2024-10-01">
+                      GPT-4o Realtime (Oct 2024)
                     </SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Note: Only GPT-4o models support realtime mode. GPT-5 variants are not yet available for the Realtime API.
+                </p>
               </div>
 
               {/* Language Toggle */}
