@@ -19,7 +19,7 @@ export const CTASection = () => {
       titleEn: "Teacher Portal",
       descriptionEs: "Gestiona grupos, revisa progreso y accede a recursos didácticos",
       descriptionEn: "Manage groups, review progress, and access teaching resources",
-      color: "from-secondary to-accent",
+      color: "from-primary to-primary-glow",
     },
     {
       icon: Home,
@@ -27,7 +27,7 @@ export const CTASection = () => {
       titleEn: "Family Portal",
       descriptionEs: "Monitorea el progreso diario y recibe sugerencias de apoyo",
       descriptionEn: "Monitor daily progress and receive support suggestions",
-      color: "from-success to-primary",
+      color: "from-primary to-primary-glow",
     },
   ];
 
