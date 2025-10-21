@@ -58,8 +58,8 @@ export default function ViewAssessment() {
   useEffect(() => {
     if (assessment && !isConnected) {
       connect().then(() => {
-        if (assessment.content.voiceGuidance) {
-          sendText(assessment.content.voiceGuidance);
+        if (assessment.voice_guidance) {
+          sendText(assessment.voice_guidance);
           setTimeout(() => {
             sendText(assessment.content.question);
           }, 2000);

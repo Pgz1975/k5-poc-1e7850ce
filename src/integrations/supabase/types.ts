@@ -154,6 +154,7 @@ export type Database = {
           type: string
           updated_at: string | null
           view_count: number | null
+          voice_guidance: string | null
           voice_speed: number | null
         }
         Insert: {
@@ -180,6 +181,7 @@ export type Database = {
           type: string
           updated_at?: string | null
           view_count?: number | null
+          voice_guidance?: string | null
           voice_speed?: number | null
         }
         Update: {
@@ -206,6 +208,7 @@ export type Database = {
           type?: string
           updated_at?: string | null
           view_count?: number | null
+          voice_guidance?: string | null
           voice_speed?: number | null
         }
         Relationships: []

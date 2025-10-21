@@ -20,6 +20,7 @@ interface AssessmentData {
   type: 'lesson' | 'exercise' | 'assessment';
   subtype: string;
   title: string;
+  voice_guidance?: string;
   content: {
     question: string;
     questionImage?: string;
@@ -28,7 +29,6 @@ interface AssessmentData {
       imageUrl: string | null;
       isCorrect: boolean;
     }>;
-    voiceGuidance?: string;
   };
   settings: {
     gradeLevel: number;
@@ -77,6 +77,7 @@ export default function CreateAssessment() {
         subtype: data.subtype!,
         title: data.title || data.content!.question.substring(0, 50),
         content: data.content!,
+        voice_guidance: data.voice_guidance || null,
         grade_level: data.settings!.gradeLevel,
         language: data.settings!.language,
         subject_area: data.settings!.subject,
@@ -237,10 +238,10 @@ export default function CreateAssessment() {
                 )}
               </p>
               <Textarea
-                value={data.content?.voiceGuidance || ''}
+                value={data.voice_guidance || ''}
                 onChange={(e) => setData({
                   ...data,
-                  content: { ...data.content!, voiceGuidance: e.target.value }
+                  voice_guidance: e.target.value
                 })}
                 placeholder={t(
                   "Ej: Lee la pregunta lentamente y repite las opciones dos veces",
