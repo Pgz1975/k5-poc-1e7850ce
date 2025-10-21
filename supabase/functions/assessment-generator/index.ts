@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -136,15 +136,15 @@ serve(async (req) => {
   }
 });
 
-function generateMultipleChoice(text: string, language: string, pageNumber: number, gradeLevel: number[]): any {
+function generateMultipleChoice(text: string, language: string, pageNumber: number, gradeLevel: number[] | null): any {
   // Extract key sentences
   const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
   if (sentences.length === 0) return null;
 
   const keySentence = sentences[0].trim();
-  
+
   // Generate question based on language
-  const questionTemplates = language === 'es' 
+  const questionTemplates = language === 'es'
     ? ['¿Qué dice el texto sobre', '¿Según el texto,', '¿Cuál es la idea principal']
     : ['What does the text say about', 'According to the text,', 'What is the main idea'];
 
@@ -155,7 +155,7 @@ function generateMultipleChoice(text: string, language: string, pageNumber: numb
   const correctAnswer = extractKeyPhrase(keySentence);
   const distractors = generateDistractors(correctAnswer, language);
 
-  const avgGrade = gradeLevel.length > 0 ? Math.round(gradeLevel.reduce((a, b) => a + b) / gradeLevel.length) : 3;
+  const avgGrade = gradeLevel && gradeLevel.length > 0 ? Math.round(gradeLevel.reduce((a, b) => a + b) / gradeLevel.length) : 3;
 
   return {
     question_type: 'multiple_choice',
@@ -172,18 +172,18 @@ function generateMultipleChoice(text: string, language: string, pageNumber: numb
   };
 }
 
-function generateTrueFalse(text: string, language: string, pageNumber: number, gradeLevel: number[]): any {
+function generateTrueFalse(text: string, language: string, pageNumber: number, gradeLevel: number[] | null): any {
   const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 15);
   if (sentences.length === 0) return null;
 
   const sentence = sentences[0].trim();
   const isTrue = Math.random() > 0.5;
 
-  const questionText = isTrue 
-    ? sentence 
+  const questionText = isTrue
+    ? sentence
     : negateStatement(sentence, language);
 
-  const avgGrade = gradeLevel.length > 0 ? Math.round(gradeLevel.reduce((a, b) => a + b) / gradeLevel.length) : 3;
+  const avgGrade = gradeLevel && gradeLevel.length > 0 ? Math.round(gradeLevel.reduce((a, b) => a + b) / gradeLevel.length) : 3;
 
   return {
     question_type: 'true_false',
@@ -200,7 +200,7 @@ function generateTrueFalse(text: string, language: string, pageNumber: number, g
   };
 }
 
-function generateImageQuestion(image: any, language: string, gradeLevel: number[]): any {
+function generateImageQuestion(image: any, language: string, gradeLevel: number[] | null): any {
   const templates = language === 'es'
     ? [
         '¿Qué muestra la imagen?',
@@ -214,7 +214,7 @@ function generateImageQuestion(image: any, language: string, gradeLevel: number[
       ];
 
   const question = templates[Math.floor(Math.random() * templates.length)];
-  const avgGrade = gradeLevel.length > 0 ? Math.round(gradeLevel.reduce((a, b) => a + b) / gradeLevel.length) : 3;
+  const avgGrade = gradeLevel && gradeLevel.length > 0 ? Math.round(gradeLevel.reduce((a, b) => a + b) / gradeLevel.length) : 3;
 
   return {
     question_type: 'short_answer',

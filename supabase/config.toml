@@ -2,3 +2,27 @@ project_id = "meertwtenhlmnlpwxhyz"
 
 [functions.realtime-voice-relay]
 verify_jwt = false
+
+[functions.assessment-generator]
+verify_jwt = false
+
+[functions.process-pdf]
+verify_jwt = false
+
+[functions.pdf-text-extractor]
+verify_jwt = false
+
+[functions.pdf-image-extractor]
+verify_jwt = false
+
+[functions.text-image-correlator]
+verify_jwt = false
+
+[functions.language-detector]
+verify_jwt = false
+
+[functions.batch-processor]
+verify_jwt = false
+
+[functions.fetch-pexels-image]
+verify_jwt = false
