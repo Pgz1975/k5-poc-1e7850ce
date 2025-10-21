@@ -474,24 +474,42 @@ export type Database = {
       }
       profiles: {
         Row: {
+          assigned_region: string | null
           avatar_url: string | null
           created_at: string
           full_name: string | null
+          grade_level: number | null
           id: string
+          language_specialization:
+            | Database["public"]["Enums"]["language_code"]
+            | null
+          school_id: string | null
           updated_at: string
         }
         Insert: {
+          assigned_region?: string | null
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
+          grade_level?: number | null
           id: string
+          language_specialization?:
+            | Database["public"]["Enums"]["language_code"]
+            | null
+          school_id?: string | null
           updated_at?: string
         }
         Update: {
+          assigned_region?: string | null
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
+          grade_level?: number | null
           id?: string
+          language_specialization?:
+            | Database["public"]["Enums"]["language_code"]
+            | null
+          school_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -763,6 +781,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_grade_content: {
+        Args: { content_grade_level: number; user_id: string }
+        Returns: boolean
+      }
+      can_access_language_content: {
+        Args: {
+          content_language: Database["public"]["Enums"]["language_code"]
+          user_id: string
+        }
+        Returns: boolean
+      }
+      get_user_grade_level: {
+        Args: { user_id: string }
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -772,7 +805,22 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "student" | "teacher" | "family"
+      app_role:
+        | "student"
+        | "student_kindergarten"
+        | "student_1"
+        | "student_2"
+        | "student_3"
+        | "student_4"
+        | "student_5"
+        | "family"
+        | "teacher_english"
+        | "teacher_spanish"
+        | "school_director"
+        | "regional_director"
+        | "spanish_program_admin"
+        | "english_program_admin"
+        | "depr_executive"
       content_type:
         | "textbook"
         | "worksheet"
@@ -915,7 +963,23 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["student", "teacher", "family"],
+      app_role: [
+        "student",
+        "student_kindergarten",
+        "student_1",
+        "student_2",
+        "student_3",
+        "student_4",
+        "student_5",
+        "family",
+        "teacher_english",
+        "teacher_spanish",
+        "school_director",
+        "regional_director",
+        "spanish_program_admin",
+        "english_program_admin",
+        "depr_executive",
+      ],
       content_type: [
         "textbook",
         "worksheet",
