@@ -29,7 +29,7 @@ serve(async (req) => {
     }
     // Parse PDF using pdf.js (works in Deno)
     const pdfData = normalizeToUint8Array(pdfBuffer);
-    const loadingTask = pdfjsLib.getDocument({ data: pdfData, disableWorker: true, isEvalSupported: false, useWorkerFetch: false, disableFontFace: true });
+    const loadingTask = pdfjsLib.getDocument({ data: pdfData, /* allow real worker */ isEvalSupported: false, useWorkerFetch: true, disableFontFace: true });
     const pdfDoc = await loadingTask.promise;
     console.log('[Text Extractor] Extracting from', pdfDoc.numPages, 'pages');
 

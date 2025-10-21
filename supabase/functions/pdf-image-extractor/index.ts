@@ -35,13 +35,16 @@ serve(async (req) => {
     // Use pdfjs-dist (Deno-compatible) for PDF processing - esm.sh legacy build
     const pdfjsModule = await import('https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs');
     const pdfjsLib: any = (pdfjsModule as any).default || pdfjsModule;
+    // Provide worker source for real Worker in edge runtime
+    if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.worker.mjs';
+    }
     
-    // Load PDF document with worker disabled for Deno edge runtime
+    // Load PDF document with real worker enabled
     const loadingTask = pdfjsLib.getDocument({ 
       data: uint8Array, 
-      disableWorker: true, 
       isEvalSupported: false, 
-      useWorkerFetch: false, 
+      useWorkerFetch: true, 
       disableFontFace: true 
     });
     const pdf = await loadingTask.promise;
