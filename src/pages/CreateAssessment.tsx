@@ -191,6 +191,29 @@ export default function CreateAssessment() {
               />
             </Card>
 
+            {/* Speech Instructions */}
+            <Card className="p-6 mb-6">
+              <h3 className="text-xl font-bold mb-4">🎙️ {t("Instrucciones para el Sistema de Voz", "Speech System Instructions")}</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                {t(
+                  "Escribe instrucciones especiales que el asistente de voz debe seguir al leer este contenido (opcional).",
+                  "Write special instructions for the voice assistant when reading this content (optional)."
+                )}
+              </p>
+              <Textarea
+                value={data.content?.voiceGuidance || ''}
+                onChange={(e) => setData({
+                  ...data,
+                  content: { ...data.content!, voiceGuidance: e.target.value }
+                })}
+                placeholder={t(
+                  "Ej: Lee la pregunta lentamente y repite las opciones dos veces",
+                  "e.g. Read the question slowly and repeat options twice"
+                )}
+                className="min-h-24"
+              />
+            </Card>
+
             {/* Settings */}
             <Card className="p-6 mb-6">
               <h3 className="text-xl font-bold mb-4">⚙️ {t("Configuración", "Settings")}</h3>
