@@ -32,10 +32,18 @@ serve(async (req) => {
     const arrayBuffer = await pdfData.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
-    // Use pdfjs-dist (Deno-compatible) for PDF processing
-    const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.mjs');
-    // Load PDF document
-    const loadingTask = pdfjsLib.getDocument({ data: uint8Array, disableWorker: true, isEvalSupported: false, useWorkerFetch: false, disableFontFace: true });
+    // Use pdfjs-dist (Deno-compatible) for PDF processing - esm.sh legacy build
+    const pdfjsModule = await import('https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs');
+    const pdfjsLib: any = (pdfjsModule as any).default || pdfjsModule;
+    
+    // Load PDF document with worker disabled for Deno edge runtime
+    const loadingTask = pdfjsLib.getDocument({ 
+      data: uint8Array, 
+      disableWorker: true, 
+      isEvalSupported: false, 
+      useWorkerFetch: false, 
+      disableFontFace: true 
+    });
     const pdf = await loadingTask.promise;
 
     console.log('[Image Extractor] PDF has', pdf.numPages, 'pages');

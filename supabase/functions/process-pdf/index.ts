@@ -65,15 +65,25 @@ serve(async (req) => {
 
     // Step 1: Extract text
     console.log('[PDF Processor] Extracting text...');
-    const { error: textError } = await supabase.functions.invoke('pdf-text-extractor', {
+    const textResponse = await supabase.functions.invoke('pdf-text-extractor', {
       body: { 
         documentId, 
         pdfBuffer: Array.from(new Uint8Array(arrayBuffer))
       }
     });
 
-    if (textError) {
-      console.error('[PDF Processor] Text extraction error:', textError);
+    if (textResponse.error) {
+      console.error('[PDF Processor] Text extraction error:', textResponse.error);
+      await supabase
+        .from('pdf_documents')
+        .update({
+          processing_status: 'failed',
+          processing_error: `Text extraction failed: ${textResponse.error.message}`,
+          processing_completed_at: new Date().toISOString()
+        })
+        .eq('id', documentId);
+      
+      throw new Error(`Text extraction failed: ${textResponse.error.message}`);
     }
 
     // Update progress
@@ -84,12 +94,22 @@ serve(async (req) => {
 
     // Step 2: Extract images
     console.log('[PDF Processor] Extracting images...');
-    const { error: imageError } = await supabase.functions.invoke('pdf-image-extractor', {
+    const imageResponse = await supabase.functions.invoke('pdf-image-extractor', {
       body: { documentId, document }
     });
 
-    if (imageError) {
-      console.error('[PDF Processor] Image extraction error:', imageError);
+    if (imageResponse.error) {
+      console.error('[PDF Processor] Image extraction error:', imageResponse.error);
+      await supabase
+        .from('pdf_documents')
+        .update({
+          processing_status: 'failed',
+          processing_error: `Image extraction failed: ${imageResponse.error.message}`,
+          processing_completed_at: new Date().toISOString()
+        })
+        .eq('id', documentId);
+      
+      throw new Error(`Image extraction failed: ${imageResponse.error.message}`);
     }
 
     // Update progress
