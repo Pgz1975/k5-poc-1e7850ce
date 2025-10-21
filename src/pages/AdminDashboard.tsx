@@ -137,6 +137,32 @@ const AdminDashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-foreground mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {quickActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Card 
+                  key={action.path}
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => navigate(action.path)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Icon className="h-5 w-5 text-primary" />
+                      </div>
+                      <CardTitle className="text-base">{action.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Content Overview */}
         <div className="grid gap-6">
           {/* Manual Assessments */}
