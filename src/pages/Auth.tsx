@@ -298,10 +298,10 @@ const Auth = () => {
 
                 <div className="mt-6 space-y-3">
                   <p className="text-sm font-medium text-center">
-                    {t("Acceso rápido - Cuentas de demostración:", "Quick access - Demo accounts:")}
+                    {t("Acceso rápido - Cuentas populares:", "Quick access - Popular accounts:")}
                   </p>
                   <div className="grid gap-2">
-                    {demoUsers.map((demo) => (
+                    {demoUsers.slice(0, 5).map((demo) => (
                       <Button
                         key={demo.email}
                         type="button"
@@ -319,10 +319,7 @@ const Auth = () => {
                         </div>
                         <div className="flex flex-col items-start flex-1 min-w-0">
                           <span className="font-semibold text-sm">
-                            {t(
-                              demo.role === "student" ? "Estudiante" : demo.role === "teacher_english" ? "Maestro" : "Familia",
-                              demo.role === "student" ? "Student" : demo.role === "teacher_english" ? "Teacher" : "Family"
-                            )}
+                            {demo.fullName}
                           </span>
                           <span className="text-xs text-muted-foreground truncate w-full">
                             {demo.email}
@@ -451,24 +448,105 @@ const Auth = () => {
             
             {/* Demo Credentials */}
             <div className="mt-6 pt-4 border-t border-border/40">
-              <p className="text-xs text-muted-foreground text-center mb-2">
+              <p className="text-xs text-muted-foreground text-center mb-2 font-semibold">
                 {t("Credenciales de demostración:", "Demo credentials:")}
               </p>
-              <div className="grid grid-cols-1 gap-1.5 text-xs text-muted-foreground">
-                <div className="flex items-center justify-between py-0.5">
-                  <span className="font-medium">{t("Estudiante", "Student")}:</span>
-                  <span className="font-mono text-[10px]">student@demo.com</span>
+              
+              <div className="space-y-3">
+                {/* Students by Grade */}
+                <div>
+                  <p className="text-[10px] font-medium text-muted-foreground/80 mb-1">
+                    {t("Estudiantes por Grado:", "Students by Grade:")}
+                  </p>
+                  <div className="grid grid-cols-1 gap-0.5 text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("Kínder", "Kindergarten")}:</span>
+                      <span className="font-mono text-[9px]">kindergarten@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("1er Grado", "1st Grade")}:</span>
+                      <span className="font-mono text-[9px]">student1@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("2do Grado", "2nd Grade")}:</span>
+                      <span className="font-mono text-[9px]">student2@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("3er Grado", "3rd Grade")}:</span>
+                      <span className="font-mono text-[9px]">student3@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("4to Grado", "4th Grade")}:</span>
+                      <span className="font-mono text-[9px]">student4@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("5to Grado", "5th Grade")}:</span>
+                      <span className="font-mono text-[9px]">student5@demo.com</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between py-0.5">
-                  <span className="font-medium">{t("Maestro", "Teacher")}:</span>
-                  <span className="font-mono text-[10px]">teacher@demo.com</span>
+
+                {/* Teachers */}
+                <div>
+                  <p className="text-[10px] font-medium text-muted-foreground/80 mb-1">
+                    {t("Maestros:", "Teachers:")}
+                  </p>
+                  <div className="grid grid-cols-1 gap-0.5 text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("Inglés", "English")}:</span>
+                      <span className="font-mono text-[9px]">teacher-english@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("Español", "Spanish")}:</span>
+                      <span className="font-mono text-[9px]">teacher-spanish@demo.com</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between py-0.5">
-                  <span className="font-medium">{t("Familia", "Family")}:</span>
-                  <span className="font-mono text-[10px]">family@demo.com</span>
+
+                {/* Administrative */}
+                <div>
+                  <p className="text-[10px] font-medium text-muted-foreground/80 mb-1">
+                    {t("Administrativos:", "Administrative:")}
+                  </p>
+                  <div className="grid grid-cols-1 gap-0.5 text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("Director Escolar", "School Director")}:</span>
+                      <span className="font-mono text-[9px]">school-director@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("Director Regional", "Regional Director")}:</span>
+                      <span className="font-mono text-[9px]">regional-director@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("Admin Español", "Spanish Admin")}:</span>
+                      <span className="font-mono text-[9px]">spanish-admin@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("Admin Inglés", "English Admin")}:</span>
+                      <span className="font-mono text-[9px]">english-admin@demo.com</span>
+                    </div>
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("Ejecutivo DEPR", "DEPR Executive")}:</span>
+                      <span className="font-mono text-[9px]">depr-executive@demo.com</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-center text-[10px] text-muted-foreground/70 mt-1">
-                  {t("Contraseña para todos:", "Password for all:")} <span className="font-mono">demo123</span>
+
+                {/* Family */}
+                <div>
+                  <p className="text-[10px] font-medium text-muted-foreground/80 mb-1">
+                    {t("Familia:", "Family:")}
+                  </p>
+                  <div className="grid grid-cols-1 gap-0.5 text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between py-0.5">
+                      <span className="text-[10px]">{t("Cuenta Familiar", "Family Account")}:</span>
+                      <span className="font-mono text-[9px]">family@demo.com</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center text-[10px] text-muted-foreground/70 mt-2 pt-2 border-t border-border/20">
+                  {t("Contraseña para todos:", "Password for all:")} <span className="font-mono font-semibold">demo123</span>
                 </div>
               </div>
             </div>
