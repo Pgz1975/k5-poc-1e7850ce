@@ -214,6 +214,7 @@ export class RealtimeVoiceClientEnhanced {
         case 'session.updated':
           console.log('[RealtimeVoiceClient] ✅ Session updated - READY');
           this.stateMachine.transition('ready');
+          this.config.onConnectionChange?.(true);
           break;
 
         case 'response.audio.delta':

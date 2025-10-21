@@ -197,20 +197,20 @@ When a student makes a pronunciation error:
 }
 
 function handleSessionCreated(session: SessionState): void {
-  session.state = 'session_updating';
-
-  // Build instructions with voice guidance injection
   const baseInstructions = getBaseInstructions(session.language);
   const fullInstructions = session.voiceGuidance
     ? `${baseInstructions}\n\nACTIVITY-SPECIFIC GUIDANCE:\n${session.voiceGuidance}`
     : baseInstructions;
+
+  const hasGuidance = !!session.voiceGuidance;
+  log(`Sending session.update${hasGuidance ? ' with voice guidance' : ''}`);
 
   const sessionConfig = {
     type: 'session.update',
     session: {
       modalities: ['text', 'audio'],
       instructions: fullInstructions,
-      voice: session.language === 'es-PR' ? 'alloy' : 'nova',
+      voice: 'alloy',
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
       input_audio_transcription: {
@@ -220,16 +220,13 @@ function handleSessionCreated(session: SessionState): void {
         type: 'server_vad',
         threshold: 0.5,
         prefix_padding_ms: 300,
-        silence_duration_ms: 500
+        silence_duration_ms: 1000,
       },
       temperature: 0.8,
-      max_response_output_tokens: 4096,
-      tools: [],
-      tool_choice: 'none',
+      max_response_output_tokens: 'inf',
     },
   };
 
-  log('Sending session.update with voice guidance');
   session.openaiWS!.send(JSON.stringify(sessionConfig));
 }
 

@@ -7,9 +7,7 @@ export type ConnectionState =
   | 'disconnected'
   | 'connecting'
   | 'websocket_open'
-  | 'session_creating'
   | 'session_created'
-  | 'session_updating'
   | 'ready'
   | 'reconnecting'
   | 'error';
@@ -53,10 +51,8 @@ export class ConnectionStateMachine {
     const validTransitions: Record<ConnectionState, ConnectionState[]> = {
       'disconnected': ['connecting'],
       'connecting': ['websocket_open', 'error', 'disconnected'],
-      'websocket_open': ['session_creating', 'session_created', 'error', 'disconnected'],
-      'session_creating': ['session_created', 'error', 'disconnected'],
-      'session_created': ['session_updating', 'error', 'disconnected'],
-      'session_updating': ['ready', 'error', 'disconnected'],
+      'websocket_open': ['session_created', 'error', 'disconnected'],
+      'session_created': ['ready', 'error', 'disconnected'],
       'ready': ['error', 'disconnected', 'reconnecting'],
       'reconnecting': ['connecting', 'error', 'disconnected'],
       'error': ['disconnected', 'connecting']
