@@ -142,78 +142,6 @@ export default function CreateAssessment() {
               {t("Atrás", "Back")}
             </Button>
 
-            {/* Title */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">📝 {t("Título (opcional)", "Title (optional)")}</h3>
-              <Input
-                value={data.title || ''}
-                onChange={(e) => setData({ ...data, title: e.target.value })}
-                placeholder={t("Ej: Identificar Vocales", "e.g. Identify Vowels")}
-                className="text-xl"
-              />
-            </Card>
-
-            {/* Question */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">📝 {t("Pregunta o Instrucción", "Question or Instruction")}</h3>
-              <Textarea
-                value={data.content?.question || ''}
-                onChange={(e) => setData({
-                  ...data,
-                  content: { ...data.content!, question: e.target.value }
-                })}
-                placeholder={t("Escribe tu pregunta aquí...", "Enter your question here...")}
-                className="text-2xl min-h-32"
-              />
-            </Card>
-
-            {/* Question Image */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">🎨 {t("Añadir Imagen (Opcional)", "Add Question Image (Optional)")}</h3>
-              <ImagePasteZone
-                currentImage={data.content?.questionImage}
-                onImageUploaded={(url) => setData({
-                  ...data,
-                  content: { ...data.content!, questionImage: url }
-                })}
-              />
-            </Card>
-
-            {/* Answers */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">✅ {t("Opciones de Respuesta", "Answer Options")}</h3>
-              <AnswerList
-                answers={data.content?.answers || []}
-                onChange={(answers) => setData({
-                  ...data,
-                  content: { ...data.content!, answers }
-                })}
-              />
-            </Card>
-
-            {/* Speech Instructions */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">🎙️ {t("Instrucciones para el Sistema de Voz", "Speech System Instructions")}</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                {t(
-                  "Escribe instrucciones especiales que el asistente de voz debe seguir al leer este contenido (opcional).",
-                  "Write special instructions for the voice assistant when reading this content (optional)."
-                )}
-              </p>
-              <Textarea
-                value={data.content?.voiceGuidance || ''}
-                onChange={(e) => setData({
-                  ...data,
-                  content: { ...data.content!, voiceGuidance: e.target.value }
-                })}
-                placeholder={t(
-                  "Ej: Lee la pregunta lentamente y repite las opciones dos veces",
-                  "e.g. Read the question slowly and repeat options twice"
-                )}
-                className="min-h-24"
-              />
-            </Card>
-
             {/* Settings */}
             <Card className="p-6 mb-6">
               <h3 className="text-xl font-bold mb-4">⚙️ {t("Configuración", "Settings")}</h3>
@@ -287,6 +215,79 @@ export default function CreateAssessment() {
                 </div>
               </div>
             </Card>
+
+            {/* Title */}
+            <Card className="p-6 mb-6">
+              <h3 className="text-xl font-bold mb-4">📝 {t("Título (opcional)", "Title (optional)")}</h3>
+              <Input
+                value={data.title || ''}
+                onChange={(e) => setData({ ...data, title: e.target.value })}
+                placeholder={t("Ej: Identificar Vocales", "e.g. Identify Vowels")}
+                className="text-xl"
+              />
+            </Card>
+
+            {/* Question */}
+            <Card className="p-6 mb-6">
+              <h3 className="text-xl font-bold mb-4">📝 {t("Pregunta o Instrucción", "Question or Instruction")}</h3>
+              <Textarea
+                value={data.content?.question || ''}
+                onChange={(e) => setData({
+                  ...data,
+                  content: { ...data.content!, question: e.target.value }
+                })}
+                placeholder={t("Escribe tu pregunta aquí...", "Enter your question here...")}
+                className="text-2xl min-h-32"
+              />
+            </Card>
+
+            {/* Question Image */}
+            <Card className="p-6 mb-6">
+              <h3 className="text-xl font-bold mb-4">🎨 {t("Añadir Imagen (Opcional)", "Add Question Image (Optional)")}</h3>
+              <ImagePasteZone
+                currentImage={data.content?.questionImage}
+                onImageUploaded={(url) => setData({
+                  ...data,
+                  content: { ...data.content!, questionImage: url }
+                })}
+              />
+            </Card>
+
+            {/* Answers */}
+            <Card className="p-6 mb-6">
+              <h3 className="text-xl font-bold mb-4">✅ {t("Opciones de Respuesta", "Answer Options")}</h3>
+              <AnswerList
+                answers={data.content?.answers || []}
+                onChange={(answers) => setData({
+                  ...data,
+                  content: { ...data.content!, answers }
+                })}
+              />
+            </Card>
+
+            {/* Speech Instructions */}
+            <Card className="p-6 mb-6">
+              <h3 className="text-xl font-bold mb-4">🎙️ {t("Instrucciones para el Sistema de Voz", "Speech System Instructions")}</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                {t(
+                  "Escribe instrucciones especiales que el asistente de voz debe seguir al leer este contenido (opcional).",
+                  "Write special instructions for the voice assistant when reading this content (optional)."
+                )}
+              </p>
+              <Textarea
+                value={data.content?.voiceGuidance || ''}
+                onChange={(e) => setData({
+                  ...data,
+                  content: { ...data.content!, voiceGuidance: e.target.value }
+                })}
+                placeholder={t(
+                  "Ej: Lee la pregunta lentamente y repite las opciones dos veces",
+                  "e.g. Read the question slowly and repeat options twice"
+                )}
+                className="min-h-24"
+              />
+            </Card>
+
 
             {/* Save */}
             <Button
