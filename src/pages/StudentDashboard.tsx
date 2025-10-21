@@ -50,7 +50,7 @@ const StudentDashboard = () => {
             {/* Big Action Cards */}
             <div className="grid md:grid-cols-2 gap-6 md:gap-8">
               {/* Practice Reading */}
-              <Link to="/reading-exercise">
+              <Link to="/available-assessments">
                 <Card className="group cursor-pointer transition-all hover:scale-105 hover:shadow-xl border-2 hover:border-primary bg-gradient-to-br from-primary/5 to-primary-glow/10 h-full">
                   <CardContent className="p-8 md:p-10 flex flex-col items-center text-center space-y-4">
                     <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center group-hover:scale-110 transition-transform">

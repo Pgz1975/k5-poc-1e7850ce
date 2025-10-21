@@ -17,6 +17,7 @@ import Profile from "./pages/Profile";
 import ReadingExercise from "./pages/ReadingExercise";
 import VoiceTest from "./pages/VoiceTest";
 import PDFDemo from "./pages/PDFDemo";
+import AvailableAssessments from "./pages/AvailableAssessments";
 import AssessmentGenerator from "./pages/AssessmentGenerator";
 import GeneratedAssessment from "./pages/GeneratedAssessment";
 import CreateAssessment from "./pages/CreateAssessment";
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/activities" element={<Activities />} />
+          <Route path="/available-assessments" element={<AvailableAssessments />} />
               <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
               <Route path="/family-dashboard" element={<FamilyDashboard />} />
               <Route path="/reading-exercise" element={<ReadingExercise />} />
