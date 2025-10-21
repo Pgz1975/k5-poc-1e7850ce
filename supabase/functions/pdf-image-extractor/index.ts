@@ -34,26 +34,18 @@ serve(async (req) => {
     const arrayBuffer = await pdfData.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
-    // Use pdfjs-dist (Deno-compatible) for PDF processing - esm.sh legacy build
-    console.log('[Image Extractor] Step 1: Importing pdf.js library...');
-    const pdfjsModule = await import('https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs');
-    const pdfjsLib: any = (pdfjsModule as any).default || pdfjsModule;
-    console.log('[Image Extractor] pdf.js loaded:', !!pdfjsLib);
+    // Use serverless build for PDF processing in edge runtime
+    console.log('[Image Extractor] Step 1: Importing pdfjs-serverless...');
+    const { getDocument } = await import('https://esm.sh/pdfjs-serverless@0.3.2');
+    console.log('[Image Extractor] pdfjs-serverless loaded:', !!getDocument);
+    // Import OPS constants from pdfjs-dist without initializing worker
+    const opsModule = await import('https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs');
+    const OPS = ((opsModule as any).default || opsModule).OPS;
+    console.log('[Image Extractor] OPS constants loaded:', !!OPS);
     
-    // Provide worker source for real Worker in edge runtime
-    if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.worker.mjs';
-      console.log('[Image Extractor] Worker source set');
-    }
-    
-    // Load PDF document with real worker enabled
+    // Load PDF document
     console.log('[Image Extractor] Step 2: Loading PDF document...');
-    const loadingTask = pdfjsLib.getDocument({ 
-      data: uint8Array, 
-      isEvalSupported: false, 
-      useWorkerFetch: true, 
-      disableFontFace: true 
-    });
+    const loadingTask = getDocument(uint8Array);
     const pdf = await loadingTask.promise;
 
     console.log('[Image Extractor] ✓ PDF loaded successfully');
@@ -71,8 +63,8 @@ serve(async (req) => {
 
       for (let i = 0; i < operatorList.fnArray.length; i++) {
         // Check if operation is an image
-        if (operatorList.fnArray[i] === pdfjsLib.OPS.paintImageXObject ||
-            operatorList.fnArray[i] === pdfjsLib.OPS.paintInlineImageXObject) {
+        if (operatorList.fnArray[i] === OPS.paintImageXObject ||
+            operatorList.fnArray[i] === OPS.paintInlineImageXObject) {
           
           totalImageCount++;
           const imageName = operatorList.argsArray[i][0];

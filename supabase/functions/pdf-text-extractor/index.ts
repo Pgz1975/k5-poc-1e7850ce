@@ -24,31 +24,18 @@ serve(async (req) => {
     console.log('[Text Extractor] Buffer type:', typeof pdfBuffer);
     console.log('[Text Extractor] Buffer is array:', Array.isArray(pdfBuffer));
 
-    // Import Deno-compatible PDF parsing (pdf.js)
-    console.log('[Text Extractor] Step 1: Importing pdf.js library...');
-    const pdfjsModule = await import('https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs');
-    const pdfjsLib: any = (pdfjsModule as any).default || pdfjsModule;
-    console.log('[Text Extractor] pdf.js loaded:', !!pdfjsLib);
-    console.log('[Text Extractor] GlobalWorkerOptions available:', !!pdfjsLib.GlobalWorkerOptions);
+    // Import Deno-compatible PDF parsing (serverless build)
+    console.log('[Text Extractor] Step 1: Importing pdfjs-serverless...');
+    const { getDocument } = await import('https://esm.sh/pdfjs-serverless@0.3.2');
+    console.log('[Text Extractor] pdfjs-serverless loaded:', !!getDocument);
     
-    // Ensure worker is not required in edge runtime
-    if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.worker.mjs';
-      console.log('[Text Extractor] Worker source set:', pdfjsLib.GlobalWorkerOptions.workerSrc);
-    }
-    
-    // Parse PDF using pdf.js (works in Deno)
+    // Parse PDF using pdf.js (works in Deno edge)
     console.log('[Text Extractor] Step 2: Normalizing PDF buffer...');
     const pdfData = normalizeToUint8Array(pdfBuffer);
     console.log('[Text Extractor] Normalized buffer size:', pdfData.byteLength, 'bytes');
     
     console.log('[Text Extractor] Step 3: Loading PDF document...');
-    const loadingTask = pdfjsLib.getDocument({ 
-      data: pdfData, 
-      isEvalSupported: false, 
-      useWorkerFetch: true, 
-      disableFontFace: true 
-    });
+    const loadingTask = getDocument(pdfData);
     console.log('[Text Extractor] Loading task created:', !!loadingTask);
     
     console.log('[Text Extractor] Step 4: Waiting for PDF to load...');
