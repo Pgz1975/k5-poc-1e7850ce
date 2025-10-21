@@ -94,10 +94,10 @@ export const CoquiVoiceChat = () => {
         transcriptBufferRef.current.lastUpdate = Date.now();
       }
 
-      // Set timeout to flush buffer after pause (800ms)
+      // Set timeout to flush buffer after pause (600ms for faster display)
       bufferTimeoutRef.current = setTimeout(() => {
         flushBuffer();
-      }, 800);
+      }, 600);
       
       // Update mascot state based on conversation
       if (!isUser) {
@@ -122,6 +122,11 @@ export const CoquiVoiceChat = () => {
     if (isAIPlaying) {
       setMascotState('speaking');
     } else if (isConnected && !isAIPlaying) {
+      // When AI stops playing, flush any pending transcription
+      if (bufferTimeoutRef.current) {
+        clearTimeout(bufferTimeoutRef.current);
+      }
+      flushBuffer();
       setMascotState('waiting');
     }
   }, [isAIPlaying, isConnected]);
