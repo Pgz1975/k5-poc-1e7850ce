@@ -17,6 +17,8 @@ import Profile from "./pages/Profile";
 import ReadingExercise from "./pages/ReadingExercise";
 import VoiceTest from "./pages/VoiceTest";
 import PDFDemo from "./pages/PDFDemo";
+import AssessmentGenerator from "./pages/AssessmentGenerator";
+import GeneratedAssessment from "./pages/GeneratedAssessment";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +44,8 @@ const App = () => (
               <Route path="/reading-exercise" element={<ReadingExercise />} />
               <Route path="/voice-test" element={<VoiceTest />} />
               <Route path="/pdf-demo" element={<PDFDemo />} />
+              <Route path="/assessment-generator" element={<AssessmentGenerator />} />
+              <Route path="/generated/:id" element={<GeneratedAssessment />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

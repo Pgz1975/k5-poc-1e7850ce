@@ -79,6 +79,56 @@ export type Database = {
           },
         ]
       }
+      generated_assessments: {
+        Row: {
+          assessment_type: string
+          content: Json
+          created_at: string | null
+          created_by: string | null
+          grade_level: number | null
+          id: string
+          language: Database["public"]["Enums"]["language_code"]
+          metadata: Json | null
+          selected_items: Json
+          source_pdf_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assessment_type: string
+          content?: Json
+          created_at?: string | null
+          created_by?: string | null
+          grade_level?: number | null
+          id?: string
+          language?: Database["public"]["Enums"]["language_code"]
+          metadata?: Json | null
+          selected_items?: Json
+          source_pdf_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assessment_type?: string
+          content?: Json
+          created_at?: string | null
+          created_by?: string | null
+          grade_level?: number | null
+          id?: string
+          language?: Database["public"]["Enums"]["language_code"]
+          metadata?: Json | null
+          selected_items?: Json
+          source_pdf_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_assessments_source_pdf_id_fkey"
+            columns: ["source_pdf_id"]
+            isOneToOne: false
+            referencedRelation: "pdf_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pdf_documents: {
         Row: {
           content_type: Database["public"]["Enums"]["content_type"] | null

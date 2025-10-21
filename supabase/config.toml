@@ -26,3 +26,27 @@ verify_jwt = false
 
 [functions.fetch-pexels-image]
 verify_jwt = false
+
+[functions.list-pdf-content]
+verify_jwt = false
+
+[functions.generate-assessment]
+verify_jwt = true
+
+[functions.get-assessment]
+verify_jwt = true
+
+[functions.update-assessment]
+verify_jwt = true
+
+[functions.get-pdf-images]
+verify_jwt = false
+
+[functions.search-pexels]
+verify_jwt = false
+
+[functions.upload-image]
+verify_jwt = true
+
+[functions.duplicate-assessment]
+verify_jwt = true
