@@ -103,6 +103,13 @@ export const demoUsers = [
     role: "depr_executive" as const,
     avatar: "/avatars/teacher-1.jpg"
   },
+  { 
+    email: "admin@demo.com", 
+    password: "demo123", 
+    fullName: "Platform Administrator", 
+    role: "depr_executive" as const,
+    avatar: "/avatars/teacher-3.jpg"
+  },
 ];
 
 export const createDemoUsers = async () => {
