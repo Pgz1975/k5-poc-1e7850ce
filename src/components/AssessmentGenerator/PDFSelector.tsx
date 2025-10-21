@@ -22,7 +22,7 @@ export function PDFSelector({ documents, selectedId, onSelect }: PDFSelectorProp
         <SelectContent>
           {documents.map((doc) => (
             <SelectItem key={doc.id} value={doc.id} className="text-lg py-3">
-              {doc.filename} - {doc.page_count} {t('páginas', 'pages')}
+              {doc.original_filename} {doc.page_count ? `- ${doc.page_count} ${t('páginas', 'pages')}` : ''}
             </SelectItem>
           ))}
         </SelectContent>
