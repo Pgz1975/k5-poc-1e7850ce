@@ -83,70 +83,7 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
   openaiWS.addEventListener('open', () => {
     console.log("[Relay-Enhanced] ✅ Connected to OpenAI Realtime API");
     isOpenAIConnected = true;
-
-    const instructions = language === 'es-PR'
-      ? `Eres Coquí, un asistente bilingüe amigable para estudiantes de K-5 en Puerto Rico.
-         Tu rol es:
-         1. Escuchar a los estudiantes leer en español o inglés
-         2. Proporcionar retroalimentación gentil y alentadora sobre la pronunciación
-         3. Cambiar sin problemas entre español e inglés
-         4. Usar un tono cálido y paciente apropiado para jóvenes aprendices
-         5. Celebrar el progreso y el esfuerzo
-
-         Cuando un estudiante cometa un error de pronunciación:
-         - Primero, elogia su esfuerzo
-         - Demuestra gentilmente la pronunciación correcta
-         - Anímalos a intentarlo de nuevo
-         - Hazlo divertido y atractivo`
-      : `You are Coquí, a friendly bilingual reading assistant for K-5 students in Puerto Rico.
-         Your role is to:
-         1. Listen to students reading in Spanish or English
-         2. Provide gentle, encouraging pronunciation feedback
-         3. Switch seamlessly between Spanish and English
-         4. Use a warm, patient tone appropriate for young learners
-         5. Celebrate progress and effort
-
-         When a student makes a pronunciation error:
-         - First, praise their effort
-         - Gently demonstrate the correct pronunciation
-         - Encourage them to try again
-         - Make it fun and engaging`;
-
-    const sessionConfig = {
-      type: 'session.update',
-      session: {
-        modalities: ['text', 'audio'],
-        instructions,
-        voice: 'alloy',
-        input_audio_format: 'pcm16',
-        output_audio_format: 'pcm16',
-        input_audio_transcription: {
-          model: 'whisper-1'
-        },
-        turn_detection: {
-          type: 'server_vad',
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 1000
-        },
-        temperature: 0.8,
-        max_response_output_tokens: 4096,
-        // Add audio optimization settings
-        tools: [],
-        tool_choice: 'none'
-      }
-    };
-
-    console.log("[Relay-Enhanced] Sending optimized session configuration");
-    openaiWS.send(JSON.stringify(sessionConfig));
-
-    // Start heartbeat to maintain connection
-    heartbeatInterval = setInterval(() => {
-      if (openaiWS.readyState === WebSocket.OPEN) {
-        // Send a simple message to keep connection alive
-        openaiWS.send(JSON.stringify({ type: 'ping' }));
-      }
-    }, 20000); // Keep-alive every 20 seconds
+    // Wait for session.created before sending session.update
   });
 
   openaiWS.addEventListener('message', (event) => {
@@ -185,8 +122,62 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
           clientWS.send(event.data);
         }
 
-        // Log important events
-        if (message.type === 'session.created' || message.type === 'session.updated') {
+        if (message.type === 'session.created') {
+          console.log(`[Relay-Enhanced] ✅ ${message.type}`);
+
+          const instructions = language === 'es-PR'
+            ? `Eres Coquí, un asistente bilingüe amigable para estudiantes de K-5 en Puerto Rico.
+               Tu rol es:
+               1. Escuchar a los estudiantes leer en español o inglés
+               2. Proporcionar retroalimentación gentil y alentadora sobre la pronunciación
+               3. Cambiar sin problemas entre español e inglés
+               4. Usar un tono cálido y paciente apropiado para jóvenes aprendices
+               5. Celebrar el progreso y el esfuerzo
+
+               Cuando un estudiante cometa un error de pronunciación:
+               - Primero, elogia su esfuerzo
+               - Demuestra gentilmente la pronunciación correcta
+               - Anímalos a intentarlo de nuevo
+               - Hazlo divertido y atractivo`
+            : `You are Coquí, a friendly bilingual reading assistant for K-5 students in Puerto Rico.
+               Your role is to:
+               1. Listen to students reading in Spanish or English
+               2. Provide gentle, encouraging pronunciation feedback
+               3. Switch seamlessly between Spanish and English
+               4. Use a warm, patient tone appropriate for young learners
+               5. Celebrate progress and effort
+
+               When a student makes a pronunciation error:
+               - First, praise their effort
+               - Gently demonstrate the correct pronunciation
+               - Encourage them to try again
+               - Make it fun and engaging`;
+
+          const sessionConfig = {
+            type: 'session.update',
+            session: {
+              modalities: ['text', 'audio'],
+              instructions,
+              voice: 'alloy',
+              input_audio_format: 'pcm16',
+              output_audio_format: 'pcm16',
+              input_audio_transcription: { model: 'whisper-1' },
+              turn_detection: {
+                type: 'server_vad',
+                threshold: 0.5,
+                prefix_padding_ms: 300,
+                silence_duration_ms: 1000
+              },
+              temperature: 0.8,
+              max_response_output_tokens: 4096,
+              tools: [],
+              tool_choice: 'none'
+            }
+          };
+
+          console.log("[Relay-Enhanced] Sending optimized session configuration");
+          openaiWS.send(JSON.stringify(sessionConfig));
+        } else if (message.type === 'session.updated') {
           console.log(`[Relay-Enhanced] ✅ ${message.type}`);
         } else if (message.type === 'conversation.item.input_audio_transcription.completed') {
           console.log(`[Relay-Enhanced] 🎤 Student: "${message.transcript}"`);
