@@ -77,7 +77,7 @@ export const Header = () => {
       return [
         homeItem,
         { label: t("Panel de Maestro", "Teacher Dashboard"), href: "/teacher-dashboard", icon: GraduationCap },
-        { label: t("Crear Evaluación", "Create Assessment"), href: "/create-assessment", icon: FileEdit },
+        { label: t("Crear Contenido", "Create Content"), href: "/create-assessment", icon: FileEdit },
         { label: "🧪 Voice Test", href: "/voice-test", icon: TestTube },
       ];
     }
