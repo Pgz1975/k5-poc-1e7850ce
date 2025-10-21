@@ -214,8 +214,6 @@ function handleSessionCreated(session: SessionState): void {
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
       input_audio_transcription: {
-        enabled: true,
-        language: session.language === 'es-PR' ? 'es' : 'en',
         model: 'whisper-1'
       },
       turn_detection: {
