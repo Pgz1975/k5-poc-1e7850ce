@@ -24,14 +24,15 @@ export default function AvailableAssessments() {
     const fetchAssessments = async () => {
       if (!user) return;
 
-      // Get user's grade level
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('grade_level')
-        .eq('id', user.id)
-        .single();
+      // Get user's grade level using the database function
+      const { data: userGrade, error: gradeError } = await supabase
+        .rpc('get_user_grade_level', { user_id: user.id });
 
-      const userGrade = profile?.grade_level || 1;
+      if (gradeError) {
+        console.error('Error fetching grade level:', gradeError);
+        setLoading(false);
+        return;
+      }
 
       // Fetch published assessments for user's grade
       const { data, error } = await supabase
