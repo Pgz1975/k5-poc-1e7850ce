@@ -17,8 +17,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const url = new URL(req.url);
-    const documentId = url.searchParams.get('document_id');
+    // Get document_id from request body
+    const body = await req.json();
+    const documentId = body.document_id;
 
     if (!documentId) {
       throw new Error('document_id is required');
