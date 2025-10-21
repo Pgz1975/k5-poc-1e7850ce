@@ -71,9 +71,44 @@ export class RealtimeVoiceClientEnhanced {
         this.config.onAudioPlayback?.(false);
       });
 
-      // Load audio worklet
-      await this.audioContext.audioWorklet.addModule('/audio-processor.js');
-      console.log('[RealtimeVoiceClient] 🎛️ AudioWorklet loaded');
+      // Create inline AudioWorklet processor to avoid CORS issues
+      const processorCode = `
+        class PCM16CaptureProcessor extends AudioWorkletProcessor {
+          constructor() {
+            super();
+            this.bufferSize = 1024;
+            this.buffer = new Int16Array(this.bufferSize);
+            this.bufferIndex = 0;
+          }
+
+          process(inputs) {
+            const input = inputs[0];
+            if (!input || !input[0]) return true;
+
+            const inputChannel = input[0];
+            for (let i = 0; i < inputChannel.length; i++) {
+              const sample = Math.max(-1, Math.min(1, inputChannel[i]));
+              const int16Sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+              this.buffer[this.bufferIndex++] = int16Sample;
+
+              if (this.bufferIndex >= this.bufferSize) {
+                const dataToSend = this.buffer.slice(0, this.bufferIndex);
+                this.port.postMessage({ type: 'audio', data: dataToSend });
+                this.bufferIndex = 0;
+              }
+            }
+            return true;
+          }
+        }
+        registerProcessor('pcm16-capture-processor', PCM16CaptureProcessor);
+      `;
+
+      const blob = new Blob([processorCode], { type: 'application/javascript' });
+      const processorUrl = URL.createObjectURL(blob);
+      
+      await this.audioContext.audioWorklet.addModule(processorUrl);
+      URL.revokeObjectURL(processorUrl);
+      console.log('[RealtimeVoiceClient] 🎛️ AudioWorklet loaded (inline)');
 
       // Setup microphone
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
