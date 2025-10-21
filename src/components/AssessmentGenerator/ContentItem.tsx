@@ -26,42 +26,39 @@ export function ContentItem({ item, type, selected, onToggle }: ContentItemProps
   return (
     <div
       className={`
-        border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md
-        ${selected ? 'border-primary bg-blue-50' : 'border-gray-200 hover:border-gray-300'}
+        border rounded-lg p-3 cursor-pointer transition-all
+        ${selected ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-primary/50 bg-card'}
       `}
       onClick={onToggle}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2">
         <Checkbox
           checked={selected}
           onCheckedChange={onToggle}
           onClick={(e) => e.stopPropagation()}
-          className="mt-1"
+          className="mt-0.5"
         />
 
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            {getIcon()}
-            <span className="text-sm text-muted-foreground">
-              {t('Página', 'Page')} {item.page_number} • {type}
-            </span>
-          </div>
-
+        <div className="flex-1 min-w-0">
           {type === 'text' && (
-            <p className="text-sm line-clamp-3">{item.content}</p>
+            <p className="text-sm line-clamp-2">{item.content}</p>
           )}
 
           {type === 'image' && (
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-3 items-start">
               <img
                 src={item.url}
                 alt={item.alt_text || 'PDF Image'}
-                className="h-20 w-20 object-cover rounded"
+                className="h-24 w-24 object-cover rounded border flex-shrink-0"
+                onError={(e) => {
+                  console.error('Image failed to load:', item.url);
+                  (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" fill="%23999"%3EImage%3C/text%3E%3C/svg%3E';
+                }}
               />
-              <div className="flex-1">
-                <p className="text-sm font-medium">{item.alt_text}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium line-clamp-2">{item.alt_text}</p>
                 {item.caption && (
-                  <p className="text-xs text-muted-foreground mt-1">{item.caption}</p>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{item.caption}</p>
                 )}
               </div>
             </div>
@@ -69,16 +66,16 @@ export function ContentItem({ item, type, selected, onToggle }: ContentItemProps
 
           {type === 'question' && (
             <div>
-              <p className="font-medium mb-2">{item.question_text}</p>
-              {item.options && (
-                <div className="flex flex-wrap gap-2">
+              <p className="font-medium mb-2 text-sm">{item.question_text}</p>
+              {item.options && item.options.length > 0 && (
+                <div className="flex flex-wrap gap-1">
                   {item.options.map((opt: any, i: number) => (
                     <span
                       key={i}
-                      className={`text-xs px-2 py-1 rounded ${
+                      className={`text-xs px-2 py-0.5 rounded ${
                         i === item.correct_answer
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-700'
+                          ? 'bg-success/20 text-success-foreground'
+                          : 'bg-muted text-muted-foreground'
                       }`}
                     >
                       {i === item.correct_answer && '✓ '}
