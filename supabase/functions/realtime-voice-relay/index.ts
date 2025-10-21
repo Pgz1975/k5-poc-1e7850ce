@@ -37,10 +37,6 @@ server.on("upgrade", async (req, socket, head) => {
     return;
   }
 
-  // Set socket options for better performance
-  socket.setNoDelay(true); // Disable Nagle's algorithm
-  socket.setKeepAlive(true, 10000); // Keep-alive every 10 seconds
-
   wss.handleUpgrade(req, socket, head, (ws) => {
     console.log("[Relay-Enhanced] WebSocket upgraded successfully");
     wss.emit('connection', ws, req, { studentId, language, model });
@@ -80,9 +76,9 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
   );
 
   let isOpenAIConnected = false;
-  let heartbeatInterval: NodeJS.Timeout | null = null;
+  let heartbeatInterval: number | null = null;
   let audioBuffer: string[] = [];
-  let bufferTimer: NodeJS.Timeout | null = null;
+  let bufferTimer: number | null = null;
 
   openaiWS.addEventListener('open', () => {
     console.log("[Relay-Enhanced] ✅ Connected to OpenAI Realtime API");
@@ -147,9 +143,10 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
     // Start heartbeat to maintain connection
     heartbeatInterval = setInterval(() => {
       if (openaiWS.readyState === WebSocket.OPEN) {
-        openaiWS.ping();
+        // Send a simple message to keep connection alive
+        openaiWS.send(JSON.stringify({ type: 'ping' }));
       }
-    }, 20000); // Ping every 20 seconds
+    }, 20000); // Keep-alive every 20 seconds
   });
 
   openaiWS.addEventListener('message', (event) => {
@@ -296,10 +293,6 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
     }
   });
 
-  // Add pong handler for OpenAI
-  openaiWS.addEventListener('pong', () => {
-    console.log('[Relay-Enhanced] Received pong from OpenAI');
-  });
 });
 
 function estimateTokensEnhanced(audioData: string, sampleRate: number): number {

@@ -15,7 +15,6 @@ export function useRealtimeVoice({ studentId, language, model, onTranscription }
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
   const [transcript, setTranscript] = useState<Array<{ text: string; isUser: boolean }>>([]);
-  const [metrics, setMetrics] = useState<any>(null);
   const clientRef = useRef<RealtimeVoiceClientEnhanced | null>(null);
   const { toast } = useToast();
 
@@ -117,19 +116,6 @@ export function useRealtimeVoice({ studentId, language, model, onTranscription }
     clientRef.current?.sendText(text);
   }, []);
 
-  // Monitor performance metrics
-  useEffect(() => {
-    if (!isConnected) return;
-    
-    const interval = setInterval(() => {
-      if (clientRef.current?.isActive()) {
-        setMetrics(clientRef.current.getPerformanceMetrics());
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isConnected]);
-
   // Cleanup on unmount
   useEffect(() => {
     console.log('[useRealtimeVoice] 🎬 Hook mounted');
@@ -144,7 +130,6 @@ export function useRealtimeVoice({ studentId, language, model, onTranscription }
     isConnecting,
     isAIPlaying,
     transcript,
-    metrics,
     connect,
     disconnect,
     sendText
