@@ -1,6 +1,6 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon, Mic, TestTube, FileEdit } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon, Mic, TestTube, FileEdit, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,6 +63,16 @@ export const Header = () => {
   // Role-based navigation
   const getNavItems = (): NavItem[] => {
     const homeItem: NavItem = { label: t("Inicio", "Home"), href: "/" };
+    
+    // Check if admin user
+    if (user?.email === "admin@demo.com") {
+      return [
+        homeItem,
+        { label: t("Panel de Administración", "Admin Dashboard"), href: "/admin-dashboard", icon: Shield },
+        { label: t("Crear Contenido", "Create Content"), href: "/create-assessment", icon: FileEdit },
+        { label: "🧪 Voice Test", href: "/voice-test", icon: TestTube },
+      ];
+    }
     
     if (userRole === "student") {
       return [
