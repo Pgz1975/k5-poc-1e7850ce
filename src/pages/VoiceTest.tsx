@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { useRealtimeVoice } from '@/hooks/useRealtimeVoice';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mic, MicOff, Activity, Trash2 } from 'lucide-react';
@@ -15,6 +17,7 @@ export default function VoiceTest() {
   const { user } = useAuth();
   const [language, setLanguage] = useState<'es-PR' | 'en-US'>('es-PR');
   const [model, setModel] = useState('gpt-4o-realtime-preview-2024-12-17');
+  const [voiceGuidance, setVoiceGuidance] = useState('');
   const [logs, setLogs] = useState<string[]>([]);
 
   useEffect(() => {
@@ -54,6 +57,13 @@ export default function VoiceTest() {
     try {
       await connect();
       addLog('✅ Connect completed');
+      
+      if (voiceGuidance.trim()) {
+        setTimeout(() => {
+          addLog(`📤 Sending voice guidance: ${voiceGuidance}`);
+          sendText(voiceGuidance);
+        }, 1000);
+      }
     } catch (error) {
       addLog(`❌ Connect failed: ${error}`);
     }
@@ -169,6 +179,25 @@ export default function VoiceTest() {
                     🇺🇸 English
                   </Button>
                 </div>
+              </div>
+
+              {/* Voice Guidance */}
+              <div className="space-y-2 mb-6">
+                <Label htmlFor="voice-guidance" className="font-medium text-sm">
+                  Voice Guidance (Optional):
+                </Label>
+                <Textarea
+                  id="voice-guidance"
+                  value={voiceGuidance}
+                  onChange={(e) => setVoiceGuidance(e.target.value)}
+                  placeholder="e.g., Speak slowly and clearly, emphasize key words..."
+                  rows={3}
+                  className="resize-none"
+                  disabled={isConnected}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Custom instructions sent to the AI when connecting
+                </p>
               </div>
 
               {/* Connection Buttons */}
