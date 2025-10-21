@@ -1,6 +1,6 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon, Mic, TestTube } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon, Mic, TestTube, FileEdit } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -77,6 +77,7 @@ export const Header = () => {
       return [
         homeItem,
         { label: t("Panel de Maestro", "Teacher Dashboard"), href: "/teacher-dashboard", icon: GraduationCap },
+        { label: t("Crear Evaluación", "Create Assessment"), href: "/create-assessment", icon: FileEdit },
         { label: "🧪 Voice Test", href: "/voice-test", icon: TestTube },
       ];
     }
