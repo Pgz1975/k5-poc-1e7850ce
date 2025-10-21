@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { RealtimeVoiceClient } from '@/utils/realtime/RealtimeVoiceClient';
+import { RealtimeVoiceClientEnhanced } from '@/utils/realtime/RealtimeVoiceClientEnhanced';
 import { useToast } from '@/hooks/use-toast';
 
 interface UseRealtimeVoiceProps {
@@ -15,7 +15,8 @@ export function useRealtimeVoice({ studentId, language, model, onTranscription }
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
   const [transcript, setTranscript] = useState<Array<{ text: string; isUser: boolean }>>([]);
-  const clientRef = useRef<RealtimeVoiceClient | null>(null);
+  const [metrics, setMetrics] = useState<any>(null);
+  const clientRef = useRef<RealtimeVoiceClientEnhanced | null>(null);
   const { toast } = useToast();
 
   const connect = useCallback(async () => {
@@ -48,8 +49,8 @@ export function useRealtimeVoice({ studentId, language, model, onTranscription }
       console.log('[useRealtimeVoice] ✅ Session token obtained, user:', session.user?.id);
 
       // Create client
-      console.log('[useRealtimeVoice] 🏗️ Creating RealtimeVoiceClient...');
-      clientRef.current = new RealtimeVoiceClient({
+      console.log('[useRealtimeVoice] 🏗️ Creating RealtimeVoiceClientEnhanced...');
+      clientRef.current = new RealtimeVoiceClientEnhanced({
         studentId,
         language,
         model,
@@ -116,6 +117,19 @@ export function useRealtimeVoice({ studentId, language, model, onTranscription }
     clientRef.current?.sendText(text);
   }, []);
 
+  // Monitor performance metrics
+  useEffect(() => {
+    if (!isConnected) return;
+    
+    const interval = setInterval(() => {
+      if (clientRef.current?.isActive()) {
+        setMetrics(clientRef.current.getPerformanceMetrics());
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isConnected]);
+
   // Cleanup on unmount
   useEffect(() => {
     console.log('[useRealtimeVoice] 🎬 Hook mounted');
@@ -130,6 +144,7 @@ export function useRealtimeVoice({ studentId, language, model, onTranscription }
     isConnecting,
     isAIPlaying,
     transcript,
+    metrics,
     connect,
     disconnect,
     sendText
