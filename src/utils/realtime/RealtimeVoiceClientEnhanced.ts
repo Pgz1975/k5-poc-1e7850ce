@@ -1,3 +1,4 @@
+import { supabase } from '@/integrations/supabase/client';
 export interface RealtimeVoiceConfig {
   studentId: string;
   language: 'es-PR' | 'en-US';
@@ -20,6 +21,7 @@ export class RealtimeVoiceClientEnhanced {
   private audioWorklet: AudioWorkletNode | null = null;
   private isConnected = false;
   private config: RealtimeVoiceConfig;
+  private currentToken: string = '';
 
   // Enhanced audio buffering
   private audioQueue: AudioChunk[] = [];
@@ -82,6 +84,7 @@ export class RealtimeVoiceClientEnhanced {
       await this.setupAudioPipeline();
 
       // Connect to WebSocket with retry logic
+      this.currentToken = token;
       await this.connectWebSocket(token);
 
       // Start heartbeat to maintain connection
@@ -438,9 +441,22 @@ export class RealtimeVoiceClientEnhanced {
   }
 
   private async refreshToken(): Promise<string> {
-    // Implement token refresh logic here
-    // For now, return empty string - should be implemented based on your auth system
-    return '';
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      const newToken = data.session?.access_token;
+      if (newToken) {
+        this.currentToken = newToken;
+        return newToken;
+      }
+      // Fallback to existing token if available
+      if (this.currentToken) return this.currentToken;
+      throw new Error('No active session');
+    } catch (e) {
+      console.error('[RealtimeVoiceEnhanced] Token refresh failed:', e);
+      // Use last known token to attempt reconnect, may still work if not expired
+      return this.currentToken || '';
+    }
   }
 
   private concatenateAudioBuffers(buffers: Int16Array[]): Int16Array {
