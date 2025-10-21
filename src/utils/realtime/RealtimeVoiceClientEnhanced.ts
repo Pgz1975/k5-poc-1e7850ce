@@ -37,6 +37,7 @@ export class RealtimeVoiceClientEnhanced {
   private reconnectDelay = 1000;
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private lastHeartbeat = Date.now();
+  private reconnectTimeout: NodeJS.Timeout | null = null;
 
   // Performance monitoring
   private audioLatency = 0;
@@ -188,7 +189,7 @@ export class RealtimeVoiceClientEnhanced {
   private async connectWebSocket(token: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const modelParam = this.config.model ? `&model=${encodeURIComponent(this.config.model)}` : '';
-      const wsUrl = `wss://${this.projectId}.supabase.co/functions/v1/realtime-voice-relay?jwt=${token}&student_id=${this.config.studentId}&language=${this.config.language}${modelParam}`;
+      const wsUrl = `wss://${this.projectId}.functions.supabase.co/functions/v1/realtime-voice-relay?jwt=${token}&student_id=${this.config.studentId}&language=${this.config.language}${modelParam}`;
 
       this.ws = new WebSocket(wsUrl);
 
@@ -428,7 +429,11 @@ export class RealtimeVoiceClientEnhanced {
 
     console.log(`[RealtimeVoiceEnhanced] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
 
-    setTimeout(async () => {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+    }
+
+    this.reconnectTimeout = setTimeout(async () => {
       try {
         // Get fresh token if needed
         const token = await this.refreshToken();
@@ -521,6 +526,11 @@ export class RealtimeVoiceClientEnhanced {
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
+    }
+    // Clear any pending reconnection timers
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
     }
 
     // Stop audio

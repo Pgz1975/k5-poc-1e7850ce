@@ -1,132 +1,91 @@
-import { createServer } from "node:http";
-import { WebSocketServer } from "npm:ws";
+import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 
-const server = createServer();
-const wss = new WebSocketServer({
-  noServer: true,
-  perMessageDeflate: false, // Disable compression for lower latency
-  maxPayload: 10 * 1024 * 1024 // 10MB max payload
-});
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
-// Connection tracking for monitoring
-const activeConnections = new Map<string, {
-  studentId: string;
-  startTime: number;
-  lastActivity: number;
-  audioInputTokens: number;
-  audioOutputTokens: number;
-}>();
+const log = (...args: any[]) => console.log('[Realtime-Relay]', ...args);
+const warn = (...args: any[]) => console.warn('[Realtime-Relay]', ...args);
+const error = (...args: any[]) => console.error('[Realtime-Relay]', ...args);
 
-server.on("upgrade", async (req, socket, head) => {
-  console.log("[Relay-Enhanced] Upgrade request received");
+serve(async (req) => {
+  try {
+    // Handle CORS preflight
+    if (req.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
+    }
 
-  const url = new URL(req.url!, `http://${req.headers.host}`);
-  const jwt = url.searchParams.get('jwt');
-  const studentId = url.searchParams.get('student_id');
-  const language = url.searchParams.get('language') || 'es-PR';
-  const model = url.searchParams.get('model') || 'gpt-4o-realtime-preview-2024-12-17';
+    const upgradeHeader = req.headers.get('upgrade') || '';
+    if (upgradeHeader.toLowerCase() !== 'websocket') {
+      return new Response('Expected WebSocket connection', { status: 400, headers: corsHeaders });
+    }
 
-  console.log(`[Relay-Enhanced] Auth check - JWT: ${jwt ? 'present' : 'missing'}, Student: ${studentId}, Language: ${language}, Model: ${model}`);
+    const { socket: clientWS, response } = Deno.upgradeWebSocket(req);
+    const url = new URL(req.url);
 
-  if (!jwt) {
-    console.error("[Relay-Enhanced] No JWT token provided");
-    socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
-    socket.destroy();
-    return;
-  }
+    const jwt = url.searchParams.get('jwt');
+    const studentId = url.searchParams.get('student_id') ?? 'unknown';
+    const language = url.searchParams.get('language') ?? 'es-PR';
+    const model = url.searchParams.get('model') ?? 'gpt-4o-realtime-preview-2024-12-17';
 
-  wss.handleUpgrade(req, socket, head, (ws) => {
-    console.log("[Relay-Enhanced] WebSocket upgraded successfully");
-    wss.emit('connection', ws, req, { studentId, language, model });
-  });
-});
+    log('Upgrade request', { jwt: !!jwt, studentId, language, model });
 
-wss.on("connection", async (clientWS: any, req: any, context: any) => {
-  const { studentId, language, model } = context;
-  const connectionId = `${studentId}-${Date.now()}`;
+    if (!OPENAI_API_KEY) {
+      error('OPENAI_API_KEY not configured');
+      queueMicrotask(() => clientWS.close(1011, 'Server configuration error'));
+      return response;
+    }
 
-  console.log(`[Relay-Enhanced] WebSocket connection established - ID: ${connectionId}`);
+    // Connect to OpenAI Realtime API
+    const openaiWS = new WebSocket(
+      `wss://api.openai.com/v1/realtime?model=${model}`,
+      [
+        'realtime',
+        `openai-insecure-api-key.${OPENAI_API_KEY}`,
+        'openai-beta.realtime-v1'
+      ],
+    );
 
-  if (!OPENAI_API_KEY) {
-    console.error("[Relay-Enhanced] OPENAI_API_KEY not configured");
-    clientWS.close(1008, 'OpenAI API key not configured');
-    return;
-  }
+    let sessionConfigured = false;
+    let pendingClientMessages: string[] = [];
 
-  // Track connection
-  activeConnections.set(connectionId, {
-    studentId,
-    startTime: Date.now(),
-    lastActivity: Date.now(),
-    audioInputTokens: 0,
-    audioOutputTokens: 0
-  });
+    // Buffer audio deltas for smoother playback to client
+    let audioBuffer: string[] = [];
+    let bufferTimer: number | null = null;
 
-  console.log(`[Relay-Enhanced] Connecting to OpenAI Realtime API with model: ${model}...`);
+    openaiWS.addEventListener('open', () => {
+      log('✅ Connected to OpenAI Realtime API');
+    });
 
-  const openaiWS = new WebSocket(
-    `wss://api.openai.com/v1/realtime?model=${model}`,
-    [
-      'realtime',
-      `openai-insecure-api-key.${OPENAI_API_KEY}`,
-      'openai-beta.realtime-v1'
-    ]
-  );
+    openaiWS.addEventListener('message', (event) => {
+      try {
+        const msg = JSON.parse(event.data as string);
 
-  let isOpenAIConnected = false;
-  let heartbeatInterval: number | null = null;
-  let audioBuffer: string[] = [];
-  let bufferTimer: number | null = null;
-  // Buffer client messages until OpenAI session is configured
-  let pendingClientMessages: string[] = [];
-  let sessionConfigured = false;
-
-  openaiWS.addEventListener('open', () => {
-    console.log("[Relay-Enhanced] ✅ Connected to OpenAI Realtime API");
-    isOpenAIConnected = true;
-    // Wait for session.created before sending session.update
-  });
-
-  openaiWS.addEventListener('message', (event) => {
-    try {
-      const message = JSON.parse(event.data as string);
-      const connection = activeConnections.get(connectionId);
-
-      if (connection) {
-        connection.lastActivity = Date.now();
-      }
-
-      // Track token usage for cost monitoring
-      if (message.type === 'response.audio.delta') {
-        if (connection) {
-          connection.audioOutputTokens += estimateTokensEnhanced(message.delta, 24000);
-        }
-
-        // Buffer audio data for smoother delivery
-        audioBuffer.push(event.data as string);
-
-        if (!bufferTimer) {
-          bufferTimer = setTimeout(() => {
-            if (audioBuffer.length > 0 && clientWS.readyState === WebSocket.OPEN) {
-              // Send buffered audio in batch
-              for (const data of audioBuffer) {
-                clientWS.send(data);
+        if (msg.type === 'response.audio.delta') {
+          // Batch-send audio chunks to the browser for smoother playback
+          audioBuffer.push(event.data as string);
+          if (!bufferTimer) {
+            bufferTimer = setTimeout(() => {
+              if (clientWS.readyState === WebSocket.OPEN && audioBuffer.length) {
+                for (const data of audioBuffer) clientWS.send(data);
+                audioBuffer = [];
               }
-              audioBuffer = [];
-            }
-            bufferTimer = null;
-          }, 50); // Send every 50ms for smooth playback
+              bufferTimer = null;
+            }, 50);
+          }
+          return; // Don't forward this again below
         }
-      } else {
-        // Forward non-audio messages immediately
+
+        // Forward all non-audio messages immediately
         if (clientWS.readyState === WebSocket.OPEN) {
           clientWS.send(event.data);
         }
 
-        if (message.type === 'session.created') {
-          console.log(`[Relay-Enhanced] ✅ ${message.type}`);
+        if (msg.type === 'session.created') {
+          log('✅ session.created');
 
           const instructions = language === 'es-PR'
             ? `Eres Coquí, un asistente bilingüe amigable para estudiantes de K-5 en Puerto Rico.
@@ -169,161 +128,88 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
                 type: 'server_vad',
                 threshold: 0.5,
                 prefix_padding_ms: 300,
-                silence_duration_ms: 1000
+                silence_duration_ms: 1000,
               },
               temperature: 0.8,
               max_response_output_tokens: 4096,
               tools: [],
-              tool_choice: 'none'
-            }
-          };
+              tool_choice: 'none',
+            },
+          } as const;
 
-          console.log("[Relay-Enhanced] Sending optimized session configuration");
+          log('Sending session.update');
           openaiWS.send(JSON.stringify(sessionConfig));
-        } else if (message.type === 'session.updated') {
-          console.log(`[Relay-Enhanced] ✅ ${message.type}`);
-          // Mark session as configured and flush any buffered client messages
+        } else if (msg.type === 'session.updated') {
+          log('✅ session.updated');
           sessionConfigured = true;
           if (pendingClientMessages.length) {
-            console.log(`[Relay-Enhanced] 🚿 Flushing ${pendingClientMessages.length} buffered client messages`);
+            log(`Flushing ${pendingClientMessages.length} buffered client messages`);
             for (const buffered of pendingClientMessages) {
-              try { openaiWS.send(buffered); } catch (e) { console.error('[Relay-Enhanced] Error flushing buffered message:', e); }
+              try { openaiWS.send(buffered); } catch (e) { error('Error flushing buffered message:', e); }
             }
             pendingClientMessages = [];
           }
-        } else if (message.type === 'conversation.item.input_audio_transcription.completed') {
-          console.log(`[Relay-Enhanced] 🎤 Student: "${message.transcript}"`);
-        } else if (message.type === 'response.audio_transcript.delta') {
-          console.log(`[Relay-Enhanced] 🔊 AI: "${message.delta}"`);
-        } else if (message.type === 'error') {
-          console.error("[Relay-Enhanced] ❌ OpenAI error:", message.error);
+        } else if (msg.type === 'error') {
+          error('OpenAI error:', msg.error);
         }
+      } catch (e) {
+        error('Error parsing OpenAI message:', e);
       }
-    } catch (error) {
-      console.error("[Relay-Enhanced] Error parsing OpenAI message:", error);
-    }
-  });
+    });
 
-  clientWS.on('message', (data: any) => {
-    try {
-      const message = JSON.parse(data.toString());
-      const connection = activeConnections.get(connectionId);
-
-      if (connection) {
-        connection.lastActivity = Date.now();
+    openaiWS.addEventListener('close', (ev) => {
+      warn('OpenAI closed:', ev.code, ev.reason);
+      if (clientWS.readyState === WebSocket.OPEN) {
+        clientWS.close(1014, 'OpenAI connection lost');
       }
+    });
 
-      // Handle heartbeat from client
-      if (message.type === 'ping') {
-        clientWS.send(JSON.stringify({ type: 'pong' }));
-        return;
+    openaiWS.addEventListener('error', (ev) => {
+      error('OpenAI WebSocket error:', ev);
+      if (clientWS.readyState === WebSocket.OPEN) {
+        clientWS.close(1011, 'OpenAI error');
       }
+    });
 
-      if (message.type === 'input_audio_buffer.append' && connection) {
-        connection.audioInputTokens += estimateTokensEnhanced(message.audio, 24000);
+    clientWS.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+
+        if (msg.type === 'ping') {
+          clientWS.send(JSON.stringify({ type: 'pong' }));
+          return;
+        }
+
+        // Buffer until session is configured
+        if (openaiWS.readyState === WebSocket.OPEN && sessionConfigured) {
+          openaiWS.send(event.data);
+        } else {
+          warn('Buffering client message until session is ready');
+          pendingClientMessages.push(event.data);
+          if (pendingClientMessages.length > 200) pendingClientMessages.shift();
+        }
+      } catch (e) {
+        error('Error parsing client message:', e);
       }
+    };
 
-      // Forward to OpenAI if ready; otherwise buffer until session is configured
-      if (openaiWS.readyState === WebSocket.OPEN && sessionConfigured) {
-        openaiWS.send(data.toString());
-      } else {
-        console.warn(`[Relay-Enhanced] Buffering client message until OpenAI session is ready`);
-        pendingClientMessages.push(data.toString());
-        // Keep buffer bounded to avoid memory pressure
-        if (pendingClientMessages.length > 200) pendingClientMessages.shift();
-      }
-    } catch (error) {
-      console.error("[Relay-Enhanced] Error parsing client message:", error);
-    }
-  });
+    clientWS.onclose = () => {
+      log('Client disconnected');
+      try { openaiWS.close(); } catch (_) {}
+      if (bufferTimer) clearTimeout(bufferTimer);
+      pendingClientMessages = [];
+      sessionConfigured = false;
+      audioBuffer = [];
+    };
 
-  const cleanup = async () => {
-    // Clear intervals
-    if (heartbeatInterval) {
-      clearInterval(heartbeatInterval);
-    }
-    if (bufferTimer) {
-      clearTimeout(bufferTimer);
-    }
+    clientWS.onerror = (ev) => {
+      error('Client WebSocket error:', ev);
+      try { openaiWS.close(); } catch (_) {}
+    };
 
-    // Reset buffering state
-    pendingClientMessages = [];
-    sessionConfigured = false;
-
-    // Get connection stats
-    const connection = activeConnections.get(connectionId);
-    if (connection) {
-      const sessionDuration = Date.now() - connection.startTime;
-      const inputCost = (connection.audioInputTokens / 1000000) * 100; // Updated pricing
-      const outputCost = (connection.audioOutputTokens / 1000000) * 200; // Updated pricing
-      const totalCost = inputCost + outputCost;
-
-      console.log(`[Relay-Enhanced] 📊 Session ended for ${connectionId}:
-        Duration: ${(sessionDuration / 1000).toFixed(2)}s
-        Input tokens: ${connection.audioInputTokens}
-        Output tokens: ${connection.audioOutputTokens}
-        Estimated cost: $${totalCost.toFixed(4)}`);
-
-      // Remove from active connections
-      activeConnections.delete(connectionId);
-    }
-
-    // Close OpenAI connection
-    if (openaiWS.readyState === WebSocket.OPEN) {
-      openaiWS.close();
-    }
-  };
-
-  clientWS.on('close', (code: any, reason: any) => {
-    console.log(`[Relay-Enhanced] Client disconnected - Code: ${code}, Reason: ${reason}`);
-    cleanup();
-  });
-
-  openaiWS.addEventListener('close', (event) => {
-    console.log(`[Relay-Enhanced] OpenAI disconnected - Code: ${event.code}`);
-    if (clientWS.readyState === WebSocket.OPEN) {
-      clientWS.close(1014, 'OpenAI connection closed');
-    }
-  });
-
-  clientWS.on('error', (error: any) => {
-    console.error("[Relay-Enhanced] Client WebSocket error:", error);
-    cleanup();
-  });
-
-  openaiWS.addEventListener('error', (error) => {
-    console.error("[Relay-Enhanced] OpenAI WebSocket error:", error);
-    isOpenAIConnected = false;
-    if (clientWS.readyState === WebSocket.OPEN) {
-      clientWS.close(1011, 'OpenAI connection error');
-    }
-  });
-
-});
-
-function estimateTokensEnhanced(audioData: string, sampleRate: number): number {
-  // More accurate token estimation based on actual sample rate
-  const bytes = (audioData.length * 3) / 4; // Base64 to bytes
-  const samples = bytes / 2; // PCM16 = 2 bytes per sample
-  const seconds = samples / sampleRate;
-  return Math.round(seconds * 100); // ~100 tokens per second of audio
-}
-
-// Monitor active connections
-setInterval(() => {
-  const now = Date.now();
-  for (const [id, connection] of activeConnections) {
-    const inactiveTime = now - connection.lastActivity;
-    if (inactiveTime > 60000) { // 1 minute of inactivity
-      console.warn(`[Relay-Enhanced] Connection ${id} inactive for ${inactiveTime}ms`);
-    }
+    return response;
+  } catch (e) {
+    error('Fatal error:', e);
+    return new Response('Internal error', { status: 500, headers: corsHeaders });
   }
-
-  console.log(`[Relay-Enhanced] Active connections: ${activeConnections.size}`);
-}, 30000); // Check every 30 seconds
-
-const port = 8000;
-server.listen(port, () => {
-  console.log(`[Relay-Enhanced] WebSocket relay server running on port ${port}`);
-  console.log(`[Relay-Enhanced] Ready to handle realtime voice connections with enhanced audio handling`);
 });
