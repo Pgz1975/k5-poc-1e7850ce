@@ -22,6 +22,7 @@ import GeneratedAssessment from "./pages/GeneratedAssessment";
 import CreateAssessment from "./pages/CreateAssessment";
 import ViewAssessment from "./pages/ViewAssessment";
 import CreateDemoUsers from "./pages/CreateDemoUsers";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/create-assessment" element={<CreateAssessment />} />
               <Route path="/assessment/:id" element={<ViewAssessment />} />
               <Route path="/create-demo-users" element={<CreateDemoUsers />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
