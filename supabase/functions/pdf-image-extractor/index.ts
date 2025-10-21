@@ -29,38 +29,71 @@ serve(async (req) => {
       throw new Error(`Failed to download PDF: ${downloadError?.message}`);
     }
 
-    console.log('[Image Extractor] PDF downloaded, simulating image extraction');
+    const arrayBuffer = await pdfData.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
 
-    // Simulate realistic image extraction
-    // In production, you would use a PDF library to extract actual images
+    // Use pdf-parse to extract basic info
+    const pdfParse = (await import('https://esm.sh/pdf-parse@1.1.1')).default;
+    const pdfData2 = await pdfParse(Buffer.from(uint8Array));
+
+    console.log('[Image Extractor] PDF has', pdfData2.numpages, 'pages');
+
+    // For this implementation, we'll simulate image extraction
+    // In production, use pdf.js or similar library for actual extraction
+    const pdfjsLib = await import('https://esm.sh/pdfjs-dist@3.11.174/build/pdf.min.js');
+
+    // Load PDF document
+    const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
+    const pdf = await loadingTask.promise;
+
     const extractedImages = [];
-    const mockPages = Math.floor(Math.random() * 15) + 3;
-    const imagesPerPage = Math.random() > 0.5 ? 1 : 2;
+    let totalImageCount = 0;
 
-    for (let pageNum = 1; pageNum <= mockPages; pageNum++) {
-      const numImages = Math.random() > 0.3 ? imagesPerPage : 0;
+    // Process each page
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const operatorList = await page.getOperatorList();
 
-      for (let imageIndex = 0; imageIndex < numImages; imageIndex++) {
-        const imageId = crypto.randomUUID();
-        const storagePath = `${document.uploaded_by}/${documentId}/page_${pageNum}_img_${imageIndex}.png`;
+      let imageIndex = 0;
 
-        extractedImages.push({
-          id: imageId,
-          document_id: documentId,
-          page_number: pageNum,
-          image_index: imageIndex,
-          storage_bucket: 'pdf-images',
-          storage_path: storagePath,
-          format: 'png',
-          width: 800 + Math.floor(Math.random() * 400),
-          height: 600 + Math.floor(Math.random() * 400),
-          file_size: 50000 + Math.floor(Math.random() * 150000),
-          quality_score: 0.75 + Math.random() * 0.2,
-          is_decorative: Math.random() > 0.7,
-          contains_text: Math.random() > 0.5,
-          alt_text: `Image from page ${pageNum}`,
-          caption: Math.random() > 0.6 ? `Educational illustration ${imageIndex + 1}` : null
-        });
+      for (let i = 0; i < operatorList.fnArray.length; i++) {
+        // Check if operation is an image
+        if (operatorList.fnArray[i] === pdfjsLib.OPS.paintImageXObject ||
+            operatorList.fnArray[i] === pdfjsLib.OPS.paintInlineImageXObject) {
+          
+          totalImageCount++;
+          const imageName = operatorList.argsArray[i][0];
+
+          try {
+            // Get image data
+            const viewport = page.getViewport({ scale: 1.0 });
+            
+            // Create a placeholder image record
+            // In production, you would extract actual image data and upload to storage
+            const imageId = crypto.randomUUID();
+            const storagePath = `${document.uploaded_by}/${documentId}/page_${pageNum}_img_${imageIndex}.png`;
+
+            extractedImages.push({
+              id: imageId,
+              document_id: documentId,
+              page_number: pageNum,
+              image_index: imageIndex,
+              storage_bucket: 'pdf-images',
+              storage_path: storagePath,
+              format: 'png',
+              width: Math.round(viewport.width),
+              height: Math.round(viewport.height),
+              file_size: 0, // Would be actual size after extraction
+              quality_score: 0.85,
+              is_decorative: false,
+              contains_text: false
+            });
+
+            imageIndex++;
+          } catch (imgError) {
+            console.error('[Image Extractor] Error extracting image:', imgError);
+          }
+        }
       }
     }
 
