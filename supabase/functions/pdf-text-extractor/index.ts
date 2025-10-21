@@ -18,20 +18,43 @@ serve(async (req) => {
 
     const { documentId, pdfBuffer } = await req.json();
 
-    console.log('[Text Extractor] Processing document:', documentId);
+    console.log('[Text Extractor] ========== STARTING TEXT EXTRACTION ==========');
+    console.log('[Text Extractor] Document ID:', documentId);
+    console.log('[Text Extractor] Buffer received:', !!pdfBuffer);
+    console.log('[Text Extractor] Buffer type:', typeof pdfBuffer);
+    console.log('[Text Extractor] Buffer is array:', Array.isArray(pdfBuffer));
 
     // Import Deno-compatible PDF parsing (pdf.js)
+    console.log('[Text Extractor] Step 1: Importing pdf.js library...');
     const pdfjsModule = await import('https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs');
     const pdfjsLib: any = (pdfjsModule as any).default || pdfjsModule;
+    console.log('[Text Extractor] pdf.js loaded:', !!pdfjsLib);
+    console.log('[Text Extractor] GlobalWorkerOptions available:', !!pdfjsLib.GlobalWorkerOptions);
+    
     // Ensure worker is not required in edge runtime
     if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.worker.mjs';
+      console.log('[Text Extractor] Worker source set:', pdfjsLib.GlobalWorkerOptions.workerSrc);
     }
+    
     // Parse PDF using pdf.js (works in Deno)
+    console.log('[Text Extractor] Step 2: Normalizing PDF buffer...');
     const pdfData = normalizeToUint8Array(pdfBuffer);
-    const loadingTask = pdfjsLib.getDocument({ data: pdfData, /* allow real worker */ isEvalSupported: false, useWorkerFetch: true, disableFontFace: true });
+    console.log('[Text Extractor] Normalized buffer size:', pdfData.byteLength, 'bytes');
+    
+    console.log('[Text Extractor] Step 3: Loading PDF document...');
+    const loadingTask = pdfjsLib.getDocument({ 
+      data: pdfData, 
+      isEvalSupported: false, 
+      useWorkerFetch: true, 
+      disableFontFace: true 
+    });
+    console.log('[Text Extractor] Loading task created:', !!loadingTask);
+    
+    console.log('[Text Extractor] Step 4: Waiting for PDF to load...');
     const pdfDoc = await loadingTask.promise;
-    console.log('[Text Extractor] Extracting from', pdfDoc.numPages, 'pages');
+    console.log('[Text Extractor] ✓ PDF loaded successfully');
+    console.log('[Text Extractor] Total pages:', pdfDoc.numPages);
 
     // Process each page
     const textBlocks = [];
@@ -109,7 +132,10 @@ serve(async (req) => {
     );
 
   } catch (error: any) {
-    console.error('[Text Extractor] Error:', error);
+    console.error('[Text Extractor] ❌ FATAL ERROR');
+    console.error('[Text Extractor] Error type:', error.constructor?.name);
+    console.error('[Text Extractor] Error message:', error.message);
+    console.error('[Text Extractor] Error stack:', error.stack);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

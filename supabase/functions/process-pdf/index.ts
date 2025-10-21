@@ -18,14 +18,23 @@ serve(async (req) => {
 
     const { documentId } = await req.json();
 
-    console.log('[PDF Processor] Processing document:', documentId);
+    console.log('[PDF Processor] ========== STARTING PDF PROCESSING ==========');
+    console.log('[PDF Processor] Document ID:', documentId);
+    console.log('[PDF Processor] Timestamp:', new Date().toISOString());
 
     // Get document details
+    console.log('[PDF Processor] Step 1: Fetching document from database...');
     const { data: document, error: docError } = await supabase
       .from('pdf_documents')
       .select('*')
       .eq('id', documentId)
       .single();
+
+    console.log('[PDF Processor] Document fetch result:', { 
+      found: !!document, 
+      error: docError?.message,
+      filename: document?.filename 
+    });
 
     if (docError || !document) {
       throw new Error(`Document not found: ${documentId}`);
@@ -41,7 +50,9 @@ serve(async (req) => {
       })
       .eq('id', documentId);
 
-    console.log('[PDF Processor] Document retrieved:', document.filename);
+    console.log('[PDF Processor] Step 2: Downloading PDF from storage...');
+    console.log('[PDF Processor] Storage bucket:', document.storage_bucket);
+    console.log('[PDF Processor] Storage path:', document.storage_path);
 
     // Download PDF from storage
     const { data: pdfData, error: downloadError } = await supabase.storage
@@ -49,10 +60,12 @@ serve(async (req) => {
       .download(document.storage_path);
 
     if (downloadError || !pdfData) {
+      console.error('[PDF Processor] Download failed:', downloadError);
       throw new Error(`Failed to download PDF: ${downloadError?.message}`);
     }
 
-    console.log('[PDF Processor] PDF downloaded, size:', pdfData.size);
+    console.log('[PDF Processor] PDF downloaded successfully');
+    console.log('[PDF Processor] File size:', pdfData.size, 'bytes');
 
     // Convert blob to array buffer
     const arrayBuffer = await pdfData.arrayBuffer();
@@ -64,7 +77,10 @@ serve(async (req) => {
       .eq('id', documentId);
 
     // Step 1: Extract text
-    console.log('[PDF Processor] Extracting text...');
+    console.log('[PDF Processor] ========== STEP 3: TEXT EXTRACTION ==========');
+    console.log('[PDF Processor] Calling pdf-text-extractor function...');
+    console.log('[PDF Processor] Buffer size:', arrayBuffer.byteLength, 'bytes');
+    
     const textResponse = await supabase.functions.invoke('pdf-text-extractor', {
       body: { 
         documentId, 
@@ -72,8 +88,15 @@ serve(async (req) => {
       }
     });
 
+    console.log('[PDF Processor] Text extraction response:', {
+      hasError: !!textResponse.error,
+      hasData: !!textResponse.data,
+      status: textResponse.data?.success
+    });
+
     if (textResponse.error) {
-      console.error('[PDF Processor] Text extraction error:', textResponse.error);
+      console.error('[PDF Processor] ❌ TEXT EXTRACTION FAILED');
+      console.error('[PDF Processor] Error details:', JSON.stringify(textResponse.error, null, 2));
       await supabase
         .from('pdf_documents')
         .update({
@@ -86,6 +109,8 @@ serve(async (req) => {
       throw new Error(`Text extraction failed: ${textResponse.error.message}`);
     }
 
+    console.log('[PDF Processor] ✓ Text extraction completed');
+
     // Update progress
     await supabase
       .from('pdf_documents')
@@ -93,13 +118,21 @@ serve(async (req) => {
       .eq('id', documentId);
 
     // Step 2: Extract images
-    console.log('[PDF Processor] Extracting images...');
+    console.log('[PDF Processor] ========== STEP 4: IMAGE EXTRACTION ==========');
+    console.log('[PDF Processor] Calling pdf-image-extractor function...');
+    
     const imageResponse = await supabase.functions.invoke('pdf-image-extractor', {
       body: { documentId, document }
     });
 
+    console.log('[PDF Processor] Image extraction response:', {
+      hasError: !!imageResponse.error,
+      hasData: !!imageResponse.data
+    });
+
     if (imageResponse.error) {
-      console.error('[PDF Processor] Image extraction error:', imageResponse.error);
+      console.error('[PDF Processor] ❌ IMAGE EXTRACTION FAILED');
+      console.error('[PDF Processor] Error details:', imageResponse.error);
       await supabase
         .from('pdf_documents')
         .update({
@@ -111,6 +144,8 @@ serve(async (req) => {
       
       throw new Error(`Image extraction failed: ${imageResponse.error.message}`);
     }
+
+    console.log('[PDF Processor] ✓ Image extraction completed');
 
     // Update progress
     await supabase

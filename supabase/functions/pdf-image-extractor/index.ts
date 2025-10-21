@@ -18,7 +18,9 @@ serve(async (req) => {
 
     const { documentId, document } = await req.json();
 
-    console.log('[Image Extractor] Processing document:', documentId);
+    console.log('[Image Extractor] ========== STARTING IMAGE EXTRACTION ==========');
+    console.log('[Image Extractor] Document ID:', documentId);
+    console.log('[Image Extractor] Document object:', !!document);
 
     // Download PDF from storage
     const { data: pdfData, error: downloadError } = await supabase.storage
@@ -33,14 +35,19 @@ serve(async (req) => {
     const uint8Array = new Uint8Array(arrayBuffer);
 
     // Use pdfjs-dist (Deno-compatible) for PDF processing - esm.sh legacy build
+    console.log('[Image Extractor] Step 1: Importing pdf.js library...');
     const pdfjsModule = await import('https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs');
     const pdfjsLib: any = (pdfjsModule as any).default || pdfjsModule;
+    console.log('[Image Extractor] pdf.js loaded:', !!pdfjsLib);
+    
     // Provide worker source for real Worker in edge runtime
     if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.worker.mjs';
+      console.log('[Image Extractor] Worker source set');
     }
     
     // Load PDF document with real worker enabled
+    console.log('[Image Extractor] Step 2: Loading PDF document...');
     const loadingTask = pdfjsLib.getDocument({ 
       data: uint8Array, 
       isEvalSupported: false, 
@@ -49,7 +56,8 @@ serve(async (req) => {
     });
     const pdf = await loadingTask.promise;
 
-    console.log('[Image Extractor] PDF has', pdf.numPages, 'pages');
+    console.log('[Image Extractor] ✓ PDF loaded successfully');
+    console.log('[Image Extractor] Total pages:', pdf.numPages);
 
     const extractedImages = [];
     let totalImageCount = 0;
@@ -134,7 +142,10 @@ serve(async (req) => {
     );
 
   } catch (error: any) {
-    console.error('[Image Extractor] Error:', error);
+    console.error('[Image Extractor] ❌ FATAL ERROR');
+    console.error('[Image Extractor] Error type:', error.constructor?.name);
+    console.error('[Image Extractor] Error message:', error.message);
+    console.error('[Image Extractor] Error stack:', error.stack);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
