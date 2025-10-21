@@ -129,6 +129,87 @@ export type Database = {
           },
         ]
       }
+      manual_assessments: {
+        Row: {
+          auto_read_question: boolean | null
+          average_score: number | null
+          completion_count: number | null
+          content: Json
+          created_at: string | null
+          created_by: string
+          curriculum_standards: string[] | null
+          description: string | null
+          difficulty_level: number | null
+          enable_voice: boolean | null
+          estimated_duration_minutes: number | null
+          grade_level: number
+          id: string
+          language: Database["public"]["Enums"]["language_code"]
+          metadata: Json | null
+          published_at: string | null
+          status: string | null
+          subject_area: string
+          subtype: string
+          title: string
+          type: string
+          updated_at: string | null
+          view_count: number | null
+          voice_speed: number | null
+        }
+        Insert: {
+          auto_read_question?: boolean | null
+          average_score?: number | null
+          completion_count?: number | null
+          content: Json
+          created_at?: string | null
+          created_by: string
+          curriculum_standards?: string[] | null
+          description?: string | null
+          difficulty_level?: number | null
+          enable_voice?: boolean | null
+          estimated_duration_minutes?: number | null
+          grade_level: number
+          id?: string
+          language?: Database["public"]["Enums"]["language_code"]
+          metadata?: Json | null
+          published_at?: string | null
+          status?: string | null
+          subject_area?: string
+          subtype: string
+          title: string
+          type: string
+          updated_at?: string | null
+          view_count?: number | null
+          voice_speed?: number | null
+        }
+        Update: {
+          auto_read_question?: boolean | null
+          average_score?: number | null
+          completion_count?: number | null
+          content?: Json
+          created_at?: string | null
+          created_by?: string
+          curriculum_standards?: string[] | null
+          description?: string | null
+          difficulty_level?: number | null
+          enable_voice?: boolean | null
+          estimated_duration_minutes?: number | null
+          grade_level?: number
+          id?: string
+          language?: Database["public"]["Enums"]["language_code"]
+          metadata?: Json | null
+          published_at?: string | null
+          status?: string | null
+          subject_area?: string
+          subtype?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+          view_count?: number | null
+          voice_speed?: number | null
+        }
+        Relationships: []
+      }
       pdf_documents: {
         Row: {
           content_type: Database["public"]["Enums"]["content_type"] | null

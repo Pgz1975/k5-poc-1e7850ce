@@ -19,6 +19,8 @@ import VoiceTest from "./pages/VoiceTest";
 import PDFDemo from "./pages/PDFDemo";
 import AssessmentGenerator from "./pages/AssessmentGenerator";
 import GeneratedAssessment from "./pages/GeneratedAssessment";
+import CreateAssessment from "./pages/CreateAssessment";
+import ViewAssessment from "./pages/ViewAssessment";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +48,8 @@ const App = () => (
               <Route path="/pdf-demo" element={<PDFDemo />} />
               <Route path="/assessment-generator" element={<AssessmentGenerator />} />
               <Route path="/generated/:id" element={<GeneratedAssessment />} />
+              <Route path="/create-assessment" element={<CreateAssessment />} />
+              <Route path="/assessment/:id" element={<ViewAssessment />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
