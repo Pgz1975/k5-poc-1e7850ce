@@ -213,54 +213,6 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Generated Assessments */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileCheck className="h-5 w-5 text-primary" />
-                  <CardTitle>AI-Generated Assessments</CardTitle>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => navigate("/assessment-generator")}
-                >
-                  Generate New
-                </Button>
-              </div>
-              <CardDescription>AI-powered assessment generation</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {generatedAssessments.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No generated assessments yet</p>
-              ) : (
-                <div className="space-y-2">
-                  {generatedAssessments.map((assessment) => (
-                    <div 
-                      key={assessment.id}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                      onClick={() => navigate(`/generated/${assessment.id}`)}
-                    >
-                      <div className="flex-1">
-                        <p className="font-medium">{assessment.assessment_type}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Grade {assessment.grade_level} • {assessment.language?.toUpperCase()}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(assessment.created_at).toLocaleDateString()}
-                        </span>
-                        <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
           {/* PDF Documents */}
           <Card>
             <CardHeader>
