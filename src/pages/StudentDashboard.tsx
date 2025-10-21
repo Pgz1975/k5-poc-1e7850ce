@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, Star, Sparkles, Mic } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
-import { AIMentorChat } from "@/components/StudentDashboard/AIMentorChat";
+import { CoquiVoiceChat } from "@/components/StudentDashboard/CoquiVoiceChat";
 import CoquiMascot from "@/components/CoquiMascot";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -171,15 +171,8 @@ const StudentDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* AI Mentor Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 justify-center">
-                <h2 className="text-2xl md:text-3xl font-bold text-center">
-                  {t("Chatea con Coquí 🐸", "Chat with Coquí 🐸")}
-                </h2>
-              </div>
-              <AIMentorChat />
-            </div>
+            {/* Voice Chat with Coquí */}
+            <CoquiVoiceChat />
           </div>
         </main>
 
