@@ -448,6 +448,30 @@ const Auth = () => {
                 </form>
               </TabsContent>
             </Tabs>
+            
+            {/* Demo Credentials */}
+            <div className="mt-6 pt-4 border-t border-border/40">
+              <p className="text-xs text-muted-foreground text-center mb-2">
+                {t("Credenciales de demostración:", "Demo credentials:")}
+              </p>
+              <div className="grid grid-cols-1 gap-1.5 text-xs text-muted-foreground">
+                <div className="flex items-center justify-between py-0.5">
+                  <span className="font-medium">{t("Estudiante", "Student")}:</span>
+                  <span className="font-mono text-[10px]">student@demo.com</span>
+                </div>
+                <div className="flex items-center justify-between py-0.5">
+                  <span className="font-medium">{t("Maestro", "Teacher")}:</span>
+                  <span className="font-mono text-[10px]">teacher@demo.com</span>
+                </div>
+                <div className="flex items-center justify-between py-0.5">
+                  <span className="font-medium">{t("Familia", "Family")}:</span>
+                  <span className="font-mono text-[10px]">family@demo.com</span>
+                </div>
+                <div className="text-center text-[10px] text-muted-foreground/70 mt-1">
+                  {t("Contraseña para todos:", "Password for all:")} <span className="font-mono">demo123</span>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
