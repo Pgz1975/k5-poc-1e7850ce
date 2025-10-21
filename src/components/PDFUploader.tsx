@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,30 @@ export const PDFUploader: React.FC = () => {
   const [progress, setProgress] = useState(0);
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'uploading' | 'processing' | 'completed' | 'failed'>('idle');
+
+  // Refs for managing subscriptions and polling
+  const subRef = useRef<{ unsubscribe: () => void } | null>(null);
+  const pollerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup function for subscriptions and polling
+  const cleanup = () => {
+    console.log('[PDFUploader] Cleaning up subscriptions and polling');
+    if (subRef.current) {
+      subRef.current.unsubscribe();
+      subRef.current = null;
+    }
+    if (pollerRef.current) {
+      clearInterval(pollerRef.current);
+      pollerRef.current = null;
+    }
+  };
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -35,6 +59,9 @@ export const PDFUploader: React.FC = () => {
     if (!file) return;
 
     try {
+      // Clean up any existing subscriptions/polling
+      cleanup();
+
       setUploading(true);
       setStatus('uploading');
       setProgress(10);
@@ -54,22 +81,25 @@ export const PDFUploader: React.FC = () => {
         description: 'Processing PDF...'
       });
 
-      // Subscribe to progress updates
+      console.log('[PDFUploader] Setting up progress monitoring for document:', result.documentId);
+
+      // Set up realtime subscription
       const subscription = k5Client.subscribeToProgress(result.documentId, (progressUpdate) => {
+        console.log('[PDFUploader] Realtime update received:', progressUpdate);
         setProgress(progressUpdate.progress);
-        
+
         if (progressUpdate.status === 'completed') {
           setStatus('completed');
-          subscription.unsubscribe();
-          
+          cleanup(); // Clean up both subscription and polling
+
           toast({
             title: 'Processing complete',
             description: 'PDF has been successfully processed'
           });
         } else if (progressUpdate.status === 'failed') {
           setStatus('failed');
-          subscription.unsubscribe();
-          
+          cleanup(); // Clean up both subscription and polling
+
           toast({
             title: 'Processing failed',
             description: progressUpdate.error || 'An error occurred',
@@ -78,9 +108,60 @@ export const PDFUploader: React.FC = () => {
         }
       });
 
+      // Store the subscription ref
+      subRef.current = subscription;
+      console.log('[PDFUploader] Realtime subscription established');
+
+      // Set up polling fallback (every 2 seconds)
+      const pollProgress = async () => {
+        try {
+          const progressUpdate = await k5Client.getProgress(result.documentId);
+          console.log('[PDFUploader] Polling update:', progressUpdate);
+
+          // Update progress if it's different
+          setProgress((currentProgress) => {
+            if (progressUpdate.progress > currentProgress) {
+              console.log('[PDFUploader] Progress increased via polling:', progressUpdate.progress);
+              return progressUpdate.progress;
+            }
+            return currentProgress;
+          });
+
+          // Check for completion/failure
+          if (progressUpdate.status === 'completed') {
+            setStatus('completed');
+            cleanup();
+
+            toast({
+              title: 'Processing complete',
+              description: 'PDF has been successfully processed'
+            });
+          } else if (progressUpdate.status === 'failed') {
+            setStatus('failed');
+            cleanup();
+
+            toast({
+              title: 'Processing failed',
+              description: progressUpdate.error || 'An error occurred',
+              variant: 'destructive'
+            });
+          }
+        } catch (pollError) {
+          console.error('[PDFUploader] Polling error:', pollError);
+        }
+      };
+
+      // Start polling as a fallback
+      console.log('[PDFUploader] Starting polling fallback');
+      pollerRef.current = setInterval(pollProgress, 2000);
+
+      // Do an immediate poll to ensure we have the latest status
+      pollProgress();
+
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('[PDFUploader] Upload error:', error);
       setStatus('failed');
+      cleanup();
       toast({
         title: 'Upload failed',
         description: error instanceof Error ? error.message : 'An error occurred',
@@ -92,6 +173,7 @@ export const PDFUploader: React.FC = () => {
   };
 
   const reset = () => {
+    cleanup(); // Clean up any active subscriptions/polling
     setFile(null);
     setStatus('idle');
     setProgress(0);
