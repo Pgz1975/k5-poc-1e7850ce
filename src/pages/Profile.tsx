@@ -66,18 +66,20 @@ const Profile = () => {
           .from("profiles")
           .select("*")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError) throw profileError;
+        if (!profile) throw new Error("Profile not found");
 
         // Fetch role
         const { data: userRole, error: roleError } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
 
         if (roleError) throw roleError;
+        if (!userRole) throw new Error("Role not found");
 
         setFullName(profile.full_name || "");
         setAvatarUrl(profile.avatar_url || "");
@@ -85,7 +87,16 @@ const Profile = () => {
         setCreatedAt(profile.created_at);
 
         // Auto-update avatars if needed (one-time fix)
-        if (user.email === "student@demo.com" && profile.avatar_url !== "/avatars/student-2.jpg") {
+        if (user.email === "admin@demo.com" && profile.avatar_url !== "/avatars/admin-1.jpg") {
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update({ avatar_url: "/avatars/admin-1.jpg" })
+            .eq("id", user.id);
+          
+          if (!updateError) {
+            setAvatarUrl("/avatars/admin-1.jpg");
+          }
+        } else if (user.email === "student@demo.com" && profile.avatar_url !== "/avatars/student-2.jpg") {
           const { error: updateError } = await supabase
             .from("profiles")
             .update({ avatar_url: "/avatars/student-2.jpg" })

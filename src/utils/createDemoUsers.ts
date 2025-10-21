@@ -108,7 +108,7 @@ export const demoUsers = [
     password: "demo123", 
     fullName: "Platform Administrator", 
     role: "depr_executive" as const,
-    avatar: "/avatars/teacher-3.jpg"
+    avatar: "/avatars/admin-1.jpg"
   },
 ];
 
