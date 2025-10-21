@@ -10,6 +10,54 @@ The following roles have differentiated access to platform information based on 
 
 ## Detailed Role Descriptions
 
+### Students by Grade Level
+#### (Estudiantes por Nivel de Grado)
+
+**Access to the Information:**
+
+Students have grade-level restricted access to educational content appropriate for their current education level:
+
+- **Kindergarten Students** (`student_kindergarten@demo.com`)
+  - Access to Kindergarten content only
+  - Age-appropriate exercises, lessons, and assessments
+  - Simplified interface with larger visuals
+
+- **1st Grade Students** (`student_1@demo.com`)
+  - Access to 1st Grade content only
+  - Reading exercises aligned with Grade 1 curriculum
+  - Basic vocabulary and comprehension activities
+
+- **2nd Grade Students** (`student_2@demo.com`)
+  - Access to 2nd Grade content only
+  - Intermediate reading materials
+  - Enhanced vocabulary and writing exercises
+
+- **3rd Grade Students** (`student_3@demo.com`)
+  - Access to 3rd Grade content only
+  - Advanced reading comprehension
+  - Critical thinking exercises
+
+- **4th Grade Students** (`student_4@demo.com`)
+  - Access to 4th Grade content only
+  - Complex reading materials
+  - Literary analysis and writing
+
+- **5th Grade Students** (`student_5@demo.com`)
+  - Access to 5th Grade content only
+  - Advanced literacy skills
+  - Comprehensive reading and writing activities
+
+**Scope:**
+Students can only access content designated for their specific grade level, ensuring age-appropriate learning materials and preventing access to content that may be too advanced or too basic for their educational stage. This grade-level restriction applies to all lessons, exercises, assessments, and reading materials.
+
+**Content Filtering:**
+- All content is tagged with grade level during creation
+- Database queries filter content by student's assigned grade level
+- UI only displays grade-appropriate materials
+- Cross-grade content access is prevented at the database level
+
+---
+
 ### Parents (Padres)
 
 **Access to the Information:**
@@ -126,14 +174,15 @@ DEPR Executive Personnel and designated Learn Aid administrators have comprehens
 
 ## Access Hierarchy Summary
 
-| Access Level | Geographic Scope | Language Scope | Detail Level |
-|---|---|---|---|
-| Parents | Individual child | Both | Student progress |
-| Teachers | Classroom | One language | Class & individual |
-| School Director | School | Both | School-wide |
-| Regional Director | Region (7 regions) | Both | Region & school-level |
-| Spanish Program | Island-wide | Spanish only | Regional & island aggregates |
-| English Program | Island-wide | English only | Regional & island aggregates |
-| DEPR Executive | Island-wide | Both | Full comprehensive view |
+| Access Level | Geographic Scope | Language Scope | Detail Level | Content Access |
+|---|---|---|---|---|
+| Students (K-5) | Individual | Both | Own activities | Grade-level restricted |
+| Parents | Individual child | Both | Student progress | Child's grade level |
+| Teachers | Classroom | One language | Class & individual | Multiple grade levels |
+| School Director | School | Both | School-wide | All grade levels |
+| Regional Director | Region (7 regions) | Both | Region & school-level | All grade levels |
+| Spanish Program | Island-wide | Spanish only | Regional & island aggregates | All grade levels |
+| English Program | Island-wide | English only | Regional & island aggregates | All grade levels |
+| DEPR Executive | Island-wide | Both | Full comprehensive view | All grade levels |
 
 ---
