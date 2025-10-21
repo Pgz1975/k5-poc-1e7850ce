@@ -33,10 +33,9 @@ serve(async (req) => {
     const uint8Array = new Uint8Array(arrayBuffer);
 
     // Use pdfjs-dist (Deno-compatible) for PDF processing
-    const pdfjsLib = await import('https://esm.sh/pdfjs-dist@3.11.174/build/pdf.mjs');
-
+    const pdfjsLib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.mjs');
     // Load PDF document
-    const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
+    const loadingTask = pdfjsLib.getDocument({ data: uint8Array, disableWorker: true, isEvalSupported: false, useWorkerFetch: false, disableFontFace: true });
     const pdf = await loadingTask.promise;
 
     console.log('[Image Extractor] PDF has', pdf.numPages, 'pages');

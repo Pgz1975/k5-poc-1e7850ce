@@ -20,13 +20,12 @@ serve(async (req) => {
 
     console.log('[Text Extractor] Processing document:', documentId);
 
-    // Import Deno-compatible PDF parsing library
-    const { PDFDocument } = await import('https://cdn.skypack.dev/pdf-lib@1.17.1');
-    const { getDocument } = await import('https://esm.sh/pdfjs-dist@3.11.174/build/pdf.mjs');
-
+    // Import Deno-compatible PDF parsing (pdf.js)
+    const pdfjsModule = await import('https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs');
+    const pdfjsLib: any = (pdfjsModule as any).default || pdfjsModule;
     // Parse PDF using pdf.js (works in Deno)
     const pdfData = normalizeToUint8Array(pdfBuffer);
-    const loadingTask = getDocument({ data: pdfData });
+    const loadingTask = pdfjsLib.getDocument({ data: pdfData, disableWorker: true, isEvalSupported: false, useWorkerFetch: false, disableFontFace: true });
     const pdfDoc = await loadingTask.promise;
     console.log('[Text Extractor] Extracting from', pdfDoc.numPages, 'pages');
 
