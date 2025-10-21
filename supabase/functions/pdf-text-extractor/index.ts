@@ -20,55 +20,47 @@ serve(async (req) => {
 
     console.log('[Text Extractor] Processing document:', documentId);
 
-    // Import PDF parsing library
-    const pdfParse = (await import('https://esm.sh/pdf-parse@1.1.1')).default;
+    // Import Deno-compatible PDF parsing library
+    const { PDFDocument } = await import('https://cdn.skypack.dev/pdf-lib@1.17.1');
+    const { getDocument } = await import('https://esm.sh/pdfjs-dist@3.11.174/build/pdf.mjs');
 
-    // Parse PDF
-    const data = await pdfParse(normalizeToUint8Array(pdfBuffer));
-    
-    console.log('[Text Extractor] Extracted', data.numpages, 'pages');
+    // Parse PDF using pdf.js (works in Deno)
+    const pdfData = normalizeToUint8Array(pdfBuffer);
+    const loadingTask = getDocument({ data: pdfData });
+    const pdfDoc = await loadingTask.promise;
+    console.log('[Text Extractor] Extracting from', pdfDoc.numPages, 'pages');
 
     // Process each page
     const textBlocks = [];
-    const pages = data.text.split('\f'); // Form feed character separates pages
 
-    for (let pageNum = 0; pageNum < pages.length; pageNum++) {
-      const pageText = pages[pageNum].trim();
-      if (!pageText) continue;
-
-      // Split into paragraphs/blocks
-      const blocks = pageText.split(/\n\n+/).filter(b => b.trim());
-
-      for (let blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
-        const text = blocks[blockIndex].trim();
-        if (!text) continue;
-
-        // Detect language using simple heuristics
-        const spanishIndicators = /\b(el|la|los|las|un|una|de|que|y|en|es|por|para|con|su|al|del)\b/gi;
-        const englishIndicators = /\b(the|a|an|and|is|are|was|were|in|on|at|to|for|of|with)\b/gi;
-
-        const spanishMatches = (text.match(spanishIndicators) || []).length;
-        const englishMatches = (text.match(englishIndicators) || []).length;
-
-        const detectedLanguage = spanishMatches > englishMatches ? 'es' : 'en';
-        const confidence = Math.max(spanishMatches, englishMatches) / text.split(/\s+/).length;
-
-        // Check for Puerto Rican dialect indicators
-        const prIndicators = /\b(guagua|zafacón|mahones|chiringa|chavos|carro|nene|china)\b/gi;
-        const isPuertoRican = prIndicators.test(text);
-
-        textBlocks.push({
-          document_id: documentId,
-          page_number: pageNum + 1,
-          block_index: blockIndex,
-          text_content: text,
-          text_length: text.length,
-          detected_language: detectedLanguage,
-          language_confidence: Math.min(confidence, 0.99),
-          is_puerto_rican_dialect: isPuertoRican,
-          word_count: text.split(/\s+/).length,
-          reading_complexity: calculateReadingComplexity(text)
-        });
+    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+      const page = await pdfDoc.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      
+      // Combine text items into blocks
+      let currentBlock = '';
+      let blockIndex = 0;
+      
+      for (const item of textContent.items) {
+        if ('str' in item) {
+          const text = item.str.trim();
+          if (!text) continue;
+          
+          // Start new block on significant vertical gap
+          if (item.transform && currentBlock && Math.abs(item.transform[5]) > 50) {
+            if (currentBlock.trim()) {
+              textBlocks.push(createTextBlock(documentId, pageNum, blockIndex++, currentBlock));
+              currentBlock = '';
+            }
+          }
+          
+          currentBlock += text + ' ';
+        }
+      }
+      
+      // Add final block
+      if (currentBlock.trim()) {
+        textBlocks.push(createTextBlock(documentId, pageNum, blockIndex++, currentBlock));
       }
     }
 
@@ -91,9 +83,9 @@ serve(async (req) => {
     await supabase
       .from('pdf_documents')
       .update({
-        page_count: data.numpages,
+        page_count: pdfDoc.numPages,
         total_words: totalWords,
-        has_text_layer: data.text.length > 0,
+        has_text_layer: textBlocks.length > 0,
         reading_level: Math.round(avgComplexity)
       })
       .eq('id', documentId);
@@ -105,7 +97,7 @@ serve(async (req) => {
         success: true,
         blocksExtracted: textBlocks.length,
         totalWords,
-        pageCount: data.numpages
+        pageCount: pdfDoc.numPages
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -124,6 +116,37 @@ serve(async (req) => {
     );
   }
 });
+
+function createTextBlock(documentId: string, pageNum: number, blockIndex: number, text: string) {
+  const trimmedText = text.trim();
+  
+  // Detect language using simple heuristics
+  const spanishIndicators = /\b(el|la|los|las|un|una|de|que|y|en|es|por|para|con|su|al|del)\b/gi;
+  const englishIndicators = /\b(the|a|an|and|is|are|was|were|in|on|at|to|for|of|with)\b/gi;
+
+  const spanishMatches = (trimmedText.match(spanishIndicators) || []).length;
+  const englishMatches = (trimmedText.match(englishIndicators) || []).length;
+
+  const detectedLanguage = spanishMatches > englishMatches ? 'es' : 'en';
+  const confidence = Math.max(spanishMatches, englishMatches) / trimmedText.split(/\s+/).length;
+
+  // Check for Puerto Rican dialect indicators
+  const prIndicators = /\b(guagua|zafacón|mahones|chiringa|chavos|carro|nene|china)\b/gi;
+  const isPuertoRican = prIndicators.test(trimmedText);
+
+  return {
+    document_id: documentId,
+    page_number: pageNum,
+    block_index: blockIndex,
+    text_content: trimmedText,
+    text_length: trimmedText.length,
+    detected_language: detectedLanguage,
+    language_confidence: Math.min(confidence, 0.99),
+    is_puerto_rican_dialect: isPuertoRican,
+    word_count: trimmedText.split(/\s+/).length,
+    reading_complexity: calculateReadingComplexity(trimmedText)
+  };
+}
 
 function calculateReadingComplexity(text: string): number {
   // Flesch-Kincaid Grade Level approximation

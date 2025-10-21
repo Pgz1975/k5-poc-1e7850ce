@@ -32,19 +32,14 @@ serve(async (req) => {
     const arrayBuffer = await pdfData.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
 
-    // Use pdf-parse to extract basic info
-    const pdfParse = (await import('https://esm.sh/pdf-parse@1.1.1')).default;
-    const pdfData2 = await pdfParse(uint8Array as unknown as Uint8Array);
-
-    console.log('[Image Extractor] PDF has', pdfData2.numpages, 'pages');
-
-    // For this implementation, we'll simulate image extraction
-    // In production, use pdf.js or similar library for actual extraction
-    const pdfjsLib: any = await import('https://esm.sh/pdfjs-dist@3.11.174/build/pdf.min.js');
+    // Use pdfjs-dist (Deno-compatible) for PDF processing
+    const pdfjsLib = await import('https://esm.sh/pdfjs-dist@3.11.174/build/pdf.mjs');
 
     // Load PDF document
     const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
     const pdf = await loadingTask.promise;
+
+    console.log('[Image Extractor] PDF has', pdf.numPages, 'pages');
 
     const extractedImages = [];
     let totalImageCount = 0;
