@@ -16,7 +16,6 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import ReadingExercise from "./pages/ReadingExercise";
 import VoiceTest from "./pages/VoiceTest";
-import CoquiBackgroundRemover from "./pages/CoquiBackgroundRemover";
 import PDFDemo from "./pages/PDFDemo";
 import NotFound from "./pages/NotFound";
 
@@ -42,7 +41,6 @@ const App = () => (
               <Route path="/family-dashboard" element={<FamilyDashboard />} />
               <Route path="/reading-exercise" element={<ReadingExercise />} />
               <Route path="/voice-test" element={<VoiceTest />} />
-              <Route path="/coqui-bg-remover" element={<CoquiBackgroundRemover />} />
               <Route path="/pdf-demo" element={<PDFDemo />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
