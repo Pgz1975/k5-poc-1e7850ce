@@ -23,6 +23,10 @@ serve(async (req) => {
     // Import Deno-compatible PDF parsing (pdf.js)
     const pdfjsModule = await import('https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs');
     const pdfjsLib: any = (pdfjsModule as any).default || pdfjsModule;
+    // Ensure worker is not required in edge runtime
+    if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.worker.mjs';
+    }
     // Parse PDF using pdf.js (works in Deno)
     const pdfData = normalizeToUint8Array(pdfBuffer);
     const loadingTask = pdfjsLib.getDocument({ data: pdfData, disableWorker: true, isEvalSupported: false, useWorkerFetch: false, disableFontFace: true });
