@@ -23,13 +23,15 @@ export class RealtimeVoiceClientEnhanced {
   private config: RealtimeVoiceConfig;
   private currentToken: string = '';
 
-  // Enhanced audio buffering
+  // Enhanced audio buffering - accumulate complete responses
   private audioQueue: AudioChunk[] = [];
   private isPlayingAudio = false;
   private nextScheduledTime = 0;
-  private minBufferSize = 3; // Minimum chunks before starting playback
-  private maxBufferSize = 10; // Maximum buffer to prevent latency
   private bufferUnderrunCount = 0;
+  
+  // Response-based buffering for smooth playback
+  private currentResponseAudio: Int16Array[] = [];
+  private isAccumulatingResponse = false;
 
   // Connection management
   private reconnectAttempts = 0;
@@ -257,13 +259,20 @@ export class RealtimeVoiceClientEnhanced {
         console.log('[RealtimeVoiceEnhanced] ✅ Session configuration updated');
         break;
 
+      case 'response.created':
+        // Start accumulating audio for this response
+        this.isAccumulatingResponse = true;
+        this.currentResponseAudio = [];
+        break;
+
       case 'response.audio.delta':
         this.handleEnhancedAudioDelta(message.delta);
         break;
 
       case 'response.audio.done':
-        console.log('[RealtimeVoiceEnhanced] Audio response complete');
-        this.flushAudioBuffer();
+        console.log('[RealtimeVoiceEnhanced] Audio response complete - playing full response');
+        this.isAccumulatingResponse = false;
+        this.playCompleteResponse();
         break;
 
       case 'response.audio_transcript.delta':
@@ -289,31 +298,46 @@ export class RealtimeVoiceClientEnhanced {
     try {
       const pcm16Data = this.optimizedDecodeBase64ToPCM16(base64Audio);
 
-      // Add to queue with timestamp for jitter buffer
-      this.audioQueue.push({
-        data: pcm16Data,
-        timestamp: Date.now()
-      });
-
-      // Implement adaptive buffering
-      const shouldStartPlayback = !this.isPlayingAudio && (
-        this.audioQueue.length >= this.minBufferSize ||
-        (this.audioQueue.length > 0 && this.bufferUnderrunCount > 2)
-      );
-
-      if (shouldStartPlayback) {
-        this.startEnhancedPlayback();
-      }
-
-      // Prevent buffer overflow
-      if (this.audioQueue.length > this.maxBufferSize) {
-        console.warn('[RealtimeVoiceEnhanced] Buffer overflow, dropping old chunks');
-        this.audioQueue = this.audioQueue.slice(-this.maxBufferSize);
+      // Accumulate audio chunks for complete response
+      if (this.isAccumulatingResponse) {
+        this.currentResponseAudio.push(pcm16Data);
       }
 
     } catch (error) {
       console.error('[RealtimeVoiceEnhanced] Error handling audio delta:', error);
     }
+  }
+
+  private async playCompleteResponse(): Promise<void> {
+    if (this.currentResponseAudio.length === 0) return;
+
+    console.log(`[RealtimeVoiceEnhanced] Playing complete response with ${this.currentResponseAudio.length} chunks`);
+
+    // Concatenate all audio chunks into one buffer
+    const totalLength = this.currentResponseAudio.reduce((sum, chunk) => sum + chunk.length, 0);
+    const completeAudio = new Int16Array(totalLength);
+    let offset = 0;
+
+    for (const chunk of this.currentResponseAudio) {
+      completeAudio.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    // Add complete audio to queue
+    this.audioQueue.push({
+      data: completeAudio,
+      timestamp: Date.now()
+    });
+
+    // Start playback if not already playing
+    if (!this.isPlayingAudio) {
+      this.config.onAudioPlayback?.(true);
+      await this.startEnhancedPlayback();
+      this.config.onAudioPlayback?.(false);
+    }
+
+    // Clear buffer for next response
+    this.currentResponseAudio = [];
   }
 
   private async startEnhancedPlayback(): Promise<void> {
