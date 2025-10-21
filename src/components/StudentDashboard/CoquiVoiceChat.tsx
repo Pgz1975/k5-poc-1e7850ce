@@ -79,35 +79,47 @@ export const CoquiVoiceChat = () => {
         clearTimeout(bufferTimeoutRef.current);
       }
 
-      // Initialize or append to buffer
-      if (!transcriptBufferRef.current || transcriptBufferRef.current.isUser !== isUser) {
-        // New speaker - flush old buffer first
+      // Check if this is a switch from AI to User or vice versa
+      const isSpeakerSwitch = transcriptBufferRef.current && transcriptBufferRef.current.isUser !== isUser;
+      
+      if (isSpeakerSwitch) {
+        // Flush the previous speaker's buffer before starting new one
         flushBuffer();
+      }
+
+      // Initialize or append to buffer for current speaker
+      if (!transcriptBufferRef.current || transcriptBufferRef.current.isUser !== isUser) {
         transcriptBufferRef.current = {
           text: text,
           isUser,
           lastUpdate: Date.now()
         };
       } else {
-        // Same speaker - append text
-        transcriptBufferRef.current.text += text;
+        // Same speaker - append text with space if needed
+        const currentText = transcriptBufferRef.current.text;
+        const needsSpace = currentText.length > 0 && 
+                          !currentText.endsWith(' ') && 
+                          !text.startsWith(' ') &&
+                          !text.match(/^[,.!?;:]/) &&
+                          !currentText.match(/[¡¿]$/);
+        
+        transcriptBufferRef.current.text += (needsSpace ? ' ' : '') + text;
         transcriptBufferRef.current.lastUpdate = Date.now();
       }
 
-      // Set timeout to flush buffer after pause (600ms for faster display)
+      // Set timeout to flush buffer after pause (1 second for more complete phrases)
       bufferTimeoutRef.current = setTimeout(() => {
         flushBuffer();
-      }, 600);
+      }, 1000);
       
-      // Update mascot state based on conversation
+      // Update mascot state based on who's speaking
       if (!isUser) {
-        const lowerText = text.toLowerCase();
+        const lowerText = transcriptBufferRef.current.text.toLowerCase();
         if (lowerText.includes('excelente') || 
             lowerText.includes('muy bien') ||
             lowerText.includes('excellent') ||
             lowerText.includes('great job')) {
           setMascotState('excited');
-          setTimeout(() => setMascotState('speaking'), 2000);
         } else {
           setMascotState('speaking');
         }
