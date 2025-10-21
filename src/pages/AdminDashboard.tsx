@@ -113,7 +113,6 @@ const AdminDashboard = () => {
 
   const quickActions = [
     { title: "Create Assessment", icon: PlusCircle, path: "/create-assessment" },
-    { title: "Generate Assessment", icon: FileCheck, path: "/assessment-generator" },
     { title: "Upload PDF", icon: Upload, path: "/pdf-demo" },
     { title: "Create Demo Users", icon: Settings, path: "/create-demo-users" },
   ];
