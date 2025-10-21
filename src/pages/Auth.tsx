@@ -54,6 +54,12 @@ const Auth = () => {
   const redirectBasedOnRole = async () => {
     if (!user) return;
 
+    // Check if admin user
+    if (user.email === "admin@demo.com") {
+      navigate("/admin-dashboard");
+      return;
+    }
+
     const { data, error } = await supabase
       .from("user_roles")
       .select("role")
