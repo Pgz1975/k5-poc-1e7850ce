@@ -79,6 +79,9 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
   let heartbeatInterval: number | null = null;
   let audioBuffer: string[] = [];
   let bufferTimer: number | null = null;
+  // Buffer client messages until OpenAI session is configured
+  let pendingClientMessages: string[] = [];
+  let sessionConfigured = false;
 
   openaiWS.addEventListener('open', () => {
     console.log("[Relay-Enhanced] ✅ Connected to OpenAI Realtime API");
@@ -179,6 +182,15 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
           openaiWS.send(JSON.stringify(sessionConfig));
         } else if (message.type === 'session.updated') {
           console.log(`[Relay-Enhanced] ✅ ${message.type}`);
+          // Mark session as configured and flush any buffered client messages
+          sessionConfigured = true;
+          if (pendingClientMessages.length) {
+            console.log(`[Relay-Enhanced] 🚿 Flushing ${pendingClientMessages.length} buffered client messages`);
+            for (const buffered of pendingClientMessages) {
+              try { openaiWS.send(buffered); } catch (e) { console.error('[Relay-Enhanced] Error flushing buffered message:', e); }
+            }
+            pendingClientMessages = [];
+          }
         } else if (message.type === 'conversation.item.input_audio_transcription.completed') {
           console.log(`[Relay-Enhanced] 🎤 Student: "${message.transcript}"`);
         } else if (message.type === 'response.audio_transcript.delta') {
@@ -211,15 +223,14 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
         connection.audioInputTokens += estimateTokensEnhanced(message.audio, 24000);
       }
 
-      // Forward to OpenAI if connected
-      if (openaiWS.readyState === WebSocket.OPEN) {
+      // Forward to OpenAI if ready; otherwise buffer until session is configured
+      if (openaiWS.readyState === WebSocket.OPEN && sessionConfigured) {
         openaiWS.send(data.toString());
       } else {
-        console.warn(`[Relay-Enhanced] Cannot forward message, OpenAI not connected`);
-        // Try to reconnect if needed
-        if (!isOpenAIConnected) {
-          clientWS.close(1014, 'OpenAI connection lost');
-        }
+        console.warn(`[Relay-Enhanced] Buffering client message until OpenAI session is ready`);
+        pendingClientMessages.push(data.toString());
+        // Keep buffer bounded to avoid memory pressure
+        if (pendingClientMessages.length > 200) pendingClientMessages.shift();
       }
     } catch (error) {
       console.error("[Relay-Enhanced] Error parsing client message:", error);
@@ -234,6 +245,10 @@ wss.on("connection", async (clientWS: any, req: any, context: any) => {
     if (bufferTimer) {
       clearTimeout(bufferTimer);
     }
+
+    // Reset buffering state
+    pendingClientMessages = [];
+    sessionConfigured = false;
 
     // Get connection stats
     const connection = activeConnections.get(connectionId);
