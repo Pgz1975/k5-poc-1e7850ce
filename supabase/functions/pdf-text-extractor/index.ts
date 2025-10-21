@@ -24,7 +24,7 @@ serve(async (req) => {
     const pdfParse = (await import('https://esm.sh/pdf-parse@1.1.1')).default;
 
     // Parse PDF
-    const data = await pdfParse(Buffer.from(pdfBuffer));
+    const data = await pdfParse(normalizeToUint8Array(pdfBuffer));
     
     console.log('[Text Extractor] Extracted', data.numpages, 'pages');
 
@@ -152,3 +152,38 @@ function estimateSyllables(text: string): number {
 
   return totalSyllables;
 }
+
+// Normalize various input formats to Uint8Array without using Node Buffer (Deno-friendly)
+function normalizeToUint8Array(input: any): Uint8Array {
+  try {
+    if (!input) throw new Error('Empty input');
+
+    // Base64 string
+    if (typeof input === 'string') {
+      const binary = atob(input);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    }
+
+    // Node Buffer-like object { type: 'Buffer', data: [...] }
+    if (typeof input === 'object' && input.type === 'Buffer' && Array.isArray(input.data)) {
+      return new Uint8Array(input.data);
+    }
+
+    // Already Uint8Array
+    if (input instanceof Uint8Array) return input;
+
+    // ArrayBuffer
+    if (input instanceof ArrayBuffer) return new Uint8Array(input);
+
+    // Plain array of numbers
+    if (Array.isArray(input)) return new Uint8Array(input as number[]);
+
+    throw new Error('Unsupported input format for pdfBuffer');
+  } catch (e) {
+    console.error('[Text Extractor] normalizeToUint8Array error:', e);
+    throw e;
+  }
+}
+
