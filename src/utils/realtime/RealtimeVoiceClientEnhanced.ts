@@ -1,549 +1,265 @@
-import { supabase } from '@/integrations/supabase/client';
+/**
+ * Production-Grade Realtime Voice Client
+ * Implements streaming-first architecture with adaptive buffering
+ */
+
+import { AdaptiveJitterBuffer } from './AdaptiveJitterBuffer';
+import { ConnectionStateMachine } from './ConnectionStateMachine';
+import { ReconnectionManager } from './ReconnectionManager';
+import { HeartbeatManager } from './HeartbeatManager';
+import { PerformanceMonitor } from './PerformanceMonitor';
+
 export interface RealtimeVoiceConfig {
-  studentId: string;
-  language: 'es-PR' | 'en-US';
+  studentId?: string;
+  language?: string;
   model?: string;
+  voiceGuidance?: string;
   onTranscription?: (text: string, isUser: boolean) => void;
   onAudioPlayback?: (isPlaying: boolean) => void;
   onError?: (error: Error) => void;
   onConnectionChange?: (connected: boolean) => void;
 }
 
-interface AudioChunk {
-  data: Int16Array;
-  timestamp: number;
-}
-
 export class RealtimeVoiceClientEnhanced {
   private ws: WebSocket | null = null;
   private audioContext: AudioContext | null = null;
-  private mediaStream: MediaStream | null = null;
   private audioWorklet: AudioWorkletNode | null = null;
-  private isConnected = false;
+  private mediaStream: MediaStream | null = null;
+  private jitterBuffer: AdaptiveJitterBuffer | null = null;
+  private stateMachine: ConnectionStateMachine;
+  private reconnectionManager: ReconnectionManager;
+  private heartbeatManager: HeartbeatManager;
+  private performanceMonitor: PerformanceMonitor;
   private config: RealtimeVoiceConfig;
-  private currentToken: string = '';
+  private currentTranscript = { user: '', ai: '' };
 
-  // Enhanced audio buffering - accumulate complete responses
-  private audioQueue: AudioChunk[] = [];
-  private isPlayingAudio = false;
-  private nextScheduledTime = 0;
-  private bufferUnderrunCount = 0;
-  
-  // Response-based buffering for smooth playback
-  private currentResponseAudio: Int16Array[] = [];
-  private isAccumulatingResponse = false;
-
-  // Connection management
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
-  private heartbeatInterval: NodeJS.Timeout | null = null;
-  private lastHeartbeat = Date.now();
-  private reconnectTimeout: NodeJS.Timeout | null = null;
-  private isSessionReady = false; // Track if OpenAI session is ready
-
-  // Performance monitoring
-  private audioLatency = 0;
-  private networkJitter = 0;
-  private lastPacketTime = 0;
-
-  private projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'meertwtenhlmnlpwxhyz';
-
-  constructor(config: RealtimeVoiceConfig) {
+  constructor(config: RealtimeVoiceConfig = {}) {
     this.config = config;
-    console.log('[RealtimeVoiceEnhanced] 🎯 Client initialized with enhanced audio handling');
+    this.stateMachine = new ConnectionStateMachine();
+    this.reconnectionManager = new ReconnectionManager();
+    this.heartbeatManager = new HeartbeatManager();
+    this.performanceMonitor = PerformanceMonitor.getInstance();
+
+    // Set up state listeners
+    this.stateMachine.onState('ready', () => {
+      console.log('[RealtimeVoiceClient] ✅ Ready state reached');
+      this.config.onConnectionChange?.(true);
+    });
+
+    this.stateMachine.onState('disconnected', () => {
+      console.log('[RealtimeVoiceClient] ❌ Disconnected');
+      this.config.onConnectionChange?.(false);
+    });
   }
 
-  async connect(token: string): Promise<void> {
-    try {
-      console.log('[RealtimeVoiceEnhanced] 🚀 Starting enhanced connection...');
+  async connect(token?: string): Promise<void> {
+    console.log('[RealtimeVoiceClient] 🚀 Starting connection...');
+    
+    if (!this.stateMachine.transition('connecting')) {
+      console.warn('[RealtimeVoiceClient] Already connecting or connected');
+      return;
+    }
 
-      // Initialize audio context with optimal settings
-      this.audioContext = new AudioContext({
-        sampleRate: 24000,
-        latencyHint: 'interactive' // Optimize for low latency
+    try {
+      // Initialize audio context
+      this.audioContext = new AudioContext({ sampleRate: 24000 });
+      console.log('[RealtimeVoiceClient] 🎵 AudioContext created');
+      
+      this.jitterBuffer = new AdaptiveJitterBuffer(this.audioContext);
+      this.jitterBuffer.onUnderrun(() => {
+        this.performanceMonitor.recordBufferUnderrun();
+        this.config.onAudioPlayback?.(false);
       });
 
-      // Resume audio context if suspended (browser policy)
-      if (this.audioContext.state === 'suspended') {
-        await this.audioContext.resume();
-      }
+      // Load audio worklet
+      await this.audioContext.audioWorklet.addModule('/audio-processor.js');
+      console.log('[RealtimeVoiceClient] 🎛️ AudioWorklet loaded');
 
-      // Load enhanced audio worklet
-      await this.loadEnhancedAudioWorklet();
-
-      // Get microphone with optimized settings
+      // Setup microphone
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           sampleRate: 24000,
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
-          autoGainControl: true,
-          sampleSize: 16
+          autoGainControl: true
         }
       });
+      console.log('[RealtimeVoiceClient] 🎤 Microphone access granted');
 
-      // Set up audio processing pipeline
-      await this.setupAudioPipeline();
+      // Create audio worklet
+      this.audioWorklet = new AudioWorkletNode(this.audioContext, 'pcm16-capture-processor');
+      const source = this.audioContext.createMediaStreamSource(this.mediaStream);
+      source.connect(this.audioWorklet);
 
-      // Connect to WebSocket with retry logic
-      this.currentToken = token;
-      await this.connectWebSocket(token);
+      this.audioWorklet.port.onmessage = (event) => {
+        if (event.data.type === 'audio') {
+          this.sendAudioChunk(event.data.data);
+        }
+      };
 
-      // Start heartbeat to maintain connection
-      this.startHeartbeat();
+      // Connect WebSocket
+      await this.connectWebSocket();
+
+      // Start heartbeat
+      if (this.ws) {
+        this.heartbeatManager.start(this.ws, () => {
+          this.handleConnectionLost();
+        });
+      }
+
+      console.log('[RealtimeVoiceClient] ✅ Connection complete');
 
     } catch (error) {
-      console.error('[RealtimeVoiceEnhanced] Connection error:', error);
+      console.error('[RealtimeVoiceClient] ❌ Connection error:', error);
       this.config.onError?.(error as Error);
+      this.stateMachine.transition('error');
       throw error;
     }
   }
 
-  private async loadEnhancedAudioWorklet(): Promise<void> {
-    // First create the enhanced worklet processor
-    const processorCode = `
-      class EnhancedPCM16Processor extends AudioWorkletProcessor {
-        constructor() {
-          super();
-          this.bufferSize = 2048; // Larger buffer for stability
-          this.buffer = [];
-        }
+  private async connectWebSocket(): Promise<void> {
+    const baseUrl = 'wss://meertwtenhlmnlpwxhyz.supabase.co/functions/v1/realtime-voice-relay';
+    const params = new URLSearchParams({
+      student_id: this.config.studentId || 'test',
+      language: this.config.language || 'es-PR',
+      model: this.config.model || 'gpt-4o-realtime-preview-2024-12-17'
+    });
 
-        process(inputs) {
-          const input = inputs[0];
-          if (!input || !input[0]) return true;
+    if (this.config.voiceGuidance) {
+      params.set('voice_guidance', this.config.voiceGuidance);
+      console.log('[RealtimeVoiceClient] 📝 Voice guidance included');
+    }
 
-          const samples = input[0];
+    const wsUrl = `${baseUrl}?${params.toString()}`;
+    console.log('[RealtimeVoiceClient] 🔌 Connecting to WebSocket...');
 
-          // Buffer samples for batch processing
-          for (let i = 0; i < samples.length; i++) {
-            this.buffer.push(samples[i]);
-          }
-
-          // Process when buffer is full
-          while (this.buffer.length >= this.bufferSize) {
-            const chunk = this.buffer.splice(0, this.bufferSize);
-            const pcm16 = new Int16Array(chunk.length);
-
-            // Convert with better precision
-            for (let i = 0; i < chunk.length; i++) {
-              const s = Math.max(-1, Math.min(1, chunk[i]));
-              pcm16[i] = Math.floor(s < 0 ? s * 32768 : s * 32767);
-            }
-
-            this.port.postMessage({
-              type: 'audio',
-              data: pcm16,
-              timestamp: currentTime
-            });
-          }
-
-          return true;
-        }
-      }
-
-      registerProcessor('enhanced-pcm16-processor', EnhancedPCM16Processor);
-    `;
-
-    const blob = new Blob([processorCode], { type: 'application/javascript' });
-    const url = URL.createObjectURL(blob);
-    await this.audioContext!.audioWorklet.addModule(url);
-    URL.revokeObjectURL(url);
-  }
-
-  private async setupAudioPipeline(): Promise<void> {
-    const source = this.audioContext!.createMediaStreamSource(this.mediaStream!);
-    this.audioWorklet = new AudioWorkletNode(this.audioContext!, 'enhanced-pcm16-processor');
-
-    // Set up message handling with batching
-    let audioBuffer: Int16Array[] = [];
-    let sendTimer: NodeJS.Timeout | null = null;
-
-    this.audioWorklet.port.onmessage = (event) => {
-      // Only send audio if WebSocket is open AND session is ready
-      if (event.data.type === 'audio' && this.ws?.readyState === WebSocket.OPEN && this.isSessionReady) {
-        audioBuffer.push(event.data.data);
-
-        // Batch audio data for efficiency
-        if (!sendTimer) {
-          sendTimer = setTimeout(() => {
-            if (audioBuffer.length > 0 && this.isSessionReady) {
-              const concatenated = this.concatenateAudioBuffers(audioBuffer);
-              const base64Audio = this.optimizedEncodePCM16ToBase64(concatenated);
-
-              this.ws?.send(JSON.stringify({
-                type: 'input_audio_buffer.append',
-                audio: base64Audio
-              }));
-
-              audioBuffer = [];
-            }
-            sendTimer = null;
-          }, 100); // Send every 100ms for balance between latency and efficiency
-        }
-      }
-    };
-
-    source.connect(this.audioWorklet);
-    // Don't connect to destination to prevent echo
-  }
-
-  private async connectWebSocket(token: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const modelParam = this.config.model ? `&model=${encodeURIComponent(this.config.model)}` : '';
-      const wsUrl = `wss://${this.projectId}.functions.supabase.co/functions/v1/realtime-voice-relay?jwt=${token}&student_id=${this.config.studentId}&language=${this.config.language}${modelParam}`;
-
       this.ws = new WebSocket(wsUrl);
+      this.stateMachine.transition('websocket_open');
 
-      const connectTimeout = setTimeout(() => {
-        if (this.ws?.readyState !== WebSocket.OPEN) {
-          this.ws?.close();
-          reject(new Error('WebSocket connection timeout'));
-        }
+      const timeout = setTimeout(() => {
+        reject(new Error('WebSocket connection timeout'));
       }, 10000);
 
       this.ws.onopen = () => {
-        clearTimeout(connectTimeout);
-        console.log('[RealtimeVoiceEnhanced] ✅ WebSocket connected to relay');
-        console.log('[RealtimeVoiceEnhanced] ⏳ Waiting for OpenAI session to be ready...');
-        this.isConnected = true;
-        this.reconnectAttempts = 0;
-        // Don't notify connection change yet - wait for session.created
+        clearTimeout(timeout);
+        console.log('[RealtimeVoiceClient] ✅ WebSocket connected');
         resolve();
       };
 
-      this.ws.onmessage = async (event) => {
-        this.handleServerMessage(JSON.parse(event.data));
+      this.ws.onmessage = (event) => {
+        this.handleServerMessage(event);
       };
 
       this.ws.onerror = (error) => {
-        clearTimeout(connectTimeout);
-        console.error('[RealtimeVoiceEnhanced] ❌ WebSocket error:', error);
-        this.handleConnectionError();
+        clearTimeout(timeout);
+        console.error('[RealtimeVoiceClient] ❌ WebSocket error:', error);
+        this.config.onError?.(new Error('WebSocket error'));
+        reject(error);
       };
 
-      this.ws.onclose = (event) => {
-        clearTimeout(connectTimeout);
-        console.log('[RealtimeVoiceEnhanced] WebSocket closed:', event.code, event.reason);
-        this.isConnected = false;
-        this.isSessionReady = false; // Reset session ready flag
-        this.config.onConnectionChange?.(false);
-
-        // Auto-reconnect if not intentionally closed
-        if (event.code !== 1000) {
-          this.handleReconnection();
-        }
+      this.ws.onclose = () => {
+        console.log('[RealtimeVoiceClient] 🔌 WebSocket closed');
+        this.handleConnectionLost();
       };
     });
   }
 
-  private handleServerMessage(message: any): void {
-    // Track network timing for jitter calculation
-    const now = Date.now();
-    if (this.lastPacketTime > 0) {
-      const timeDiff = now - this.lastPacketTime;
-      this.networkJitter = Math.abs(timeDiff - 100); // Expected 100ms interval
-    }
-    this.lastPacketTime = now;
-
-    switch (message.type) {
-      case 'session.created':
-        console.log('[RealtimeVoiceEnhanced] ✅ OpenAI session created - ready to send audio');
-        this.isSessionReady = true;
-        this.config.onConnectionChange?.(true); // NOW notify that we're truly ready
-        break;
-
-      case 'session.updated':
-        console.log('[RealtimeVoiceEnhanced] ✅ Session configuration updated');
-        break;
-
-      case 'response.created':
-        // Start accumulating audio for this response
-        this.isAccumulatingResponse = true;
-        this.currentResponseAudio = [];
-        break;
-
-      case 'response.audio.delta':
-        this.handleEnhancedAudioDelta(message.delta);
-        break;
-
-      case 'response.audio.done':
-        console.log('[RealtimeVoiceEnhanced] Audio response complete - playing full response');
-        this.isAccumulatingResponse = false;
-        this.playCompleteResponse();
-        break;
-
-      case 'response.audio_transcript.delta':
-        this.config.onTranscription?.(message.delta, false);
-        break;
-
-      case 'conversation.item.input_audio_transcription.completed':
-        this.config.onTranscription?.(message.transcript, true);
-        break;
-
-      case 'error':
-        console.error('[RealtimeVoiceEnhanced] Server error:', message.error);
-        this.config.onError?.(new Error(message.error.message || 'Unknown error'));
-        break;
-
-      default:
-        // Handle other message types
-        break;
-    }
-  }
-
-  private handleEnhancedAudioDelta(base64Audio: string): void {
+  private handleServerMessage(event: MessageEvent): void {
     try {
-      const pcm16Data = this.optimizedDecodeBase64ToPCM16(base64Audio);
+      const message = JSON.parse(event.data);
 
-      // Accumulate audio chunks for complete response
-      if (this.isAccumulatingResponse) {
-        this.currentResponseAudio.push(pcm16Data);
+      switch (message.type) {
+        case 'session.created':
+          console.log('[RealtimeVoiceClient] 📋 Session created');
+          this.stateMachine.transition('session_created');
+          break;
+
+        case 'session.updated':
+          console.log('[RealtimeVoiceClient] ✅ Session updated - READY');
+          this.stateMachine.transition('ready');
+          break;
+
+        case 'response.audio.delta':
+          this.handleAudioDelta(message.delta);
+          break;
+
+        case 'response.audio.done':
+          this.config.onAudioPlayback?.(false);
+          break;
+
+        case 'response.audio_transcript.delta':
+          this.currentTranscript.ai += message.delta;
+          break;
+
+        case 'response.audio_transcript.done':
+          if (this.currentTranscript.ai) {
+            this.config.onTranscription?.(this.currentTranscript.ai, false);
+            this.currentTranscript.ai = '';
+          }
+          break;
+
+        case 'conversation.item.input_audio_transcription.completed':
+          if (message.transcript) {
+            this.config.onTranscription?.(message.transcript, true);
+          }
+          break;
+
+        case 'pong':
+          this.heartbeatManager.handlePong();
+          break;
+
+        case 'error':
+          console.error('[RealtimeVoiceClient] ❌ Server error:', message.error);
+          this.config.onError?.(new Error(message.error.message));
+          break;
       }
-
     } catch (error) {
-      console.error('[RealtimeVoiceEnhanced] Error handling audio delta:', error);
+      console.error('[RealtimeVoiceClient] ❌ Message parse error:', error);
     }
   }
 
-  private async playCompleteResponse(): Promise<void> {
-    if (this.currentResponseAudio.length === 0) return;
-
-    console.log(`[RealtimeVoiceEnhanced] Playing complete response with ${this.currentResponseAudio.length} chunks`);
-
-    // Concatenate all audio chunks into one buffer
-    const totalLength = this.currentResponseAudio.reduce((sum, chunk) => sum + chunk.length, 0);
-    const completeAudio = new Int16Array(totalLength);
-    let offset = 0;
-
-    for (const chunk of this.currentResponseAudio) {
-      completeAudio.set(chunk, offset);
-      offset += chunk.length;
+  private handleAudioDelta(delta: string): void {
+    // Decode base64 to PCM16
+    const binaryString = atob(delta);
+    const pcm16Data = new Int16Array(binaryString.length / 2);
+    
+    for (let i = 0; i < pcm16Data.length; i++) {
+      const byte1 = binaryString.charCodeAt(i * 2);
+      const byte2 = binaryString.charCodeAt(i * 2 + 1);
+      pcm16Data[i] = (byte2 << 8) | byte1;
     }
 
-    // Add complete audio to queue
-    this.audioQueue.push({
-      data: completeAudio,
-      timestamp: Date.now()
-    });
-
-    // Start playback if not already playing
-    if (!this.isPlayingAudio) {
-      this.config.onAudioPlayback?.(true);
-      await this.startEnhancedPlayback();
-      this.config.onAudioPlayback?.(false);
-    }
-
-    // Clear buffer for next response
-    this.currentResponseAudio = [];
-  }
-
-  private async startEnhancedPlayback(): Promise<void> {
-    if (this.isPlayingAudio) return;
-
-    this.isPlayingAudio = true;
+    // Add to jitter buffer for smooth playback
+    this.jitterBuffer?.addChunk(pcm16Data, performance.now());
     this.config.onAudioPlayback?.(true);
-
-    // Reset scheduling for new playback session
-    this.nextScheduledTime = this.audioContext!.currentTime + 0.05; // Small initial delay
-
-    while (this.audioQueue.length > 0) {
-      await this.playNextEnhancedChunk();
-    }
-
-    this.isPlayingAudio = false;
-    this.config.onAudioPlayback?.(false);
   }
 
-  private async playNextEnhancedChunk(): Promise<void> {
-    if (this.audioQueue.length === 0) {
-      this.bufferUnderrunCount++;
-      console.warn('[RealtimeVoiceEnhanced] Buffer underrun detected');
-      return;
+  private sendAudioChunk(pcm16Data: Int16Array): void {
+    if (!this.ws || !this.stateMachine.canSendMessages()) return;
+
+    // Encode to base64
+    const uint8 = new Uint8Array(pcm16Data.buffer);
+    let binary = '';
+    for (let i = 0; i < uint8.length; i++) {
+      binary += String.fromCharCode(uint8[i]);
     }
+    const base64 = btoa(binary);
 
-    const chunk = this.audioQueue.shift()!;
-    if (!this.audioContext) return;
-
-    try {
-      // Apply fade-in/fade-out for smooth transitions
-      const float32Data = new Float32Array(chunk.data.length);
-      const fadeLength = Math.min(256, chunk.data.length / 10);
-
-      for (let i = 0; i < chunk.data.length; i++) {
-        let sample = chunk.data[i] / 32768.0;
-
-        // Apply fade-in
-        if (i < fadeLength) {
-          sample *= i / fadeLength;
-        }
-        // Apply fade-out
-        else if (i >= chunk.data.length - fadeLength) {
-          sample *= (chunk.data.length - i) / fadeLength;
-        }
-
-        float32Data[i] = sample;
-      }
-
-      // Create and schedule audio buffer
-      const audioBuffer = this.audioContext.createBuffer(1, float32Data.length, 24000);
-      audioBuffer.getChannelData(0).set(float32Data);
-
-      const source = this.audioContext.createBufferSource();
-      source.buffer = audioBuffer;
-
-      // Apply dynamic range compression for consistent volume
-      const compressor = this.audioContext.createDynamicsCompressor();
-      compressor.threshold.value = -24;
-      compressor.knee.value = 30;
-      compressor.ratio.value = 12;
-      compressor.attack.value = 0.003;
-      compressor.release.value = 0.25;
-
-      source.connect(compressor);
-      compressor.connect(this.audioContext.destination);
-
-      // Schedule with overlap for gapless playback
-      const now = this.audioContext.currentTime;
-      const scheduledTime = Math.max(now + 0.01, this.nextScheduledTime);
-
-      source.start(scheduledTime);
-
-      // Update next scheduled time with slight overlap
-      this.nextScheduledTime = scheduledTime + audioBuffer.duration - 0.001;
-
-      // Track latency
-      this.audioLatency = scheduledTime - now;
-
-      // Wait for this chunk to finish
-      await new Promise<void>((resolve) => {
-        source.onended = () => resolve();
-      });
-
-    } catch (error) {
-      console.error('[RealtimeVoiceEnhanced] Error playing audio chunk:', error);
-    }
-  }
-
-  private flushAudioBuffer(): void {
-    // Play remaining audio immediately
-    if (this.audioQueue.length > 0 && !this.isPlayingAudio) {
-      this.startEnhancedPlayback();
-    }
-  }
-
-  private startHeartbeat(): void {
-    this.heartbeatInterval = setInterval(() => {
-      if (this.ws?.readyState === WebSocket.OPEN) {
-        // Send ping to keep connection alive
-        this.ws.send(JSON.stringify({ type: 'ping' }));
-
-        // Check for connection timeout
-        const timeSinceLastHeartbeat = Date.now() - this.lastHeartbeat;
-        if (timeSinceLastHeartbeat > 30000) {
-          console.warn('[RealtimeVoiceEnhanced] Heartbeat timeout, reconnecting...');
-          this.handleReconnection();
-        }
-      }
-    }, 10000); // Send heartbeat every 10 seconds
-  }
-
-  private handleConnectionError(): void {
-    this.config.onError?.(new Error('WebSocket connection error'));
-    this.handleReconnection();
-  }
-
-  private async handleReconnection(): Promise<void> {
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('[RealtimeVoiceEnhanced] Max reconnection attempts reached');
-      this.config.onError?.(new Error('Failed to reconnect after multiple attempts'));
-      return;
-    }
-
-    this.reconnectAttempts++;
-    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-
-    console.log(`[RealtimeVoiceEnhanced] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
-
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-    }
-
-    this.reconnectTimeout = setTimeout(async () => {
-      try {
-        // Get fresh token if needed
-        const token = await this.refreshToken();
-        await this.connectWebSocket(token);
-      } catch (error) {
-        console.error('[RealtimeVoiceEnhanced] Reconnection failed:', error);
-        this.handleReconnection();
-      }
-    }, delay);
-  }
-
-  private async refreshToken(): Promise<string> {
-    try {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) throw error;
-      const newToken = data.session?.access_token;
-      if (newToken) {
-        this.currentToken = newToken;
-        return newToken;
-      }
-      // Fallback to existing token if available
-      if (this.currentToken) return this.currentToken;
-      throw new Error('No active session');
-    } catch (e) {
-      console.error('[RealtimeVoiceEnhanced] Token refresh failed:', e);
-      // Use last known token to attempt reconnect, may still work if not expired
-      return this.currentToken || '';
-    }
-  }
-
-  private concatenateAudioBuffers(buffers: Int16Array[]): Int16Array {
-    const totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
-    const result = new Int16Array(totalLength);
-    let offset = 0;
-
-    for (const buffer of buffers) {
-      result.set(buffer, offset);
-      offset += buffer.length;
-    }
-
-    return result;
-  }
-
-  private optimizedEncodePCM16ToBase64(pcm16Data: Int16Array): string {
-    const uint8Array = new Uint8Array(pcm16Data.buffer, pcm16Data.byteOffset, pcm16Data.byteLength);
-    const chunkSize = 65536; // Larger chunk for efficiency
-    const chunks: string[] = [];
-
-    for (let i = 0; i < uint8Array.length; i += chunkSize) {
-      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
-      chunks.push(String.fromCharCode(...Array.from(chunk)));
-    }
-
-    return btoa(chunks.join(''));
-  }
-
-  private optimizedDecodeBase64ToPCM16(base64: string): Int16Array {
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-
-    return new Int16Array(bytes.buffer);
+    this.ws.send(JSON.stringify({
+      type: 'input_audio_buffer.append',
+      audio: base64
+    }));
   }
 
   sendText(text: string): void {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.isSessionReady) {
-      console.error('[RealtimeVoiceEnhanced] Cannot send text: WebSocket not ready');
+    if (!this.ws || !this.stateMachine.canSendMessages()) {
+      console.warn('[RealtimeVoiceClient] ⚠️ Cannot send text - not ready');
       return;
     }
+
+    console.log('[RealtimeVoiceClient] 📤 Sending text:', text);
 
     this.ws.send(JSON.stringify({
       type: 'conversation.item.create',
@@ -557,66 +273,43 @@ export class RealtimeVoiceClientEnhanced {
     this.ws.send(JSON.stringify({ type: 'response.create' }));
   }
 
+  private handleConnectionLost(): void {
+    if (this.stateMachine.getState() === 'disconnected') return;
+
+    console.log('[RealtimeVoiceClient] 🔄 Connection lost, attempting reconnection...');
+    this.heartbeatManager.stop();
+    this.stateMachine.transition('reconnecting');
+    this.performanceMonitor.recordReconnection();
+    
+    this.reconnectionManager.attemptReconnection(
+      () => this.connect(),
+      this.stateMachine
+    );
+  }
+
   disconnect(): void {
-    console.log('[RealtimeVoiceEnhanced] Disconnecting...');
-
-    // Clear heartbeat
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval);
-      this.heartbeatInterval = null;
-    }
-    // Clear any pending reconnection timers
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
-
-    // Stop audio
-    if (this.audioWorklet) {
-      this.audioWorklet.disconnect();
-      this.audioWorklet = null;
-    }
-
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => track.stop());
-      this.mediaStream = null;
-    }
-
-    if (this.audioContext) {
-      this.audioContext.close();
-      this.audioContext = null;
-    }
-
-    // Close WebSocket
-    if (this.ws) {
-      this.ws.close(1000, 'Client disconnecting');
-      this.ws = null;
-    }
-
-    this.isConnected = false;
-    this.isSessionReady = false; // Reset session ready flag
-    this.audioQueue = [];
-    this.isPlayingAudio = false;
-
-    console.log('[RealtimeVoiceEnhanced] Disconnected');
+    console.log('[RealtimeVoiceClient] 🛑 Disconnecting...');
+    
+    this.heartbeatManager.stop();
+    this.reconnectionManager.cancel();
+    
+    this.audioWorklet?.disconnect();
+    this.mediaStream?.getTracks().forEach(track => track.stop());
+    this.audioContext?.close();
+    this.ws?.close();
+    this.jitterBuffer?.clear();
+    
+    this.stateMachine.reset();
+    this.performanceMonitor.logSummary();
+    
+    console.log('[RealtimeVoiceClient] ✅ Disconnected');
   }
 
-  isActive(): boolean {
-    return this.isConnected;
+  isConnected(): boolean {
+    return this.stateMachine.isConnected();
   }
 
-  // Performance metrics
-  getPerformanceMetrics(): {
-    audioLatency: number;
-    networkJitter: number;
-    bufferSize: number;
-    bufferUnderruns: number;
-  } {
-    return {
-      audioLatency: this.audioLatency,
-      networkJitter: this.networkJitter,
-      bufferSize: this.audioQueue.length,
-      bufferUnderruns: this.bufferUnderrunCount
-    };
+  getPerformanceMetrics() {
+    return this.performanceMonitor.getMetricsSummary();
   }
 }

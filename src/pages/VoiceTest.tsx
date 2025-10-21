@@ -47,6 +47,7 @@ export default function VoiceTest() {
     studentId: user?.id || 'test-student',
     language,
     model,
+    voiceGuidance,
     onTranscription: (text, isUser) => {
       addLog(`${isUser ? '🎤 User' : '🔊 AI'}: ${text}`);
     }
@@ -54,16 +55,10 @@ export default function VoiceTest() {
 
   const handleConnect = async () => {
     addLog('🔌 Connect button clicked');
+    addLog(`📝 Voice Guidance: ${voiceGuidance || '(none)'}`);
     try {
       await connect();
-      addLog('✅ Connect completed');
-      
-      if (voiceGuidance.trim()) {
-        setTimeout(() => {
-          addLog(`📤 Sending voice guidance: ${voiceGuidance}`);
-          sendText(voiceGuidance);
-        }, 1000);
-      }
+      addLog('✅ Connect completed - voice guidance included in session config');
     } catch (error) {
       addLog(`❌ Connect failed: ${error}`);
     }

@@ -26,6 +26,7 @@ export default function ViewAssessment() {
     studentId: user?.id || 'demo',
     language: assessment?.language === 'es' ? 'es-PR' : 'en-US',
     model: 'gpt-4o-realtime-preview-2024-12-17',
+    voiceGuidance: assessment?.voice_guidance,
     onTranscription: (text, isUser) => {
       console.log(`Voice: ${text}`);
     }
@@ -58,14 +59,11 @@ export default function ViewAssessment() {
   useEffect(() => {
     if (assessment && !isConnected) {
       connect().then(() => {
-        if (assessment.voice_guidance) {
-          sendText(assessment.voice_guidance);
-          setTimeout(() => {
-            sendText(assessment.content.question);
-          }, 2000);
-        } else {
+        // Voice guidance is now injected via session config
+        // Just send the question
+        setTimeout(() => {
           sendText(assessment.content.question);
-        }
+        }, 1000);
       });
     }
 
