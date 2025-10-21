@@ -38,6 +38,7 @@ export class RealtimeVoiceClientEnhanced {
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private lastHeartbeat = Date.now();
   private reconnectTimeout: NodeJS.Timeout | null = null;
+  private isSessionReady = false; // Track if OpenAI session is ready
 
   // Performance monitoring
   private audioLatency = 0;
@@ -159,13 +160,14 @@ export class RealtimeVoiceClientEnhanced {
     let sendTimer: NodeJS.Timeout | null = null;
 
     this.audioWorklet.port.onmessage = (event) => {
-      if (event.data.type === 'audio' && this.ws?.readyState === WebSocket.OPEN) {
+      // Only send audio if WebSocket is open AND session is ready
+      if (event.data.type === 'audio' && this.ws?.readyState === WebSocket.OPEN && this.isSessionReady) {
         audioBuffer.push(event.data.data);
 
         // Batch audio data for efficiency
         if (!sendTimer) {
           sendTimer = setTimeout(() => {
-            if (audioBuffer.length > 0) {
+            if (audioBuffer.length > 0 && this.isSessionReady) {
               const concatenated = this.concatenateAudioBuffers(audioBuffer);
               const base64Audio = this.optimizedEncodePCM16ToBase64(concatenated);
 
@@ -202,10 +204,11 @@ export class RealtimeVoiceClientEnhanced {
 
       this.ws.onopen = () => {
         clearTimeout(connectTimeout);
-        console.log('[RealtimeVoiceEnhanced] ✅ WebSocket connected');
+        console.log('[RealtimeVoiceEnhanced] ✅ WebSocket connected to relay');
+        console.log('[RealtimeVoiceEnhanced] ⏳ Waiting for OpenAI session to be ready...');
         this.isConnected = true;
         this.reconnectAttempts = 0;
-        this.config.onConnectionChange?.(true);
+        // Don't notify connection change yet - wait for session.created
         resolve();
       };
 
@@ -223,6 +226,7 @@ export class RealtimeVoiceClientEnhanced {
         clearTimeout(connectTimeout);
         console.log('[RealtimeVoiceEnhanced] WebSocket closed:', event.code, event.reason);
         this.isConnected = false;
+        this.isSessionReady = false; // Reset session ready flag
         this.config.onConnectionChange?.(false);
 
         // Auto-reconnect if not intentionally closed
@@ -243,6 +247,16 @@ export class RealtimeVoiceClientEnhanced {
     this.lastPacketTime = now;
 
     switch (message.type) {
+      case 'session.created':
+        console.log('[RealtimeVoiceEnhanced] ✅ OpenAI session created - ready to send audio');
+        this.isSessionReady = true;
+        this.config.onConnectionChange?.(true); // NOW notify that we're truly ready
+        break;
+
+      case 'session.updated':
+        console.log('[RealtimeVoiceEnhanced] ✅ Session configuration updated');
+        break;
+
       case 'response.audio.delta':
         this.handleEnhancedAudioDelta(message.delta);
         break;
@@ -502,8 +516,8 @@ export class RealtimeVoiceClientEnhanced {
   }
 
   sendText(text: string): void {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.error('[RealtimeVoiceEnhanced] Cannot send text: WebSocket not connected');
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.isSessionReady) {
+      console.error('[RealtimeVoiceEnhanced] Cannot send text: WebSocket not ready');
       return;
     }
 
@@ -556,6 +570,7 @@ export class RealtimeVoiceClientEnhanced {
     }
 
     this.isConnected = false;
+    this.isSessionReady = false; // Reset session ready flag
     this.audioQueue = [];
     this.isPlayingAudio = false;
 
