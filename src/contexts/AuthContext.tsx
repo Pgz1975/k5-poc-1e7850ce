@@ -3,10 +3,14 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
+type UserRole = "student" | "student_kindergarten" | "student_1" | "student_2" | "student_3" | "student_4" | "student_5" | 
+  "family" | "teacher_english" | "teacher_spanish" | "school_director" | "regional_director" | 
+  "spanish_program_admin" | "english_program_admin" | "depr_executive";
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  signUp: (email: string, password: string, fullName: string, role: "student" | "teacher" | "family") => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
@@ -41,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, role: "student" | "teacher" | "family") => {
+  const signUp = async (email: string, password: string, fullName: string, role: UserRole) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -54,10 +58,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     if (!error && data.user) {
-      // Insert user role
+      // Insert user role - using insert with array syntax to match DB schema
       const { error: roleError } = await supabase
         .from("user_roles")
-        .insert({ user_id: data.user.id, role });
+        .insert([{ user_id: data.user.id, role }]);
 
       if (roleError) {
         console.error("Error inserting user role:", roleError);

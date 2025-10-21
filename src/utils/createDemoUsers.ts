@@ -12,7 +12,7 @@ export const demoUsers = [
     email: "teacher@demo.com", 
     password: "demo123", 
     fullName: "Demo Teacher", 
-    role: "teacher" as const,
+    role: "teacher_english" as const,
     avatar: "/avatars/teacher-2.jpg"
   },
   { 
@@ -51,7 +51,7 @@ export const createDemoUsers = async () => {
         const { error: roleError } = await supabase
           .from("user_roles")
           .upsert(
-            { user_id: data.user.id, role: user.role },
+            [{ user_id: data.user.id, role: user.role }],
             { onConflict: "user_id,role", ignoreDuplicates: true }
           );
 

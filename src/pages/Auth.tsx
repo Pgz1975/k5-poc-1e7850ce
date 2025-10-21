@@ -25,7 +25,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"student" | "teacher" | "family">("student");
+  const [role, setRole] = useState<"student" | "teacher_english" | "family">("student");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -66,11 +66,13 @@ const Auth = () => {
       return;
     }
 
-    if (data?.role === "student") {
+    // Handle navigation based on role
+    const role = data?.role;
+    if (role === "student" || role?.startsWith("student_")) {
       navigate("/student-dashboard");
-    } else if (data?.role === "teacher") {
+    } else if (role === "teacher_english" || role === "teacher_spanish") {
       navigate("/teacher-dashboard");
-    } else if (data?.role === "family") {
+    } else if (role === "family") {
       navigate("/family-dashboard");
     } else {
       navigate("/dashboard");
@@ -318,8 +320,8 @@ const Auth = () => {
                         <div className="flex flex-col items-start flex-1 min-w-0">
                           <span className="font-semibold text-sm">
                             {t(
-                              demo.role === "student" ? "Estudiante" : demo.role === "teacher" ? "Maestro" : "Familia",
-                              demo.role === "student" ? "Student" : demo.role === "teacher" ? "Teacher" : "Family"
+                              demo.role === "student" ? "Estudiante" : demo.role === "teacher_english" ? "Maestro" : "Familia",
+                              demo.role === "student" ? "Student" : demo.role === "teacher_english" ? "Teacher" : "Family"
                             )}
                           </span>
                           <span className="text-xs text-muted-foreground truncate w-full">
@@ -399,8 +401,8 @@ const Auth = () => {
                       </Button>
                       <Button
                         type="button"
-                        variant={role === "teacher" ? "default" : "outline"}
-                        onClick={() => setRole("teacher")}
+                        variant={role === "teacher_english" ? "default" : "outline"}
+                        onClick={() => setRole("teacher_english")}
                       >
                         {t("Maestro", "Teacher")}
                       </Button>
