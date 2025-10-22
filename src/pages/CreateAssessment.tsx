@@ -435,8 +435,7 @@ export default function CreateAssessment() {
         {step === 'type' && (
           <div className="space-y-6 animate-fade-in">
             <TypeSelector
-              value={data.type || ''}
-              onChange={(type: any) => {
+              onSelect={(type) => {
                 setData({ ...data, type });
                 // Lessons skip subtype step
                 setStep(type === 'lesson' ? 'content' : 'subtype');
@@ -449,15 +448,13 @@ export default function CreateAssessment() {
         {step === 'subtype' && data.type !== 'lesson' && (
           <div className="space-y-6 animate-fade-in">
             <SubtypeSelector
-              value={data.subtype}
-              onChange={(subtype) => {
+              type={data.type as 'exercise' | 'assessment'}
+              onSelect={(subtype) => {
                 setData({ ...data, subtype });
                 setStep('content');
               }}
+              onBack={() => setStep('type')}
             />
-            <Button variant="outline" onClick={() => setStep('type')}>
-              {isSpanish ? 'Atrás' : 'Back'}
-            </Button>
           </div>
         )}
 
@@ -662,13 +659,13 @@ export default function CreateAssessment() {
                     </div>
 
                     <ImagePasteZone
-                      onImageUpload={(imageUrl) => {
+                      onImageUploaded={(imageUrl) => {
                         setData({
                           ...data,
                           content: { ...data.content!, questionImage: imageUrl }
                         });
                       }}
-                      label={isSpanish ? 'Imagen de Pregunta (Opcional)' : 'Question Image (Optional)'}
+                      currentImage={data.content?.questionImage}
                     />
 
                     <div>
