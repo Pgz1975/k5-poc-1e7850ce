@@ -462,6 +462,77 @@ export default function CreateAssessment() {
         {step === 'content' && (
           <div className="space-y-6 animate-fade-in">
             
+            {/* Settings Section - COMMON FOR ALL TYPES */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">
+                {isSpanish ? 'Configuración' : 'Settings'}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label>{isSpanish ? 'Nivel de Grado *' : 'Grade Level *'}</Label>
+                  <Select
+                    value={String(data.settings?.gradeLevel)}
+                    onValueChange={(value) => setData({
+                      ...data,
+                      settings: { ...data.settings!, gradeLevel: parseInt(value) }
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">{isSpanish ? 'Kindergarten' : 'Kindergarten'}</SelectItem>
+                      <SelectItem value="1">{isSpanish ? '1er Grado' : '1st Grade'}</SelectItem>
+                      <SelectItem value="2">{isSpanish ? '2do Grado' : '2nd Grade'}</SelectItem>
+                      <SelectItem value="3">{isSpanish ? '3er Grado' : '3rd Grade'}</SelectItem>
+                      <SelectItem value="4">{isSpanish ? '4to Grado' : '4th Grade'}</SelectItem>
+                      <SelectItem value="5">{isSpanish ? '5to Grado' : '5th Grade'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>{isSpanish ? 'Idioma *' : 'Language *'}</Label>
+                  <Select
+                    value={data.settings?.language}
+                    onValueChange={(value: 'es' | 'en') => setData({
+                      ...data,
+                      settings: { ...data.settings!, language: value }
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="es">{isSpanish ? 'Español' : 'Spanish'}</SelectItem>
+                      <SelectItem value="en">{isSpanish ? 'Inglés' : 'English'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>{isSpanish ? 'Materia *' : 'Subject *'}</Label>
+                  <Select
+                    value={data.settings?.subject}
+                    onValueChange={(value) => setData({
+                      ...data,
+                      settings: { ...data.settings!, subject: value }
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reading">{isSpanish ? 'Lectura' : 'Reading'}</SelectItem>
+                      <SelectItem value="math">{isSpanish ? 'Matemáticas' : 'Math'}</SelectItem>
+                      <SelectItem value="science">{isSpanish ? 'Ciencias' : 'Science'}</SelectItem>
+                      <SelectItem value="social_studies">{isSpanish ? 'Estudios Sociales' : 'Social Studies'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </Card>
+
             {/* ========== LESSON CREATION ========== */}
             {data.type === 'lesson' && (
               <>
@@ -774,77 +845,6 @@ export default function CreateAssessment() {
                 </Card>
               </>
             )}
-
-            {/* Settings Section - COMMON FOR ALL TYPES */}
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">
-                {isSpanish ? 'Configuración' : 'Settings'}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label>{isSpanish ? 'Nivel de Grado *' : 'Grade Level *'}</Label>
-                  <Select
-                    value={String(data.settings?.gradeLevel)}
-                    onValueChange={(value) => setData({
-                      ...data,
-                      settings: { ...data.settings!, gradeLevel: parseInt(value) }
-                    })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">{isSpanish ? 'Kindergarten' : 'Kindergarten'}</SelectItem>
-                      <SelectItem value="1">{isSpanish ? '1er Grado' : '1st Grade'}</SelectItem>
-                      <SelectItem value="2">{isSpanish ? '2do Grado' : '2nd Grade'}</SelectItem>
-                      <SelectItem value="3">{isSpanish ? '3er Grado' : '3rd Grade'}</SelectItem>
-                      <SelectItem value="4">{isSpanish ? '4to Grado' : '4th Grade'}</SelectItem>
-                      <SelectItem value="5">{isSpanish ? '5to Grado' : '5th Grade'}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>{isSpanish ? 'Idioma *' : 'Language *'}</Label>
-                  <Select
-                    value={data.settings?.language}
-                    onValueChange={(value: 'es' | 'en') => setData({
-                      ...data,
-                      settings: { ...data.settings!, language: value }
-                    })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="es">{isSpanish ? 'Español' : 'Spanish'}</SelectItem>
-                      <SelectItem value="en">{isSpanish ? 'Inglés' : 'English'}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>{isSpanish ? 'Materia *' : 'Subject *'}</Label>
-                  <Select
-                    value={data.settings?.subject}
-                    onValueChange={(value) => setData({
-                      ...data,
-                      settings: { ...data.settings!, subject: value }
-                    })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="reading">{isSpanish ? 'Lectura' : 'Reading'}</SelectItem>
-                      <SelectItem value="math">{isSpanish ? 'Matemáticas' : 'Math'}</SelectItem>
-                      <SelectItem value="science">{isSpanish ? 'Ciencias' : 'Science'}</SelectItem>
-                      <SelectItem value="social_studies">{isSpanish ? 'Estudios Sociales' : 'Social Studies'}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </Card>
 
             {/* Action Buttons */}
             <div className="flex gap-4">
