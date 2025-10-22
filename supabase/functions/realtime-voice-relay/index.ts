@@ -224,8 +224,6 @@ function handleSessionCreated(session: SessionState): void {
         create_response: true
       },
       input_audio_transcription: {
-        enabled: true,
-        language: session.language === 'es-PR' ? 'es' : 'en',
         model: 'whisper-1'
       },
       temperature: 0.8,
