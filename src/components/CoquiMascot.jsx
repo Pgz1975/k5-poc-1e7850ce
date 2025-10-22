@@ -10,12 +10,12 @@ import { coquiStates, coquiAnimations, coquiSizes, coquiPositions } from '@/conf
  * @param {string} className - Additional CSS classes
  * @param {string} alt - Alt text for accessibility (defaults to state)
  */
-export const CoquiMascot = ({ 
-  state = 'idle', 
-  size = 'default', 
+export const CoquiMascot = ({
+  state = 'idle',
+  size = 'default',
   position = 'bottom-right',
   className = '',
-  alt = null,
+  alt = null
 }) => {
   const [currentAnimation, setCurrentAnimation] = useState('');
   const [imageSrc, setImageSrc] = useState(coquiStates.default);
@@ -28,7 +28,7 @@ export const CoquiMascot = ({
 
     // Get the animation for the current state
     const animation = coquiAnimations[state] || '';
-    
+
     // Trigger animation
     if (animation) {
       setCurrentAnimation('');
@@ -43,21 +43,8 @@ export const CoquiMascot = ({
   const sizeClass = coquiSizes[size] || coquiSizes.default;
   const positionClass = coquiPositions[position] || coquiPositions['bottom-right'];
   const animationClass = currentAnimation;
-
-  return (
-    <div 
-      className={`${positionClass} z-50 transition-opacity duration-200 ${className}`}
-      role="img"
-      aria-label={alt || `Coquí mascot in ${state} state`}
-    >
-      <img
-        src={imageSrc}
-        alt={alt || `Coquí ${state}`}
-        className={`${sizeClass} w-auto object-contain ${animationClass}`}
-        loading="lazy"
-      />
-    </div>
-  );
+  return <div className={`${positionClass} z-50 transition-opacity duration-200 ${className}`} role="img" aria-label={alt || `Coquí mascot in ${state} state`}>
+      
+    </div>;
 };
-
 export default CoquiMascot;
