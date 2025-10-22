@@ -1,4 +1,24 @@
-import { EventEmitter } from 'events';
+// Simple event emitter for browser
+class SimpleEventEmitter {
+  private listeners: Record<string, Function[]> = {};
+
+  on(event: string, callback: Function) {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
+    }
+    this.listeners[event].push(callback);
+  }
+
+  emit(event: string, ...args: any[]) {
+    if (this.listeners[event]) {
+      this.listeners[event].forEach(callback => callback(...args));
+    }
+  }
+
+  removeAllListeners() {
+    this.listeners = {};
+  }
+}
 
 export interface EnhancedRealtimeConfig {
   studentId: string;
@@ -11,7 +31,7 @@ export interface EnhancedRealtimeConfig {
   onMetrics?: (metrics: VoiceMetrics) => void;
 }
 
-export class EnhancedRealtimeClient extends EventEmitter {
+export class EnhancedRealtimeClient extends SimpleEventEmitter {
   private pc: RTCPeerConnection | null = null;
   private dc: RTCDataChannel | null = null;
   private audioEl: HTMLAudioElement;
