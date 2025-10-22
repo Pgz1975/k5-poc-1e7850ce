@@ -38,7 +38,9 @@ export class AdaptiveJitterBuffer {
     this.adjustTargetLatency();
 
     // Trigger playback if we have enough buffered
-    if (this.getBufferedDuration() >= this.targetLatency && !this.isPlaying) {
+    const bufferedDuration = this.getBufferedDuration();
+    if (bufferedDuration >= this.targetLatency && !this.isPlaying) {
+      console.log('[JitterBuffer] Starting playback, buffered:', bufferedDuration, 'ms');
       this.schedulePlayback();
     }
   }
