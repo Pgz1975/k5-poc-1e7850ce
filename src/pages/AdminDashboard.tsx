@@ -29,6 +29,7 @@ const AdminDashboard = () => {
   const [generatedAssessments, setGeneratedAssessments] = useState<any[]>([]);
   const [pdfDocuments, setPdfDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [parentLessons, setParentLessons] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!authLoading) {
@@ -67,7 +68,29 @@ const AdminDashboard = () => {
           .limit(10),
       ]);
 
-      if (manualRes.data) setManualAssessments(manualRes.data);
+      if (manualRes.data) {
+        setManualAssessments(manualRes.data);
+        
+        // Fetch parent lesson titles
+        const parentIds = manualRes.data
+          .filter(a => a.parent_lesson_id)
+          .map(a => a.parent_lesson_id);
+        
+        if (parentIds.length > 0) {
+          const { data: parents } = await supabase
+            .from("manual_assessments")
+            .select("id, title")
+            .in("id", parentIds);
+          
+          if (parents) {
+            const parentMap: Record<string, string> = {};
+            parents.forEach(p => {
+              parentMap[p.id] = p.title;
+            });
+            setParentLessons(parentMap);
+          }
+        }
+      }
       if (generatedRes.data) setGeneratedAssessments(generatedRes.data);
       if (pdfRes.data) setPdfDocuments(pdfRes.data);
     } catch (error) {
@@ -293,7 +316,7 @@ const AdminDashboard = () => {
                             {hasParent && (
                               <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 border-amber-300">
                                 <Link2 className="h-3 w-3 mr-1" />
-                                Linked
+                                {parentLessons[assessment.parent_lesson_id] || 'Linked'}
                               </Badge>
                             )}
                           </div>
