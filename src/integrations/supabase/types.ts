@@ -131,10 +131,12 @@ export type Database = {
       }
       manual_assessments: {
         Row: {
+          activity_template: string | null
           auto_read_question: boolean | null
           average_score: number | null
           completion_count: number | null
           content: Json
+          coqui_dialogue: string | null
           created_at: string | null
           created_by: string
           curriculum_standards: string[] | null
@@ -145,7 +147,9 @@ export type Database = {
           grade_level: number
           id: string
           language: Database["public"]["Enums"]["language_code"]
+          max_attempts: number | null
           metadata: Json | null
+          pronunciation_words: string[] | null
           published_at: string | null
           status: string | null
           subject_area: string
@@ -158,10 +162,12 @@ export type Database = {
           voice_speed: number | null
         }
         Insert: {
+          activity_template?: string | null
           auto_read_question?: boolean | null
           average_score?: number | null
           completion_count?: number | null
           content: Json
+          coqui_dialogue?: string | null
           created_at?: string | null
           created_by: string
           curriculum_standards?: string[] | null
@@ -172,7 +178,9 @@ export type Database = {
           grade_level: number
           id?: string
           language?: Database["public"]["Enums"]["language_code"]
+          max_attempts?: number | null
           metadata?: Json | null
+          pronunciation_words?: string[] | null
           published_at?: string | null
           status?: string | null
           subject_area?: string
@@ -185,10 +193,12 @@ export type Database = {
           voice_speed?: number | null
         }
         Update: {
+          activity_template?: string | null
           auto_read_question?: boolean | null
           average_score?: number | null
           completion_count?: number | null
           content?: Json
+          coqui_dialogue?: string | null
           created_at?: string | null
           created_by?: string
           curriculum_standards?: string[] | null
@@ -199,7 +209,9 @@ export type Database = {
           grade_level?: number
           id?: string
           language?: Database["public"]["Enums"]["language_code"]
+          max_attempts?: number | null
           metadata?: Json | null
+          pronunciation_words?: string[] | null
           published_at?: string | null
           status?: string | null
           subject_area?: string
@@ -411,8 +423,8 @@ export type Database = {
           language_confidence: number | null
           page_number: number
           reading_complexity: number | null
-          search_vector_en: unknown | null
-          search_vector_es: unknown | null
+          search_vector_en: unknown
+          search_vector_es: unknown
           text_color: string | null
           text_content: string
           text_length: number
@@ -434,8 +446,8 @@ export type Database = {
           language_confidence?: number | null
           page_number: number
           reading_complexity?: number | null
-          search_vector_en?: unknown | null
-          search_vector_es?: unknown | null
+          search_vector_en?: unknown
+          search_vector_es?: unknown
           text_color?: string | null
           text_content: string
           text_length: number
@@ -457,8 +469,8 @@ export type Database = {
           language_confidence?: number | null
           page_number?: number
           reading_complexity?: number | null
-          search_vector_en?: unknown | null
-          search_vector_es?: unknown | null
+          search_vector_en?: unknown
+          search_vector_es?: unknown
           text_color?: string | null
           text_content?: string
           text_length?: number
@@ -779,6 +791,168 @@ export type Database = {
           },
         ]
       }
+      voice_assessment_results: {
+        Row: {
+          assessment_id: string | null
+          attempts: number | null
+          created_at: string | null
+          duration_seconds: number | null
+          id: string
+          pronunciation_score: number | null
+          student_id: string | null
+          word_practiced: string | null
+        }
+        Insert: {
+          assessment_id?: string | null
+          attempts?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          pronunciation_score?: number | null
+          student_id?: string | null
+          word_practiced?: string | null
+        }
+        Update: {
+          assessment_id?: string | null
+          attempts?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          pronunciation_score?: number | null
+          student_id?: string | null
+          word_practiced?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_assessment_results_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "manual_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voice_guidance_library: {
+        Row: {
+          activity_type: string | null
+          content: string
+          created_at: string | null
+          created_by: string | null
+          grade_level: number | null
+          id: string
+          language: Database["public"]["Enums"]["language_code"]
+          template_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activity_type?: string | null
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          grade_level?: number | null
+          id?: string
+          language?: Database["public"]["Enums"]["language_code"]
+          template_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activity_type?: string | null
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          grade_level?: number | null
+          id?: string
+          language?: Database["public"]["Enums"]["language_code"]
+          template_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      voice_interactions: {
+        Row: {
+          assessment_id: string | null
+          id: string
+          is_user: boolean
+          language: string | null
+          session_id: string
+          student_id: string | null
+          text: string
+          timestamp: string | null
+        }
+        Insert: {
+          assessment_id?: string | null
+          id?: string
+          is_user: boolean
+          language?: string | null
+          session_id: string
+          student_id?: string | null
+          text: string
+          timestamp?: string | null
+        }
+        Update: {
+          assessment_id?: string | null
+          id?: string
+          is_user?: boolean
+          language?: string | null
+          session_id?: string
+          student_id?: string | null
+          text?: string
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_interactions_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "manual_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voice_sessions: {
+        Row: {
+          assessment_id: string | null
+          created_at: string | null
+          ended_at: string | null
+          grade_level: number | null
+          id: string
+          language: string | null
+          metrics: Json | null
+          session_id: string
+          student_id: string | null
+        }
+        Insert: {
+          assessment_id?: string | null
+          created_at?: string | null
+          ended_at?: string | null
+          grade_level?: number | null
+          id?: string
+          language?: string | null
+          metrics?: Json | null
+          session_id: string
+          student_id?: string | null
+        }
+        Update: {
+          assessment_id?: string | null
+          created_at?: string | null
+          ended_at?: string | null
+          grade_level?: number | null
+          id?: string
+          language?: string | null
+          metrics?: Json | null
+          session_id?: string
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_sessions_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "manual_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -795,10 +969,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      get_user_grade_level: {
-        Args: { user_id: string }
-        Returns: number
-      }
+      get_user_grade_level: { Args: { user_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
