@@ -16,6 +16,7 @@ export interface RealtimeVoiceConfig {
   voiceGuidance?: string;
   onTranscription?: (text: string, isUser: boolean) => void;
   onAudioPlayback?: (isPlaying: boolean) => void;
+  onAudioLevel?: (dbLevel: number) => void;
   onError?: (error: Error) => void;
   onConnectionChange?: (connected: boolean) => void;
 }
@@ -129,6 +130,8 @@ export class RealtimeVoiceClientEnhanced {
 
       this.audioWorklet.port.onmessage = (event) => {
         if (event.data.type === 'audio') {
+          console.log('[AudioWorklet] 📊 Captured chunk:', event.data.data.length, 'samples');
+          this.monitorAudioLevel(event.data.data);
           this.sendAudioChunk(event.data.data);
         }
       };
@@ -287,7 +290,17 @@ export class RealtimeVoiceClientEnhanced {
   }
 
   private sendAudioChunk(pcm16Data: Int16Array): void {
-    if (!this.ws || !this.stateMachine.canSendMessages()) return;
+    if (!this.ws) {
+      console.warn('[RealtimeVoiceClient] ⚠️ Cannot send audio - WebSocket not connected');
+      return;
+    }
+    
+    if (!this.stateMachine.canSendMessages()) {
+      console.warn('[RealtimeVoiceClient] ⚠️ Cannot send audio - state:', this.stateMachine.getState());
+      return;
+    }
+
+    console.log('[RealtimeVoiceClient] 🎤 Sending audio chunk:', pcm16Data.length, 'samples');
 
     // Encode to base64
     const uint8 = new Uint8Array(pcm16Data.buffer);
@@ -301,6 +314,21 @@ export class RealtimeVoiceClientEnhanced {
       type: 'input_audio_buffer.append',
       audio: base64
     }));
+  }
+
+  private monitorAudioLevel(pcm16Data: Int16Array): void {
+    // Calculate RMS (Root Mean Square) audio level
+    let sum = 0;
+    for (let i = 0; i < pcm16Data.length; i++) {
+      sum += pcm16Data[i] * pcm16Data[i];
+    }
+    const rms = Math.sqrt(sum / pcm16Data.length);
+    const dbLevel = 20 * Math.log10(rms / 32768);
+    
+    if (dbLevel > -40) {  // Above silence threshold
+      console.log('[AudioWorklet] 🔊 Audio level:', dbLevel.toFixed(1), 'dB');
+      this.config.onAudioLevel?.(dbLevel);
+    }
   }
 
   sendText(text: string): void {

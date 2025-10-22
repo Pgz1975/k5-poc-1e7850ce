@@ -19,6 +19,7 @@ export default function VoiceTest() {
   const [model, setModel] = useState('gpt-realtime-2025-08-28');
   const [voiceGuidance, setVoiceGuidance] = useState('');
   const [logs, setLogs] = useState<string[]>([]);
+  const [audioLevel, setAudioLevel] = useState(-60);
 
   useEffect(() => {
     console.log('[VoiceTest] ✅ Component mounted');
@@ -50,6 +51,9 @@ export default function VoiceTest() {
     voiceGuidance,
     onTranscription: (text, isUser) => {
       addLog(`${isUser ? '🎤 User' : '🔊 AI'}: ${text}`);
+    },
+    onAudioLevel: (dbLevel) => {
+      setAudioLevel(dbLevel);
     }
   });
 
@@ -112,6 +116,19 @@ export default function VoiceTest() {
                   <Badge variant={isAIPlaying ? 'default' : 'secondary'}>
                     {isAIPlaying ? '🔊 Playing' : '🔇 Quiet'}
                   </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Microphone:</span>
+                  <div className="flex items-center gap-2">
+                    <Mic className={audioLevel > -40 ? "text-green-500 animate-pulse h-4 w-4" : "text-gray-400 h-4 w-4"} />
+                    <div className="w-32 h-2 bg-muted rounded overflow-hidden">
+                      <div 
+                        className="h-full bg-green-500 transition-all duration-100"
+                        style={{ width: `${Math.max(0, Math.min(100, (audioLevel + 60) * 2))}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-mono w-12">{audioLevel.toFixed(0)} dB</span>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-medium">User ID:</span>

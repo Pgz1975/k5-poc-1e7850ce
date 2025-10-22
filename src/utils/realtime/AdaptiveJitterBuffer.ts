@@ -113,6 +113,15 @@ export class AdaptiveJitterBuffer {
       channelData[i] = combinedPCM[i] / 32768.0;
     }
 
+    // Apply subtle fade-in/fade-out to eliminate clicks
+    const fadeLength = Math.min(240, combinedPCM.length / 10); // 10ms fade at 24kHz
+    for (let i = 0; i < fadeLength; i++) {
+      const fadeIn = i / fadeLength;
+      channelData[i] *= fadeIn;
+      const fadeOut = (fadeLength - i) / fadeLength;
+      channelData[channelData.length - 1 - i] *= fadeOut;
+    }
+
     const source = this.audioContext.createBufferSource();
     source.buffer = audioBuffer;
     source.connect(this.audioContext.destination);

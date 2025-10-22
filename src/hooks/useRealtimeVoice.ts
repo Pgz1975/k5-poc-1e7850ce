@@ -9,9 +9,10 @@ interface UseRealtimeVoiceProps {
   model?: string;
   voiceGuidance?: string;
   onTranscription?: (text: string, isUser: boolean) => void;
+  onAudioLevel?: (dbLevel: number) => void;
 }
 
-export function useRealtimeVoice({ studentId, language, model, voiceGuidance, onTranscription }: UseRealtimeVoiceProps) {
+export function useRealtimeVoice({ studentId, language, model, voiceGuidance, onTranscription, onAudioLevel }: UseRealtimeVoiceProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
@@ -64,6 +65,7 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
           console.log('[useRealtimeVoice] 🔊 Audio playback:', isPlaying);
           setIsAIPlaying(isPlaying);
         },
+        onAudioLevel: onAudioLevel,
         onError: (error) => {
           console.error('[useRealtimeVoice] ❌ Error callback triggered:', error);
           toast({
@@ -102,7 +104,7 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
       console.log('[useRealtimeVoice] 🏁 Connection attempt finished');
       setIsConnecting(false);
     }
-  }, [studentId, language, model, voiceGuidance, isConnecting, isConnected, onTranscription, toast]);
+  }, [studentId, language, model, voiceGuidance, isConnecting, isConnected, onTranscription, onAudioLevel, toast]);
 
   const disconnect = useCallback(() => {
     console.log('[useRealtimeVoice] Disconnecting...');
