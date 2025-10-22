@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useRealtimeVoice } from '@/hooks/useRealtimeVoice';
+import { EnhancedRealtimeClient } from '@/utils/EnhancedRealtimeClient';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mic, MicOff, Activity, Trash2 } from 'lucide-react';
 import { Header } from '@/components/Header';
@@ -15,11 +15,16 @@ export default function VoiceTest() {
   console.log('[VoiceTest] 🎬 Component rendering');
   
   const { user } = useAuth();
-  const [language, setLanguage] = useState<'es-PR' | 'en-US'>('es-PR');
-  const [model, setModel] = useState('gpt-realtime-2025-08-28');
+  const [language, setLanguage] = useState<'es-PR' | 'en'>('es-PR');
+  const [model, setModel] = useState('gpt-4o-realtime-preview-2024-12-17');
   const [voiceGuidance, setVoiceGuidance] = useState('');
   const [logs, setLogs] = useState<string[]>([]);
-  const [audioLevel, setAudioLevel] = useState(-60);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [isAIPlaying, setIsAIPlaying] = useState(false);
+  const [transcript, setTranscript] = useState<Array<{text: string, isUser: boolean}>>([]);
+  const [metrics, setMetrics] = useState<any>({});
+  const clientRef = useRef<EnhancedRealtimeClient | null>(null);
 
   useEffect(() => {
     console.log('[VoiceTest] ✅ Component mounted');
@@ -28,6 +33,7 @@ export default function VoiceTest() {
     return () => {
       console.log('[VoiceTest] 🧹 Component unmounting');
       addLog('🧹 Component unmounting');
+      clientRef.current?.disconnect();
     };
   }, []);
 
@@ -36,41 +42,48 @@ export default function VoiceTest() {
     setLogs(prev => [`[${timestamp}] ${message}`, ...prev].slice(0, 100));
   };
 
-  const {
-    isConnected,
-    isConnecting,
-    isAIPlaying,
-    transcript,
-    connect,
-    disconnect,
-    sendText
-  } = useRealtimeVoice({
-    studentId: user?.id || 'test-student',
-    language,
-    model,
-    voiceGuidance,
-    onTranscription: (text, isUser) => {
-      addLog(`${isUser ? '🎤 User' : '🔊 AI'}: ${text}`);
-    },
-    onAudioLevel: (dbLevel) => {
-      setAudioLevel(dbLevel);
-    }
-  });
-
   const handleConnect = async () => {
     addLog('🔌 Connect button clicked');
     addLog(`📝 Voice Guidance: ${voiceGuidance || '(none)'}`);
+    setIsConnecting(true);
+    
     try {
-      await connect();
-      addLog('✅ Connect completed - voice guidance included in session config');
+      const client = new EnhancedRealtimeClient({
+        studentId: user?.id || 'test-student',
+        language,
+        gradeLevel: 0,
+        voiceGuidance,
+        onTranscription: (text, isUser) => {
+          addLog(`${isUser ? '🎤 User' : '🔊 AI'}: ${text}`);
+          setTranscript(prev => [...prev, { text, isUser }]);
+        },
+        onEvent: (event) => {
+          if (event.type === 'response.audio.delta') setIsAIPlaying(true);
+          if (event.type === 'response.done') setIsAIPlaying(false);
+          addLog(`📨 Event: ${event.type}`);
+        },
+        onMetrics: (m) => {
+          setMetrics(m);
+          addLog(`📊 Metrics updated: ${Math.round(m.avgLatency || 0)}ms avg latency`);
+        }
+      });
+
+      await client.connect();
+      clientRef.current = client;
+      setIsConnected(true);
+      addLog('✅ Connected successfully with EnhancedRealtimeClient');
     } catch (error) {
       addLog(`❌ Connect failed: ${error}`);
+    } finally {
+      setIsConnecting(false);
     }
   };
 
   const handleDisconnect = () => {
     addLog('🔌 Disconnect button clicked');
-    disconnect();
+    clientRef.current?.disconnect();
+    setIsConnected(false);
+    setIsAIPlaying(false);
     addLog('✅ Disconnected');
   };
 
@@ -79,7 +92,7 @@ export default function VoiceTest() {
       ? 'Hola, soy Coquí. ¿Cómo estás?' 
       : 'Hello, I am Coquí. How are you?';
     addLog(`📤 Sending text: ${testText}`);
-    sendText(testText);
+    clientRef.current?.sendText(testText);
   };
 
   const clearLogs = () => {
@@ -117,19 +130,14 @@ export default function VoiceTest() {
                     {isAIPlaying ? '🔊 Playing' : '🔇 Quiet'}
                   </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Microphone:</span>
-                  <div className="flex items-center gap-2">
-                    <Mic className={audioLevel > -40 ? "text-green-500 animate-pulse h-4 w-4" : "text-gray-400 h-4 w-4"} />
-                    <div className="w-32 h-2 bg-muted rounded overflow-hidden">
-                      <div 
-                        className="h-full bg-green-500 transition-all duration-100"
-                        style={{ width: `${Math.max(0, Math.min(100, (audioLevel + 60) * 2))}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-mono w-12">{audioLevel.toFixed(0)} dB</span>
+                {metrics.avgLatency !== undefined && (
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Avg Latency:</span>
+                    <Badge variant="outline">
+                      {Math.round(metrics.avgLatency)}ms
+                    </Badge>
                   </div>
-                </div>
+                )}
                 <div className="flex items-center justify-between">
                   <span className="font-medium">User ID:</span>
                   <Badge variant="outline" className="font-mono text-xs">
@@ -153,11 +161,8 @@ export default function VoiceTest() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="gpt-realtime-2025-08-28">
-                      GPT Realtime (Aug 2025) - Latest Production
-                    </SelectItem>
                     <SelectItem value="gpt-4o-realtime-preview-2024-12-17">
-                      GPT-4o Realtime (Dec 2024) - Legacy
+                      GPT-4o Realtime (Dec 2024) - Recommended
                     </SelectItem>
                     <SelectItem value="gpt-4o-realtime-preview-2024-10-01">
                       GPT-4o Realtime (Oct 2024) - Legacy
@@ -184,10 +189,10 @@ export default function VoiceTest() {
                     🇵🇷 Español
                   </Button>
                   <Button
-                    variant={language === 'en-US' ? 'default' : 'outline'}
+                    variant={language === 'en' ? 'default' : 'outline'}
                     onClick={() => {
-                      setLanguage('en-US');
-                      addLog('🌐 Language changed to English (en-US)');
+                      setLanguage('en');
+                      addLog('🌐 Language changed to English (en)');
                     }}
                     disabled={isConnected}
                   >
@@ -337,9 +342,15 @@ export default function VoiceTest() {
           <h3 className="text-lg font-semibold mb-3">🔧 Technical Details</h3>
           <div className="grid gap-4 text-sm">
             <div>
+              <span className="font-medium">Implementation:</span>
+              <code className="ml-2 px-2 py-1 bg-muted rounded text-xs">
+                EnhancedRealtimeClient (WebRTC Direct)
+              </code>
+            </div>
+            <div>
               <span className="font-medium">Edge Function:</span>
               <code className="ml-2 px-2 py-1 bg-muted rounded text-xs">
-                /functions/v1/realtime-voice-relay
+                /functions/v1/realtime-token-enhanced
               </code>
             </div>
             <div>
