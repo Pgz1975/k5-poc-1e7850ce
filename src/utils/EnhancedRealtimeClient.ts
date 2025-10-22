@@ -239,11 +239,9 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
         })
       });
       
-      if (!response.ok) {
-        console.error('[Enhanced] Failed to log interaction:', response.status);
-      }
+      // Silently ignore errors - this is optional telemetry
     } catch (error) {
-      console.error('[Enhanced] Failed to log interaction:', error);
+      // Silently ignore - voice chat continues working
     }
   }
 
