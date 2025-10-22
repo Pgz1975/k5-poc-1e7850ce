@@ -983,6 +983,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_access_parent_lesson: {
+        Args: { _exercise_id: string; _user_id: string }
+        Returns: boolean
+      }
       get_user_grade_level: { Args: { user_id: string }; Returns: number }
       has_role: {
         Args: {
