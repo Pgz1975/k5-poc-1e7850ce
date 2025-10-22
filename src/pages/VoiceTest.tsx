@@ -24,6 +24,8 @@ export default function VoiceTest() {
   const [isAIPlaying, setIsAIPlaying] = useState(false);
   const [transcript, setTranscript] = useState<Array<{text: string, isUser: boolean}>>([]);
   const [metrics, setMetrics] = useState<any>({});
+  const [micLevel, setMicLevel] = useState(0);
+  const [aiLevel, setAiLevel] = useState(0);
   const clientRef = useRef<EnhancedRealtimeClient | null>(null);
 
   useEffect(() => {
@@ -65,6 +67,10 @@ export default function VoiceTest() {
         onMetrics: (m) => {
           setMetrics(m);
           addLog(`📊 Metrics updated: ${Math.round(m.avgLatency || 0)}ms avg latency`);
+        },
+        onAudioLevels: (mic, ai) => {
+          setMicLevel(mic);
+          setAiLevel(ai);
         }
       });
 
@@ -130,6 +136,73 @@ export default function VoiceTest() {
                     {isAIPlaying ? '🔊 Playing' : '🔇 Quiet'}
                   </Badge>
                 </div>
+                
+                {/* Audio Level Meters */}
+                {isConnected && (
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm flex items-center gap-2">
+                          <Mic className="h-4 w-4" />
+                          Mic Input
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {Math.round(micLevel * 100)}%
+                        </span>
+                      </div>
+                      <div className="flex gap-1 h-6 items-end">
+                        {[...Array(20)].map((_, i) => (
+                          <div
+                            key={i}
+                            className={`flex-1 rounded-t transition-all duration-75 ${
+                              i < micLevel * 20
+                                ? i < 14
+                                  ? 'bg-primary'
+                                  : i < 17
+                                  ? 'bg-yellow-500'
+                                  : 'bg-red-500'
+                                : 'bg-muted'
+                            }`}
+                            style={{ 
+                              height: i < micLevel * 20 ? `${((i + 1) / 20) * 100}%` : '10%'
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm flex items-center gap-2">
+                          <Activity className="h-4 w-4" />
+                          AI Output
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {Math.round(aiLevel * 100)}%
+                        </span>
+                      </div>
+                      <div className="flex gap-1 h-6 items-end">
+                        {[...Array(20)].map((_, i) => (
+                          <div
+                            key={i}
+                            className={`flex-1 rounded-t transition-all duration-75 ${
+                              i < aiLevel * 20
+                                ? i < 14
+                                  ? 'bg-secondary'
+                                  : i < 17
+                                  ? 'bg-yellow-500'
+                                  : 'bg-red-500'
+                                : 'bg-muted'
+                            }`}
+                            style={{ 
+                              height: i < aiLevel * 20 ? `${((i + 1) / 20) * 100}%` : '10%'
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
                 {metrics.avgLatency !== undefined && (
                   <div className="flex items-center justify-between">
                     <span className="font-medium">Avg Latency:</span>

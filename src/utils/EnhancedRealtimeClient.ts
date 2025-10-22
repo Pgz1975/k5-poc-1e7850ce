@@ -29,6 +29,7 @@ export interface EnhancedRealtimeConfig {
   onTranscription?: (text: string, isUser: boolean) => void;
   onEvent?: (event: any) => void;
   onMetrics?: (metrics: VoiceMetrics) => void;
+  onAudioLevels?: (micLevel: number, aiLevel: number) => void;
 }
 
 export class EnhancedRealtimeClient extends SimpleEventEmitter {
@@ -42,6 +43,10 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
     interactions: 0,
     errors: 0
   };
+  private micAnalyser: AnalyserNode | null = null;
+  private aiAnalyser: AnalyserNode | null = null;
+  private audioContext: AudioContext | null = null;
+  private animationFrameId: number | null = null;
 
   constructor(config: EnhancedRealtimeConfig) {
     super();
@@ -66,6 +71,7 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
       this.pc.ontrack = (e) => {
         console.log('[Enhanced] 🔊 AI audio track received');
         this.audioEl.srcObject = e.streams[0];
+        this.setupAIAudioAnalyser(e.streams[0]);
         this.emit('connected', true);
       };
 
@@ -81,6 +87,7 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
 
       const audioTrack = stream.getTracks()[0];
       this.pc.addTrack(audioTrack);
+      this.setupMicrophoneAnalyser(stream);
       console.log('[Enhanced] 🎤 Microphone connected');
 
       this.dc = this.pc.createDataChannel('oai-events', {
@@ -257,8 +264,81 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
     };
   }
 
+  private setupMicrophoneAnalyser(stream: MediaStream) {
+    try {
+      if (!this.audioContext) {
+        this.audioContext = new AudioContext();
+      }
+      
+      const source = this.audioContext.createMediaStreamSource(stream);
+      this.micAnalyser = this.audioContext.createAnalyser();
+      this.micAnalyser.fftSize = 256;
+      source.connect(this.micAnalyser);
+      
+      this.startAudioLevelMonitoring();
+    } catch (error) {
+      console.error('[Enhanced] Failed to setup microphone analyser:', error);
+    }
+  }
+
+  private setupAIAudioAnalyser(stream: MediaStream) {
+    try {
+      if (!this.audioContext) {
+        this.audioContext = new AudioContext();
+      }
+      
+      const source = this.audioContext.createMediaStreamSource(stream);
+      this.aiAnalyser = this.audioContext.createAnalyser();
+      this.aiAnalyser.fftSize = 256;
+      source.connect(this.aiAnalyser);
+    } catch (error) {
+      console.error('[Enhanced] Failed to setup AI audio analyser:', error);
+    }
+  }
+
+  private startAudioLevelMonitoring() {
+    const updateLevels = () => {
+      if (!this.config.onAudioLevels || (!this.micAnalyser && !this.aiAnalyser)) {
+        return;
+      }
+
+      let micLevel = 0;
+      let aiLevel = 0;
+
+      if (this.micAnalyser) {
+        const micData = new Uint8Array(this.micAnalyser.frequencyBinCount);
+        this.micAnalyser.getByteFrequencyData(micData);
+        micLevel = micData.reduce((sum, val) => sum + val, 0) / micData.length / 255;
+      }
+
+      if (this.aiAnalyser) {
+        const aiData = new Uint8Array(this.aiAnalyser.frequencyBinCount);
+        this.aiAnalyser.getByteFrequencyData(aiData);
+        aiLevel = aiData.reduce((sum, val) => sum + val, 0) / aiData.length / 255;
+      }
+
+      this.config.onAudioLevels(micLevel, aiLevel);
+      this.animationFrameId = requestAnimationFrame(updateLevels);
+    };
+
+    updateLevels();
+  }
+
   disconnect() {
     console.log('[Enhanced] 🛑 Disconnecting...');
+
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    if (this.audioContext) {
+      this.audioContext.close();
+      this.audioContext = null;
+    }
+
+    this.micAnalyser = null;
+    this.aiAnalyser = null;
 
     if (this.audioEl.srcObject) {
       const tracks = (this.audioEl.srcObject as MediaStream).getTracks();
