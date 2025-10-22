@@ -82,40 +82,43 @@ export class AdaptiveJitterBuffer {
   }
 
   private schedulePlayback(): void {
-    this.isPlaying = true;
-    this.playNext();
-  }
+    if (this.isPlaying) return;
 
-  private playNext(): void {
     const chunk = this.buffer.get(this.playbackPosition);
-
     if (!chunk) {
-      // Buffer underrun
-      this.isPlaying = false;
-      this.onUnderrunCallback?.();
+      this.playSilence();
       return;
     }
 
-    const audioBuffer = this.pcm16ToAudioBuffer(chunk.data);
+    this.isPlaying = true;
+    const audioBuffer = this.audioContext.createBuffer(1, chunk.data.length, 24000);
+    const channelData = audioBuffer.getChannelData(0);
+
+    // CRITICAL: Convert PCM16 to Float32
+    for (let i = 0; i < chunk.data.length; i++) {
+      channelData[i] = chunk.data[i] / 32768.0;
+    }
+
     const source = this.audioContext.createBufferSource();
     source.buffer = audioBuffer;
     source.connect(this.audioContext.destination);
 
-    // Schedule precisely with minimal lookahead
-    const currentTime = this.audioContext.currentTime;
-    source.start(currentTime + 0.001); // 1ms lookahead
-
-    // Clean up and schedule next
     source.onended = () => {
-      this.buffer.delete(this.playbackPosition);
+      this.isPlaying = false;
       this.playbackPosition++;
-      
-      if (this.buffer.size > 0) {
-        this.playNext();
-      } else {
-        this.isPlaying = false;
-      }
+      this.buffer.delete(this.playbackPosition - 1);
+      if (this.buffer.size > 0) this.schedulePlayback();
     };
+
+    source.start(0);
+  }
+
+  private playSilence(): void {
+    const silenceBuffer = this.audioContext.createBuffer(1, 2400, 24000);
+    const source = this.audioContext.createBufferSource();
+    source.buffer = silenceBuffer;
+    source.connect(this.audioContext.destination);
+    source.start(0);
   }
 
   private pcm16ToAudioBuffer(pcm16Data: Int16Array): AudioBuffer {

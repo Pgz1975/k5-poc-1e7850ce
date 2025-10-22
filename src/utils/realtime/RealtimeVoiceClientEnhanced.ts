@@ -76,7 +76,7 @@ export class RealtimeVoiceClientEnhanced {
         class PCM16CaptureProcessor extends AudioWorkletProcessor {
           constructor() {
             super();
-            this.bufferSize = 1024;
+            this.bufferSize = 2400;
             this.buffer = new Int16Array(this.bufferSize);
             this.bufferIndex = 0;
           }
@@ -158,7 +158,7 @@ export class RealtimeVoiceClientEnhanced {
     const params = new URLSearchParams({
       student_id: this.config.studentId || 'test',
       language: this.config.language || 'es-PR',
-      model: this.config.model || 'gpt-4o-realtime-preview-2024-12-17'
+      model: this.config.model || 'gpt-realtime-2025-08-28'
     });
 
     if (this.config.voiceGuidance) {
@@ -240,6 +240,20 @@ export class RealtimeVoiceClientEnhanced {
           if (message.transcript) {
             this.config.onTranscription?.(message.transcript, true);
           }
+          break;
+
+        case 'input_audio_buffer.speech_started':
+          console.log('[RealtimeVoiceClient] 🎤 User speaking - clearing buffers');
+          this.jitterBuffer?.clear();
+          this.audioContext?.suspend();
+          break;
+
+        case 'response.cancel':
+        case 'response.cancelled':
+        case 'response.interrupted':
+          console.log('[RealtimeVoiceClient] ⚠️ Response interrupted');
+          this.jitterBuffer?.clear();
+          this.audioContext?.resume();
           break;
 
         case 'pong':

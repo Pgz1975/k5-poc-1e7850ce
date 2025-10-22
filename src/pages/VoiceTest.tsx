@@ -16,7 +16,7 @@ export default function VoiceTest() {
   
   const { user } = useAuth();
   const [language, setLanguage] = useState<'es-PR' | 'en-US'>('es-PR');
-  const [model, setModel] = useState('gpt-4o-realtime-preview-2024-12-17');
+  const [model, setModel] = useState('gpt-realtime-2025-08-28');
   const [voiceGuidance, setVoiceGuidance] = useState('');
   const [logs, setLogs] = useState<string[]>([]);
 
@@ -136,11 +136,14 @@ export default function VoiceTest() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="gpt-realtime-2025-08-28">
+                      GPT Realtime (Aug 2025) - Latest Production
+                    </SelectItem>
                     <SelectItem value="gpt-4o-realtime-preview-2024-12-17">
-                      GPT-4o Realtime (Dec 2024) - Recommended
+                      GPT-4o Realtime (Dec 2024) - Legacy
                     </SelectItem>
                     <SelectItem value="gpt-4o-realtime-preview-2024-10-01">
-                      GPT-4o Realtime (Oct 2024)
+                      GPT-4o Realtime (Oct 2024) - Legacy
                     </SelectItem>
                   </SelectContent>
                 </Select>

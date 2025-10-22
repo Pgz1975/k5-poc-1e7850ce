@@ -72,9 +72,12 @@ serve(async (req) => {
       }
     };
 
+    // Use latest production model (NOT preview)
+    const latestModel = 'gpt-realtime-2025-08-28';
+    
     // Connect to OpenAI Realtime API
     session.openaiWS = new WebSocket(
-      `wss://api.openai.com/v1/realtime?model=${model}`,
+      `wss://api.openai.com/v1/realtime?model=${latestModel}`,
       [
         'realtime',
         `openai-insecure-api-key.${OPENAI_API_KEY}`,
@@ -213,17 +216,20 @@ function handleSessionCreated(session: SessionState): void {
       voice: 'alloy',
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
-      input_audio_transcription: {
-        model: 'whisper-1'
-      },
       turn_detection: {
         type: 'server_vad',
         threshold: 0.5,
         prefix_padding_ms: 300,
-        silence_duration_ms: 1000,
+        silence_duration_ms: 500,
+        create_response: true
+      },
+      input_audio_transcription: {
+        enabled: true,
+        language: session.language === 'es-PR' ? 'es' : 'en',
+        model: 'whisper-1'
       },
       temperature: 0.8,
-      max_response_output_tokens: 'inf',
+      max_response_output_tokens: 4096
     },
   };
 
