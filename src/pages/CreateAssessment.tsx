@@ -266,22 +266,29 @@ export default function CreateAssessment() {
             </Button>
 
             {/* Template Selector */}
-            <Card className="p-6 mb-6 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/10">
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <Card className="p-6 mb-6 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/10 relative">
+              <div className="absolute top-4 right-4">
                 <CoquiMascot size="small" state="happy" />
+              </div>
+              <h3 className="text-xl font-bold mb-4">
                 🎯 {t("Plantilla de Actividad Coquí", "Coquí Activity Template")}
               </h3>
               <Select
                 value={data.activity_template || ''}
                 onValueChange={(value) => {
                   setData({ ...data, activity_template: value });
-                  autoFillTemplate(value);
+                  if (value !== 'none') {
+                    autoFillTemplate(value);
+                  }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-background">
                   <SelectValue placeholder={isSpanish ? "Selecciona una plantilla..." : "Select a template..."} />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="none">
+                    {isSpanish ? '(Vacío - Sin plantilla)' : '(Empty - No template)'}
+                  </SelectItem>
                   <SelectGroup>
                     <SelectLabel>{isSpanish ? 'Plantillas Genéricas' : 'Generic Templates'}</SelectLabel>
                     {genericTemplates.map(t => (
