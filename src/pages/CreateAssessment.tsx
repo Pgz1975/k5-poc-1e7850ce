@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Header } from '@/components/Header';
 import { TypeSelector } from '@/components/ManualAssessment/TypeSelector';
@@ -47,6 +47,8 @@ interface AssessmentData {
 
 
 export default function CreateAssessment() {
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
   const [step, setStep] = useState<'type' | 'subtype' | 'content'>('type');
   const [data, setData] = useState<Partial<AssessmentData>>({
     settings: {
@@ -64,11 +66,72 @@ export default function CreateAssessment() {
     max_attempts: 3
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const { t, language } = useLanguage();
   const isSpanish = language === 'es';
+
+  // Load existing assessment if editing
+  useEffect(() => {
+    const loadAssessment = async () => {
+      if (!editId || !user) return;
+      
+      setIsLoading(true);
+      try {
+        const { data: assessment, error } = await supabase
+          .from('manual_assessments')
+          .select('*')
+          .eq('id', editId)
+          .eq('created_by', user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (assessment) {
+          setData({
+            type: assessment.type as 'lesson' | 'exercise' | 'assessment',
+            subtype: assessment.subtype,
+            title: assessment.title,
+            voice_guidance: assessment.voice_guidance || '',
+            activity_template: assessment.activity_template || '',
+            coqui_dialogue: assessment.coqui_dialogue || '',
+            pronunciation_words: assessment.pronunciation_words?.join('\n') || '',
+            parent_lesson_id: assessment.parent_lesson_id || undefined,
+            max_attempts: assessment.max_attempts || 3,
+            content: assessment.content as {
+              question: string;
+              questionImage?: string;
+              answers: Array<{
+                text: string;
+                imageUrl: string | null;
+                isCorrect: boolean;
+              }>;
+            },
+            settings: {
+              gradeLevel: assessment.grade_level,
+              language: (assessment.language === 'es-PR' ? 'es' : assessment.language) as 'es' | 'en',
+              subject: assessment.subject_area
+            }
+          });
+          setStep('content'); // Skip to content step when editing
+        }
+      } catch (error: any) {
+        console.error('Error loading assessment:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load assessment for editing",
+          variant: "destructive"
+        });
+        navigate('/admin-dashboard');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAssessment();
+  }, [editId, user, navigate, toast]);
 
   // Fetch teacher's lessons for linking exercises
   const { data: teacherLessons } = useQuery({
@@ -389,18 +452,41 @@ export default function CreateAssessment() {
         payload.max_attempts = data.max_attempts || 3;
       }
       
-      const { data: savedAssessment, error } = await supabase
-        .from('manual_assessments')
-        .insert(payload)
-        .select()
-        .single();
+      let savedAssessment;
       
-      if (error) throw error;
-      
-      toast({
-        title: "Success!",
-        description: `${data.type!.charAt(0).toUpperCase() + data.type!.slice(1)} saved successfully.`
-      });
+      if (editId) {
+        // UPDATE existing assessment
+        const { data: updated, error } = await supabase
+          .from('manual_assessments')
+          .update(payload)
+          .eq('id', editId)
+          .eq('created_by', user.id)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        savedAssessment = updated;
+        
+        toast({
+          title: "Success!",
+          description: `${data.type!.charAt(0).toUpperCase() + data.type!.slice(1)} updated successfully.`
+        });
+      } else {
+        // INSERT new assessment
+        const { data: inserted, error } = await supabase
+          .from('manual_assessments')
+          .insert(payload)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        savedAssessment = inserted;
+        
+        toast({
+          title: "Success!",
+          description: `${data.type!.charAt(0).toUpperCase() + data.type!.slice(1)} created successfully.`
+        });
+      }
       
       navigate(`/view-assessment/${savedAssessment.id}`);
     } catch (error: any) {
@@ -415,18 +501,32 @@ export default function CreateAssessment() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading assessment...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Header />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8 flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate('/teacher-dashboard')}>
+          <Button variant="ghost" onClick={() => navigate(editId ? '/admin-dashboard' : '/teacher-dashboard')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             {isSpanish ? 'Volver' : 'Back'}
           </Button>
           <h1 className="text-3xl font-bold">
-            {isSpanish ? 'Crear Nuevo Contenido' : 'Create New Content'}
+            {editId 
+              ? (isSpanish ? 'Editar Contenido' : 'Edit Content')
+              : (isSpanish ? 'Crear Nuevo Contenido' : 'Create New Content')
+            }
           </h1>
           <div className="w-[100px]" />
         </div>
