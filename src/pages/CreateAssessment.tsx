@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Header } from '@/components/Header';
 import { TypeSelector } from '@/components/ManualAssessment/TypeSelector';
 import { SubtypeSelector } from '@/components/ManualAssessment/SubtypeSelector';
@@ -7,8 +8,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
-import { ArrowLeft, Save, Loader2, Info } from 'lucide-react';
+import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { AnswerList } from '@/components/ManualAssessment/AnswerList';
 import { ImagePasteZone } from '@/components/ManualAssessment/ImagePasteZone';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,6 +27,7 @@ interface AssessmentData {
   activity_template?: string;
   coqui_dialogue?: string;
   pronunciation_words?: string;
+  parent_lesson_id?: string; // NEW: Link exercises to lessons
   max_attempts?: number;
   content: {
     question: string;
@@ -41,6 +44,7 @@ interface AssessmentData {
     subject: string;
   };
 }
+
 
 export default function CreateAssessment() {
   const [step, setStep] = useState<'type' | 'subtype' | 'content'>('type');
@@ -65,6 +69,25 @@ export default function CreateAssessment() {
   const { toast } = useToast();
   const { t, language } = useLanguage();
   const isSpanish = language === 'es';
+
+  // Fetch teacher's lessons for linking exercises
+  const { data: teacherLessons } = useQuery({
+    queryKey: ['teacher-lessons', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('manual_assessments')
+        .select('id, title, grade_level, language')
+        .eq('type', 'lesson')
+        .eq('created_by', user?.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user && data.type === 'exercise'
+  });
+
+  // Template definitions from line 70-249
 
   // Bilingual template definitions
   const genericTemplates = [
@@ -133,7 +156,21 @@ export default function CreateAssessment() {
     }
   ];
 
+  // All template content
+
   const autoFillTemplate = (templateId: string) => {
+    if (!templateId) {
+      setData(prev => ({
+        ...prev,
+        title: '',
+        coqui_dialogue: '',
+        pronunciation_words: '',
+        voice_guidance: '',
+        activity_template: ''
+      }));
+      return;
+    }
+
     const templates: Record<string, any> = {
       // ========== GENERIC TEMPLATES ==========
       'coqui_escucha': {
@@ -243,65 +280,135 @@ export default function CreateAssessment() {
         title: template.title,
         coqui_dialogue: template.coqui_dialogue,
         pronunciation_words: template.pronunciation_words,
-        voice_guidance: template.voice_guidance
+        voice_guidance: template.voice_guidance,
+        activity_template: templateId
       }));
     }
   };
 
-  const isValid = () => {
-    return (
-      data.content?.question && data.content.question.length > 10 &&
-      data.content?.answers && data.content.answers.length >= 2 &&
-      data.content.answers.some(a => a.isCorrect && a.text.trim())
-    );
+  // Handle lesson linking for exercises
+  const handleLessonLink = (lessonId: string) => {
+    if (!lessonId) {
+      setData(prev => ({
+        ...prev,
+        parent_lesson_id: undefined,
+      }));
+      return;
+    }
+
+    const lesson = teacherLessons?.find(l => l.id === lessonId);
+    if (lesson) {
+      setData(prev => ({
+        ...prev,
+        parent_lesson_id: lessonId,
+        settings: {
+          ...prev.settings!,
+          gradeLevel: lesson.grade_level,
+          language: lesson.language as 'es' | 'en',
+        }
+      }));
+    }
   };
 
-  const handleSave = async () => {
-    if (!user || !isValid()) return;
+  // Type-specific validation
+  const isValid = () => {
+    const hasTitle = data.title && data.title.length > 3;
+    const hasQuestion = data.content?.question && data.content.question.length > 10;
+    
+    if (data.type === 'lesson') {
+      // LESSON: voice_guidance is MANDATORY, content is required
+      const hasVoiceGuidance = data.voice_guidance && data.voice_guidance.trim().length > 0;
+      return hasTitle && hasQuestion && hasVoiceGuidance;
+    }
+    
+    if (data.type === 'exercise' || data.type === 'assessment') {
+      // EXERCISE/ASSESSMENT: needs answers with at least one correct
+      const hasAnswers = data.content?.answers && data.content.answers.length >= 2;
+      const hasCorrectAnswer = data.content?.answers?.some(a => a.isCorrect && a.text.trim());
+      return hasTitle && hasQuestion && hasAnswers && hasCorrectAnswer;
+    }
+    
+    return false;
+  };
 
+  // Type-specific save logic
+  const handleSave = async () => {
+    if (!user || !isValid()) {
+      toast({
+        title: "Validation Error",
+        description: data.type === 'lesson' 
+          ? "Please fill in title, content, and voice guidance (required)"
+          : "Please fill in all required fields correctly.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsSaving(true);
     try {
-      const pronunciationArray = data.pronunciation_words
-        ? data.pronunciation_words.split('\n').filter(w => w.trim())
-        : [];
-
-      const assessment = {
-        type: data.type!,
-        subtype: data.subtype!,
-        title: data.title || data.content!.question.substring(0, 50),
-        content: data.content!,
-        voice_guidance: data.voice_guidance || null,
-        activity_template: data.activity_template || null,
-        coqui_dialogue: data.coqui_dialogue || null,
-        pronunciation_words: pronunciationArray.length > 0 ? pronunciationArray : null,
-        max_attempts: data.max_attempts || 3,
+      const payload: any = {
+        type: data.type,
+        subtype: data.subtype || 'multiple_choice',
+        title: data.title,
+        content: data.content,
         grade_level: data.settings!.gradeLevel,
         language: data.settings!.language,
         subject_area: data.settings!.subject,
         created_by: user.id,
-        status: 'published'
+        status: 'draft'
       };
-
-      const { data: saved, error } = await supabase
+      
+      // Type-specific fields
+      if (data.type === 'lesson') {
+        payload.voice_guidance = data.voice_guidance; // REQUIRED
+        payload.coqui_dialogue = data.coqui_dialogue || null; // OPTIONAL
+        payload.pronunciation_words = data.pronunciation_words 
+          ? data.pronunciation_words.split('\n').filter(w => w.trim()) 
+          : null; // OPTIONAL
+        payload.activity_template = data.activity_template || null;
+        payload.enable_voice = true;
+        payload.voice_speed = 1.0;
+        payload.auto_read_question = true;
+      }
+      
+      if (data.type === 'exercise') {
+        payload.parent_lesson_id = data.parent_lesson_id || null; // NEW
+        payload.voice_guidance = data.voice_guidance || null;
+        payload.coqui_dialogue = data.coqui_dialogue || null;
+        payload.pronunciation_words = data.pronunciation_words 
+          ? data.pronunciation_words.split('\n').filter(w => w.trim()) 
+          : null;
+        payload.max_attempts = data.max_attempts || 3;
+        payload.enable_voice = true;
+        payload.voice_speed = 1.0;
+        payload.auto_read_question = true;
+      }
+      
+      if (data.type === 'assessment') {
+        // No voice fields for assessments
+        payload.max_attempts = data.max_attempts || 3;
+      }
+      
+      const { data: savedAssessment, error } = await supabase
         .from('manual_assessments')
-        .insert([assessment])
+        .insert(payload)
         .select()
         .single();
-
+      
       if (error) throw error;
-
+      
       toast({
-        title: t("¡Guardado!", "Saved!"),
-        description: t("Tu ejercicio está listo.", "Your exercise is ready.")
+        title: "Success!",
+        description: `${data.type!.charAt(0).toUpperCase() + data.type!.slice(1)} saved successfully.`
       });
-
-      navigate(`/assessment/${saved.id}`);
+      
+      navigate(`/view-assessment/${savedAssessment.id}`);
     } catch (error: any) {
       console.error('Save error:', error);
       toast({
-        title: t("Error al guardar", "Save failed"),
-        description: error.message,
-        variant: 'destructive'
+        title: "Error",
+        description: error.message || "Failed to save",
+        variant: "destructive"
       });
     } finally {
       setIsSaving(false);
@@ -309,287 +416,452 @@ export default function CreateAssessment() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-background">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Header />
+      
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="mb-8 flex items-center justify-between">
+          <Button variant="ghost" onClick={() => navigate(-1)}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {isSpanish ? 'Volver' : 'Back'}
+          </Button>
+          <h1 className="text-3xl font-bold">
+            {isSpanish ? 'Crear Nuevo Contenido' : 'Create New Content'}
+          </h1>
+          <div className="w-[100px]" />
+        </div>
 
-      <main className="container mx-auto px-6 py-8">
+        {/* Step 1: Type Selection */}
         {step === 'type' && (
-          <TypeSelector
-            onSelect={(type) => {
-              setData({ ...data, type });
-              setStep('subtype');
-            }}
-          />
+          <div className="space-y-6 animate-fade-in">
+            <TypeSelector
+              value={data.type || ''}
+              onChange={(type: any) => {
+                setData({ ...data, type });
+                // Lessons skip subtype step
+                setStep(type === 'lesson' ? 'content' : 'subtype');
+              }}
+            />
+          </div>
         )}
 
-        {step === 'subtype' && data.type && (
-          <SubtypeSelector
-            type={data.type}
-            onSelect={(subtype) => {
-              setData({ ...data, subtype });
-              setStep('content');
-            }}
-            onBack={() => setStep('type')}
-          />
-        )}
-
-        {step === 'content' && (
-          <div className="max-w-4xl mx-auto">
-            <Button onClick={() => setStep('subtype')} variant="ghost" className="mb-6">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              {t("Atrás", "Back")}
-            </Button>
-
-            {/* Template Selector */}
-            <Card className="p-6 mb-6 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/10 relative">
-              <div className="absolute top-4 right-4">
-                <CoquiMascot size="small" state="happy" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">
-                🎯 {t("Plantilla de Actividad Coquí", "Coquí Activity Template")}
-              </h3>
-              <Select
-                value={data.activity_template || ''}
-                onValueChange={(value) => {
-                  setData({ ...data, activity_template: value });
-                  if (value !== 'none') {
-                    autoFillTemplate(value);
-                  }
-                }}
-              >
-                <SelectTrigger className="bg-background">
-                  <SelectValue placeholder={isSpanish ? "Selecciona una plantilla..." : "Select a template..."} />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="none">
-                    {isSpanish ? '(Vacío - Sin plantilla)' : '(Empty - No template)'}
-                  </SelectItem>
-                  <SelectGroup>
-                    <SelectLabel>{isSpanish ? 'Plantillas Genéricas' : 'Generic Templates'}</SelectLabel>
-                    {genericTemplates.map(t => (
-                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                    ))}
-                  </SelectGroup>
-                  <SelectGroup>
-                    <SelectLabel>{isSpanish ? 'Plantillas del Currículo' : 'Curriculum Templates'}</SelectLabel>
-                    {curriculumTemplates.map(t => (
-                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-muted-foreground mt-3 flex items-start gap-2">
-                <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                {isSpanish 
-                  ? '💡 Consejo: Usa palabras locales de Puerto Rico para mejor conexión cultural' 
-                  : '💡 Tip: Use local Puerto Rican words for better cultural connection'}
-              </p>
-            </Card>
-
-            {/* Settings */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">⚙️ {t("Configuración", "Settings")}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    {t("Grado", "Grade Level")}
-                  </label>
-                  <Select
-                    value={data.settings?.gradeLevel.toString()}
-                    onValueChange={(v) => setData({
-                      ...data,
-                      settings: { ...data.settings!, gradeLevel: parseInt(v) }
-                    })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">Kinder</SelectItem>
-                      <SelectItem value="1">1er Grado</SelectItem>
-                      <SelectItem value="2">2do Grado</SelectItem>
-                      <SelectItem value="3">3er Grado</SelectItem>
-                      <SelectItem value="4">4to Grado</SelectItem>
-                      <SelectItem value="5">5to Grado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    {t("Idioma", "Language")}
-                  </label>
-                  <Select
-                    value={data.settings?.language}
-                    onValueChange={(v: 'es' | 'en') => setData({
-                      ...data,
-                      settings: { ...data.settings!, language: v }
-                    })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="es">Español</SelectItem>
-                      <SelectItem value="en">English</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    {t("Materia", "Subject")}
-                  </label>
-                  <Select
-                    value={data.settings?.subject}
-                    onValueChange={(v) => setData({
-                      ...data,
-                      settings: { ...data.settings!, subject: v }
-                    })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="reading">{t("Lectura", "Reading")}</SelectItem>
-                      <SelectItem value="math">{t("Matemáticas", "Math")}</SelectItem>
-                      <SelectItem value="science">{t("Ciencias", "Science")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </Card>
-
-            {/* Title */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">📝 {t("Título (opcional)", "Title (optional)")}</h3>
-              <Input
-                value={data.title || ''}
-                onChange={(e) => setData({ ...data, title: e.target.value })}
-                placeholder={t("Ej: Identificar Vocales", "e.g. Identify Vowels")}
-                className="text-xl"
-              />
-            </Card>
-
-            {/* Coquí Dialogue */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">🐸 {t("Diálogo de Coquí (Secciones)", "Coquí's Dialogue (Sections)")}</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                {t(
-                  "Separa el diálogo en secciones que corresponden con las respuestas",
-                  "Separate dialogue into sections that correspond with answers"
-                )}
-              </p>
-              <Textarea
-                value={data.coqui_dialogue || ''}
-                onChange={(e) => setData({ ...data, coqui_dialogue: e.target.value })}
-                placeholder={isSpanish 
-                  ? `SECTION 1: ¡Hola! Soy Coquí...\nSECTION 2: Ahora vamos a practicar...\nSECTION 3: ¡Muy bien! Lo hiciste excelente...`
-                  : `SECTION 1: Hi! I'm Coquí...\nSECTION 2: Now let's practice...\nSECTION 3: Great job! You did excellent...`}
-                className="min-h-[150px] font-mono"
-              />
-            </Card>
-
-            {/* Pronunciation Words */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">🗣️ {t("Palabras para Practicar Pronunciación", "Words for Pronunciation Practice")}</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                {t("Escribe una palabra por línea", "Write one word per line")}
-              </p>
-              <Textarea
-                value={data.pronunciation_words || ''}
-                onChange={(e) => setData({ ...data, pronunciation_words: e.target.value })}
-                placeholder={isSpanish
-                  ? `sol\nsapo\nserpiente\n(una palabra por línea)`
-                  : `sun\nfrog\nsnake\n(one word per line)`}
-                className="min-h-[100px]"
-              />
-            </Card>
-
-            {/* Speech Instructions */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">🎙️ {t("Instrucciones para el Sistema de Voz", "Speech System Instructions")}</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                {t(
-                  "Escribe instrucciones especiales que el asistente de voz debe seguir al leer este contenido (opcional).",
-                  "Write special instructions for the voice assistant when reading this content (optional)."
-                )}
-              </p>
-              <Textarea
-                value={data.voice_guidance || ''}
-                onChange={(e) => setData({
-                  ...data,
-                  voice_guidance: e.target.value
-                })}
-                placeholder={t(
-                  "Ej: Lee la pregunta lentamente y repite las opciones dos veces",
-                  "e.g. Read the question slowly and repeat options twice"
-                )}
-                className="min-h-24"
-              />
-            </Card>
-
-            {/* Question */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">📝 {t("Pregunta o Instrucción", "Question or Instruction")}</h3>
-              <Textarea
-                value={data.content?.question || ''}
-                onChange={(e) => setData({
-                  ...data,
-                  content: { ...data.content!, question: e.target.value }
-                })}
-                placeholder={t("Escribe tu pregunta aquí...", "Enter your question here...")}
-                className="text-2xl min-h-32"
-              />
-            </Card>
-
-            {/* Question Image */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">🎨 {t("Añadir Imagen (Opcional)", "Add Question Image (Optional)")}</h3>
-              <ImagePasteZone
-                currentImage={data.content?.questionImage}
-                onImageUploaded={(url) => setData({
-                  ...data,
-                  content: { ...data.content!, questionImage: url }
-                })}
-              />
-            </Card>
-
-            {/* Answers */}
-            <Card className="p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4">✅ {t("Opciones de Respuesta", "Answer Options")}</h3>
-              <AnswerList
-                answers={data.content?.answers || []}
-                onChange={(answers) => setData({
-                  ...data,
-                  content: { ...data.content!, answers }
-                })}
-              />
-            </Card>
-
-
-            {/* Save */}
-            <Button
-              size="lg"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white"
-              onClick={handleSave}
-              disabled={!isValid() || isSaving}
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  {t("Guardando...", "Saving...")}
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-5 w-5" />
-                  {t("✅ Guardar Ejercicio", "✅ Save Exercise")}
-                </>
-              )}
+        {/* Step 2: Subtype Selection (only for exercise/assessment) */}
+        {step === 'subtype' && data.type !== 'lesson' && (
+          <div className="space-y-6 animate-fade-in">
+            <SubtypeSelector
+              value={data.subtype}
+              onChange={(subtype) => {
+                setData({ ...data, subtype });
+                setStep('content');
+              }}
+            />
+            <Button variant="outline" onClick={() => setStep('type')}>
+              {isSpanish ? 'Atrás' : 'Back'}
             </Button>
           </div>
         )}
-      </main>
+
+        {/* Step 3: Content Creation - CONDITIONAL BY TYPE */}
+        {step === 'content' && (
+          <div className="space-y-6 animate-fade-in">
+            
+            {/* ========== LESSON CREATION ========== */}
+            {data.type === 'lesson' && (
+              <>
+                <CoquiMascot state="reading" position="top-right" size="medium" />
+                
+                {/* Template Selection - ONLY FOR LESSONS */}
+                <Card className="p-6 bg-gradient-to-br from-blue-500/5 to-blue-600/10 border-blue-200">
+                  <Label className="text-lg font-semibold mb-4 block">
+                    {isSpanish ? 'Elige una Plantilla (Opcional)' : 'Choose a Template (Optional)'}
+                  </Label>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {isSpanish 
+                      ? 'Las plantillas te ayudan a crear lecciones estructuradas con guía de voz y práctica de pronunciación.'
+                      : 'Templates help you create structured lessons with voice guidance and pronunciation practice.'}
+                  </p>
+                  <Select onValueChange={autoFillTemplate}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={isSpanish ? '-- Plantilla Vacía --' : '-- Empty Template --'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">{isSpanish ? '-- Plantilla Vacía --' : '-- Empty Template --'}</SelectItem>
+                      
+                      <SelectGroup>
+                        <SelectLabel className="text-primary font-semibold">
+                          {isSpanish ? 'Actividades Genéricas' : 'Generic Activities'}
+                        </SelectLabel>
+                        {genericTemplates.map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{template.name}</span>
+                              <span className="text-xs text-muted-foreground">{template.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                      
+                      <SelectGroup>
+                        <SelectLabel className="text-secondary font-semibold">
+                          {isSpanish ? 'Alineadas al Currículo' : 'Curriculum-Aligned'}
+                        </SelectLabel>
+                        {curriculumTemplates.map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{template.name}</span>
+                              <span className="text-xs text-muted-foreground">{template.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Card>
+
+                {/* Required Fields for Lessons */}
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">
+                    {isSpanish ? 'Detalles de la Lección' : 'Lesson Details'}
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>{isSpanish ? 'Título de la Lección *' : 'Lesson Title *'}</Label>
+                      <Input
+                        value={data.title || ''}
+                        onChange={(e) => setData({ ...data, title: e.target.value })}
+                        placeholder={isSpanish ? 'Ingrese el título de la lección' : 'Enter lesson title'}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{isSpanish ? 'Guía de Voz para IA * (Requerido)' : 'Voice Guidance for AI * (Required)'}</Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {isSpanish 
+                          ? 'Instruye a la IA sobre cómo hablar e interactuar con los estudiantes'
+                          : 'Instruct the AI how to speak and interact with students'}
+                      </p>
+                      <Textarea
+                        value={data.voice_guidance || ''}
+                        onChange={(e) => setData({ ...data, voice_guidance: e.target.value })}
+                        placeholder={isSpanish 
+                          ? 'ej., "Habla lento y claro. Enfatiza las sílabas. Celebra las respuestas correctas con entusiasmo."'
+                          : 'e.g., "Speak slowly and clearly. Emphasize syllables. Celebrate correct answers with enthusiasm."'}
+                        rows={3}
+                        className="resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{isSpanish ? 'Contenido Principal de Enseñanza *' : 'Main Teaching Content *'}</Label>
+                      <Textarea
+                        value={data.content?.question || ''}
+                        onChange={(e) => setData({
+                          ...data,
+                          content: { ...data.content!, question: e.target.value }
+                        })}
+                        placeholder={isSpanish ? 'Ingrese el contenido de la lección aquí...' : 'Enter the lesson content here...'}
+                        rows={8}
+                      />
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Optional Voice Fields for Lessons */}
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">
+                    {isSpanish ? 'Funciones de Voz Opcionales' : 'Optional Voice Features'}
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>{isSpanish ? "Diálogo de Coquí (Opcional)" : "Coquí's Dialogue (Optional)"}</Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {isSpanish ? 'Formato de 4 secciones para guía estructurada' : '4-section format for structured guidance'}
+                      </p>
+                      <Textarea
+                        value={data.coqui_dialogue || ''}
+                        onChange={(e) => setData({ ...data, coqui_dialogue: e.target.value })}
+                        placeholder="SECTION 1: Introduction&#10;SECTION 2: Instruction&#10;SECTION 3: Practice&#10;SECTION 4: Celebration"
+                        rows={8}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{isSpanish ? 'Palabras de Pronunciación (Opcional)' : 'Pronunciation Words (Optional)'}</Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {isSpanish ? 'Una palabra por línea para práctica de pronunciación' : 'One word per line for pronunciation practice'}
+                      </p>
+                      <Textarea
+                        value={data.pronunciation_words || ''}
+                        onChange={(e) => setData({ ...data, pronunciation_words: e.target.value })}
+                        placeholder="word1&#10;word2&#10;word3"
+                        rows={5}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              </>
+            )}
+
+            {/* ========== EXERCISE CREATION ========== */}
+            {data.type === 'exercise' && (
+              <>
+                <CoquiMascot state="reading" position="top-right" size="medium" />
+                
+                {/* Link to Lesson - NEW */}
+                <Card className="p-6 bg-gradient-to-br from-green-500/5 to-green-600/10 border-green-200">
+                  <Label className="text-lg font-semibold mb-4 block">
+                    {isSpanish ? 'Vincular a Lección (Opcional)' : 'Link to Lesson (Optional)'}
+                  </Label>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {isSpanish ? 'Conecta este ejercicio a una lección existente' : 'Connect this exercise to an existing lesson'}
+                  </p>
+                  <Select
+                    value={data.parent_lesson_id || ''}
+                    onValueChange={handleLessonLink}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={isSpanish ? '-- Ejercicio Independiente --' : '-- Standalone Exercise --'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">{isSpanish ? '-- Ejercicio Independiente --' : '-- Standalone Exercise --'}</SelectItem>
+                      {teacherLessons?.map((lesson) => (
+                        <SelectItem key={lesson.id} value={lesson.id}>
+                          {lesson.title} ({isSpanish ? 'Grado' : 'Grade'} {lesson.grade_level})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Card>
+
+                {/* Exercise Fields */}
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">
+                    {isSpanish ? 'Detalles del Ejercicio' : 'Exercise Details'}
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>{isSpanish ? 'Título del Ejercicio *' : 'Exercise Title *'}</Label>
+                      <Input
+                        value={data.title || ''}
+                        onChange={(e) => setData({ ...data, title: e.target.value })}
+                        placeholder={isSpanish ? 'Ingrese el título del ejercicio' : 'Enter exercise title'}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{isSpanish ? 'Pregunta *' : 'Question *'}</Label>
+                      <Textarea
+                        value={data.content?.question || ''}
+                        onChange={(e) => setData({
+                          ...data,
+                          content: { ...data.content!, question: e.target.value }
+                        })}
+                        placeholder={isSpanish ? 'Ingrese la pregunta' : 'Enter the question'}
+                        rows={4}
+                      />
+                    </div>
+
+                    <ImagePasteZone
+                      onImageUpload={(imageUrl) => {
+                        setData({
+                          ...data,
+                          content: { ...data.content!, questionImage: imageUrl }
+                        });
+                      }}
+                      label={isSpanish ? 'Imagen de Pregunta (Opcional)' : 'Question Image (Optional)'}
+                    />
+
+                    <div>
+                      <Label>{isSpanish ? 'Respuestas *' : 'Answers *'}</Label>
+                      <AnswerList
+                        answers={data.content?.answers || []}
+                        onChange={(answers) => setData({
+                          ...data,
+                          content: { ...data.content!, answers }
+                        })}
+                      />
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Optional Voice Features for Exercises */}
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">
+                    {isSpanish ? 'Funciones de Voz (Opcional)' : 'Voice Features (Optional)'}
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>{isSpanish ? 'Guía de Voz (Opcional)' : 'Voice Guidance (Optional)'}</Label>
+                      <Textarea
+                        value={data.voice_guidance || ''}
+                        onChange={(e) => setData({ ...data, voice_guidance: e.target.value })}
+                        placeholder={isSpanish ? 'ej., "Lee lento y enfatiza palabras clave"' : 'e.g., "Read slowly and emphasize key words"'}
+                        rows={2}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{isSpanish ? 'Diálogo de Coquí (Opcional)' : 'Coquí Dialogue (Optional)'}</Label>
+                      <Textarea
+                        value={data.coqui_dialogue || ''}
+                        onChange={(e) => setData({ ...data, coqui_dialogue: e.target.value })}
+                        placeholder={isSpanish ? 'Diálogo opcional para este ejercicio' : 'Optional dialogue for this exercise'}
+                        rows={4}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{isSpanish ? 'Palabras de Pronunciación (Opcional)' : 'Pronunciation Words (Optional)'}</Label>
+                      <Textarea
+                        value={data.pronunciation_words || ''}
+                        onChange={(e) => setData({ ...data, pronunciation_words: e.target.value })}
+                        placeholder="word1&#10;word2"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              </>
+            )}
+
+            {/* ========== ASSESSMENT CREATION ========== */}
+            {data.type === 'assessment' && (
+              <>
+                {/* NO Coquí for assessments */}
+                
+                <Card className="p-6 bg-gradient-to-br from-purple-500/5 to-purple-600/10 border-purple-200">
+                  <h3 className="text-lg font-semibold mb-4">
+                    {isSpanish ? 'Detalles de la Evaluación' : 'Assessment Details'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {isSpanish ? 'Crea una evaluación formal con preguntas y respuestas' : 'Create a formal evaluation with questions and answers'}
+                  </p>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>{isSpanish ? 'Título de la Evaluación *' : 'Assessment Title *'}</Label>
+                      <Input
+                        value={data.title || ''}
+                        onChange={(e) => setData({ ...data, title: e.target.value })}
+                        placeholder={isSpanish ? 'Ingrese el título de la evaluación' : 'Enter assessment title'}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{isSpanish ? 'Pregunta *' : 'Question *'}</Label>
+                      <Textarea
+                        value={data.content?.question || ''}
+                        onChange={(e) => setData({
+                          ...data,
+                          content: { ...data.content!, question: e.target.value }
+                        })}
+                        placeholder={isSpanish ? 'Ingrese la pregunta de evaluación' : 'Enter the assessment question'}
+                        rows={4}
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{isSpanish ? 'Respuestas *' : 'Answers *'}</Label>
+                      <AnswerList
+                        answers={data.content?.answers || []}
+                        onChange={(answers) => setData({
+                          ...data,
+                          content: { ...data.content!, answers }
+                        })}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              </>
+            )}
+
+            {/* Settings Section - COMMON FOR ALL TYPES */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">
+                {isSpanish ? 'Configuración' : 'Settings'}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label>{isSpanish ? 'Nivel de Grado *' : 'Grade Level *'}</Label>
+                  <Select
+                    value={String(data.settings?.gradeLevel)}
+                    onValueChange={(value) => setData({
+                      ...data,
+                      settings: { ...data.settings!, gradeLevel: parseInt(value) }
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">{isSpanish ? 'Kindergarten' : 'Kindergarten'}</SelectItem>
+                      <SelectItem value="1">{isSpanish ? '1er Grado' : '1st Grade'}</SelectItem>
+                      <SelectItem value="2">{isSpanish ? '2do Grado' : '2nd Grade'}</SelectItem>
+                      <SelectItem value="3">{isSpanish ? '3er Grado' : '3rd Grade'}</SelectItem>
+                      <SelectItem value="4">{isSpanish ? '4to Grado' : '4th Grade'}</SelectItem>
+                      <SelectItem value="5">{isSpanish ? '5to Grado' : '5th Grade'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>{isSpanish ? 'Idioma *' : 'Language *'}</Label>
+                  <Select
+                    value={data.settings?.language}
+                    onValueChange={(value: 'es' | 'en') => setData({
+                      ...data,
+                      settings: { ...data.settings!, language: value }
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="es">{isSpanish ? 'Español' : 'Spanish'}</SelectItem>
+                      <SelectItem value="en">{isSpanish ? 'Inglés' : 'English'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>{isSpanish ? 'Materia *' : 'Subject *'}</Label>
+                  <Select
+                    value={data.settings?.subject}
+                    onValueChange={(value) => setData({
+                      ...data,
+                      settings: { ...data.settings!, subject: value }
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reading">{isSpanish ? 'Lectura' : 'Reading'}</SelectItem>
+                      <SelectItem value="math">{isSpanish ? 'Matemáticas' : 'Math'}</SelectItem>
+                      <SelectItem value="science">{isSpanish ? 'Ciencias' : 'Science'}</SelectItem>
+                      <SelectItem value="social_studies">{isSpanish ? 'Estudios Sociales' : 'Social Studies'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="flex gap-4">
+              <Button variant="outline" onClick={() => setStep(data.type === 'lesson' ? 'type' : 'subtype')}>
+                {isSpanish ? 'Atrás' : 'Back'}
+              </Button>
+              <Button 
+                onClick={handleSave} 
+                disabled={!isValid() || isSaving}
+                className="flex-1"
+              >
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSaving ? (isSpanish ? 'Guardando...' : 'Saving...') : `${isSpanish ? 'Guardar' : 'Save'} ${data.type!.charAt(0).toUpperCase() + data.type!.slice(1)}`}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

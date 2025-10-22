@@ -149,6 +149,8 @@ export type Database = {
           language: Database["public"]["Enums"]["language_code"]
           max_attempts: number | null
           metadata: Json | null
+          order_in_lesson: number | null
+          parent_lesson_id: string | null
           pronunciation_words: string[] | null
           published_at: string | null
           status: string | null
@@ -180,6 +182,8 @@ export type Database = {
           language?: Database["public"]["Enums"]["language_code"]
           max_attempts?: number | null
           metadata?: Json | null
+          order_in_lesson?: number | null
+          parent_lesson_id?: string | null
           pronunciation_words?: string[] | null
           published_at?: string | null
           status?: string | null
@@ -211,6 +215,8 @@ export type Database = {
           language?: Database["public"]["Enums"]["language_code"]
           max_attempts?: number | null
           metadata?: Json | null
+          order_in_lesson?: number | null
+          parent_lesson_id?: string | null
           pronunciation_words?: string[] | null
           published_at?: string | null
           status?: string | null
@@ -223,7 +229,15 @@ export type Database = {
           voice_guidance?: string | null
           voice_speed?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "manual_assessments_parent_lesson_id_fkey"
+            columns: ["parent_lesson_id"]
+            isOneToOne: false
+            referencedRelation: "manual_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pdf_documents: {
         Row: {
