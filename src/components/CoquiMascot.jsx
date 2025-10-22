@@ -43,8 +43,18 @@ export const CoquiMascot = ({
   const sizeClass = coquiSizes[size] || coquiSizes.default;
   const positionClass = coquiPositions[position] || coquiPositions['bottom-right'];
   const animationClass = currentAnimation;
-  return <div className={`${positionClass} z-50 transition-opacity duration-200 ${className}`} role="img" aria-label={alt || `Coquí mascot in ${state} state`}>
-      
-    </div>;
+  return (
+    <div 
+      className={`${positionClass} z-50 transition-opacity duration-200 ${className}`} 
+      role="img" 
+      aria-label={alt || `Coquí mascot in ${state} state`}
+    >
+      <img
+        src={imageSrc}
+        alt={alt || `Coquí mascot in ${state} state`}
+        className={`${sizeClass} ${animationClass} object-contain`}
+      />
+    </div>
+  );
 };
 export default CoquiMascot;
