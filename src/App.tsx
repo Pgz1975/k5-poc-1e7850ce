@@ -56,6 +56,7 @@ const App = () => (
               <Route path="/generated/:id" element={<GeneratedAssessment />} />
               <Route path="/create-assessment" element={<CreateAssessment />} />
               <Route path="/assessment/:id" element={<ViewAssessment />} />
+              <Route path="/view-assessment/:id" element={<ViewAssessment />} />
               <Route path="/create-demo-users" element={<CreateDemoUsers />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
