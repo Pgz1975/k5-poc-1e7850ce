@@ -17,6 +17,7 @@ import Profile from "./pages/Profile";
 import ReadingExercise from "./pages/ReadingExercise";
 import VoiceTest from "./pages/VoiceTest";
 import VoiceTestSimple from "./pages/VoiceTestSimple";
+import VoiceSimpleEnhanced from "./pages/VoiceSimpleEnhanced";
 import PDFDemo from "./pages/PDFDemo";
 import AvailableAssessments from "./pages/AvailableAssessments";
 import AssessmentGenerator from "./pages/AssessmentGenerator";
@@ -49,9 +50,10 @@ const App = () => (
               <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
               <Route path="/family-dashboard" element={<FamilyDashboard />} />
               <Route path="/reading-exercise" element={<ReadingExercise />} />
-              <Route path="/voice-test" element={<VoiceTest />} />
-              <Route path="/voice-test-simple" element={<VoiceTestSimple />} />
-              <Route path="/pdf-demo" element={<PDFDemo />} />
+          <Route path="/voice-test" element={<VoiceTest />} />
+          <Route path="/voice-test-simple" element={<VoiceTestSimple />} />
+          <Route path="/voice-simple-enhanced" element={<VoiceSimpleEnhanced />} />
+          <Route path="/pdf-demo" element={<PDFDemo />} />
               <Route path="/assessment-generator" element={<AssessmentGenerator />} />
               <Route path="/generated/:id" element={<GeneratedAssessment />} />
               <Route path="/create-assessment" element={<CreateAssessment />} />
