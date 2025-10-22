@@ -53,7 +53,27 @@ serve(async (req) => {
       assessmentContent
     });
 
+    const selectedVoice = getVoiceForLanguage(language);
     console.log('[Token] Creating enhanced session...');
+    console.log('[Token] Using voice:', selectedVoice, 'for language:', language);
+
+    const requestBody = {
+      model: 'gpt-4o-realtime-preview-2024-12-17',
+      voice: selectedVoice,
+      instructions,
+      turn_detection: {
+        type: 'server_vad',
+        threshold: 0.5,
+        prefix_padding_ms: 300,
+        silence_duration_ms: 500,
+        create_response: true
+      },
+      input_audio_transcription: {
+        model: 'whisper-1'
+      }
+    };
+
+    console.log('[Token] Request body:', JSON.stringify(requestBody, null, 2));
 
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
       method: 'POST',
@@ -61,28 +81,12 @@ serve(async (req) => {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'gpt-4o-realtime-preview-2024-12-17',
-        voice: getVoiceForLanguage(language),
-        instructions,
-        turn_detection: {
-          type: 'server_vad',
-          threshold: 0.5,
-          prefix_padding_ms: 300,
-          silence_duration_ms: 500,
-          create_response: true
-        },
-        input_audio_transcription: {
-          model: 'whisper-1'
-        },
-        temperature: 0.7,
-        max_response_output_tokens: 4096
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Token] OpenAI API error:', response.status, errorText);
+      console.error('[Token] OpenAI API error:', errorText);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
