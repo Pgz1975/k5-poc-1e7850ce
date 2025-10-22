@@ -36,6 +36,10 @@ export class RealtimeVoiceClientEnhanced {
   private silenceStartTime: number | null = null;
   private isUserSpeaking = false;
   private audioGateThreshold = -45; // dB threshold for sending audio
+  // Commit control
+  private serverVADEnabled = true; // rely on server VAD; skip manual commits when true
+  private appendedSamplesSinceLastCommit = 0;
+  private minCommitSamples = 2400; // 100ms at 24kHz
 
   constructor(config: RealtimeVoiceConfig = {}) {
     this.config = config;
@@ -251,6 +255,8 @@ export class RealtimeVoiceClientEnhanced {
         case 'input_audio_buffer.speech_started':
           console.log('[RealtimeVoiceClient] 🎤 User speaking detected by server VAD');
           this.isUserSpeaking = true;
+          this.serverVADEnabled = true;
+          this.appendedSamplesSinceLastCommit = 0;
           this.jitterBuffer?.clear();
           break;
 
@@ -316,6 +322,7 @@ export class RealtimeVoiceClientEnhanced {
     }
 
     console.log('[RealtimeVoiceClient] 🎤 Sending audio chunk:', pcm16Data.length, 'samples');
+    this.appendedSamplesSinceLastCommit += pcm16Data.length;
 
     // Encode to base64
     const uint8 = new Uint8Array(pcm16Data.buffer);
@@ -350,26 +357,38 @@ export class RealtimeVoiceClientEnhanced {
 
   private handleAudioGating(pcm16Data: Int16Array, dbLevel: number): void {
     const now = performance.now();
-    
-    // Check if audio is above threshold
+
+    // If above threshold, send immediately
     if (dbLevel > this.audioGateThreshold) {
-      // Audio detected - send it
       this.sendAudioChunk(pcm16Data);
-      this.silenceStartTime = null; // Reset silence timer
-    } else {
-      // Audio below threshold (silence)
-      if (this.silenceStartTime === null) {
-        this.silenceStartTime = now;
+      this.silenceStartTime = null;
+      return;
+    }
+
+    // Below threshold
+    if (this.serverVADEnabled) {
+      // When server VAD is active we NEVER commit manually.
+      if (this.silenceStartTime === null) this.silenceStartTime = now; // for diagnostics
+      return;
+    }
+
+    if (this.silenceStartTime === null) {
+      this.silenceStartTime = now;
+      return;
+    }
+
+    const silenceDuration = now - this.silenceStartTime;
+
+    // After 1200ms of silence, commit only if enough audio was appended
+    if (silenceDuration > 1200 && this.stateMachine.canSendMessages()) {
+      if (this.appendedSamplesSinceLastCommit >= this.minCommitSamples) {
+        console.log('[RealtimeVoiceClient] 🤐 Silence detected, committing audio buffer');
+        this.ws?.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
+        this.appendedSamplesSinceLastCommit = 0;
       } else {
-        const silenceDuration = now - this.silenceStartTime;
-        
-        // After 1200ms of silence, commit the buffer
-        if (silenceDuration > 1200 && this.stateMachine.canSendMessages()) {
-          console.log('[RealtimeVoiceClient] 🤐 Silence detected, committing audio buffer');
-          this.ws?.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
-          this.silenceStartTime = null; // Reset for next speech segment
-        }
+        console.log('[RealtimeVoiceClient] ⏭️ Skip commit - no audio appended since last commit');
       }
+      this.silenceStartTime = null;
     }
   }
 
@@ -418,6 +437,10 @@ export class RealtimeVoiceClientEnhanced {
     this.audioContext?.close();
     this.ws?.close();
     this.jitterBuffer?.clear();
+    
+    // Reset commit tracking
+    this.appendedSamplesSinceLastCommit = 0;
+    this.silenceStartTime = null;
     
     this.stateMachine.reset();
     this.performanceMonitor.logSummary();

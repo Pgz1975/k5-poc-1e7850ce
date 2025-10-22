@@ -69,9 +69,15 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
         onAudioLevel: onAudioLevel,
         onError: (error) => {
           console.error('[useRealtimeVoice] ❌ Error callback triggered:', error);
+          const msg = (error && (error as Error).message) || '';
+          // Suppress benign commit-empty noise
+          if (msg.includes('input_audio_buffer_commit_empty') || msg.includes('buffer too small')) {
+            console.warn('[useRealtimeVoice] ⚠️ Suppressing toast for commit-empty error');
+            return;
+          }
           toast({
             title: 'Voice Error',
-            description: error.message,
+            description: msg || 'Unknown error',
             variant: 'destructive'
           });
         },
