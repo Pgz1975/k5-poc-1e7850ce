@@ -10,7 +10,9 @@ import {
   FileCheck,
   PlusCircle,
   ExternalLink,
-  Lock
+  Lock,
+  Edit,
+  Trash2
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -75,6 +77,65 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteAssessment = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this assessment?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("manual_assessments")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Assessment deleted successfully",
+      });
+      fetchContent();
+    } catch (error) {
+      console.error("Error deleting assessment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete assessment",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeletePdf = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this PDF document?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("pdf_documents")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "PDF document deleted successfully",
+      });
+      fetchContent();
+    } catch (error) {
+      console.error("Error deleting PDF:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete PDF document",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditAssessment = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/create-assessment?edit=${id}`);
   };
 
   if (authLoading || loading) {
@@ -199,11 +260,26 @@ const AdminDashboard = () => {
                           Grade {assessment.grade_level} • {assessment.language?.toUpperCase()} • {assessment.status}
                         </p>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">
                           {new Date(assessment.created_at).toLocaleDateString()}
                         </span>
-                        <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleEditAssessment(assessment.id, e)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleDeleteAssessment(assessment.id, e)}
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -247,11 +323,18 @@ const AdminDashboard = () => {
                           Status: {doc.processing_status}
                         </p>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">
                           {new Date(doc.created_at).toLocaleDateString()}
                         </span>
-                        <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => handleDeletePdf(doc.id, e)}
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
