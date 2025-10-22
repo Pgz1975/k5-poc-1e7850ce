@@ -63,11 +63,16 @@ export class AdaptiveJitterBuffer {
   private adjustTargetLatency(): void {
     const avgJitter = this.calculateAverageJitter();
 
-    // Adapt buffer size based on network conditions
+    // Adapt buffer size based on network conditions (200-400ms range)
+    const oldLatency = this.targetLatency;
     if (avgJitter > 50) {
       this.targetLatency = Math.min(this.targetLatency + 10, this.maxLatency);
     } else if (avgJitter < 20 && this.targetLatency > this.minLatency) {
       this.targetLatency = Math.max(this.targetLatency - 5, this.minLatency);
+    }
+    
+    if (oldLatency !== this.targetLatency) {
+      console.log(`[JitterBuffer] Target latency adjusted: ${oldLatency}ms → ${this.targetLatency}ms (jitter: ${avgJitter.toFixed(1)}ms)`);
     }
   }
 

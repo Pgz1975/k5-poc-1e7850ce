@@ -121,6 +121,19 @@ serve(async (req) => {
           error('OpenAI error:', msg.error);
           session.state = 'error';
         }
+
+        // Log important VAD and response events
+        if (msg.type === 'input_audio_buffer.speech_started') {
+          log('🎤 VAD: User started speaking');
+        } else if (msg.type === 'input_audio_buffer.speech_stopped') {
+          log('🤐 VAD: User stopped speaking');
+        } else if (msg.type === 'conversation.item.input_audio_transcription.completed') {
+          log('📝 User said:', msg.transcript);
+        } else if (msg.type === 'response.created') {
+          log('🎬 AI response started');
+        } else if (msg.type === 'response.done') {
+          log('✅ AI response completed');
+        }
       } catch (e) {
         error('Error parsing OpenAI message:', e);
       }
@@ -213,14 +226,14 @@ function handleSessionCreated(session: SessionState): void {
     session: {
       modalities: ['text', 'audio'],
       instructions: fullInstructions,
-      voice: 'alloy',
+      voice: 'shimmer',
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
       turn_detection: {
         type: 'server_vad',
-        threshold: 0.4,
+        threshold: 0.45,
         prefix_padding_ms: 300,
-        silence_duration_ms: 1000,
+        silence_duration_ms: 1200,
         create_response: true
       },
       input_audio_transcription: {
@@ -231,6 +244,7 @@ function handleSessionCreated(session: SessionState): void {
     },
   };
 
+  log('📤 Session config:', JSON.stringify(sessionConfig, null, 2));
   session.openaiWS!.send(JSON.stringify(sessionConfig));
 }
 

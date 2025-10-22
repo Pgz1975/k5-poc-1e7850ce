@@ -22,7 +22,7 @@ export interface RealtimeVoiceConfig {
 }
 
 export class RealtimeVoiceClientEnhanced {
-  private ws: WebSocket | null = null;
+  public ws: WebSocket | null = null;
   private audioContext: AudioContext | null = null;
   private audioWorklet: AudioWorkletNode | null = null;
   private mediaStream: MediaStream | null = null;
@@ -33,6 +33,9 @@ export class RealtimeVoiceClientEnhanced {
   private performanceMonitor: PerformanceMonitor;
   private config: RealtimeVoiceConfig;
   private currentTranscript = { user: '', ai: '' };
+  private silenceStartTime: number | null = null;
+  private isUserSpeaking = false;
+  private audioGateThreshold = -45; // dB threshold for sending audio
 
   constructor(config: RealtimeVoiceConfig = {}) {
     this.config = config;
@@ -131,8 +134,8 @@ export class RealtimeVoiceClientEnhanced {
       this.audioWorklet.port.onmessage = (event) => {
         if (event.data.type === 'audio') {
           console.log('[AudioWorklet] 📊 Captured chunk:', event.data.data.length, 'samples');
-          this.monitorAudioLevel(event.data.data);
-          this.sendAudioChunk(event.data.data);
+          const dbLevel = this.monitorAudioLevel(event.data.data);
+          this.handleAudioGating(event.data.data, dbLevel);
         }
       };
 
@@ -246,9 +249,22 @@ export class RealtimeVoiceClientEnhanced {
           break;
 
         case 'input_audio_buffer.speech_started':
-          console.log('[RealtimeVoiceClient] 🎤 User speaking - clearing buffers');
+          console.log('[RealtimeVoiceClient] 🎤 User speaking detected by server VAD');
+          this.isUserSpeaking = true;
           this.jitterBuffer?.clear();
-          this.audioContext?.suspend();
+          break;
+
+        case 'input_audio_buffer.speech_stopped':
+          console.log('[RealtimeVoiceClient] 🤐 User stopped speaking');
+          this.isUserSpeaking = false;
+          break;
+
+        case 'response.created':
+          console.log('[RealtimeVoiceClient] 🎬 AI response started');
+          break;
+
+        case 'response.done':
+          console.log('[RealtimeVoiceClient] ✅ AI response completed');
           break;
 
         case 'response.cancel':
@@ -256,7 +272,6 @@ export class RealtimeVoiceClientEnhanced {
         case 'response.interrupted':
           console.log('[RealtimeVoiceClient] ⚠️ Response interrupted');
           this.jitterBuffer?.clear();
-          this.audioContext?.resume();
           break;
 
         case 'pong':
@@ -316,7 +331,7 @@ export class RealtimeVoiceClientEnhanced {
     }));
   }
 
-  private monitorAudioLevel(pcm16Data: Int16Array): void {
+  private monitorAudioLevel(pcm16Data: Int16Array): number {
     // Calculate RMS (Root Mean Square) audio level
     let sum = 0;
     for (let i = 0; i < pcm16Data.length; i++) {
@@ -327,7 +342,34 @@ export class RealtimeVoiceClientEnhanced {
     
     if (dbLevel > -40) {  // Above silence threshold
       console.log('[AudioWorklet] 🔊 Audio level:', dbLevel.toFixed(1), 'dB');
-      this.config.onAudioLevel?.(dbLevel);
+    }
+    
+    this.config.onAudioLevel?.(dbLevel);
+    return dbLevel;
+  }
+
+  private handleAudioGating(pcm16Data: Int16Array, dbLevel: number): void {
+    const now = performance.now();
+    
+    // Check if audio is above threshold
+    if (dbLevel > this.audioGateThreshold) {
+      // Audio detected - send it
+      this.sendAudioChunk(pcm16Data);
+      this.silenceStartTime = null; // Reset silence timer
+    } else {
+      // Audio below threshold (silence)
+      if (this.silenceStartTime === null) {
+        this.silenceStartTime = now;
+      } else {
+        const silenceDuration = now - this.silenceStartTime;
+        
+        // After 1200ms of silence, commit the buffer
+        if (silenceDuration > 1200 && this.stateMachine.canSendMessages()) {
+          console.log('[RealtimeVoiceClient] 🤐 Silence detected, committing audio buffer');
+          this.ws?.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
+          this.silenceStartTime = null; // Reset for next speech segment
+        }
+      }
     }
   }
 

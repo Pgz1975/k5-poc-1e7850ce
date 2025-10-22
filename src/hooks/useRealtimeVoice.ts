@@ -17,6 +17,7 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
   const [transcript, setTranscript] = useState<Array<{ text: string; isUser: boolean }>>([]);
+  const [client, setClient] = useState<RealtimeVoiceClientEnhanced | null>(null);
   const clientRef = useRef<RealtimeVoiceClientEnhanced | null>(null);
   const { toast } = useToast();
 
@@ -82,6 +83,7 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
 
       console.log('[useRealtimeVoice] 🔌 Calling client.connect()...');
       await clientRef.current.connect(session.access_token);
+      setClient(clientRef.current);
       console.log('[useRealtimeVoice] ✅ Client connected successfully');
       
       toast({
@@ -136,6 +138,7 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
     transcript,
     connect,
     disconnect,
-    sendText
+    sendText,
+    client
   };
 }
