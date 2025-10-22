@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -25,12 +26,10 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY not configured');
     }
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch assessment content and voice guidance if needed
     let dynamicGuidance = voiceGuidance;
     let assessmentContent = null;
 
@@ -43,12 +42,10 @@ serve(async (req) => {
 
       if (assessment) {
         assessmentContent = assessment.content;
-        // Use coqui_dialogue from Plan 10 if available
         dynamicGuidance = assessment.coqui_dialogue || assessment.voice_guidance;
       }
     }
 
-    // Build comprehensive instructions
     const instructions = buildInstructions({
       language,
       gradeLevel,
@@ -56,7 +53,6 @@ serve(async (req) => {
       assessmentContent
     });
 
-    // Create session with OpenAI
     console.log('[Token] Creating enhanced session...');
 
     const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
@@ -77,25 +73,21 @@ serve(async (req) => {
           create_response: true
         },
         input_audio_transcription: {
-          enabled: true,
-          language: language === 'es-PR' ? 'es' : 'en',
           model: 'whisper-1'
         },
         temperature: 0.7,
-        max_response_output_tokens: 4096,
-        tools: getEducationalTools(gradeLevel)
+        max_response_output_tokens: 4096
       }),
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('[Token] OpenAI API error:', error);
+      const errorText = await response.text();
+      console.error('[Token] OpenAI API error:', response.status, errorText);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const data = await response.json();
 
-    // Log session creation
     await supabase.from('voice_sessions').insert({
       session_id: data.id,
       student_id: studentId,
@@ -113,9 +105,8 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('[Token] ❌ Error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -126,17 +117,17 @@ serve(async (req) => {
 
 function buildInstructions({ language, gradeLevel, voiceGuidance, assessmentContent }: any) {
   const baseInstructions = getBaseInstructions(language, gradeLevel);
-
   let fullInstructions = baseInstructions;
 
-  // Add voice guidance if provided
   if (voiceGuidance) {
     fullInstructions += `\n\n## Guía Específica de la Actividad:\n${voiceGuidance}`;
   }
 
-  // Add assessment content context
   if (assessmentContent) {
-    fullInstructions += `\n\n## Contenido de la Evaluación:\n${JSON.stringify(assessmentContent)}`;
+    const contentStr = typeof assessmentContent === 'string' 
+      ? assessmentContent 
+      : JSON.stringify(assessmentContent);
+    fullInstructions += `\n\n## Contenido de la Evaluación:\n${contentStr}`;
   }
 
   return fullInstructions;
@@ -206,58 +197,8 @@ function getGradeName(gradeLevel: number): string {
 }
 
 function getVoiceForLanguage(language: string): string {
-  // Use culturally appropriate voices
   if (language === 'es-PR') {
-    return 'nova'; // Most natural for Spanish
+    return 'shimmer';
   }
-  return 'alloy'; // Clear for English learners
-}
-
-function getEducationalTools(gradeLevel: number) {
-  // Define functions the AI can call during conversation
-  return [
-    {
-      type: 'function',
-      function: {
-        name: 'check_pronunciation',
-        description: 'Analyze student pronunciation and provide feedback',
-        parameters: {
-          type: 'object',
-          properties: {
-            word: { type: 'string' },
-            student_audio: { type: 'string' },
-            target_phoneme: { type: 'string' }
-          }
-        }
-      }
-    },
-    {
-      type: 'function',
-      function: {
-        name: 'provide_hint',
-        description: 'Give age-appropriate hint for current activity',
-        parameters: {
-          type: 'object',
-          properties: {
-            activity_type: { type: 'string' },
-            difficulty_level: { type: 'number' }
-          }
-        }
-      }
-    },
-    {
-      type: 'function',
-      function: {
-        name: 'celebrate_achievement',
-        description: 'Celebrate student success with enthusiasm',
-        parameters: {
-          type: 'object',
-          properties: {
-            achievement_type: { type: 'string' },
-            effort_level: { type: 'string' }
-          }
-        }
-      }
-    }
-  ];
+  return 'alloy';
 }

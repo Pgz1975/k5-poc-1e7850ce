@@ -53,3 +53,6 @@ verify_jwt = true
 
 [functions.duplicate-assessment]
 verify_jwt = true
+
+[functions.realtime-token-enhanced]
+verify_jwt = false

@@ -11,17 +11,6 @@ export interface EnhancedRealtimeConfig {
   onMetrics?: (metrics: VoiceMetrics) => void;
 }
 
-interface VoiceMetrics {
-  avgLatency?: number;
-  minLatency?: number;
-  maxLatency?: number;
-  interactions?: number;
-  errors?: number;
-  uptime?: number;
-  startTime?: number;
-  latency?: number[];
-}
-
 export class EnhancedRealtimeClient extends EventEmitter {
   private pc: RTCPeerConnection | null = null;
   private dc: RTCDataChannel | null = null;
@@ -39,47 +28,41 @@ export class EnhancedRealtimeClient extends EventEmitter {
     this.config = config;
     this.audioEl = document.createElement('audio');
     this.audioEl.autoplay = true;
-    this.audioEl.setAttribute('playsinline', 'true'); // Mobile support
+    this.audioEl.setAttribute('playsinline', 'true');
   }
 
   async connect(tokenEndpoint?: string) {
     console.log('[Enhanced] 🚀 Starting WebRTC connection...');
 
     try {
-      // Step 1: Get enhanced ephemeral token
       const token = await this.getEnhancedToken(tokenEndpoint);
 
-      // Step 2: Create RTCPeerConnection with optimal config
       this.pc = new RTCPeerConnection({
-        iceServers: [], // No TURN/STUN needed for direct connection
+        iceServers: [],
         bundlePolicy: 'max-bundle',
         rtcpMuxPolicy: 'require'
       });
 
-      // Step 3: Handle remote audio (AI voice)
       this.pc.ontrack = (e) => {
         console.log('[Enhanced] 🔊 AI audio track received');
         this.audioEl.srcObject = e.streams[0];
         this.emit('connected', true);
       };
 
-      // Step 4: Add local microphone with optimal settings
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: 24000, // Match OpenAI requirement
-          channelCount: 1,   // Mono
+          sampleRate: 24000,
+          channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
-          autoGainControl: true,
-          latency: 0 // Request lowest latency
-        } as MediaTrackConstraints
+          autoGainControl: true
+        }
       });
 
       const audioTrack = stream.getTracks()[0];
       this.pc.addTrack(audioTrack);
       console.log('[Enhanced] 🎤 Microphone connected');
 
-      // Step 5: Create data channel for events
       this.dc = this.pc.createDataChannel('oai-events', {
         ordered: true,
         maxRetransmits: 3
@@ -89,11 +72,9 @@ export class EnhancedRealtimeClient extends EventEmitter {
         this.handleDataChannelMessage(e.data);
       });
 
-      // Step 6: Create and send offer
       const offer = await this.pc.createOffer();
       await this.pc.setLocalDescription(offer);
 
-      // Step 7: Exchange SDP with OpenAI
       const answer = await this.exchangeSDP(offer.sdp!, token);
       await this.pc.setRemoteDescription({
         type: 'answer',
@@ -115,7 +96,10 @@ export class EnhancedRealtimeClient extends EventEmitter {
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+      },
       body: JSON.stringify({
         studentId: this.config.studentId,
         language: this.config.language,
@@ -158,13 +142,11 @@ export class EnhancedRealtimeClient extends EventEmitter {
       const event = JSON.parse(data);
       console.log('[Enhanced] 📨 Event:', event.type);
 
-      // Track metrics
       if (event.type === 'response.audio.delta') {
-        const latency = Date.now() - this.metrics.startTime!;
-        this.metrics.latency!.push(latency);
+        const latency = Date.now() - this.metrics.startTime;
+        this.metrics.latency.push(latency);
       }
 
-      // Handle transcriptions
       if (event.type === 'conversation.item.created') {
         const isUser = event.item.role === 'user';
         const text = event.item.content?.[0]?.text ||
@@ -176,19 +158,17 @@ export class EnhancedRealtimeClient extends EventEmitter {
         }
       }
 
-      // Forward to handler
       this.config.onEvent?.(event);
       this.emit('event', event);
 
-      // Update metrics
       if (event.type === 'response.done') {
-        this.metrics.interactions!++;
+        this.metrics.interactions++;
         this.config.onMetrics?.(this.getMetrics());
       }
 
     } catch (error) {
       console.error('[Enhanced] Error handling message:', error);
-      this.metrics.errors!++;
+      this.metrics.errors++;
     }
   }
 
@@ -220,12 +200,12 @@ export class EnhancedRealtimeClient extends EventEmitter {
   }
 
   private async logInteraction(text: string, isUser: boolean) {
-    // Log to database for analytics
     try {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/voice_interactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           'Prefer': 'return=minimal'
         },
@@ -240,7 +220,7 @@ export class EnhancedRealtimeClient extends EventEmitter {
       });
       
       if (!response.ok) {
-        console.warn('[Enhanced] Failed to log interaction:', response.status);
+        console.error('[Enhanced] Failed to log interaction:', response.status);
       }
     } catch (error) {
       console.error('[Enhanced] Failed to log interaction:', error);
@@ -248,14 +228,14 @@ export class EnhancedRealtimeClient extends EventEmitter {
   }
 
   getMetrics(): VoiceMetrics {
-    const latencyArray = this.metrics.latency || [];
+    const latencyArray = this.metrics.latency;
     return {
       avgLatency: latencyArray.reduce((a, b) => a + b, 0) / latencyArray.length || 0,
       minLatency: Math.min(...latencyArray) || 0,
       maxLatency: Math.max(...latencyArray) || 0,
       interactions: this.metrics.interactions,
       errors: this.metrics.errors,
-      uptime: Date.now() - (this.metrics.startTime || Date.now())
+      uptime: Date.now() - this.metrics.startTime
     };
   }
 
@@ -275,4 +255,15 @@ export class EnhancedRealtimeClient extends EventEmitter {
 
     this.emit('disconnected');
   }
+}
+
+interface VoiceMetrics {
+  avgLatency?: number;
+  minLatency?: number;
+  maxLatency?: number;
+  interactions?: number;
+  errors?: number;
+  uptime?: number;
+  startTime?: number;
+  latency?: number[];
 }

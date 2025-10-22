@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Volume2, Loader2 } from 'lucide-react';
 import CoquiMascot from '@/components/CoquiMascot';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRealtimeVoice } from '@/hooks/useRealtimeVoice';
+import { EnhancedRealtimeClient } from '@/utils/EnhancedRealtimeClient';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,16 +21,12 @@ export default function ViewAssessment() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-
-  const { connect, sendText, isConnected, isAIPlaying, disconnect } = useRealtimeVoice({
-    studentId: user?.id || 'demo',
-    language: assessment?.language === 'es' ? 'es-PR' : 'en-US',
-    model: 'gpt-4o-realtime-preview-2024-12-17',
-    voiceGuidance: assessment?.voice_guidance,
-    onTranscription: (text, isUser) => {
-      console.log(`Voice: ${text}`);
-    }
-  });
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAIPlaying, setIsAIPlaying] = useState(false);
+  const [transcript, setTranscript] = useState<string[]>([]);
+  const [metrics, setMetrics] = useState<any>({});
+  const clientRef = useRef<EnhancedRealtimeClient | null>(null);
 
   useEffect(() => {
     const fetchAssessment = async () => {
@@ -56,18 +52,55 @@ export default function ViewAssessment() {
     if (id) fetchAssessment();
   }, [id]);
 
-  useEffect(() => {
-    if (assessment && !isConnected) {
-      connect().then(() => {
-        // Voice guidance is now injected via session config
-        // Just send the question
-        setTimeout(() => {
-          sendText(assessment.content.question);
-        }, 1000);
-      });
-    }
+  const startVoiceSession = async () => {
+    if (isConnected || isLoading || !assessment) return;
 
-    return () => disconnect();
+    setIsLoading(true);
+    try {
+      const client = new EnhancedRealtimeClient({
+        studentId: user?.id || 'demo',
+        language: assessment?.language === 'es' ? 'es-PR' : 'en',
+        gradeLevel: 0,
+        assessmentId: id,
+        voiceGuidance: assessment?.voice_guidance,
+        onTranscription: (text, isUser) => {
+          setTranscript(prev => [...prev, `${isUser ? '👦' : '🤖'} ${text}`]);
+        },
+        onEvent: (event) => {
+          if (event.type === 'response.audio.delta') setIsAIPlaying(true);
+          if (event.type === 'response.done') setIsAIPlaying(false);
+        },
+        onMetrics: setMetrics
+      });
+
+      await client.connect();
+      clientRef.current = client;
+      setIsConnected(true);
+
+      setTimeout(() => {
+        if (assessment?.content?.question) {
+          client.sendText(assessment.content.question);
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('Voice connection failed:', error);
+      toast({
+        title: t("Error", "Error"),
+        description: t("No se pudo conectar la voz", "Could not connect voice"),
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (assessment && !isConnected && !isLoading) {
+      startVoiceSession();
+    }
+    return () => {
+      clientRef.current?.disconnect();
+    };
   }, [assessment]);
 
   const handleAnswer = (index: number) => {
@@ -77,18 +110,20 @@ export default function ViewAssessment() {
     setShowFeedback(true);
 
     const language = assessment.language;
-    if (correct) {
-      sendText(
-        language === 'es'
-          ? '¡Excelente! Respuesta correcta.'
-          : 'Excellent! Correct answer.'
-      );
-    } else {
-      sendText(
-        language === 'es'
-          ? 'Inténtalo de nuevo. Piensa un poco más.'
-          : 'Try again. Think a little more.'
-      );
+    if (clientRef.current) {
+      if (correct) {
+        clientRef.current.sendText(
+          language === 'es'
+            ? '¡Excelente! Respuesta correcta. ¡Wepa!'
+            : 'Excellent! Correct answer!'
+        );
+      } else {
+        clientRef.current.sendText(
+          language === 'es'
+            ? 'Casi lo tienes, vamos a intentarlo otra vez.'
+            : 'Almost there! Let\'s try again.'
+        );
+      }
     }
   };
 
@@ -131,6 +166,33 @@ export default function ViewAssessment() {
             </div>
           )}
         </div>
+
+        {/* Quick Action Buttons */}
+        {isConnected && (
+          <div className="flex gap-2 mb-4">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => clientRef.current?.sendText('Necesito ayuda')}
+            >
+              🆘 {t("Ayuda", "Help")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => clientRef.current?.sendText('Repite por favor')}
+            >
+              🔁 {t("Repetir", "Repeat")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => clientRef.current?.sendText('Más despacio')}
+            >
+              🐢 {t("Más Lento", "Slower")}
+            </Button>
+          </div>
+        )}
 
         {/* Question */}
         <Card className="p-8 mb-6">
@@ -183,6 +245,29 @@ export default function ViewAssessment() {
           <CoquiMascot state={getCoquiState()} size="large" />
         </div>
 
+        {/* Transcript Section */}
+        <Card className="mb-6 p-6 max-h-64 overflow-y-auto">
+          <h3 className="font-semibold mb-4">{t("Conversación", "Conversation")}</h3>
+          {transcript.length === 0 ? (
+            <p className="text-gray-500 italic">
+              {t("La conversación aparecerá aquí...", "The conversation will appear here...")}
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {transcript.map((line, idx) => (
+                <div
+                  key={idx}
+                  className={`p-2 rounded ${
+                    line.startsWith('👦') ? 'bg-blue-100' : 'bg-green-100'
+                  }`}
+                >
+                  {line}
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
         {/* Feedback */}
         {showFeedback && (
           <Card className={`p-6 mt-6 ${isCorrect ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500'}`}>
@@ -191,6 +276,33 @@ export default function ViewAssessment() {
                 ? t("¡Correcto! ¡Excelente trabajo!", "Correct! Excellent work!")
                 : t("Intenta de nuevo", "Try again")}
             </p>
+          </Card>
+        )}
+
+        {/* Performance Metrics */}
+        {isConnected && metrics.avgLatency !== undefined && (
+          <Card className="p-4 mt-6">
+            <h3 className="font-semibold mb-4">{t("Métricas de Rendimiento", "Performance Metrics")}</h3>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-green-600">
+                  {Math.round(metrics.avgLatency)}ms
+                </div>
+                <div className="text-sm text-gray-600">{t("Latencia", "Latency")}</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {metrics.interactions || 0}
+                </div>
+                <div className="text-sm text-gray-600">{t("Interacciones", "Interactions")}</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-purple-600">
+                  {Math.round(metrics.uptime / 1000)}s
+                </div>
+                <div className="text-sm text-gray-600">{t("Duración", "Duration")}</div>
+              </div>
+            </div>
           </Card>
         )}
       </main>
