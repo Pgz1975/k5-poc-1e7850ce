@@ -465,7 +465,9 @@ export default function CreateAssessment() {
             {/* ========== LESSON CREATION ========== */}
             {data.type === 'lesson' && (
               <>
-                <CoquiMascot state="reading" position="top-right" size="medium" />
+                <div className="fixed top-20 right-4 z-50">
+                  <CoquiMascot state="reading" size="small" />
+                </div>
                 
                 {/* Template Selection - ONLY FOR LESSONS */}
                 <Card className="p-6 bg-gradient-to-br from-blue-500/5 to-blue-600/10 border-blue-200">
@@ -602,7 +604,9 @@ export default function CreateAssessment() {
             {/* ========== EXERCISE CREATION ========== */}
             {data.type === 'exercise' && (
               <>
-                <CoquiMascot state="reading" position="top-right" size="medium" />
+                <div className="fixed top-20 right-4 z-50">
+                  <CoquiMascot state="reading" size="small" />
+                </div>
                 
                 {/* Link to Lesson - NEW */}
                 <Card className="p-6 bg-gradient-to-br from-green-500/5 to-green-600/10 border-green-200">
