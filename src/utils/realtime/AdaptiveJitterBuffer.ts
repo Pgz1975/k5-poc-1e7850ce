@@ -12,15 +12,16 @@ interface AudioChunk {
 export class AdaptiveJitterBuffer {
   private buffer: Map<number, AudioChunk> = new Map();
   private playbackPosition = 0;
-  private targetLatency = 150; // ms (dynamic)
-  private readonly minLatency = 100;
-  private readonly maxLatency = 300;
+  private targetLatency = 250; // ms (increased for smoother playback)
+  private readonly minLatency = 200;
+  private readonly maxLatency = 400;
   private networkJitter: number[] = [];
   private audioContext: AudioContext;
   private onUnderrunCallback?: () => void;
   private isPlaying = false;
   private lastChunkTime = 0;
   private nextSequence = 0;
+  private accumulatedPCM: Int16Array[] = [];
 
   constructor(audioContext: AudioContext) {
     this.audioContext = audioContext;
@@ -34,10 +35,11 @@ export class AdaptiveJitterBuffer {
     };
 
     this.buffer.set(chunk.sequenceNumber, chunk);
+    this.accumulatedPCM.push(pcm16Data);
     this.updateJitterEstimate(timestamp);
     this.adjustTargetLatency();
 
-    // Trigger playback if we have enough buffered
+    // Trigger playback if we have enough buffered (now targets larger chunks)
     const bufferedDuration = this.getBufferedDuration();
     if (bufferedDuration >= this.targetLatency && !this.isPlaying) {
       console.log('[JitterBuffer] Starting playback, buffered:', bufferedDuration, 'ms');
@@ -84,21 +86,31 @@ export class AdaptiveJitterBuffer {
   }
 
   private schedulePlayback(): void {
-    if (this.isPlaying) return;
-
-    const chunk = this.buffer.get(this.playbackPosition);
-    if (!chunk) {
-      this.playSilence();
-      return;
-    }
+    if (this.isPlaying || this.accumulatedPCM.length === 0) return;
 
     this.isPlaying = true;
-    const audioBuffer = this.audioContext.createBuffer(1, chunk.data.length, 24000);
+
+    // Combine accumulated PCM chunks into a single larger buffer
+    const totalLength = this.accumulatedPCM.reduce((sum, chunk) => sum + chunk.length, 0);
+    const combinedPCM = new Int16Array(totalLength);
+    let offset = 0;
+    
+    for (const chunk of this.accumulatedPCM) {
+      combinedPCM.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    // Clear accumulated chunks
+    this.accumulatedPCM = [];
+    
+    console.log('[JitterBuffer] Playing combined chunk:', (combinedPCM.length / 24000 * 1000).toFixed(0), 'ms');
+
+    const audioBuffer = this.audioContext.createBuffer(1, combinedPCM.length, 24000);
     const channelData = audioBuffer.getChannelData(0);
 
     // CRITICAL: Convert PCM16 to Float32
-    for (let i = 0; i < chunk.data.length; i++) {
-      channelData[i] = chunk.data[i] / 32768.0;
+    for (let i = 0; i < combinedPCM.length; i++) {
+      channelData[i] = combinedPCM[i] / 32768.0;
     }
 
     const source = this.audioContext.createBufferSource();
@@ -107,9 +119,19 @@ export class AdaptiveJitterBuffer {
 
     source.onended = () => {
       this.isPlaying = false;
-      this.playbackPosition++;
-      this.buffer.delete(this.playbackPosition - 1);
-      if (this.buffer.size > 0) this.schedulePlayback();
+      // Clear old chunks from buffer
+      const currentSeq = this.playbackPosition;
+      for (const [seq] of this.buffer) {
+        if (seq <= currentSeq) {
+          this.buffer.delete(seq);
+        }
+      }
+      this.playbackPosition = this.nextSequence;
+      
+      // Continue if more data available
+      if (this.buffer.size > 0 || this.accumulatedPCM.length > 0) {
+        this.schedulePlayback();
+      }
     };
 
     source.start(0);
@@ -150,6 +172,7 @@ export class AdaptiveJitterBuffer {
 
   clear(): void {
     this.buffer.clear();
+    this.accumulatedPCM = [];
     this.playbackPosition = 0;
     this.isPlaying = false;
     this.networkJitter = [];
