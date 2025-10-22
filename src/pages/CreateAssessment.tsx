@@ -421,7 +421,7 @@ export default function CreateAssessment() {
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8 flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate(-1)}>
+          <Button variant="ghost" onClick={() => navigate('/teacher-dashboard')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             {isSpanish ? 'Volver' : 'Back'}
           </Button>
