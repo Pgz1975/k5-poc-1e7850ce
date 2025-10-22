@@ -81,9 +81,15 @@ const AdminDashboard = () => {
 
   const handleDeleteAssessment = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this assessment?")) return;
+    if (!confirm("Are you sure you want to delete this assessment? This will also delete all related voice sessions and results.")) return;
 
     try {
+      // Delete related records first to avoid foreign key constraint errors
+      await supabase.from("voice_sessions").delete().eq("assessment_id", id);
+      await supabase.from("voice_interactions").delete().eq("assessment_id", id);
+      await supabase.from("voice_assessment_results").delete().eq("assessment_id", id);
+
+      // Now delete the assessment
       const { error } = await supabase
         .from("manual_assessments")
         .delete()
