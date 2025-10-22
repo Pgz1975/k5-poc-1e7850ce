@@ -12,8 +12,11 @@ import {
   ExternalLink,
   Lock,
   Edit,
-  Trash2
+  Trash2,
+  Link2,
+  Layers
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -49,7 +52,7 @@ const AdminDashboard = () => {
       const [manualRes, generatedRes, pdfRes] = await Promise.all([
         supabase
           .from("manual_assessments")
-          .select("id, title, created_at, grade_level, language, status")
+          .select("id, title, created_at, grade_level, language, status, type, subtype, parent_lesson_id")
           .order("created_at", { ascending: false })
           .limit(10),
         supabase
@@ -253,42 +256,76 @@ const AdminDashboard = () => {
               {manualAssessments.length === 0 ? (
                 <p className="text-muted-foreground text-sm">No assessments created yet</p>
               ) : (
-                <div className="space-y-2">
-                  {manualAssessments.map((assessment) => (
-                    <div 
-                      key={assessment.id}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                      onClick={() => navigate(`/assessment/${assessment.id}`)}
-                    >
-                      <div className="flex-1">
-                        <p className="font-medium">{assessment.title}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Grade {assessment.grade_level} • {assessment.language?.toUpperCase()} • {assessment.status}
-                        </p>
+                  <div className="space-y-2">
+                  {manualAssessments.map((assessment) => {
+                    const isLesson = assessment.type === 'lesson';
+                    const isExercise = assessment.type === 'exercise';
+                    const isAssessment = assessment.type === 'assessment';
+                    const hasParent = assessment.parent_lesson_id;
+                    
+                    return (
+                      <div 
+                        key={assessment.id}
+                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                        onClick={() => navigate(`/assessment/${assessment.id}`)}
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-medium">{assessment.title}</p>
+                            {isLesson && (
+                              <Badge variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-300">
+                                <Layers className="h-3 w-3 mr-1" />
+                                Lesson
+                              </Badge>
+                            )}
+                            {isExercise && (
+                              <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-300">
+                                <FileCheck className="h-3 w-3 mr-1" />
+                                Exercise
+                              </Badge>
+                            )}
+                            {isAssessment && (
+                              <Badge variant="outline" className="bg-purple-500/10 text-purple-700 border-purple-300">
+                                <FileText className="h-3 w-3 mr-1" />
+                                Assessment
+                              </Badge>
+                            )}
+                            {hasParent && (
+                              <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 border-amber-300">
+                                <Link2 className="h-3 w-3 mr-1" />
+                                Linked
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Grade {assessment.grade_level} • {assessment.language?.toUpperCase()} • {assessment.status}
+                            {assessment.subtype && ` • ${assessment.subtype.replace('_', ' ')}`}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(assessment.created_at).toLocaleDateString()}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleEditAssessment(assessment.id, e)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleDeleteAssessment(assessment.id, e)}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(assessment.created_at).toLocaleDateString()}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleEditAssessment(assessment.id, e)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleDeleteAssessment(assessment.id, e)}
-                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
