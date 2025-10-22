@@ -6,9 +6,6 @@ verify_jwt = false
 [functions.realtime-token-simple]
 verify_jwt = false
 
-[functions.realtime-token-enhanced]
-verify_jwt = false
-
 [functions.assessment-generator]
 verify_jwt = false
 
