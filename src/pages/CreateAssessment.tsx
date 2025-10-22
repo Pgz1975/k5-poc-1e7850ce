@@ -159,7 +159,7 @@ export default function CreateAssessment() {
   // All template content
 
   const autoFillTemplate = (templateId: string) => {
-    if (!templateId) {
+    if (!templateId || templateId === 'none') {
       setData(prev => ({
         ...prev,
         title: '',
@@ -288,7 +288,7 @@ export default function CreateAssessment() {
 
   // Handle lesson linking for exercises
   const handleLessonLink = (lessonId: string) => {
-    if (!lessonId) {
+    if (!lessonId || lessonId === 'none') {
       setData(prev => ({
         ...prev,
         parent_lesson_id: undefined,
@@ -482,7 +482,7 @@ export default function CreateAssessment() {
                       <SelectValue placeholder={isSpanish ? '-- Plantilla Vacía --' : '-- Empty Template --'} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">{isSpanish ? '-- Plantilla Vacía --' : '-- Empty Template --'}</SelectItem>
+                      <SelectItem value="none">{isSpanish ? '-- Plantilla Vacía --' : '-- Empty Template --'}</SelectItem>
                       
                       <SelectGroup>
                         <SelectLabel className="text-primary font-semibold">
@@ -613,14 +613,14 @@ export default function CreateAssessment() {
                     {isSpanish ? 'Conecta este ejercicio a una lección existente' : 'Connect this exercise to an existing lesson'}
                   </p>
                   <Select
-                    value={data.parent_lesson_id || ''}
+                    value={data.parent_lesson_id || 'none'}
                     onValueChange={handleLessonLink}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder={isSpanish ? '-- Ejercicio Independiente --' : '-- Standalone Exercise --'} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">{isSpanish ? '-- Ejercicio Independiente --' : '-- Standalone Exercise --'}</SelectItem>
+                      <SelectItem value="none">{isSpanish ? '-- Ejercicio Independiente --' : '-- Standalone Exercise --'}</SelectItem>
                       {teacherLessons?.map((lesson) => (
                         <SelectItem key={lesson.id} value={lesson.id}>
                           {lesson.title} ({isSpanish ? 'Grado' : 'Grade'} {lesson.grade_level})
