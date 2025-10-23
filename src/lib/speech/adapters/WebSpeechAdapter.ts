@@ -14,6 +14,7 @@ export class WebSpeechAdapter implements ISpeechRecognizer {
   private isListening = false;
   private config: RecognizerConfig | null = null;
   private sessionCount = 0;
+  private shouldAutoRestart = false;
 
   constructor() {
     this.synthesis = window.speechSynthesis;
@@ -54,8 +55,20 @@ export class WebSpeechAdapter implements ISpeechRecognizer {
 
     this.recognition.onerror = (event) => {
       console.error('[WebSpeechAdapter] ❌ Error:', event.error);
+
+      // Permission or device issues: stop and do not auto-restart
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed' || event.error === 'audio-capture') {
+        this.shouldAutoRestart = false;
+        this.isListening = false;
+        try { this.recognition?.stop(); } catch {}
+        const message = event.error === 'audio-capture'
+          ? 'No microphone found or it is in use by another application.'
+          : 'Microphone access was blocked. Please allow mic permissions and reload.';
+        config.onError?.(new Error(message));
+        return;
+      }
       
-      // Don't treat 'no-speech' as a critical error
+      // Don't treat 'no-speech' and 'aborted' as critical
       if (event.error !== 'no-speech' && event.error !== 'aborted') {
         config.onError?.(new Error(`Speech recognition error: ${event.error}`));
       }
@@ -70,17 +83,36 @@ export class WebSpeechAdapter implements ISpeechRecognizer {
       console.log('[WebSpeechAdapter] 🛑 Listening stopped');
       this.isListening = false;
       
-      // Auto-restart if we should still be listening
-      if (this.recognition && this.config) {
+      // Auto-restart only when allowed
+      if (this.recognition && this.config && this.shouldAutoRestart) {
         try {
           this.recognition.start();
         } catch (e) {
           // Ignore if already started
         }
+      } else {
+        console.log('[WebSpeechAdapter] ⏸️ Auto-restart disabled');
       }
     };
 
+    // Ensure secure context and permission granted before starting
+    if (!window.isSecureContext && window.location.hostname !== 'localhost') {
+      const error = new Error('Microphone requires HTTPS or localhost. Please open the site over https://');
+      config.onError?.(error);
+      throw error;
+    }
+
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (err: any) {
+      console.error('[WebSpeechAdapter] ❌ Microphone permission denied or unavailable');
+      this.shouldAutoRestart = false;
+      config.onError?.(new Error('Microphone access denied. Please allow mic permissions in your browser.'));
+      throw err;
+    }
+
     // Start listening
+    this.shouldAutoRestart = true;
     this.recognition.start();
     this.sessionCount++;
     
@@ -91,8 +123,10 @@ export class WebSpeechAdapter implements ISpeechRecognizer {
   async disconnect(): Promise<void> {
     console.log('[WebSpeechAdapter] 🔌 Disconnecting...');
     
+    this.shouldAutoRestart = false;
+
     if (this.recognition) {
-      this.recognition.stop();
+      try { this.recognition.stop(); } catch {}
       this.recognition = null;
     }
     
