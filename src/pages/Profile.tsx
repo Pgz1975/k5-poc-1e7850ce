@@ -61,7 +61,6 @@ const Profile = () => {
       if (!user) return;
 
       try {
-        // Fetch profile
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("*")
@@ -71,7 +70,6 @@ const Profile = () => {
         if (profileError) throw profileError;
         if (!profile) throw new Error("Profile not found");
 
-        // Fetch role
         const { data: userRole, error: roleError } = await supabase
           .from("user_roles")
           .select("role")
@@ -85,45 +83,6 @@ const Profile = () => {
         setAvatarUrl(profile.avatar_url || "");
         setRole(userRole.role);
         setCreatedAt(profile.created_at);
-
-        // Auto-update avatars if needed (one-time fix)
-        if (user.email === "admin@demo.com" && profile.avatar_url !== "/avatars/admin-1.jpg") {
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({ avatar_url: "/avatars/admin-1.jpg" })
-            .eq("id", user.id);
-          
-          if (!updateError) {
-            setAvatarUrl("/avatars/admin-1.jpg");
-          }
-        } else if (user.email === "student@demo.com" && profile.avatar_url !== "/avatars/student-2.jpg") {
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({ avatar_url: "/avatars/student-2.jpg" })
-            .eq("id", user.id);
-          
-          if (!updateError) {
-            setAvatarUrl("/avatars/student-2.jpg");
-          }
-        } else if (user.email === "teacher@demo.com" && profile.avatar_url !== "/avatars/teacher-2.jpg") {
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({ avatar_url: "/avatars/teacher-2.jpg" })
-            .eq("id", user.id);
-          
-          if (!updateError) {
-            setAvatarUrl("/avatars/teacher-2.jpg");
-          }
-        } else if (user.email === "family@demo.com" && profile.avatar_url !== "/avatars/family-2.jpg") {
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({ avatar_url: "/avatars/family-2.jpg" })
-            .eq("id", user.id);
-          
-          if (!updateError) {
-            setAvatarUrl("/avatars/family-2.jpg");
-          }
-        }
       } catch (err: any) {
         console.error("Error fetching profile:", err);
         setError(err.message);

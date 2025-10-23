@@ -71,24 +71,32 @@ const AdminDashboard = () => {
       if (manualRes.data) {
         setManualAssessments(manualRes.data);
         
-        // Fetch parent lesson titles
-        const parentIds = manualRes.data
-          .filter(a => a.parent_lesson_id)
-          .map(a => a.parent_lesson_id);
-        
-        if (parentIds.length > 0) {
-          const { data: parents } = await supabase
-            .from("manual_assessments")
-            .select("id, title")
-            .in("id", parentIds);
+        // Fetch parent lesson titles with error handling
+        try {
+          const parentIds = manualRes.data
+            .filter(a => a.parent_lesson_id)
+            .map(a => a.parent_lesson_id);
           
-          if (parents) {
-            const parentMap: Record<string, string> = {};
-            parents.forEach(p => {
-              parentMap[p.id] = p.title;
-            });
-            setParentLessons(parentMap);
+          if (parentIds.length > 0) {
+            const { data: parents, error: parentError } = await supabase
+              .from("manual_assessments")
+              .select("id, title")
+              .in("id", parentIds);
+            
+            if (parentError) {
+              console.error("Error fetching parent lessons:", parentError);
+            } else if (parents) {
+              const parentMap: Record<string, string> = {};
+              parents.forEach(p => {
+                if (p.id && p.title) {
+                  parentMap[p.id] = p.title;
+                }
+              });
+              setParentLessons(parentMap);
+            }
           }
+        } catch (error) {
+          console.error("Error in parent lesson fetch:", error);
         }
       }
       if (generatedRes.data) setGeneratedAssessments(generatedRes.data);
