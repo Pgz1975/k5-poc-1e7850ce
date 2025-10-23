@@ -18,7 +18,8 @@ serve(async (req) => {
       language = 'es-PR',
       gradeLevel = 0,
       assessmentId,
-      voiceGuidance
+      voiceGuidance,
+      model = 'gpt-4o-realtime-preview-2024-12-17' // Default model
     } = await req.json();
 
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
@@ -58,7 +59,7 @@ serve(async (req) => {
     console.log('[Token] Using voice:', selectedVoice, 'for language:', language);
 
     const requestBody = {
-      model: 'gpt-4o-realtime-preview-2024-12-17',
+      model, // Use model from request
       voice: selectedVoice,
       instructions,
       turn_detection: {
@@ -98,6 +99,7 @@ serve(async (req) => {
       assessment_id: assessmentId,
       language,
       grade_level: gradeLevel,
+      model: model, // Store the model used
       created_at: new Date().toISOString()
     });
 

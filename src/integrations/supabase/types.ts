@@ -890,6 +890,51 @@ export type Database = {
           },
         ]
       }
+      voice_cost_summary: {
+        Row: {
+          average_cost_per_session: number | null
+          created_at: string | null
+          id: string
+          last_session_at: string | null
+          last_session_cost: number | null
+          model: Database["public"]["Enums"]["voice_model_type"]
+          student_id: string | null
+          total_cost: number | null
+          total_input_tokens: number | null
+          total_output_tokens: number | null
+          total_sessions: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          average_cost_per_session?: number | null
+          created_at?: string | null
+          id?: string
+          last_session_at?: string | null
+          last_session_cost?: number | null
+          model: Database["public"]["Enums"]["voice_model_type"]
+          student_id?: string | null
+          total_cost?: number | null
+          total_input_tokens?: number | null
+          total_output_tokens?: number | null
+          total_sessions?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          average_cost_per_session?: number | null
+          created_at?: string | null
+          id?: string
+          last_session_at?: string | null
+          last_session_cost?: number | null
+          model?: Database["public"]["Enums"]["voice_model_type"]
+          student_id?: string | null
+          total_cost?: number | null
+          total_input_tokens?: number | null
+          total_output_tokens?: number | null
+          total_sessions?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       voice_guidance_library: {
         Row: {
           activity_type: string | null
@@ -932,6 +977,7 @@ export type Database = {
           id: string
           is_user: boolean
           language: string | null
+          model: Database["public"]["Enums"]["voice_model_type"] | null
           session_id: string
           student_id: string | null
           text: string
@@ -942,6 +988,7 @@ export type Database = {
           id?: string
           is_user: boolean
           language?: string | null
+          model?: Database["public"]["Enums"]["voice_model_type"] | null
           session_id: string
           student_id?: string | null
           text: string
@@ -952,6 +999,7 @@ export type Database = {
           id?: string
           is_user?: boolean
           language?: string | null
+          model?: Database["public"]["Enums"]["voice_model_type"] | null
           session_id?: string
           student_id?: string | null
           text?: string
@@ -967,6 +1015,45 @@ export type Database = {
           },
         ]
       }
+      voice_model_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          input_tokens: number | null
+          model: Database["public"]["Enums"]["voice_model_type"]
+          output_tokens: number | null
+          session_cost: number | null
+          session_duration_seconds: number | null
+          session_id: string | null
+          student_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          input_tokens?: number | null
+          model: Database["public"]["Enums"]["voice_model_type"]
+          output_tokens?: number | null
+          session_cost?: number | null
+          session_duration_seconds?: number | null
+          session_id?: string | null
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          input_tokens?: number | null
+          model?: Database["public"]["Enums"]["voice_model_type"]
+          output_tokens?: number | null
+          session_cost?: number | null
+          session_duration_seconds?: number | null
+          session_id?: string | null
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       voice_sessions: {
         Row: {
           assessment_id: string | null
@@ -976,6 +1063,7 @@ export type Database = {
           id: string
           language: string | null
           metrics: Json | null
+          model: Database["public"]["Enums"]["voice_model_type"] | null
           session_id: string
           student_id: string | null
         }
@@ -987,6 +1075,7 @@ export type Database = {
           id?: string
           language?: string | null
           metrics?: Json | null
+          model?: Database["public"]["Enums"]["voice_model_type"] | null
           session_id: string
           student_id?: string | null
         }
@@ -998,6 +1087,7 @@ export type Database = {
           id?: string
           language?: string | null
           metrics?: Json | null
+          model?: Database["public"]["Enums"]["voice_model_type"] | null
           session_id?: string
           student_id?: string | null
         }
@@ -1072,6 +1162,11 @@ export type Database = {
         | "short_answer"
         | "fill_blank"
         | "matching"
+      voice_model_type:
+        | "web-speech-api"
+        | "gpt-4o-realtime-preview-2024-12-17"
+        | "gpt-4o-realtime-preview-2024-10-01"
+        | "gpt-4o-mini-realtime-preview-2024-12-17"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1232,6 +1327,12 @@ export const Constants = {
         "short_answer",
         "fill_blank",
         "matching",
+      ],
+      voice_model_type: [
+        "web-speech-api",
+        "gpt-4o-realtime-preview-2024-12-17",
+        "gpt-4o-realtime-preview-2024-10-01",
+        "gpt-4o-mini-realtime-preview-2024-12-17",
       ],
     },
   },
