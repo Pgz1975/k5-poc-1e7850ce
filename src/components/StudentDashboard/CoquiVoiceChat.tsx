@@ -209,47 +209,49 @@ export const CoquiVoiceChat = () => {
           </div>
         </div>
 
-        {/* Conversation Display */}
-        <div className="bg-muted/30 rounded-lg p-3 min-h-[150px] max-h-[200px]">
-          <ScrollArea className="h-full pr-4" ref={scrollRef}>
-            {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                <p className="text-lg">
-                  {t(
-                    "Cuando empieces a hablar, nuestra conversación aparecerá aquí 💬",
-                    "When you start talking, our conversation will appear here 💬"
-                  )}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
-                  >
+        {/* Conversation Display - Only show when connected */}
+        {isConnected && (
+          <div className="bg-muted/30 rounded-lg p-3 min-h-[150px] max-h-[200px]">
+            <ScrollArea className="h-full pr-4" ref={scrollRef}>
+              {messages.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">
+                  <p className="text-lg">
+                    {t(
+                      "Cuando empieces a hablar, nuestra conversación aparecerá aquí 💬",
+                      "When you start talking, our conversation will appear here 💬"
+                    )}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((msg, idx) => (
                     <div
-                      className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
-                        msg.isUser
-                          ? 'bg-primary text-primary-foreground rounded-br-sm'
-                          : 'bg-secondary text-secondary-foreground rounded-bl-sm'
-                      }`}
+                      key={idx}
+                      className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                     >
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl flex-shrink-0 mt-0.5">
-                          {msg.isUser ? '👦' : '🐸'}
-                        </span>
-                        <p className="text-base md:text-lg leading-relaxed break-words">
-                          {msg.text}
-                        </p>
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
+                          msg.isUser
+                            ? 'bg-primary text-primary-foreground rounded-br-sm'
+                            : 'bg-secondary text-secondary-foreground rounded-bl-sm'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl flex-shrink-0 mt-0.5">
+                            {msg.isUser ? '👦' : '🐸'}
+                          </span>
+                          <p className="text-base md:text-lg leading-relaxed break-words">
+                            {msg.text}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-        </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        )}
 
         {/* Controls */}
         <div className="flex flex-wrap gap-2 justify-center">
