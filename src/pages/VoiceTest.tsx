@@ -6,7 +6,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { EnhancedRealtimeClient } from '@/utils/EnhancedRealtimeClient';
+import { SpeechRecognizerFactory } from '@/lib/speech/factory/SpeechRecognizerFactory';
+import { ISpeechRecognizer } from '@/lib/speech/interfaces/ISpeechRecognizer';
+import { ModelType } from '@/lib/speech/types/ModelType';
+import { RecognizerConfig } from '@/lib/speech/types/RecognizerConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mic, MicOff, Activity, Trash2 } from 'lucide-react';
 import { Header } from '@/components/Header';
@@ -16,7 +19,7 @@ export default function VoiceTest() {
   
   const { user } = useAuth();
   const [language, setLanguage] = useState<'es-PR' | 'en'>('es-PR');
-  const [model, setModel] = useState('gpt-4o-realtime-preview-2024-12-17');
+  const [model, setModel] = useState<ModelType>(ModelType.WEB_SPEECH);
   const [voiceGuidance, setVoiceGuidance] = useState('');
   const [logs, setLogs] = useState<string[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -26,7 +29,7 @@ export default function VoiceTest() {
   const [metrics, setMetrics] = useState<any>({});
   const [micLevel, setMicLevel] = useState(0);
   const [aiLevel, setAiLevel] = useState(0);
-  const clientRef = useRef<EnhancedRealtimeClient | null>(null);
+  const recognizerRef = useRef<ISpeechRecognizer | null>(null);
 
   useEffect(() => {
     console.log('[VoiceTest] ✅ Component mounted');
@@ -35,7 +38,7 @@ export default function VoiceTest() {
     return () => {
       console.log('[VoiceTest] 🧹 Component unmounting');
       addLog('🧹 Component unmounting');
-      clientRef.current?.disconnect();
+      recognizerRef.current?.disconnect();
     };
   }, []);
 
@@ -46,38 +49,44 @@ export default function VoiceTest() {
 
   const handleConnect = async () => {
     addLog('🔌 Connect button clicked');
+    addLog(`🤖 Model: ${model}`);
     addLog(`📝 Voice Guidance: ${voiceGuidance || '(none)'}`);
     setIsConnecting(true);
-    
+
     try {
-      const client = new EnhancedRealtimeClient({
+      // Create recognizer from factory
+      const recognizer = SpeechRecognizerFactory.create(model);
+
+      // Configure recognizer
+      const config: RecognizerConfig = {
+        model,
+        language: language === 'es-PR' ? 'es-PR' : 'en-US',
         studentId: user?.id || 'test-student',
-        language,
-        gradeLevel: 0,
         voiceGuidance,
         onTranscription: (text, isUser) => {
           addLog(`${isUser ? '🎤 User' : '🔊 AI'}: ${text}`);
           setTranscript(prev => [...prev, { text, isUser }]);
         },
-        onEvent: (event) => {
-          if (event.type === 'response.audio.delta') setIsAIPlaying(true);
-          if (event.type === 'response.done') setIsAIPlaying(false);
-          addLog(`📨 Event: ${event.type}`);
+        onError: (error) => {
+          addLog(`❌ Error: ${error.message}`);
         },
-        onMetrics: (m) => {
-          setMetrics(m);
-          addLog(`📊 Metrics updated: ${Math.round(m.avgLatency || 0)}ms avg latency`);
+        onConnectionChange: (connected) => {
+          setIsConnected(connected);
+          addLog(connected ? '✅ Connected' : '🔌 Disconnected');
         },
-        onAudioLevels: (mic, ai) => {
-          setMicLevel(mic);
-          setAiLevel(ai);
+        onAudioLevel: (level) => {
+          setMicLevel(level);
         }
-      });
+      };
 
-      await client.connect();
-      clientRef.current = client;
-      setIsConnected(true);
-      addLog('✅ Connected successfully with EnhancedRealtimeClient');
+      // Connect
+      await recognizer.connect(config);
+      recognizerRef.current = recognizer;
+
+      // Get and display cost metrics
+      const costMetrics = recognizer.getCost();
+      addLog(`💰 Model cost: $${costMetrics.totalCost.toFixed(4)}`);
+
     } catch (error) {
       addLog(`❌ Connect failed: ${error}`);
     } finally {
@@ -87,7 +96,7 @@ export default function VoiceTest() {
 
   const handleDisconnect = () => {
     addLog('🔌 Disconnect button clicked');
-    clientRef.current?.disconnect();
+    recognizerRef.current?.disconnect();
     setIsConnected(false);
     setIsAIPlaying(false);
     addLog('✅ Disconnected');
@@ -98,7 +107,7 @@ export default function VoiceTest() {
       ? 'Hola, soy Coquí. ¿Cómo estás?' 
       : 'Hello, I am Coquí. How are you?';
     addLog(`📤 Sending text: ${testText}`);
-    clientRef.current?.sendText(testText);
+    recognizerRef.current?.sendText(testText);
   };
 
   const clearLogs = () => {
@@ -219,13 +228,34 @@ export default function VoiceTest() {
                 </div>
               </div>
 
+              {/* Cost Information */}
+              {isConnected && recognizerRef.current && (
+                <div className="mt-4 p-3 rounded-lg bg-muted/50">
+                  <h4 className="text-sm font-medium mb-2">💰 Cost Tracking</h4>
+                  {(() => {
+                    const cost = recognizerRef.current.getCost();
+                    const metadata = recognizerRef.current.getMetadata();
+                    return (
+                      <>
+                        <div className="text-xs space-y-1">
+                          <div>Model: {metadata.name}</div>
+                          <div>Session Cost: ${cost.lastSessionCost.toFixed(4)}</div>
+                          <div>Total Cost: ${cost.totalCost.toFixed(4)}</div>
+                          <div>Sessions: {cost.sessionsCount}</div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+
               {/* Model Selection */}
               <div className="space-y-2 mb-6">
                 <label className="font-medium text-sm">Model:</label>
                 <Select 
                   value={model} 
                   onValueChange={(value) => {
-                    setModel(value);
+                    setModel(value as ModelType);
                     addLog(`🤖 Model changed to ${value}`);
                   }}
                   disabled={isConnected}
@@ -234,16 +264,22 @@ export default function VoiceTest() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="gpt-4o-realtime-preview-2024-12-17">
-                      GPT-4o Realtime (Dec 2024) - Recommended
+                    <SelectItem value={ModelType.WEB_SPEECH}>
+                      🌐 Web Speech API (Free, Client-side)
                     </SelectItem>
-                    <SelectItem value="gpt-4o-realtime-preview-2024-10-01">
-                      GPT-4o Realtime (Oct 2024) - Legacy
+                    <SelectItem value={ModelType.GPT4O_MINI_REALTIME}>
+                      🤖 GPT-4o Mini Realtime (10x cheaper)
+                    </SelectItem>
+                    <SelectItem value={ModelType.GPT4O_REALTIME}>
+                      🚀 GPT-4o Realtime (Dec 2024)
+                    </SelectItem>
+                    <SelectItem value={ModelType.GPT4O_REALTIME_LEGACY}>
+                      📦 GPT-4o Realtime (Oct 2024 - Legacy)
                     </SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Note: Only GPT-4o models support realtime mode. GPT-5 variants are not yet available for the Realtime API.
+                  Web Speech API is free and runs locally. OpenAI models require API costs.
                 </p>
               </div>
 
@@ -417,7 +453,7 @@ export default function VoiceTest() {
             <div>
               <span className="font-medium">Implementation:</span>
               <code className="ml-2 px-2 py-1 bg-muted rounded text-xs">
-                EnhancedRealtimeClient (WebRTC Direct)
+                ISpeechRecognizer Factory Pattern
               </code>
             </div>
             <div>
