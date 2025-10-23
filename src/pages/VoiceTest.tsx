@@ -3,15 +3,18 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { SpeechRecognizerFactory } from '@/lib/speech/factory/SpeechRecognizerFactory';
 import { ISpeechRecognizer } from '@/lib/speech/interfaces/ISpeechRecognizer';
 import { ModelType } from '@/lib/speech/types/ModelType';
 import { RecognizerConfig } from '@/lib/speech/types/RecognizerConfig';
+import { ModelSwitcher } from '@/lib/speech/services/ModelSwitcher';
+import { ModelSelector } from '@/components/voice/ModelSelector';
+import { CostComparison } from '@/components/voice/CostComparison';
+import { PerformanceMetrics } from '@/components/voice/PerformanceMetrics';
 import { useAuth } from '@/contexts/AuthContext';
-import { Mic, MicOff, Activity, Trash2 } from 'lucide-react';
+import { Mic, MicOff, Activity, Trash2, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 
 export default function VoiceTest() {
@@ -30,6 +33,9 @@ export default function VoiceTest() {
   const [micLevel, setMicLevel] = useState(0);
   const [aiLevel, setAiLevel] = useState(0);
   const recognizerRef = useRef<ISpeechRecognizer | null>(null);
+  const [modelSwitcher] = useState(() => new ModelSwitcher());
+  const [isSwitching, setIsSwitching] = useState(false);
+  const [currentConfig, setCurrentConfig] = useState<RecognizerConfig | null>(null);
 
   useEffect(() => {
     console.log('[VoiceTest] ✅ Component mounted');
@@ -52,11 +58,9 @@ export default function VoiceTest() {
     addLog(`🤖 Model: ${model}`);
     addLog(`📝 Voice Guidance: ${voiceGuidance || '(none)'}`);
     setIsConnecting(true);
+    setIsSwitching(true);
 
     try {
-      // Create recognizer from factory
-      const recognizer = SpeechRecognizerFactory.create(model);
-
       // Configure recognizer
       const config: RecognizerConfig = {
         model,
@@ -65,7 +69,11 @@ export default function VoiceTest() {
         voiceGuidance,
         onTranscription: (text, isUser) => {
           addLog(`${isUser ? '🎤 User' : '🔊 AI'}: ${text}`);
-          setTranscript(prev => [...prev, { text, isUser }]);
+          setTranscript(prev => {
+            const updated = [...prev, { text, isUser }];
+            modelSwitcher.updateTranscript(updated);
+            return updated;
+          });
         },
         onError: (error) => {
           addLog(`❌ Error: ${error.message}`);
@@ -79,9 +87,19 @@ export default function VoiceTest() {
         }
       };
 
-      // Connect
-      await recognizer.connect(config);
+      // Store config for model switching
+      setCurrentConfig(config);
+
+      // Use ModelSwitcher to connect
+      const recognizer = await modelSwitcher.switchModel(model, config);
       recognizerRef.current = recognizer;
+
+      // Restore transcript if available
+      const preserved = modelSwitcher.getPreservedTranscript();
+      if (preserved.length > 0) {
+        setTranscript(preserved);
+        addLog(`📝 Restored ${preserved.length} transcript entries`);
+      }
 
       // Get and display cost metrics
       const costMetrics = recognizer.getCost();
@@ -91,6 +109,7 @@ export default function VoiceTest() {
       addLog(`❌ Connect failed: ${error}`);
     } finally {
       setIsConnecting(false);
+      setIsSwitching(false);
     }
   };
 
@@ -250,34 +269,16 @@ export default function VoiceTest() {
               )}
 
               {/* Model Selection */}
-              <div className="space-y-2 mb-6">
-                <label className="font-medium text-sm">Model:</label>
-                <Select 
-                  value={model} 
-                  onValueChange={(value) => {
-                    setModel(value as ModelType);
+              <div className="mb-6">
+                <ModelSelector 
+                  value={model}
+                  onChange={(value) => {
+                    setModel(value);
                     addLog(`🤖 Model changed to ${value}`);
                   }}
-                  disabled={isConnected}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={ModelType.WEB_SPEECH}>
-                      🌐 Web Speech API (Free, Client-side)
-                    </SelectItem>
-                    <SelectItem value={ModelType.GPT4O_MINI_REALTIME}>
-                      🤖 GPT-4o Mini Realtime (10x cheaper)
-                    </SelectItem>
-                    <SelectItem value={ModelType.GPT4O_REALTIME}>
-                      🚀 GPT-4o Realtime (Dec 2024)
-                    </SelectItem>
-                    <SelectItem value={ModelType.GPT4O_REALTIME_LEGACY}>
-                      📦 GPT-4o Realtime (Oct 2024 - Legacy)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                  disabled={isConnected || isSwitching}
+                  showCostBadge={true}
+                />
                 <p className="text-xs text-muted-foreground mt-1">
                   Web Speech API is free and runs locally. OpenAI models require API costs.
                 </p>
@@ -331,10 +332,17 @@ export default function VoiceTest() {
 
               {/* Connection Buttons */}
               <div className="space-y-3">
+                {isSwitching && (
+                  <div className="flex items-center justify-center p-4 bg-muted/50 rounded-lg">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <span className="text-sm">Switching model...</span>
+                  </div>
+                )}
+
                 {!isConnected ? (
                   <Button 
                     onClick={handleConnect} 
-                    disabled={isConnecting}
+                    disabled={isConnecting || isSwitching}
                     className="w-full"
                     size="lg"
                   >
@@ -342,20 +350,57 @@ export default function VoiceTest() {
                     {isConnecting ? 'Connecting...' : 'Start Voice Session'}
                   </Button>
                 ) : (
-                  <Button 
-                    onClick={handleDisconnect}
-                    variant="destructive"
-                    className="w-full"
-                    size="lg"
-                  >
-                    <MicOff className="mr-2 h-5 w-5" />
-                    Stop Voice Session
-                  </Button>
+                  <>
+                    <Button 
+                      onClick={handleDisconnect}
+                      variant="destructive"
+                      className="w-full"
+                      size="lg"
+                      disabled={isSwitching}
+                    >
+                      <MicOff className="mr-2 h-5 w-5" />
+                      Stop Voice Session
+                    </Button>
+
+                    <Button
+                      onClick={async () => {
+                        addLog('🔄 Quick switching model...');
+                        setIsSwitching(true);
+                        try {
+                          const newModel = model === ModelType.WEB_SPEECH
+                            ? ModelType.GPT4O_MINI_REALTIME
+                            : ModelType.WEB_SPEECH;
+
+                          if (!currentConfig) {
+                            throw new Error('No config available');
+                          }
+
+                          const recognizer = await modelSwitcher.switchModel(newModel, {
+                            ...currentConfig,
+                            model: newModel
+                          }, true);
+
+                          recognizerRef.current = recognizer;
+                          setModel(newModel);
+                          addLog(`✅ Switched to ${newModel}`);
+                        } catch (error) {
+                          addLog(`❌ Switch failed: ${error}`);
+                        } finally {
+                          setIsSwitching(false);
+                        }
+                      }}
+                      variant="outline"
+                      className="w-full"
+                      disabled={isSwitching}
+                    >
+                      🔄 Quick Switch Model
+                    </Button>
+                  </>
                 )}
 
                 <Button
                   onClick={handleSendTestText}
-                  disabled={!isConnected}
+                  disabled={!isConnected || isSwitching}
                   variant="secondary"
                   className="w-full"
                 >
@@ -399,6 +444,22 @@ export default function VoiceTest() {
               </ScrollArea>
             </div>
           </Card>
+
+          {/* Model Comparison & Metrics */}
+          <div className="space-y-4">
+            <CostComparison 
+              currentModel={model}
+              sessionMinutes={10}
+              studentsCount={100000}
+            />
+
+            {recognizerRef.current && (
+              <PerformanceMetrics 
+                metadata={recognizerRef.current.getMetadata()}
+                latency={metrics.avgLatency}
+              />
+            )}
+          </div>
 
           {/* Debug Logs */}
           <Card className="p-6">
