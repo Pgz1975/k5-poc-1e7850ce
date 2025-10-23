@@ -72,13 +72,13 @@ export function UsageDashboard() {
       <div className="mt-4 pt-4 border-t">
         <h4 className="text-sm font-medium mb-2">Recent Sessions</h4>
         <div className="space-y-2">
-          {stats.recentSessions?.slice(0, 5).map((session: any) => (
-            <div key={session.id} className="text-xs flex justify-between">
-              <span>{new Date(session.created_at).toLocaleDateString()}</span>
-              <span>{session.model_type}</span>
-              <span>${session.actual_cost?.toFixed(4) || '0.0000'}</span>
-            </div>
-          ))}
+            {stats.recentSessions?.slice(0, 5).map((session: any) => (
+              <div key={session.id} className="text-xs flex justify-between">
+                <span>{new Date(session.created_at).toLocaleDateString()}</span>
+                <span>{session.model}</span>
+                <span>${session.session_cost?.toFixed(4) || '0.0000'}</span>
+              </div>
+            ))}
         </div>
       </div>
     </Card>

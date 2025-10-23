@@ -28,11 +28,11 @@ serve(async (req) => {
     startOfMonth.setHours(0, 0, 0, 0);
 
     const { data, error } = await supabase
-      .from('model_usage_costs')
-      .select('actual_cost')
+      .from('voice_model_usage')
+      .select('session_cost')
       .eq('student_id', studentId)
       .gte('created_at', startOfMonth.toISOString())
-      .neq('model_type', 'web-speech-api');
+      .neq('model', 'web-speech-api');
 
     if (error) {
       console.error('[check-cost-limits] Database error:', error);
@@ -42,7 +42,7 @@ serve(async (req) => {
       });
     }
 
-    const totalCost = data.reduce((sum, row) => sum + (row.actual_cost || 0), 0);
+    const totalCost = data.reduce((sum, row) => sum + (row.session_cost || 0), 0);
     const monthlyLimit = 10.00; // $10 per student per month
 
     const allowed = totalCost < monthlyLimit;
