@@ -280,6 +280,90 @@ export type Database = {
           },
         ]
       }
+      model_switch_events: {
+        Row: {
+          from_model: string | null
+          id: string
+          metadata: Json | null
+          session_id: string
+          student_id: string | null
+          switch_reason: string | null
+          switched_at: string | null
+          to_model: string
+          transcript_preserved: boolean | null
+        }
+        Insert: {
+          from_model?: string | null
+          id?: string
+          metadata?: Json | null
+          session_id: string
+          student_id?: string | null
+          switch_reason?: string | null
+          switched_at?: string | null
+          to_model: string
+          transcript_preserved?: boolean | null
+        }
+        Update: {
+          from_model?: string | null
+          id?: string
+          metadata?: Json | null
+          session_id?: string
+          student_id?: string | null
+          switch_reason?: string | null
+          switched_at?: string | null
+          to_model?: string
+          transcript_preserved?: boolean | null
+        }
+        Relationships: []
+      }
+      model_usage_costs: {
+        Row: {
+          actual_cost: number | null
+          created_at: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          estimated_cost: number | null
+          id: string
+          input_tokens: number | null
+          metadata: Json | null
+          model_type: string
+          output_tokens: number | null
+          session_id: string
+          started_at: string | null
+          student_id: string | null
+        }
+        Insert: {
+          actual_cost?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          estimated_cost?: number | null
+          id?: string
+          input_tokens?: number | null
+          metadata?: Json | null
+          model_type: string
+          output_tokens?: number | null
+          session_id: string
+          started_at?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          actual_cost?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          estimated_cost?: number | null
+          id?: string
+          input_tokens?: number | null
+          metadata?: Json | null
+          model_type?: string
+          output_tokens?: number | null
+          session_id?: string
+          started_at?: string | null
+          student_id?: string | null
+        }
+        Relationships: []
+      }
       pdf_documents: {
         Row: {
           content_type: Database["public"]["Enums"]["content_type"] | null
@@ -974,10 +1058,12 @@ export type Database = {
       voice_interactions: {
         Row: {
           assessment_id: string | null
+          cost_estimate: number | null
           id: string
           is_user: boolean
           language: string | null
           model: Database["public"]["Enums"]["voice_model_type"] | null
+          model_type: string | null
           session_id: string
           student_id: string | null
           text: string
@@ -985,10 +1071,12 @@ export type Database = {
         }
         Insert: {
           assessment_id?: string | null
+          cost_estimate?: number | null
           id?: string
           is_user: boolean
           language?: string | null
           model?: Database["public"]["Enums"]["voice_model_type"] | null
+          model_type?: string | null
           session_id: string
           student_id?: string | null
           text: string
@@ -996,10 +1084,12 @@ export type Database = {
         }
         Update: {
           assessment_id?: string | null
+          cost_estimate?: number | null
           id?: string
           is_user?: boolean
           language?: string | null
           model?: Database["public"]["Enums"]["voice_model_type"] | null
+          model_type?: string | null
           session_id?: string
           student_id?: string | null
           text?: string

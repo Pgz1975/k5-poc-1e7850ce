@@ -2,6 +2,7 @@ import { ISpeechRecognizer } from '../interfaces/ISpeechRecognizer';
 import { SpeechRecognizerFactory } from '../factory/SpeechRecognizerFactory';
 import { ModelType } from '../types/ModelType';
 import { RecognizerConfig } from '../types/RecognizerConfig';
+import { CostDatabaseService } from './CostDatabaseService';
 
 /**
  * Service for switching between speech recognition models
@@ -13,6 +14,11 @@ export class ModelSwitcher {
   private currentConfig: RecognizerConfig | null = null;
   private isTransitioning = false;
   private preservedTranscript: Array<{text: string, isUser: boolean}> = [];
+  private costDbService: CostDatabaseService;
+
+  constructor() {
+    this.costDbService = new CostDatabaseService();
+  }
 
   /**
    * Switch to a new model while preserving state
@@ -24,10 +30,23 @@ export class ModelSwitcher {
   ): Promise<ISpeechRecognizer> {
     console.log(`[ModelSwitcher] 🔄 Switching from ${this.currentModel} to ${newModel}`);
     
+    // Check cost limits before switching to paid models
+    const canSwitch = await this.checkCostLimit(config.studentId || 'anonymous', newModel);
+    if (!canSwitch) {
+      throw new Error('Cost limit exceeded. Please use Web Speech API.');
+    }
+
     // Set transitioning flag
     this.isTransitioning = true;
 
     try {
+      // Log the switch event
+      await this.costDbService.logModelSwitch(
+        config.studentId || 'anonymous',
+        this.currentModel,
+        newModel,
+        'User requested switch'
+      );
       // Disconnect current recognizer if exists
       if (this.currentRecognizer) {
         console.log('[ModelSwitcher] 🔌 Disconnecting current recognizer');
@@ -96,6 +115,44 @@ export class ModelSwitcher {
    */
   getPreservedTranscript(): Array<{text: string, isUser: boolean}> {
     return this.preservedTranscript;
+  }
+
+  /**
+   * Check cost limit before switching models
+   */
+  async checkCostLimit(studentId: string, targetModel: ModelType): Promise<boolean> {
+    // Skip check for free model
+    if (targetModel === ModelType.WEB_SPEECH) return true;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/check-cost-limits`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`
+          },
+          body: JSON.stringify({ studentId, modelType: targetModel })
+        }
+      );
+
+      const { allowed, remaining } = await response.json();
+
+      if (!allowed) {
+        throw new Error(`Monthly cost limit reached. Please use Web Speech API (free).`);
+      }
+
+      if (remaining < 1) {
+        console.warn(`[ModelSwitcher] Warning: Only $${remaining.toFixed(2)} remaining in monthly budget`);
+      }
+
+      return allowed;
+    } catch (error) {
+      console.error('[ModelSwitcher] Cost limit check failed:', error);
+      // Fail open for now - allow the switch
+      return true;
+    }
   }
 
   /**

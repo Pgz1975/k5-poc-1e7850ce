@@ -13,6 +13,7 @@ import { ModelSwitcher } from '@/lib/speech/services/ModelSwitcher';
 import { ModelSelector } from '@/components/voice/ModelSelector';
 import { CostComparison } from '@/components/voice/CostComparison';
 import { PerformanceMetrics } from '@/components/voice/PerformanceMetrics';
+import { UsageDashboard } from '@/components/voice/UsageDashboard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mic, MicOff, Activity, Trash2, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
@@ -458,6 +459,11 @@ export default function VoiceTest() {
                 metadata={recognizerRef.current.getMetadata()}
                 latency={metrics.avgLatency}
               />
+            )}
+
+            {/* Usage Dashboard */}
+            {user?.id && (
+              <UsageDashboard />
             )}
           </div>
 

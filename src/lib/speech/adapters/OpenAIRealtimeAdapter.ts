@@ -5,6 +5,7 @@ import { ModelMetadata } from '../types/ModelMetadata';
 import { ModelType, ModelFeature } from '../types/ModelType';
 import { RealtimeVoiceClientEnhanced } from '@/utils/realtime/RealtimeVoiceClientEnhanced';
 import { CostTracker } from '../services/CostTracker';
+import { CostDatabaseService } from '../services/CostDatabaseService';
 
 /**
  * OpenAI Realtime API adapter implementation
@@ -14,12 +15,14 @@ export class OpenAIRealtimeAdapter implements ISpeechRecognizer {
   private client: RealtimeVoiceClientEnhanced | null = null;
   private config: RecognizerConfig | null = null;
   private costTracker: CostTracker;
+  private costDbService: CostDatabaseService;
   private model: ModelType;
   private sessionToken: string | null = null;
 
   constructor(model: ModelType) {
     this.model = model;
     this.costTracker = new CostTracker(model);
+    this.costDbService = new CostDatabaseService();
   }
 
   async connect(config: RecognizerConfig): Promise<void> {
@@ -58,6 +61,12 @@ export class OpenAIRealtimeAdapter implements ISpeechRecognizer {
     // Start cost tracking session
     this.costTracker.startSession();
 
+    // Start database session
+    await this.costDbService.startSession(
+      config.studentId || 'anonymous',
+      this.model
+    );
+
     // Connect with session token
     await this.client.connect(this.sessionToken);
     
@@ -74,6 +83,9 @@ export class OpenAIRealtimeAdapter implements ISpeechRecognizer {
     
     // End cost tracking session
     this.costTracker.endSession();
+
+    // End database session
+    await this.costDbService.endSession();
     
     this.config?.onConnectionChange?.(false);
     this.config = null;
@@ -99,6 +111,14 @@ export class OpenAIRealtimeAdapter implements ISpeechRecognizer {
     // Track estimated tokens (rough approximation: ~4 chars per token)
     const estimatedTokens = Math.ceil(text.length / 4);
     this.costTracker.trackTokens(estimatedTokens, 0);
+
+    // Update database with token usage
+    const costPerToken = this.getMetadata().costPerInputToken;
+    this.costDbService.updateTokenUsage(
+      estimatedTokens,
+      0,
+      estimatedTokens * costPerToken
+    );
   }
 
   getCost(): CostMetrics {
