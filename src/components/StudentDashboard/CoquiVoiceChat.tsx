@@ -189,7 +189,7 @@ export const CoquiVoiceChat = () => {
           <div className="relative inline-block" onClick={!isConnected ? handleToggleConnection : undefined}>
             <CoquiMascot 
               state={mascotState}
-              size="medium"
+              size="small"
               position="inline"
               className={isConnected ? "animate-breathe" : "cursor-pointer"}
             />
