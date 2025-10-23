@@ -1,0 +1,1 @@
+CREATE POLICY "Students can delete own completed activities" ON completed_activity FOR DELETE TO authenticated USING (auth.uid() = student_id);

@@ -1,9 +1,20 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon, Mic, TestTube, FileEdit, Shield } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon, Mic, TestTube, FileEdit, Shield, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useResetProgress } from "@/hooks/useResetProgress";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,8 +38,10 @@ export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const { t } = useLanguage();
   const { user, signOut } = useAuth();
+  const { mutate: resetProgress, isPending: isResetting } = useResetProgress();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -180,6 +193,19 @@ export const Header = () => {
                     {t("Mi Perfil", "My Profile")}
                   </a>
                 </DropdownMenuItem>
+                {userRole?.startsWith("student") && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => setResetDialogOpen(true)}
+                      className="cursor-pointer text-orange-600 dark:text-orange-400"
+                      disabled={isResetting}
+                    >
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      {t("Reiniciar Progreso", "Reset Progress")}
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
@@ -260,6 +286,40 @@ export const Header = () => {
           </nav>
         </div>
       )}
+      
+      {/* Reset Progress Confirmation Dialog */}
+      <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("¿Reiniciar todo tu progreso?", "Reset all your progress?")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t(
+                "Esta acción eliminará permanentemente todas tus actividades completadas, puntuaciones y tiempos de finalización. Tu cuenta y preferencias de aprendizaje se mantendrán intactas.",
+                "This action will permanently delete all your completed activities, scores, and completion times. Your account and learning preferences will remain intact."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isResetting}>
+              {t("Cancelar", "Cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                resetProgress();
+                setResetDialogOpen(false);
+              }}
+              disabled={isResetting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isResetting 
+                ? t("Reiniciando...", "Resetting...") 
+                : t("Sí, Reiniciar", "Yes, Reset")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </header>
   );
 };
