@@ -12,6 +12,12 @@ interface SubtypeSelectorProps {
 export function SubtypeSelector({ type, onSelect, onBack }: SubtypeSelectorProps) {
   const { t } = useLanguage();
 
+  // For lessons, auto-select 'lesson' subtype since there's only one option
+  if (type === 'lesson') {
+    onSelect('lesson');
+    return null;
+  }
+
   const subtypes: Array<{
     id: string;
     icon: LucideIcon;

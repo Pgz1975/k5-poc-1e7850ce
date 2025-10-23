@@ -409,9 +409,9 @@ export default function CreateAssessment() {
     
     setIsSaving(true);
     try {
-      const payload: any = {
+    const payload: any = {
         type: data.type,
-        subtype: data.subtype || 'multiple_choice',
+        subtype: data.subtype || (data.type === 'lesson' ? 'lesson' : 'multiple_choice'),
         title: data.title,
         content: data.content,
         grade_level: data.settings!.gradeLevel,
@@ -537,7 +537,7 @@ export default function CreateAssessment() {
           <div className="space-y-6 animate-fade-in">
             <TypeSelector
               onSelect={(type) => {
-                setData({ ...data, type });
+                setData({ ...data, type, subtype: type === 'lesson' ? 'lesson' : undefined });
                 // Lessons skip subtype step
                 setStep(type === 'lesson' ? 'content' : 'subtype');
               }}
