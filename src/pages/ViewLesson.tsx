@@ -87,14 +87,11 @@ export default function ViewLesson() {
           {/* Lesson Header */}
           <Card className="border-2 shadow-lg">
             <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <CoquiMascot state="reading_book" size="medium" />
-                <div className="flex-1">
-                  <h1 className="text-3xl font-bold mb-2">{lesson.title}</h1>
-                  {lesson.description && (
-                    <p className="text-muted-foreground">{lesson.description}</p>
-                  )}
-                </div>
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold mb-2">{lesson.title}</h1>
+                {lesson.description && (
+                  <p className="text-muted-foreground">{lesson.description}</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -163,6 +160,8 @@ export default function ViewLesson() {
       </main>
 
       <Footer />
+      
+      <CoquiMascot state="reading_book" size="small" position="bottom-right" />
     </div>
   );
 }
