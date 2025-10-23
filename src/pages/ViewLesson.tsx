@@ -24,7 +24,7 @@ export default function ViewLesson() {
         .select("*")
         .eq("id", id)
         .eq("type", "lesson")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -106,6 +106,20 @@ export default function ViewLesson() {
                 <div dangerouslySetInnerHTML={{ __html: String(lesson.content.text) }} />
               )}
               
+              {lesson.content && typeof lesson.content === 'object' && !('text' in lesson.content && lesson.content.text) && 'question' in lesson.content && lesson.content.question && (
+                <div className="whitespace-pre-wrap">
+                  {String(lesson.content.question)}
+                </div>
+              )}
+              
+              {lesson.content && typeof lesson.content === 'object' && 'questionImage' in lesson.content && lesson.content.questionImage && (
+                <img 
+                  src={String(lesson.content.questionImage)} 
+                  alt="Lesson content" 
+                  className="rounded-lg shadow-md w-full mt-4" 
+                />
+              )}
+              
               {lesson.content && typeof lesson.content === 'object' && 'images' in lesson.content && Array.isArray(lesson.content.images) && lesson.content.images.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                   {lesson.content.images.map((image: any, index: number) => (
@@ -117,6 +131,12 @@ export default function ViewLesson() {
                     />
                   ))}
                 </div>
+              )}
+              
+              {(!lesson.content || (typeof lesson.content === 'object' && !('text' in lesson.content && lesson.content.text) && !('question' in lesson.content && lesson.content.question))) && (
+                <p className="text-muted-foreground italic">
+                  {t("Esta lección aún no tiene contenido.", "This lesson has no content yet.")}
+                </p>
               )}
             </CardContent>
           </Card>
