@@ -79,6 +79,47 @@ export type Database = {
           },
         ]
       }
+      completed_activity: {
+        Row: {
+          activity_id: string
+          activity_type: string
+          completed_at: string
+          duration_seconds: number | null
+          id: string
+          metadata: Json | null
+          score: number | null
+          student_id: string
+        }
+        Insert: {
+          activity_id: string
+          activity_type: string
+          completed_at?: string
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json | null
+          score?: number | null
+          student_id: string
+        }
+        Update: {
+          activity_id?: string
+          activity_type?: string
+          completed_at?: string
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json | null
+          score?: number | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "completed_activity_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "manual_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_assessments: {
         Row: {
           assessment_type: string
@@ -512,6 +553,7 @@ export type Database = {
           language_specialization:
             | Database["public"]["Enums"]["language_code"]
             | null
+          learning_languages: string[] | null
           school_id: string | null
           updated_at: string
         }
@@ -525,6 +567,7 @@ export type Database = {
           language_specialization?:
             | Database["public"]["Enums"]["language_code"]
             | null
+          learning_languages?: string[] | null
           school_id?: string | null
           updated_at?: string
         }
@@ -538,6 +581,7 @@ export type Database = {
           language_specialization?:
             | Database["public"]["Enums"]["language_code"]
             | null
+          learning_languages?: string[] | null
           school_id?: string | null
           updated_at?: string
         }

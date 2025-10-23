@@ -27,6 +27,10 @@ import ViewAssessment from "./pages/ViewAssessment";
 import CreateDemoUsers from "./pages/CreateDemoUsers";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import StudentLessonsProgress from "./pages/StudentLessonsProgress";
+import StudentExercisesProgress from "./pages/StudentExercisesProgress";
+import StudentAssessmentsProgress from "./pages/StudentAssessmentsProgress";
+import ViewLesson from "./pages/ViewLesson";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +49,10 @@ const App = () => (
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentDashboard /></ProtectedRoute>} />
+              <Route path="/student-dashboard/lessons" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentLessonsProgress /></ProtectedRoute>} />
+              <Route path="/student-dashboard/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentExercisesProgress /></ProtectedRoute>} />
+              <Route path="/student-dashboard/assessments" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentAssessmentsProgress /></ProtectedRoute>} />
+              <Route path="/lesson/:id" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ViewLesson /></ProtectedRoute>} />
               <Route path="/activities" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><Activities /></ProtectedRoute>} />
               <Route path="/available-assessments" element={<ProtectedRoute><AvailableAssessments /></ProtectedRoute>} />
               <Route path="/teacher-dashboard" element={<ProtectedRoute allowedRoles={["teacher", "teacher_english", "teacher_spanish"]}><TeacherDashboard /></ProtectedRoute>} />

@@ -45,6 +45,7 @@ const Profile = () => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [role, setRole] = useState<string>("");
   const [createdAt, setCreatedAt] = useState<string>("");
+  const [learningLanguages, setLearningLanguages] = useState<string[]>(["es", "en"]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -81,6 +82,7 @@ const Profile = () => {
 
         setFullName(profile.full_name || "");
         setAvatarUrl(profile.avatar_url || "");
+        setLearningLanguages(profile.learning_languages || ["es", "en"]);
         setRole(userRole.role);
         setCreatedAt(profile.created_at);
       } catch (err: any) {
@@ -112,6 +114,7 @@ const Profile = () => {
         .update({
           full_name: fullName,
           avatar_url: avatarUrl || null,
+          learning_languages: learningLanguages,
         })
         .eq("id", user.id);
 
@@ -361,6 +364,53 @@ const Profile = () => {
                       )}
                     </p>
                   </div>
+
+                  {/* Learning Languages Selector */}
+                  {role?.startsWith("student") && (
+                    <div className="space-y-2">
+                      <Label>
+                        {t("Idiomas que Estoy Aprendiendo", "Languages I'm Learning")}
+                      </Label>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={learningLanguages.includes("es")}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setLearningLanguages([...learningLanguages, "es"]);
+                              } else if (learningLanguages.length > 1) {
+                                setLearningLanguages(learningLanguages.filter(l => l !== "es"));
+                              }
+                            }}
+                            className="rounded border-gray-300"
+                          />
+                          <span>{t("Español", "Spanish")}</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={learningLanguages.includes("en")}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setLearningLanguages([...learningLanguages, "en"]);
+                              } else if (learningLanguages.length > 1) {
+                                setLearningLanguages(learningLanguages.filter(l => l !== "en"));
+                              }
+                            }}
+                            className="rounded border-gray-300"
+                          />
+                          <span>{t("Inglés", "English")}</span>
+                        </label>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {t(
+                          "Selecciona al menos un idioma",
+                          "Select at least one language"
+                        )}
+                      </p>
+                    </div>
+                  )}
 
                   <Button type="submit" className="w-full gap-2" disabled={saving}>
                     {saving ? (

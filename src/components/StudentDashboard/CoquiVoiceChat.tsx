@@ -7,6 +7,7 @@ import CoquiMascot from "@/components/CoquiMascot";
 import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { CoquiClickHint } from "./CoquiClickHint";
 
 interface Message {
   text: string;
@@ -172,6 +173,8 @@ export const CoquiVoiceChat = () => {
       setMessages([]);
       transcriptBufferRef.current = null;
     } else {
+      // Mark hint as dismissed when user clicks to connect
+      localStorage.setItem("coqui-hint-dismissed", "true");
       setMascotState('loading');
       await connect();
       setMascotState('happy');
@@ -181,14 +184,17 @@ export const CoquiVoiceChat = () => {
   return (
     <Card className="border-2 border-primary/20 bg-gradient-to-br from-background via-primary/5 to-background shadow-lg">
       <CardContent className="p-6 space-y-6">
-        {/* Mascot Section */}
+        {/* Mascot Section with Click Hint */}
         <div className="flex flex-col items-center space-y-4">
-          <CoquiMascot 
-            state={mascotState}
-            size="large"
-            position="inline"
-            className={isConnected ? "animate-breathe" : ""}
-          />
+          <div className="relative inline-block" onClick={!isConnected ? handleToggleConnection : undefined}>
+            <CoquiMascot 
+              state={mascotState}
+              size="large"
+              position="inline"
+              className={isConnected ? "animate-breathe" : "cursor-pointer"}
+            />
+            {!isConnected && <CoquiClickHint />}
+          </div>
           
           <div className="text-center">
             <h3 className="text-2xl md:text-3xl font-bold text-primary">
@@ -197,7 +203,7 @@ export const CoquiVoiceChat = () => {
             <p className="text-sm md:text-base text-muted-foreground mt-2">
               {isConnected 
                 ? t("Estoy escuchando... ¡Háblame!", "I'm listening... Talk to me!")
-                : t("Presiona el botón para empezar a hablar", "Press the button to start talking")
+                : t("Haz clic en Coquí para empezar", "Click on Coquí to start")
               }
             </p>
           </div>
