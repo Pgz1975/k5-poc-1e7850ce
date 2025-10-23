@@ -82,7 +82,7 @@ export default function ViewLesson() {
 
       <Header />
 
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8 relative">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Lesson Header */}
           <Card className="border-2 shadow-lg">
@@ -157,11 +157,13 @@ export default function ViewLesson() {
             </Button>
           </div>
         </div>
+        
+        <div className="fixed bottom-8 right-8 z-10">
+          <CoquiMascot state="reading_book" size="small" />
+        </div>
       </main>
 
       <Footer />
-      
-      <CoquiMascot state="reading_book" size="small" position="bottom-right" />
     </div>
   );
 }
