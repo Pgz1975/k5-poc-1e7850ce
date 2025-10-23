@@ -14,7 +14,9 @@ import {
   Edit,
   Trash2,
   Link2,
-  Layers
+  Layers,
+  Check,
+  Eye
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -178,6 +180,38 @@ const AdminDashboard = () => {
     navigate(`/create-assessment?edit=${id}`);
   };
 
+  const handlePublishAssessment = async (id: string, currentStatus: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const action = currentStatus === 'published' ? 'unpublish' : 'publish';
+    if (!confirm(`Are you sure you want to ${action} this content?`)) return;
+
+    try {
+      const { error } = await supabase
+        .from("manual_assessments")
+        .update({ 
+          status: currentStatus === 'published' ? 'draft' : 'published',
+          published_at: currentStatus === 'published' ? null : new Date().toISOString()
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Content ${action}ed successfully`,
+      });
+      fetchContent();
+    } catch (error) {
+      console.error(`Error ${action}ing assessment:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to ${action} content`,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -337,6 +371,19 @@ const AdminDashboard = () => {
                           <span className="text-sm text-muted-foreground">
                             {new Date(assessment.created_at).toLocaleDateString()}
                           </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handlePublishAssessment(assessment.id, assessment.status, e)}
+                            className="h-8 w-8 p-0"
+                            title={assessment.status === 'published' ? 'Unpublish' : 'Publish'}
+                          >
+                            {assessment.status === 'published' ? (
+                              <Eye className="h-4 w-4 text-green-600" />
+                            ) : (
+                              <Check className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
