@@ -7,6 +7,7 @@ import CoquiMascot from "@/components/CoquiMascot";
 import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { CoquiClickHint } from "./CoquiClickHint";
 
 interface Message {
   text: string;
@@ -172,6 +173,8 @@ export const CoquiVoiceChat = () => {
       setMessages([]);
       transcriptBufferRef.current = null;
     } else {
+      // Mark hint as dismissed when user clicks to connect
+      localStorage.setItem("coqui-hint-dismissed", "true");
       setMascotState('loading');
       await connect();
       setMascotState('happy');
@@ -180,78 +183,83 @@ export const CoquiVoiceChat = () => {
 
   return (
     <Card className="border-2 border-primary/20 bg-gradient-to-br from-background via-primary/5 to-background shadow-lg">
-      <CardContent className="p-6 space-y-6">
-        {/* Mascot Section */}
-        <div className="flex flex-col items-center space-y-4">
-          <CoquiMascot 
-            state={mascotState}
-            size="large"
-            position="inline"
-            className={isConnected ? "animate-breathe" : ""}
-          />
+      <CardContent className="p-4 space-y-3">
+        {/* Mascot Section with Click Hint */}
+        <div className="flex flex-col items-center space-y-2">
+          <div className="relative inline-block" onClick={!isConnected ? handleToggleConnection : undefined}>
+            <CoquiMascot 
+              state={mascotState}
+              size="small"
+              position="inline"
+              className={isConnected ? "animate-breathe" : "cursor-pointer"}
+            />
+            {!isConnected && <CoquiClickHint />}
+          </div>
           
           <div className="text-center">
-            <h3 className="text-2xl md:text-3xl font-bold text-primary">
-              {t("¡Habla con Coquí! 🐸", "Talk with Coquí! 🐸")}
+            <h3 className="text-xl md:text-2xl font-bold text-primary">
+              {t("¡Habla con Coquí!", "Talk with Coquí!")}
             </h3>
-            <p className="text-sm md:text-base text-muted-foreground mt-2">
+            <p className="text-xs md:text-sm text-muted-foreground mt-1">
               {isConnected 
                 ? t("Estoy escuchando... ¡Háblame!", "I'm listening... Talk to me!")
-                : t("Presiona el botón para empezar a hablar", "Press the button to start talking")
+                : t("Haz clic en Coquí para empezar", "Click on Coquí to start")
               }
             </p>
           </div>
         </div>
 
-        {/* Conversation Display */}
-        <div className="bg-muted/30 rounded-lg p-4 min-h-[200px] max-h-[300px]">
-          <ScrollArea className="h-full pr-4" ref={scrollRef}>
-            {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                <p className="text-lg">
-                  {t(
-                    "Cuando empieces a hablar, nuestra conversación aparecerá aquí 💬",
-                    "When you start talking, our conversation will appear here 💬"
-                  )}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
-                  >
+        {/* Conversation Display - Only show when connected */}
+        {isConnected && (
+          <div className="bg-muted/30 rounded-lg p-3 min-h-[150px] max-h-[200px]">
+            <ScrollArea className="h-full pr-4" ref={scrollRef}>
+              {messages.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">
+                  <p className="text-lg">
+                    {t(
+                      "Cuando empieces a hablar, nuestra conversación aparecerá aquí 💬",
+                      "When you start talking, our conversation will appear here 💬"
+                    )}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((msg, idx) => (
                     <div
-                      className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
-                        msg.isUser
-                          ? 'bg-primary text-primary-foreground rounded-br-sm'
-                          : 'bg-secondary text-secondary-foreground rounded-bl-sm'
-                      }`}
+                      key={idx}
+                      className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                     >
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl flex-shrink-0 mt-0.5">
-                          {msg.isUser ? '👦' : '🐸'}
-                        </span>
-                        <p className="text-base md:text-lg leading-relaxed break-words">
-                          {msg.text}
-                        </p>
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
+                          msg.isUser
+                            ? 'bg-primary text-primary-foreground rounded-br-sm'
+                            : 'bg-secondary text-secondary-foreground rounded-bl-sm'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="text-2xl flex-shrink-0 mt-0.5">
+                            {msg.isUser ? '👦' : '🐸'}
+                          </span>
+                          <p className="text-base md:text-lg leading-relaxed break-words">
+                            {msg.text}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-        </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        )}
 
         {/* Controls */}
-        <div className="flex flex-wrap gap-3 justify-center">
+        <div className="flex flex-wrap gap-2 justify-center">
           <Button
             onClick={handleToggleConnection}
             disabled={isConnecting}
-            size="lg"
-            className={`gap-2 text-lg px-6 py-6 ${
+            size="default"
+            className={`gap-2 px-4 py-2 ${
               isConnected 
                 ? 'bg-destructive hover:bg-destructive/90' 
                 : 'bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary'
@@ -278,9 +286,9 @@ export const CoquiVoiceChat = () => {
           {isConnected && (
             <Button
               onClick={() => setIsMuted(!isMuted)}
-              size="lg"
+              size="default"
               variant="outline"
-              className="gap-2 text-lg px-6 py-6"
+              className="gap-2 px-4 py-2"
             >
               {isMuted ? (
                 <>

@@ -14,7 +14,9 @@ import {
   Edit,
   Trash2,
   Link2,
-  Layers
+  Layers,
+  Check,
+  Eye
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -71,24 +73,32 @@ const AdminDashboard = () => {
       if (manualRes.data) {
         setManualAssessments(manualRes.data);
         
-        // Fetch parent lesson titles
-        const parentIds = manualRes.data
-          .filter(a => a.parent_lesson_id)
-          .map(a => a.parent_lesson_id);
-        
-        if (parentIds.length > 0) {
-          const { data: parents } = await supabase
-            .from("manual_assessments")
-            .select("id, title")
-            .in("id", parentIds);
+        // Fetch parent lesson titles with error handling
+        try {
+          const parentIds = manualRes.data
+            .filter(a => a.parent_lesson_id)
+            .map(a => a.parent_lesson_id);
           
-          if (parents) {
-            const parentMap: Record<string, string> = {};
-            parents.forEach(p => {
-              parentMap[p.id] = p.title;
-            });
-            setParentLessons(parentMap);
+          if (parentIds.length > 0) {
+            const { data: parents, error: parentError } = await supabase
+              .from("manual_assessments")
+              .select("id, title")
+              .in("id", parentIds);
+            
+            if (parentError) {
+              console.error("Error fetching parent lessons:", parentError);
+            } else if (parents) {
+              const parentMap: Record<string, string> = {};
+              parents.forEach(p => {
+                if (p.id && p.title) {
+                  parentMap[p.id] = p.title;
+                }
+              });
+              setParentLessons(parentMap);
+            }
           }
+        } catch (error) {
+          console.error("Error in parent lesson fetch:", error);
         }
       }
       if (generatedRes.data) setGeneratedAssessments(generatedRes.data);
@@ -168,6 +178,38 @@ const AdminDashboard = () => {
   const handleEditAssessment = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     navigate(`/create-assessment?edit=${id}`);
+  };
+
+  const handlePublishAssessment = async (id: string, currentStatus: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const action = currentStatus === 'published' ? 'unpublish' : 'publish';
+    if (!confirm(`Are you sure you want to ${action} this content?`)) return;
+
+    try {
+      const { error } = await supabase
+        .from("manual_assessments")
+        .update({ 
+          status: currentStatus === 'published' ? 'draft' : 'published',
+          published_at: currentStatus === 'published' ? null : new Date().toISOString()
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Content ${action}ed successfully`,
+      });
+      fetchContent();
+    } catch (error) {
+      console.error(`Error ${action}ing assessment:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to ${action} content`,
+        variant: "destructive",
+      });
+    }
   };
 
   if (authLoading || loading) {
@@ -329,6 +371,19 @@ const AdminDashboard = () => {
                           <span className="text-sm text-muted-foreground">
                             {new Date(assessment.created_at).toLocaleDateString()}
                           </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handlePublishAssessment(assessment.id, assessment.status, e)}
+                            className="h-8 w-8 p-0"
+                            title={assessment.status === 'published' ? 'Unpublish' : 'Publish'}
+                          >
+                            {assessment.status === 'published' ? (
+                              <Eye className="h-4 w-4 text-green-600" />
+                            ) : (
+                              <Check className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"

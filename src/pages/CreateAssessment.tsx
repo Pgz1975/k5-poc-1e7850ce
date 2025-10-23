@@ -395,7 +395,7 @@ export default function CreateAssessment() {
   };
 
   // Type-specific save logic
-  const handleSave = async () => {
+  const handleSave = async (publishImmediately = false) => {
     if (!user || !isValid()) {
       toast({
         title: "Validation Error",
@@ -418,7 +418,8 @@ export default function CreateAssessment() {
         language: data.settings!.language,
         subject_area: data.settings!.subject,
         created_by: user.id,
-        status: 'draft'
+        status: publishImmediately ? 'published' : 'draft',
+        published_at: publishImmediately ? new Date().toISOString() : null
       };
       
       // Type-specific fields
@@ -952,12 +953,21 @@ export default function CreateAssessment() {
                 {isSpanish ? 'Atrás' : 'Back'}
               </Button>
               <Button 
-                onClick={handleSave} 
+                onClick={() => handleSave(false)} 
+                disabled={!isValid() || isSaving}
+                variant="outline"
+                className="flex-1"
+              >
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSaving ? (isSpanish ? 'Guardando...' : 'Saving...') : (editId ? (isSpanish ? 'Actualizar' : 'Update') : (isSpanish ? 'Guardar como Borrador' : 'Save as Draft'))}
+              </Button>
+              <Button 
+                onClick={() => handleSave(true)} 
                 disabled={!isValid() || isSaving}
                 className="flex-1"
               >
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isSaving ? (isSpanish ? 'Guardando...' : 'Saving...') : `${isSpanish ? 'Guardar' : 'Save'} ${data.type!.charAt(0).toUpperCase() + data.type!.slice(1)}`}
+                {isSaving ? (isSpanish ? 'Publicando...' : 'Publishing...') : (editId ? (isSpanish ? 'Actualizar y Publicar' : 'Update & Publish') : (isSpanish ? 'Guardar y Publicar' : 'Save & Publish'))}
               </Button>
             </div>
           </div>

@@ -45,6 +45,7 @@ const Profile = () => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [role, setRole] = useState<string>("");
   const [createdAt, setCreatedAt] = useState<string>("");
+  const [learningLanguages, setLearningLanguages] = useState<string[]>(["es", "en"]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -61,7 +62,6 @@ const Profile = () => {
       if (!user) return;
 
       try {
-        // Fetch profile
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("*")
@@ -71,7 +71,6 @@ const Profile = () => {
         if (profileError) throw profileError;
         if (!profile) throw new Error("Profile not found");
 
-        // Fetch role
         const { data: userRole, error: roleError } = await supabase
           .from("user_roles")
           .select("role")
@@ -83,47 +82,9 @@ const Profile = () => {
 
         setFullName(profile.full_name || "");
         setAvatarUrl(profile.avatar_url || "");
+        setLearningLanguages(profile.learning_languages || ["es", "en"]);
         setRole(userRole.role);
         setCreatedAt(profile.created_at);
-
-        // Auto-update avatars if needed (one-time fix)
-        if (user.email === "admin@demo.com" && profile.avatar_url !== "/avatars/admin-1.jpg") {
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({ avatar_url: "/avatars/admin-1.jpg" })
-            .eq("id", user.id);
-          
-          if (!updateError) {
-            setAvatarUrl("/avatars/admin-1.jpg");
-          }
-        } else if (user.email === "student@demo.com" && profile.avatar_url !== "/avatars/student-2.jpg") {
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({ avatar_url: "/avatars/student-2.jpg" })
-            .eq("id", user.id);
-          
-          if (!updateError) {
-            setAvatarUrl("/avatars/student-2.jpg");
-          }
-        } else if (user.email === "teacher@demo.com" && profile.avatar_url !== "/avatars/teacher-2.jpg") {
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({ avatar_url: "/avatars/teacher-2.jpg" })
-            .eq("id", user.id);
-          
-          if (!updateError) {
-            setAvatarUrl("/avatars/teacher-2.jpg");
-          }
-        } else if (user.email === "family@demo.com" && profile.avatar_url !== "/avatars/family-2.jpg") {
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({ avatar_url: "/avatars/family-2.jpg" })
-            .eq("id", user.id);
-          
-          if (!updateError) {
-            setAvatarUrl("/avatars/family-2.jpg");
-          }
-        }
       } catch (err: any) {
         console.error("Error fetching profile:", err);
         setError(err.message);
@@ -153,6 +114,7 @@ const Profile = () => {
         .update({
           full_name: fullName,
           avatar_url: avatarUrl || null,
+          learning_languages: learningLanguages,
         })
         .eq("id", user.id);
 
@@ -402,6 +364,53 @@ const Profile = () => {
                       )}
                     </p>
                   </div>
+
+                  {/* Learning Languages Selector */}
+                  {role?.startsWith("student") && (
+                    <div className="space-y-2">
+                      <Label>
+                        {t("Idiomas que Estoy Aprendiendo", "Languages I'm Learning")}
+                      </Label>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={learningLanguages.includes("es")}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setLearningLanguages([...learningLanguages, "es"]);
+                              } else if (learningLanguages.length > 1) {
+                                setLearningLanguages(learningLanguages.filter(l => l !== "es"));
+                              }
+                            }}
+                            className="rounded border-gray-300"
+                          />
+                          <span>{t("Español", "Spanish")}</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={learningLanguages.includes("en")}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setLearningLanguages([...learningLanguages, "en"]);
+                              } else if (learningLanguages.length > 1) {
+                                setLearningLanguages(learningLanguages.filter(l => l !== "en"));
+                              }
+                            }}
+                            className="rounded border-gray-300"
+                          />
+                          <span>{t("Inglés", "English")}</span>
+                        </label>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {t(
+                          "Selecciona al menos un idioma",
+                          "Select at least one language"
+                        )}
+                      </p>
+                    </div>
+                  )}
 
                   <Button type="submit" className="w-full gap-2" disabled={saving}>
                     {saving ? (
