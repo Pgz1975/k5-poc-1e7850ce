@@ -62,50 +62,47 @@ export const Header = () => {
 
   // Role-based navigation
   const getNavItems = (): NavItem[] => {
-    const homeItem: NavItem = { label: t("Inicio", "Home"), href: "/" };
-    
-    // Check if admin user
-    if (user?.email === "admin@demo.com") {
+    // Non-authenticated users see marketing links
+    if (!user) {
       return [
-        homeItem,
-        { label: t("Panel de Administración", "Admin Dashboard"), href: "/admin-dashboard", icon: Shield },
-        { label: t("Crear Contenido", "Create Content"), href: "/create-assessment", icon: FileEdit },
-        { label: "🧪 Voice Test", href: "/voice-test", icon: TestTube },
-      ];
-    }
-    
-    if (userRole === "student") {
-      return [
-        { label: t("Mi Panel", "My Dashboard"), href: "/student-dashboard", icon: HomeIcon },
-        { label: t("Practicar Lectura", "Practice Reading"), href: "/reading-exercise", icon: BookOpen },
-        { label: t("Práctica de Pronunciación", "Pronunciation Practice"), href: "/activities", icon: Mic },
-        { label: "🧪 Voice Test", href: "/voice-test", icon: TestTube },
-      ];
-    }
-    
-    if (userRole === "teacher") {
-      return [
-        homeItem,
-        { label: t("Panel de Maestro", "Teacher Dashboard"), href: "/teacher-dashboard", icon: GraduationCap },
-        { label: t("Crear Contenido", "Create Content"), href: "/create-assessment", icon: FileEdit },
-        { label: "🧪 Voice Test", href: "/voice-test", icon: TestTube },
+        { label: t("Inicio", "Home"), href: "/" },
+        { label: t("Estudiantes", "Students"), href: "#students" },
+        { label: t("Maestros", "Teachers"), href: "#teachers" },
+        { label: t("Familias", "Families"), href: "#families" },
       ];
     }
 
-    if (userRole === "family") {
+    // Admin user (using email check until role system is updated)
+    if (user.email === "admin@demo.com") {
       return [
-        homeItem,
-        { label: t("Panel Familiar", "Family Dashboard"), href: "/family-dashboard", icon: Users },
+        { label: t("Panel de Admin", "Admin Dashboard"), href: "/admin-dashboard", icon: Shield },
+        { label: t("Crear Contenido", "Create Content"), href: "/create-assessment", icon: FileEdit },
+        { label: t("Prueba de Voz", "Voice Test"), href: "/voice-test", icon: TestTube },
       ];
     }
-    
-    // Default for non-authenticated users
-    return [
-      homeItem,
-      { label: t("Estudiantes", "Students"), href: "#students" },
-      { label: t("Maestros", "Teachers"), href: "#teachers" },
-      { label: t("Familias", "Families"), href: "#families" },
-    ];
+
+    // Role-based navigation for authenticated users
+    switch (userRole) {
+      case "student":
+        return [
+          { label: t("Mi Panel", "My Dashboard"), href: "/student-dashboard", icon: HomeIcon },
+          { label: t("Práctica de Lectura", "Reading Practice"), href: "/reading-exercise", icon: BookOpen },
+          { label: t("Práctica de Pronunciación", "Pronunciation Practice"), href: "/activities", icon: Mic },
+          { label: t("Prueba de Voz", "Voice Test"), href: "/voice-test", icon: TestTube },
+        ];
+      case "teacher":
+        return [
+          { label: t("Panel de Maestros", "Teacher Dashboard"), href: "/teacher-dashboard", icon: GraduationCap },
+          { label: t("Crear Contenido", "Create Content"), href: "/create-assessment", icon: FileEdit },
+          { label: t("Prueba de Voz", "Voice Test"), href: "/voice-test", icon: TestTube },
+        ];
+      case "family":
+        return [
+          { label: t("Panel Familiar", "Family Dashboard"), href: "/family-dashboard", icon: Users },
+        ];
+      default:
+        return [];
+    }
   };
 
   const navItems = getNavItems();

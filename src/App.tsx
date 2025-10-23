@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -41,24 +42,24 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/student-dashboard" element={<StudentDashboard />} />
-          <Route path="/activities" element={<Activities />} />
-          <Route path="/available-assessments" element={<AvailableAssessments />} />
-              <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
-              <Route path="/family-dashboard" element={<FamilyDashboard />} />
-              <Route path="/reading-exercise" element={<ReadingExercise />} />
-              <Route path="/voice-test" element={<VoiceTest />} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student"]}><StudentDashboard /></ProtectedRoute>} />
+              <Route path="/activities" element={<ProtectedRoute allowedRoles={["student"]}><Activities /></ProtectedRoute>} />
+              <Route path="/available-assessments" element={<ProtectedRoute><AvailableAssessments /></ProtectedRoute>} />
+              <Route path="/teacher-dashboard" element={<ProtectedRoute allowedRoles={["teacher"]}><TeacherDashboard /></ProtectedRoute>} />
+              <Route path="/family-dashboard" element={<ProtectedRoute allowedRoles={["family"]}><FamilyDashboard /></ProtectedRoute>} />
+              <Route path="/reading-exercise" element={<ProtectedRoute allowedRoles={["student"]}><ReadingExercise /></ProtectedRoute>} />
+              <Route path="/voice-test" element={<ProtectedRoute><VoiceTest /></ProtectedRoute>} />
               
-              <Route path="/pdf-demo" element={<PDFDemo />} />
-              <Route path="/assessment-generator" element={<AssessmentGenerator />} />
-              <Route path="/generated/:id" element={<GeneratedAssessment />} />
-              <Route path="/create-assessment" element={<CreateAssessment />} />
-              <Route path="/assessment/:id" element={<ViewAssessment />} />
-              <Route path="/view-assessment/:id" element={<ViewAssessment />} />
+              <Route path="/pdf-demo" element={<ProtectedRoute><PDFDemo /></ProtectedRoute>} />
+              <Route path="/assessment-generator" element={<ProtectedRoute><AssessmentGenerator /></ProtectedRoute>} />
+              <Route path="/generated/:id" element={<ProtectedRoute><GeneratedAssessment /></ProtectedRoute>} />
+              <Route path="/create-assessment" element={<ProtectedRoute><CreateAssessment /></ProtectedRoute>} />
+              <Route path="/assessment/:id" element={<ProtectedRoute><ViewAssessment /></ProtectedRoute>} />
+              <Route path="/view-assessment/:id" element={<ProtectedRoute><ViewAssessment /></ProtectedRoute>} />
               <Route path="/create-demo-users" element={<CreateDemoUsers />} />
-              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
