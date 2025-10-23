@@ -1,34 +1,34 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const {
       studentId,
-      language = 'es-PR',
+      language = "es-PR",
       gradeLevel = 0,
       assessmentId,
       voiceGuidance,
-      model = 'gpt-4o-realtime-preview-2024-12-17' // Default model
+      model = "gpt-4o-realtime-preview-2024-12-17", // Default model
     } = await req.json();
 
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY not configured');
+      throw new Error("OPENAI_API_KEY not configured");
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     let dynamicGuidance = voiceGuidance;
@@ -36,9 +36,9 @@ serve(async (req) => {
 
     if (assessmentId && !voiceGuidance) {
       const { data: assessment } = await supabase
-        .from('manual_assessments')
-        .select('title, content, voice_guidance, coqui_dialogue, pronunciation_words')
-        .eq('id', assessmentId)
+        .from("manual_assessments")
+        .select("title, content, voice_guidance, coqui_dialogue, pronunciation_words")
+        .eq("id", assessmentId)
         .single();
 
       if (assessment) {
@@ -51,73 +51,69 @@ serve(async (req) => {
       language,
       gradeLevel,
       voiceGuidance: dynamicGuidance,
-      assessmentContent
+      assessmentContent,
     });
 
     const selectedVoice = getVoiceForLanguage(language);
-    console.log('[Token] Creating enhanced session...');
-    console.log('[Token] Using voice:', selectedVoice, 'for language:', language);
+    console.log("[Token] Creating enhanced session...");
+    console.log("[Token] Using voice:", selectedVoice, "for language:", language);
 
     const requestBody = {
       model, // Use model from request
       voice: selectedVoice,
       instructions,
       turn_detection: {
-        type: 'server_vad',
+        type: "server_vad",
         threshold: 0.5,
         prefix_padding_ms: 300,
         silence_duration_ms: 500,
-        create_response: true
+        create_response: true,
       },
       input_audio_transcription: {
-        model: 'whisper-1'
-      }
+        model: "whisper-1",
+      },
     };
 
-    console.log('[Token] Request body:', JSON.stringify(requestBody, null, 2));
+    console.log("[Token] Request body:", JSON.stringify(requestBody, null, 2));
 
-    const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
-      method: 'POST',
+    const response = await fetch("https://api.openai.com/v1/realtime/sessions", {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Token] OpenAI API error:', errorText);
+      console.error("[Token] OpenAI API error:", errorText);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const data = await response.json();
 
-    await supabase.from('voice_sessions').insert({
+    await supabase.from("voice_sessions").insert({
       session_id: data.id,
       student_id: studentId,
       assessment_id: assessmentId,
       language,
       grade_level: gradeLevel,
       model: model, // Store the model used
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     });
 
-    console.log('[Token] ✅ Enhanced session created:', data.id);
+    console.log("[Token] ✅ Enhanced session created:", data.id);
 
     return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-
   } catch (error) {
-    console.error('[Token] ❌ Error:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    console.error("[Token] ❌ Error:", error);
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
 
@@ -130,9 +126,7 @@ function buildInstructions({ language, gradeLevel, voiceGuidance, assessmentCont
   }
 
   if (assessmentContent) {
-    const contentStr = typeof assessmentContent === 'string' 
-      ? assessmentContent 
-      : JSON.stringify(assessmentContent);
+    const contentStr = typeof assessmentContent === "string" ? assessmentContent : JSON.stringify(assessmentContent);
     fullInstructions += `\n\n## Contenido de la Evaluación:\n${contentStr}`;
   }
 
@@ -140,19 +134,19 @@ function buildInstructions({ language, gradeLevel, voiceGuidance, assessmentCont
 }
 
 function getBaseInstructions(language: string, gradeLevel: number): string {
-  if (language === 'es-PR') {
+  if (language === "es-PR") {
     return `Eres un tutor de lectura amigable y paciente para estudiantes de ${getGradeName(gradeLevel)} en Puerto Rico.
 
 INSTRUCCIONES CRÍTICAS:
 1. ACENTO: Usa acento puertorriqueño natural. NO uses acento mexicano, castellano o neutro.
 2. VOCABULARIO: Usa palabras locales puertorriqueñas apropiadas para niños (ej: "chévere", "muy bien").
 3. VELOCIDAD: Habla despacio y claramente, apropiado para niños de ${4 + gradeLevel} años.
-4. TONO: Sé profesional pero cálido, alentador y celebra cada pequeño logro.
+4. TONO: Sé profesional como un profesor atento, cálido, alentador y celebra cada pequeño logro.
 5. LENGUAJE: Usa lenguaje inclusivo y neutral. Di "estudiante" en lugar de nene/nena.
 6. CORRECCIONES: Nunca digas "está mal". En su lugar: "Casi lo tienes, vamos a intentarlo otra vez".
 7. PACIENCIA: Si el estudiante no responde, espera 5 segundos antes de dar una pista.
 
-FRASES APROPIADAS PARA USAR:
+EJEMPLOS DE FRASES APROPIADAS PARA USAR:
 - "¡Muy bien! ¡Excelente trabajo!"
 - "¡Qué chévere! Sigue así"
 - "¡Eso es! Lo estás haciendo genial"
@@ -199,14 +193,13 @@ TEACHING PROCESS:
 }
 
 function getGradeName(gradeLevel: number): string {
-  const grades = ['Kindergarten', 'Primer Grado', 'Segundo Grado',
-                  'Tercer Grado', 'Cuarto Grado', 'Quinto Grado'];
-  return grades[gradeLevel] || 'Kindergarten';
+  const grades = ["Kindergarten", "Primer Grado", "Segundo Grado", "Tercer Grado", "Cuarto Grado", "Quinto Grado"];
+  return grades[gradeLevel] || "Kindergarten";
 }
 
 function getVoiceForLanguage(language: string): string {
-  if (language === 'es-PR') {
-    return 'shimmer';
+  if (language === "es-PR") {
+    return "shimmer";
   }
-  return 'alloy';
+  return "alloy";
 }
