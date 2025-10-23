@@ -158,8 +158,8 @@ export default function ViewLesson() {
           </div>
         </div>
         
-        <div className="fixed bottom-8 right-8 z-10">
-          <CoquiMascot state="reading_book" size="small" />
+        <div className="absolute bottom-6 right-6 z-40 pointer-events-none">
+          <CoquiMascot state="reading" size="small" position="inline" />
         </div>
       </main>
 
