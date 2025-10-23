@@ -64,11 +64,11 @@ const StudentDashboard = () => {
               </div>
             </div>
 
-            {/* Talk to Coquí Section */}
-            <CoquiVoiceChat />
-
             {/* Activity Cards */}
             <ActivityCards />
+
+            {/* Talk to Coquí Section */}
+            <CoquiVoiceChat />
 
             {/* Fun Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
