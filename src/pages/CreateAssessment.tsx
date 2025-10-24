@@ -835,6 +835,22 @@ export default function CreateAssessment() {
                         rows={8}
                       />
                     </div>
+
+                    <div>
+                      <Label>{isSpanish ? 'Imagen de la Lección (Opcional)' : 'Lesson Image (Optional)'}</Label>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {isSpanish 
+                          ? 'Sube o pega una imagen para acompañar la lección'
+                          : 'Upload or paste an image to accompany the lesson'}
+                      </p>
+                      <ImagePasteZone
+                        currentImage={data.content?.questionImage}
+                        onImageUploaded={(url) => setData({
+                          ...data,
+                          content: { ...data.content!, questionImage: url }
+                        })}
+                      />
+                    </div>
                   </div>
                 </Card>
 
