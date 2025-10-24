@@ -160,19 +160,21 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
     if (activeId.startsWith('pool-') && overId.startsWith('slot-')) {
       const letterIndex = parseInt(activeId.replace('pool-', ''));
       const slotIndex = parseInt(overId.replace('slot-', ''));
-      const letter = pool[letterIndex];
+      const draggedLetter = pool[letterIndex];
 
-      // Remove from pool
-      setPool(pool.filter((_, i) => i !== letterIndex));
-      
-      // Add to slot (replacing existing if any)
       const newSlots = [...slots];
-      if (newSlots[slotIndex]) {
-        // Return old letter to pool
-        setPool(prev => [...prev, newSlots[slotIndex]!]);
-      }
-      newSlots[slotIndex] = letter;
+      const replacedLetter = newSlots[slotIndex]; // Store the letter being replaced
+      
+      // Update slot with new letter
+      newSlots[slotIndex] = draggedLetter;
       setSlots(newSlots);
+
+      // Update pool: remove dragged letter, add replaced letter (if any)
+      const newPool = pool.filter((_, i) => i !== letterIndex);
+      if (replacedLetter) {
+        newPool.push(replacedLetter);
+      }
+      setPool(newPool);
     }
     // Check if dragging from slot to pool
     else if (activeId.startsWith('slot-') && overId === 'pool') {
