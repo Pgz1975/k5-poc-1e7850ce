@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Volume2, Loader2 } from 'lucide-react';
 import CoquiMascot from '@/components/CoquiMascot';
+import { MultipleChoicePlayer } from '@/components/ManualAssessment/players/MultipleChoicePlayer';
+import { TrueFalsePlayer } from '@/components/ManualAssessment/players/TrueFalsePlayer';
 import { FillBlankPlayer } from '@/components/ManualAssessment/players/FillBlankPlayer';
 import { WriteAnswerPlayer } from '@/components/ManualAssessment/players/WriteAnswerPlayer';
 import { DragDropPlayer } from '@/components/ManualAssessment/players/DragDropPlayer';
@@ -246,7 +248,27 @@ export default function ViewAssessment() {
         )}
 
         {/* Type-Specific Players */}
-        {assessment.subtype === 'fill_blank' ? (
+        {assessment.subtype === 'multiple_choice' && (
+          <MultipleChoicePlayer
+            content={assessment.content}
+            onAnswer={handleAnswer}
+            selectedAnswer={selectedAnswer}
+            showFeedback={showFeedback}
+            isCorrect={isCorrect}
+          />
+        )}
+
+        {assessment.subtype === 'true_false' && (
+          <TrueFalsePlayer
+            content={assessment.content}
+            onAnswer={handleAnswer}
+            selectedAnswer={selectedAnswer}
+            showFeedback={showFeedback}
+            isCorrect={isCorrect}
+          />
+        )}
+
+        {assessment.subtype === 'fill_blank' && (
           <FillBlankPlayer
             content={normalizeFillBlank(assessment.content)}
             onAnswer={(answer, correct) => {
@@ -262,7 +284,9 @@ export default function ViewAssessment() {
             }}
             voiceClient={clientRef.current}
           />
-        ) : assessment.subtype === 'write_answer' ? (
+        )}
+
+        {assessment.subtype === 'write_answer' && (
           <WriteAnswerPlayer
             content={assessment.content}
             onAnswer={(answer, correct) => {
@@ -271,7 +295,9 @@ export default function ViewAssessment() {
             }}
             voiceClient={clientRef.current}
           />
-        ) : assessment.subtype === 'drag_drop' && assessment.content ? (
+        )}
+
+        {assessment.subtype === 'drag_drop' && assessment.content && (
           <DragDropPlayer
             content={assessment.content}
             onAnswer={(answer, correct) => {
@@ -287,36 +313,6 @@ export default function ViewAssessment() {
             }}
             voiceClient={clientRef.current}
           />
-        ) : (
-          <div className="space-y-4 mb-8">
-            {assessment.content.answers.map((answer: any, index: number) => (
-              <Button
-                key={index}
-                onClick={() => handleAnswer(index)}
-                disabled={showFeedback}
-                className={`w-full text-2xl p-8 justify-start ${
-                  showFeedback && selectedAnswer === index
-                    ? isCorrect
-                      ? 'bg-green-500 hover:bg-green-600'
-                      : 'bg-red-500 hover:bg-red-600'
-                    : ''
-                }`}
-                variant={showFeedback && selectedAnswer === index ? 'default' : 'outline'}
-              >
-                <span className="font-bold mr-4">{String.fromCharCode(65 + index)})</span>
-                <div className="flex-1 text-left">
-                  {answer.text}
-                  {answer.imageUrl && (
-                    <img
-                      src={answer.imageUrl}
-                      alt={`Answer ${index + 1}`}
-                      className="mt-2 h-24 w-24 object-cover rounded"
-                    />
-                  )}
-                </div>
-              </Button>
-            ))}
-          </div>
         )}
 
         {/* Coquí Mascot */}

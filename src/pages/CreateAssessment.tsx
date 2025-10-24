@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGr
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { AnswerList } from '@/components/ManualAssessment/AnswerList';
 import { ImagePasteZone } from '@/components/ManualAssessment/ImagePasteZone';
+import { MultipleChoiceEditor } from '@/components/ManualAssessment/editors/MultipleChoiceEditor';
+import { TrueFalseEditor } from '@/components/ManualAssessment/editors/TrueFalseEditor';
 import { FillBlankEditor } from '@/components/ManualAssessment/editors/FillBlankEditor';
 import { WriteAnswerEditor } from '@/components/ManualAssessment/editors/WriteAnswerEditor';
 import { DragDropEditor } from '@/components/ManualAssessment/editors/DragDropEditor';
@@ -955,7 +957,7 @@ export default function CreateAssessment() {
                         onChange={(content: any) => setData({ ...data, content })}
                         language={(data.settings?.language || 'es') as 'es' | 'en'}
                       />
-                    ) : (
+                    ) : data.subtype === 'multiple_choice' || data.subtype === 'true_false' ? (
                       <>
                         <div>
                           <Label>{isSpanish ? 'Pregunta *' : 'Question *'}</Label>
@@ -980,18 +982,19 @@ export default function CreateAssessment() {
                           currentImage={data.content?.questionImage}
                         />
 
-                        <div>
-                          <Label>{isSpanish ? 'Respuestas *' : 'Answers *'}</Label>
-                          <AnswerList
-                            answers={data.content?.answers || []}
-                            onChange={(answers) => setData({
-                              ...data,
-                              content: { ...data.content!, answers }
-                            })}
+                        {data.subtype === 'multiple_choice' ? (
+                          <MultipleChoiceEditor
+                            content={data.content || { question: '', answers: [] }}
+                            onChange={(content: any) => setData({ ...data, content })}
                           />
-                        </div>
+                        ) : (
+                          <TrueFalseEditor
+                            content={data.content || { question: '', answers: [] }}
+                            onChange={(content: any) => setData({ ...data, content })}
+                          />
+                        )}
                       </>
-                    )}
+                    ) : null}
                   </div>
                 </Card>
 
@@ -1070,16 +1073,38 @@ export default function CreateAssessment() {
                       />
                     </div>
 
-                    <div>
-                      <Label>{isSpanish ? 'Respuestas *' : 'Answers *'}</Label>
-                      <AnswerList
-                        answers={data.content?.answers || []}
-                        onChange={(answers) => setData({
+                    <ImagePasteZone
+                      onImageUploaded={(imageUrl) => {
+                        setData({
                           ...data,
-                          content: { ...data.content!, answers }
-                        })}
+                          content: { ...data.content!, questionImage: imageUrl }
+                        });
+                      }}
+                      currentImage={data.content?.questionImage}
+                    />
+
+                    {data.subtype === 'multiple_choice' ? (
+                      <MultipleChoiceEditor
+                        content={data.content || { question: '', answers: [] }}
+                        onChange={(content: any) => setData({ ...data, content })}
                       />
-                    </div>
+                    ) : data.subtype === 'true_false' ? (
+                      <TrueFalseEditor
+                        content={data.content || { question: '', answers: [] }}
+                        onChange={(content: any) => setData({ ...data, content })}
+                      />
+                    ) : (
+                      <div>
+                        <Label>{isSpanish ? 'Respuestas *' : 'Answers *'}</Label>
+                        <AnswerList
+                          answers={data.content?.answers || []}
+                          onChange={(answers) => setData({
+                            ...data,
+                            content: { ...data.content!, answers }
+                          })}
+                        />
+                      </div>
+                    )}
                   </div>
                 </Card>
               </>
