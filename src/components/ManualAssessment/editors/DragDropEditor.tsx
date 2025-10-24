@@ -195,44 +195,44 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
     <div className="space-y-4">
       {/* Mode Selection */}
       <div className="space-y-2">
-        <Label>{isSpanish ? 'Modo de Ejercicio' : 'Exercise Mode'}</Label>
+        <Label>{t('Modo de Ejercicio', 'Exercise Mode')}</Label>
         <div className="flex gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-2 cursor-pointer p-3 border-2 rounded-md transition-colors hover:bg-accent/50" style={{ borderColor: content.mode === 'letters' ? 'hsl(var(--primary))' : 'hsl(var(--border))' }}>
             <input
               type="radio"
               name="dragDropMode"
               value="letters"
               checked={content.mode === 'letters'}
               onChange={() => handleModeChange('letters')}
-              className="w-4 h-4"
+              className="w-4 h-4 accent-primary cursor-pointer"
             />
-            <span>{isSpanish ? 'Letras (Formar Palabra)' : 'Letters (Form Word)'}</span>
+            <span className="font-medium">{t('Letras (Formar Palabra)', 'Letters (Form Word)')}</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-2 cursor-pointer p-3 border-2 rounded-md transition-colors hover:bg-accent/50" style={{ borderColor: content.mode === 'match' ? 'hsl(var(--primary))' : 'hsl(var(--border))' }}>
             <input
               type="radio"
               name="dragDropMode"
               value="match"
               checked={content.mode === 'match'}
               onChange={() => handleModeChange('match')}
-              className="w-4 h-4"
+              className="w-4 h-4 accent-primary cursor-pointer"
             />
-            <span>{isSpanish ? 'Emparejar (Arrastrar a Zonas)' : 'Match (Drag to Zones)'}</span>
+            <span className="font-medium">{t('Emparejar (Arrastrar a Zonas)', 'Match (Drag to Zones)')}</span>
           </label>
         </div>
       </div>
       {/* Question */}
       <div>
         <Label htmlFor="question">
-          {isSpanish ? 'Pregunta *' : 'Question *'}
+          {t('Pregunta *', 'Question *')}
         </Label>
         <Textarea
           id="question"
           value={content.question}
           onChange={(e) => handleQuestionChange(e.target.value)}
-          placeholder={isSpanish 
-            ? 'Forma la palabra para esta imagen:' 
-            : 'Form the word for this image:'}
+          placeholder={t(
+            'Forma la palabra para esta imagen:', 
+            'Form the word for this image:')}
           className="min-h-20"
         />
         <p className="text-sm text-muted-foreground mt-1">
@@ -243,7 +243,7 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
       {/* Optional Image */}
       <div>
         <Label>
-          {isSpanish ? 'Imagen (Opcional)' : 'Image (Optional)'}
+          {t('Imagen (Opcional)', 'Image (Optional)')}
         </Label>
         <ImagePasteZone
           onImageUploaded={(imageUrl) => onChange({ ...content, questionImage: imageUrl })}
@@ -255,49 +255,49 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
       {content.mode === 'letters' && (
         <>
           {/* Target Word */}
-      <div>
-        <Label htmlFor="targetWord">
-          {isSpanish ? 'Palabra Objetivo *' : 'Target Word *'}
-        </Label>
-        <Input
-          id="targetWord"
-          value={content.targetWord}
-          onChange={(e) => handleTargetChange(e.target.value)}
-          placeholder={isSpanish ? 'mesa' : 'table'}
-          maxLength={20}
-          className="text-lg"
-        />
-        <p className="text-sm text-muted-foreground mt-1">
-          {isSpanish ? 'Solo letras (sin espacios ni números)' : 'Letters only (no spaces or numbers)'}
-        </p>
-      </div>
-
-      {/* Available Letters Pool */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <Label>
-            {isSpanish ? 'Letras Disponibles *' : 'Available Letters *'}
-          </Label>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAutoGenerate}
-            disabled={!content.targetWord}
-          >
-            <Sparkles className="h-4 w-4 mr-2" />
-            {isSpanish ? 'Auto-generar' : 'Auto-generate'}
-          </Button>
-        </div>
-
-        {/* Display current letters */}
-        <div className="flex flex-wrap gap-2 mb-3 p-3 border rounded-md min-h-16 bg-muted/30">
-          {content.availableLetters.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {isSpanish 
-                ? 'No hay letras. Usa auto-generar o añade manualmente.' 
-                : 'No letters yet. Use auto-generate or add manually.'}
+          <div>
+            <Label htmlFor="targetWord">
+              {t('Palabra Objetivo *', 'Target Word *')}
+            </Label>
+            <Input
+              id="targetWord"
+              value={content.targetWord}
+              onChange={(e) => handleTargetChange(e.target.value)}
+              placeholder={t('mesa', 'table')}
+              maxLength={20}
+              className="text-lg"
+            />
+            <p className="text-sm text-muted-foreground mt-1">
+              {t('Solo letras (sin espacios ni números)', 'Letters only (no spaces or numbers)')}
             </p>
+          </div>
+
+          {/* Available Letters Pool */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label>
+                {t('Letras Disponibles *', 'Available Letters *')}
+              </Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAutoGenerate}
+                disabled={!content.targetWord}
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                {t('Auto-generar', 'Auto-generate')}
+              </Button>
+            </div>
+
+            {/* Display current letters */}
+            <div className="flex flex-wrap gap-2 mb-3 p-3 border rounded-md min-h-16 bg-muted/30">
+              {content.availableLetters.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {t(
+                    'No hay letras. Usa auto-generar o añade manualmente.', 
+                    'No letters yet. Use auto-generate or add manually.')}
+                </p>
           ) : (
             content.availableLetters.map((letter, index) => (
               <Badge 
@@ -313,35 +313,35 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
           )}
         </div>
 
-        {/* Add letter manually */}
-        <div className="flex gap-2">
-          <Input
-            value={newLetter}
-            onChange={(e) => setNewLetter(e.target.value.slice(0, 1))}
-            onKeyDown={(e) => e.key === 'Enter' && handleAddLetter()}
-            placeholder={isSpanish ? 'Añadir letra' : 'Add letter'}
-            maxLength={1}
-            className="w-20 text-center text-lg"
-          />
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={handleAddLetter}
-            disabled={!newLetter || newLetter.length !== 1}
-          >
-            {isSpanish ? 'Añadir' : 'Add'}
-          </Button>
-        </div>
+            {/* Add letter manually */}
+            <div className="flex gap-2">
+              <Input
+                value={newLetter}
+                onChange={(e) => setNewLetter(e.target.value.slice(0, 1))}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddLetter()}
+                placeholder={t('Añadir letra', 'Add letter')}
+                maxLength={1}
+                className="w-20 text-center text-lg"
+              />
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleAddLetter}
+                disabled={!newLetter || newLetter.length !== 1}
+              >
+                {t('Añadir', 'Add')}
+              </Button>
+            </div>
 
-        {/* Validation message */}
-        {!isValid && content.targetWord && content.availableLetters.length > 0 && (
-          <p className="text-sm text-destructive mt-2">
-            {isSpanish 
-              ? '⚠️ Las letras disponibles deben contener todas las letras de la palabra objetivo' 
-              : '⚠️ Available letters must contain all letters from the target word'}
-          </p>
-        )}
-      </div>
+            {/* Validation message */}
+            {!isValid && content.targetWord && content.availableLetters.length > 0 && (
+              <p className="text-sm text-destructive mt-2">
+                {t(
+                  '⚠️ Las letras disponibles deben contener todas las letras de la palabra objetivo', 
+                  '⚠️ Available letters must contain all letters from the target word')}
+              </p>
+            )}
+          </div>
 
           {/* Auto-Shuffle */}
           <div className="flex items-center space-x-2">
@@ -353,9 +353,9 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
               }
             />
             <Label htmlFor="autoShuffle" className="cursor-pointer">
-              {isSpanish 
-                ? 'Mezclar letras automáticamente al cargar' 
-                : 'Shuffle letters automatically on load'}
+              {t(
+                'Mezclar letras automáticamente al cargar', 
+                'Shuffle letters automatically on load')}
             </Label>
           </div>
         </>
@@ -367,15 +367,15 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
           {/* Drop Zones */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label>{isSpanish ? 'Zonas de Destino *' : 'Drop Zones *'}</Label>
+              <Label>{t('Zonas de Destino *', 'Drop Zones *')}</Label>
               <Button type="button" variant="outline" size="sm" onClick={handleAddZone}>
-                {isSpanish ? '+ Añadir Zona' : '+ Add Zone'}
+                {t('+ Añadir Zona', '+ Add Zone')}
               </Button>
             </div>
             <div className="space-y-2">
               {content.dropZones.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  {isSpanish ? 'No hay zonas. Añade al menos 2 zonas.' : 'No zones. Add at least 2 zones.'}
+                  {t('No hay zonas. Añade al menos 2 zonas.', 'No zones. Add at least 2 zones.')}
                 </p>
               ) : (
                 content.dropZones.map((zone, i) => (
@@ -383,7 +383,7 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
                     <Input
                       value={zone.label}
                       onChange={(e) => handleUpdateZone(i, e.target.value)}
-                      placeholder={isSpanish ? `Zona ${i + 1} (ej: Bosque)` : `Zone ${i + 1} (e.g., Forest)`}
+                      placeholder={t(`Zona ${i + 1} (ej: Bosque)`, `Zone ${i + 1} (e.g., Forest)`)}
                     />
                     <Button
                       type="button"
@@ -401,7 +401,7 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
 
           {/* Draggable Items */}
           <div>
-            <Label className="mb-2 block">{isSpanish ? 'Elementos Arrastrables *' : 'Draggable Items *'}</Label>
+            <Label className="mb-2 block">{t('Elementos Arrastrables *', 'Draggable Items *')}</Label>
             <div className="space-y-3">
               {content.draggableItems.map((item, i) => (
                 <div key={item.id} className="flex gap-2 items-start p-3 border rounded-md">
@@ -412,13 +412,13 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
                       <img src={item.content.url} alt="Item" className="h-20 w-20 object-cover rounded" />
                     )}
                     <div>
-                      <Label className="text-xs">{isSpanish ? 'Zona Correcta:' : 'Correct Zone:'}</Label>
+                      <Label className="text-xs">{t('Zona Correcta:', 'Correct Zone:')}</Label>
                       <select
                         value={item.correctZone}
                         onChange={(e) => handleUpdateItemZone(i, e.target.value)}
-                        className="w-full mt-1 p-2 border rounded"
+                        className="w-full mt-1 p-2 border rounded bg-background"
                       >
-                        <option value="">{isSpanish ? 'Seleccionar...' : 'Select...'}</option>
+                        <option value="">{t('Seleccionar...', 'Select...')}</option>
                         {content.dropZones.map(zone => (
                           <option key={zone.id} value={zone.id}>{zone.label || zone.id}</option>
                         ))}
@@ -439,12 +439,12 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
 
             {/* Add New Item */}
             <div className="mt-3 space-y-2 p-3 border rounded-md bg-muted/30">
-              <Label className="text-sm font-semibold">{isSpanish ? 'Añadir Elemento' : 'Add Item'}</Label>
+              <Label className="text-sm font-semibold">{t('Añadir Elemento', 'Add Item')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={newItemText}
                   onChange={(e) => setNewItemText(e.target.value)}
-                  placeholder={isSpanish ? 'Texto del elemento...' : 'Item text...'}
+                  placeholder={t('Texto del elemento...', 'Item text...')}
                 />
                 <Button
                   type="button"
@@ -452,11 +452,11 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
                   onClick={() => handleAddItem('text', newItemText)}
                   disabled={!newItemText.trim() || content.dropZones.length === 0}
                 >
-                  {isSpanish ? '+ Texto' : '+ Text'}
+                  {t('+ Texto', '+ Text')}
                 </Button>
               </div>
               <div>
-                <Label className="text-xs">{isSpanish ? 'O añadir imagen:' : 'Or add image:'}</Label>
+                <Label className="text-xs">{t('O añadir imagen:', 'Or add image:')}</Label>
                 <ImagePasteZone
                   onImageUploaded={(url) => handleAddItem('image', url)}
                   currentImage={undefined}
@@ -475,9 +475,9 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
               }
             />
             <Label htmlFor="allowMultiple" className="cursor-pointer">
-              {isSpanish
-                ? 'Permitir múltiples elementos por zona'
-                : 'Allow multiple items per zone'}
+              {t(
+                'Permitir múltiples elementos por zona',
+                'Allow multiple items per zone')}
             </Label>
           </div>
         </>
