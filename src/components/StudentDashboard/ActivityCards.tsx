@@ -53,8 +53,8 @@ export const ActivityCards = () => {
       description: t("¡Demuestra lo Aprendido!", "Show What You Know!"),
       progress: `${assessmentsProgress.data?.completedCount ?? 0}/${assessmentsProgress.data?.totalActivities ?? 0}`,
       route: "/student-dashboard/assessments",
-      gradient: "from-accent/20 to-accent/5",
-      iconColor: "text-accent",
+      gradient: "from-primary-glow/20 to-primary-glow/5",
+      iconColor: "text-primary-glow",
     },
   ];
 
