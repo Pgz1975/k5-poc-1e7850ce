@@ -46,7 +46,7 @@ export const useStudentProgress = ({
             id,
             assessment_id,
             display_order,
-            manual_assessments (
+            manual_assessments!lesson_ordering_assessment_id_fkey (
               id,
               title,
               description,

@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -17,6 +17,7 @@ export default function ViewLesson() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const queryClient = useQueryClient();
   const { data: profile } = useStudentProfile();
 
   const { data: lesson, isLoading } = useQuery({
@@ -79,6 +80,14 @@ export default function ViewLesson() {
       });
 
       if (error) throw error;
+
+      // Invalidate queries to refresh lesson list and unlock next lesson
+      await queryClient.invalidateQueries({ 
+        queryKey: ['student-progress', 'lesson', profile?.gradeLevel, profile?.learningLanguages] 
+      });
+      await queryClient.invalidateQueries({ 
+        queryKey: ['lessons-with-order', profile?.gradeLevel] 
+      });
 
       toast.success(t("¡Lección completada!", "Lesson completed!"));
       navigate("/student-dashboard/lessons");

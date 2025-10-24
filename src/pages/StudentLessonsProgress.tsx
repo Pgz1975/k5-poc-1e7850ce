@@ -13,6 +13,7 @@ import { Helmet } from "react-helmet";
 import { LessonCard } from "@/components/StudentDashboard/LessonCard";
 import { DomainGroup } from "@/types/lessonOrdering";
 import { useMemo } from "react";
+import { getLessonLockingStatus } from "@/utils/lessonUnlocking";
 
 export default function StudentLessonsProgress() {
   const { t, language } = useLanguage();
@@ -60,6 +61,21 @@ export default function StudentLessonsProgress() {
     });
     return map;
   }, [progress]);
+
+  // Calculate locking status for all lessons
+  const lockingMap = useMemo(() => {
+    if (!lessonsWithOrder || !progress?.completedActivities) {
+      return new Map<string, boolean>();
+    }
+
+    const orderedLessons = lessonsWithOrder.map(lesson => ({
+      id: lesson.id,
+      display_order: lesson.display_order ?? 999,
+      assessment_id: lesson.id,
+    }));
+
+    return getLessonLockingStatus(orderedLessons, progress.completedActivities);
+  }, [lessonsWithOrder, progress?.completedActivities]);
 
   const calculateStars = (avgScore: number | null): number => {
     if (!avgScore) return 0;
@@ -154,9 +170,9 @@ export default function StudentLessonsProgress() {
               {domain.domain_name}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {domain.lessons.map((lesson, index) => {
+              {domain.lessons.map((lesson) => {
                 const isCompleted = completedMap.has(lesson.id);
-                const isLocked = index > 0 && !completedMap.has(domain.lessons[index - 1].id);
+                const isLocked = lockingMap.get(lesson.id) ?? false;
                 
                 return (
                   <LessonCard
