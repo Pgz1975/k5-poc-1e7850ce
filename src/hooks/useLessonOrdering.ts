@@ -31,7 +31,8 @@ export const useLessonOrdering = (gradeLevel: number) => {
         .select('id, title, description, type, grade_level, language, status, parent_lesson_id, order_in_lesson, estimated_duration_minutes, created_at')
         .eq('grade_level', gradeLevel)
         .eq('status', 'published')
-        .is('parent_lesson_id', null) // Only parent lessons, not exercises
+        .eq('type', 'lesson') // Only lessons, not assessments or exercises
+        .is('parent_lesson_id', null) // Only parent lessons, not child exercises
         .order('created_at');
       
       if (assessError) throw assessError;
