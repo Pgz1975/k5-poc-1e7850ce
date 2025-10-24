@@ -932,7 +932,7 @@ export default function CreateAssessment() {
                       />
                     ) : data.subtype === 'drag_drop' ? (
                       <DragDropEditor
-                        content={data.content?.mode === 'letters' ? data.content : {
+                        content={data.content?.mode ? data.content : {
                           mode: 'letters',
                           question: data.content?.question || '',
                           targetWord: '',
