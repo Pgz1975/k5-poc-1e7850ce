@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { DndContext, DragEndEvent, closestCenter, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, closestCenter, DragOverlay, DragStartEvent, useDroppable, useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DragDropMatchContent {
@@ -232,20 +233,25 @@ interface DropZoneProps {
   isPool?: boolean;
 }
 
+
 function DropZone({ zone, items, isChecked, isPool }: DropZoneProps) {
+  const { t } = useLanguage();
+  const { setNodeRef, isOver } = useDroppable({ id: zone.id });
+
   return (
     <div
-      id={zone.id}
+      ref={setNodeRef}
       className={`
         min-h-32 p-4 border-2 rounded-lg transition-colors
         ${isPool ? 'border-dashed bg-muted/20' : 'bg-card'}
+        ${isOver ? 'border-primary bg-primary/10' : ''}
       `}
     >
       <h3 className="font-semibold mb-3 text-center">{zone.label}</h3>
       <div className="flex flex-wrap gap-2 justify-center">
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground self-center">
-            {isPool ? '—' : '(vacío)'}
+            {isPool ? '—' : t('(vacío)', '(empty)')}
           </p>
         ) : (
           items.map(item => (
@@ -272,18 +278,30 @@ interface DraggableItemProps {
 }
 
 function DraggableItem({ item, isCorrect, isDragging }: DraggableItemProps) {
+  const { attributes, listeners, setNodeRef, transform, isDragging: dragging } = useDraggable({
+    id: item.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    cursor: dragging ? 'grabbing' : 'grab',
+  };
+
   const borderColor = 
     isCorrect === true ? 'border-success' :
     isCorrect === false ? 'border-destructive' :
-    'border-border';
+    'border-primary';
 
   return (
     <div
-      id={item.id}
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
       className={`
-        p-3 rounded-md border-2 cursor-grab active:cursor-grabbing
-        transition-all ${borderColor}
-        ${isDragging ? 'opacity-50 scale-105' : ''}
+        p-2 rounded-md border-4 transition-all
+        ${borderColor}
+        ${dragging || isDragging ? 'opacity-50 scale-105 shadow-lg' : 'hover:shadow-md'}
         ${isCorrect === true ? 'bg-success/10' : ''}
         ${isCorrect === false ? 'bg-destructive/10' : 'bg-secondary'}
       `}
@@ -294,7 +312,7 @@ function DraggableItem({ item, isCorrect, isDragging }: DraggableItemProps) {
         <img
           src={item.content.url}
           alt="Item"
-          className="h-16 w-16 object-cover rounded"
+          className="h-20 w-20 object-cover rounded pointer-events-none select-none"
         />
       )}
     </div>
