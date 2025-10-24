@@ -113,6 +113,7 @@ export async function generateGrade1SpanishContent() {
         voiceGuidance: "Escucha bien cada palabra. ¿Cuál comienza con el sonido /m/ como en 'mamá'? Tómate tu tiempo para pensar.",
         contentBuilder: (images) => ({
           question: "¿Cuál palabra comienza con el sonido /m/?",
+          questionText: "Lee cada opción con cuidado. Busca la palabra que comienza con la letra M. La letra M hace el sonido /m/ como en 'mamá'.",
           questionImage: images[0],
           answers: [
             { text: "mamá", imageUrl: images[0], isCorrect: true },
@@ -132,6 +133,7 @@ export async function generateGrade1SpanishContent() {
         contentBuilder: (images) => ({
           mode: "letters",
           question: "Arrastra las letras para formar la palabra 'mamá'",
+          questionText: "Mira la imagen de mamá. Ahora forma la palabra 'mamá' arrastrando las letras en el orden correcto: M-A-M-Á.",
           questionImage: images[0],
           targetWord: "mamá",
           availableLetters: ["m", "a", "m", "á", "s", "t", "l", "n"],
@@ -143,24 +145,32 @@ export async function generateGrade1SpanishContent() {
         type: "exercise",
         subtype: "drag_drop",
         description: "Arrastra las imágenes que comienzan con M",
-        imageSearchTerms: ["hand fingers", "table desk", "apple fruit", "monkey animal"],
-        voiceGuidance: "Mira las imágenes y escucha sus nombres. Arrastra al lado correcto las que comienzan con /m/.",
-        contentBuilder: (images) => ({
-          mode: "match",
-          question: "Arrastra las imágenes según comiencen o no con el sonido /m/",
-          questionImage: null,
-          draggableItems: [
-            { id: "1", type: "image", content: images[0] || "", label: "mano", correctZone: "con-m" },
-            { id: "2", type: "image", content: images[1] || "", label: "mesa", correctZone: "con-m" },
-            { id: "3", type: "image", content: images[2] || "", label: "manzana", correctZone: "con-m" },
-            { id: "4", type: "image", content: images[3] || "", label: "mono", correctZone: "con-m" },
-          ],
-          dropZones: [
-            { id: "con-m", label: "Comienza con M" },
-            { id: "sin-m", label: "No comienza con M" },
-          ],
-          allowMultiplePerZone: true,
-        }),
+        imageSearchTerms: ["hand fingers", "wooden table desk", "red apple fruit", "monkey animal"],
+        voiceGuidance: "Mira las imágenes y escucha sus nombres. Arrastra al lado correcto las que comienzan con /m/. La palabra 'mano' comienza con /m/. La palabra 'mesa' también comienza con /m/. La palabra 'manzana' comienza con /m/. Y la palabra 'mono' comienza con /m/.",
+        contentBuilder: (images) => {
+          // Ensure no duplicate images
+          const uniqueImages = Array.from(new Set(images.filter(img => img !== null)));
+          if (uniqueImages.length < images.length) {
+            console.warn("⚠️ Duplicate images detected in exercise, using unique images only");
+          }
+          return {
+            mode: "match",
+            question: "Arrastra las imágenes según comiencen o no con el sonido /m/",
+            questionText: "Mira las imágenes. Arrastra al lado correcto las que comienzan con el sonido /m/. Recuerda: 'mano', 'mesa', 'manzana' y 'mono' todas comienzan con /m/.",
+            questionImage: null,
+            draggableItems: [
+              { id: "1", type: "image", content: uniqueImages[0] || images[0] || "", label: "mano", correctZone: "con-m" },
+              { id: "2", type: "image", content: uniqueImages[1] || images[1] || "", label: "mesa", correctZone: "con-m" },
+              { id: "3", type: "image", content: uniqueImages[2] || images[2] || "", label: "manzana", correctZone: "con-m" },
+              { id: "4", type: "image", content: uniqueImages[3] || images[3] || "", label: "mono", correctZone: "con-m" },
+            ],
+            dropZones: [
+              { id: "con-m", label: "Comienza con M" },
+              { id: "sin-m", label: "No comienza con M" },
+            ],
+            allowMultiplePerZone: true,
+          };
+        },
       },
       {
         title: "AI: Completa MESA",
@@ -250,24 +260,32 @@ export async function generateGrade1SpanishContent() {
         type: "exercise",
         subtype: "drag_drop",
         description: "Arrastra las imágenes que comienzan con S",
-        imageSearchTerms: ["chair furniture", "watermelon fruit", "snake reptile", "sofa couch"],
-        voiceGuidance: "Mira bien cada imagen. Arrastra las que empiezan con /s/ a la zona correcta.",
-        contentBuilder: (images) => ({
-          mode: "match",
-          question: "Arrastra las imágenes según comiencen o no con /s/",
-          questionImage: null,
-          draggableItems: [
-            { id: "1", type: "image", content: images[0] || "", label: "silla", correctZone: "con-s" },
-            { id: "2", type: "image", content: images[1] || "", label: "sandía", correctZone: "con-s" },
-            { id: "3", type: "image", content: images[2] || "", label: "serpiente", correctZone: "con-s" },
-            { id: "4", type: "image", content: images[3] || "", label: "sofá", correctZone: "con-s" },
-          ],
-          dropZones: [
-            { id: "con-s", label: "Comienza con S" },
-            { id: "sin-s", label: "No comienza con S" },
-          ],
-          allowMultiplePerZone: true,
-        }),
+        imageSearchTerms: ["wooden chair furniture", "watermelon fruit sliced", "green snake reptile", "brown sofa couch"],
+        voiceGuidance: "Mira bien cada imagen. Arrastra las que empiezan con /s/ a la zona correcta. La palabra 'silla' comienza con /s/. La palabra 'sandía' comienza con /s/. La palabra 'serpiente' comienza con /s/. Y la palabra 'sofá' también comienza con /s/.",
+        contentBuilder: (images) => {
+          // Ensure no duplicate images
+          const uniqueImages = Array.from(new Set(images.filter(img => img !== null)));
+          if (uniqueImages.length < images.length) {
+            console.warn("⚠️ Duplicate images detected in exercise, using unique images only");
+          }
+          return {
+            mode: "match",
+            question: "Arrastra las imágenes según comiencen o no con /s/",
+            questionText: "Mira las imágenes. Arrastra al lado correcto las que comienzan con el sonido /s/. Recuerda: 'silla', 'sandía', 'serpiente' y 'sofá' todas comienzan con /s/.",
+            questionImage: null,
+            draggableItems: [
+              { id: "1", type: "image", content: uniqueImages[0] || images[0] || "", label: "silla", correctZone: "con-s" },
+              { id: "2", type: "image", content: uniqueImages[1] || images[1] || "", label: "sandía", correctZone: "con-s" },
+              { id: "3", type: "image", content: uniqueImages[2] || images[2] || "", label: "serpiente", correctZone: "con-s" },
+              { id: "4", type: "image", content: uniqueImages[3] || images[3] || "", label: "sofá", correctZone: "con-s" },
+            ],
+            dropZones: [
+              { id: "con-s", label: "Comienza con S" },
+              { id: "sin-s", label: "No comienza con S" },
+            ],
+            allowMultiplePerZone: true,
+          };
+        },
       },
       {
         title: "AI: Completa SAPO",
@@ -357,24 +375,32 @@ export async function generateGrade1SpanishContent() {
         type: "exercise",
         subtype: "drag_drop",
         description: "Relaciona las imágenes con el hábitat del coquí",
-        imageSearchTerms: ["tropical leaves", "Puerto Rico waterfall", "tree branch", "coqui frog"],
-        voiceGuidance: "Arrastra las cosas que encuentras en el hogar del coquí al bosque tropical.",
-        contentBuilder: (images) => ({
-          mode: "match",
-          question: "Arrastra al bosque tropical las cosas del hogar del coquí",
-          questionImage: null,
-          draggableItems: [
-            { id: "1", type: "image", content: images[0] || "", label: "hojas", correctZone: "bosque" },
-            { id: "2", type: "image", content: images[1] || "", label: "cascada", correctZone: "bosque" },
-            { id: "3", type: "image", content: images[2] || "", label: "árboles", correctZone: "bosque" },
-            { id: "4", type: "image", content: images[3] || "", label: "coquí", correctZone: "bosque" },
-          ],
-          dropZones: [
-            { id: "bosque", label: "Bosque Tropical" },
-            { id: "otro", label: "Otro Lugar" },
-          ],
-          allowMultiplePerZone: true,
-        }),
+        imageSearchTerms: ["tropical green leaves", "Puerto Rico El Yunque waterfall", "tree branch nature", "small coqui frog"],
+        voiceGuidance: "Arrastra las cosas que encuentras en el hogar del coquí al bosque tropical. El coquí vive en el bosque, donde hay hojas, cascadas, árboles y otros coquís.",
+        contentBuilder: (images) => {
+          // Ensure no duplicate images
+          const uniqueImages = Array.from(new Set(images.filter(img => img !== null)));
+          if (uniqueImages.length < images.length) {
+            console.warn("⚠️ Duplicate images detected in exercise, using unique images only");
+          }
+          return {
+            mode: "match",
+            question: "Arrastra al bosque tropical las cosas del hogar del coquí",
+            questionText: "El coquí vive en el bosque tropical. Arrastra las cosas que encuentras en su hogar: hojas verdes, cascadas de agua limpia, árboles altos y otros coquís.",
+            questionImage: null,
+            draggableItems: [
+              { id: "1", type: "image", content: uniqueImages[0] || images[0] || "", label: "hojas", correctZone: "bosque" },
+              { id: "2", type: "image", content: uniqueImages[1] || images[1] || "", label: "cascada", correctZone: "bosque" },
+              { id: "3", type: "image", content: uniqueImages[2] || images[2] || "", label: "árboles", correctZone: "bosque" },
+              { id: "4", type: "image", content: uniqueImages[3] || images[3] || "", label: "coquí", correctZone: "bosque" },
+            ],
+            dropZones: [
+              { id: "bosque", label: "Bosque Tropical" },
+              { id: "otro", label: "Otro Lugar" },
+            ],
+            allowMultiplePerZone: true,
+          };
+        },
       },
       {
         title: "AI: Completa RANA",
@@ -464,24 +490,32 @@ export async function generateGrade1SpanishContent() {
         type: "exercise",
         subtype: "drag_drop",
         description: "Clasifica comidas puertorriqueñas",
-        imageSearchTerms: ["mofongo Puerto Rico", "rice and beans", "roasted pork", "hamburger"],
-        voiceGuidance: "Mira las comidas. Arrastra las que son de Puerto Rico a la zona correcta.",
-        contentBuilder: (images) => ({
-          mode: "match",
-          question: "Arrastra las comidas típicas de Puerto Rico",
-          questionImage: null,
-          draggableItems: [
-            { id: "1", type: "image", content: images[0] || "", label: "mofongo", correctZone: "boricua" },
-            { id: "2", type: "image", content: images[1] || "", label: "arroz con habichuelas", correctZone: "boricua" },
-            { id: "3", type: "image", content: images[2] || "", label: "pernil", correctZone: "boricua" },
-            { id: "4", type: "image", content: images[3] || "", label: "hamburguesa", correctZone: "otra" },
-          ],
-          dropZones: [
-            { id: "boricua", label: "Comida Boricua" },
-            { id: "otra", label: "Otra Comida" },
-          ],
-          allowMultiplePerZone: true,
-        }),
+        imageSearchTerms: ["mofongo plantain Puerto Rico", "rice beans Puerto Rican", "roasted pork pernil", "hamburger american food"],
+        voiceGuidance: "Mira las comidas. Arrastra las que son de Puerto Rico a la zona correcta. El mofongo, el arroz con habichuelas y el pernil son comidas boricuas. La hamburguesa es de otro país.",
+        contentBuilder: (images) => {
+          // Ensure no duplicate images
+          const uniqueImages = Array.from(new Set(images.filter(img => img !== null)));
+          if (uniqueImages.length < images.length) {
+            console.warn("⚠️ Duplicate images detected in exercise, using unique images only");
+          }
+          return {
+            mode: "match",
+            question: "Arrastra las comidas típicas de Puerto Rico",
+            questionText: "Mira las comidas en las imágenes. Arrastra las que son de Puerto Rico: mofongo (hecho con plátano), arroz con habichuelas, y pernil (carne de cerdo). La hamburguesa no es boricua.",
+            questionImage: null,
+            draggableItems: [
+              { id: "1", type: "image", content: uniqueImages[0] || images[0] || "", label: "mofongo", correctZone: "boricua" },
+              { id: "2", type: "image", content: uniqueImages[1] || images[1] || "", label: "arroz con habichuelas", correctZone: "boricua" },
+              { id: "3", type: "image", content: uniqueImages[2] || images[2] || "", label: "pernil", correctZone: "boricua" },
+              { id: "4", type: "image", content: uniqueImages[3] || images[3] || "", label: "hamburguesa", correctZone: "otra" },
+            ],
+            dropZones: [
+              { id: "boricua", label: "Comida Boricua" },
+              { id: "otra", label: "Otra Comida" },
+            ],
+            allowMultiplePerZone: true,
+          };
+        },
       },
       {
         title: "AI: Completa PLÁTANO",
