@@ -7,6 +7,7 @@ import { DndContext, DragEndEvent, closestCenter, DragOverlay, DragStartEvent } 
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { MatchModePlayer } from './MatchModePlayer';
 
 interface DragDropLettersContent {
   mode: 'letters';
@@ -17,8 +18,26 @@ interface DragDropLettersContent {
   autoShuffle: boolean;
 }
 
+interface DragDropMatchContent {
+  mode: 'match';
+  question: string;
+  questionImage?: string;
+  draggableItems: Array<{
+    id: string;
+    content: string | { type: 'image'; url: string };
+    correctZone: string;
+  }>;
+  dropZones: Array<{
+    id: string;
+    label: string;
+  }>;
+  allowMultiplePerZone: boolean;
+}
+
+type DragDropContent = DragDropLettersContent | DragDropMatchContent;
+
 interface DragDropPlayerProps {
-  content: DragDropLettersContent;
+  content: DragDropContent;
   onAnswer: (answer: string, isCorrect: boolean) => void;
   voiceClient?: any;
 }
@@ -96,6 +115,16 @@ function shuffle<T>(array: T[]): T[] {
 }
 
 export function DragDropPlayer({ content, onAnswer, voiceClient }: DragDropPlayerProps) {
+  const { t } = useLanguage();
+
+  if (content.mode === 'match') {
+    return <MatchModePlayer content={content} onAnswer={onAnswer} voiceClient={voiceClient} />;
+  }
+
+  return <LettersModePlayer content={content} onAnswer={onAnswer} voiceClient={voiceClient} />;
+}
+
+function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDropLettersContent; onAnswer: any; voiceClient?: any }) {
   const { t } = useLanguage();
   
   const [pool, setPool] = useState<string[]>(() => 

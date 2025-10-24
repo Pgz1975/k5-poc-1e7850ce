@@ -271,7 +271,7 @@ export default function ViewAssessment() {
             }}
             voiceClient={clientRef.current}
           />
-        ) : assessment.subtype === 'drag_drop' ? (
+        ) : assessment.subtype === 'drag_drop' && assessment.content ? (
           <DragDropPlayer
             content={assessment.content}
             onAnswer={(answer, correct) => {

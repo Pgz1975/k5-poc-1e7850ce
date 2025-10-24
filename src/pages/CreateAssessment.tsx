@@ -466,6 +466,72 @@ export default function CreateAssessment() {
         payload.enable_voice = true;
         payload.voice_speed = 1.0;
         payload.auto_read_question = true;
+
+        // Drag-drop specific validation
+        if (data.subtype === 'drag_drop' && data.content) {
+          const content = data.content as any;
+          if (content.mode === 'letters') {
+            if (!content.targetWord?.trim()) {
+              toast({
+                title: "Validation Error",
+                description: t('El campo "Palabra Objetivo" es requerido', 'Target Word is required'),
+                variant: "destructive"
+              });
+              return;
+            }
+            if (!content.availableLetters || content.availableLetters.length === 0) {
+              toast({
+                title: "Validation Error",
+                description: t('Debes añadir letras disponibles', 'You must add available letters'),
+                variant: "destructive"
+              });
+              return;
+            }
+            const targetChars = [...content.targetWord.toLowerCase()];
+            const hasAllLetters = targetChars.every(char => 
+              content.availableLetters.includes(char.toLowerCase())
+            );
+            if (!hasAllLetters) {
+              toast({
+                title: "Validation Error",
+                description: t(
+                  'Las letras disponibles deben contener todas las letras de la palabra objetivo',
+                  'Available letters must contain all letters from the target word'
+                ),
+                variant: "destructive"
+              });
+              return;
+            }
+          } else if (content.mode === 'match') {
+            if (!content.dropZones || content.dropZones.length < 2) {
+              toast({
+                title: "Validation Error",
+                description: t('Debes crear al menos 2 zonas de destino', 'You must create at least 2 drop zones'),
+                variant: "destructive"
+              });
+              return;
+            }
+            if (!content.draggableItems || content.draggableItems.length < 2) {
+              toast({
+                title: "Validation Error",
+                description: t('Debes crear al menos 2 elementos arrastrables', 'You must create at least 2 draggable items'),
+                variant: "destructive"
+              });
+              return;
+            }
+            const allItemsHaveZone = content.draggableItems.every((item: any) => item.correctZone);
+            if (!allItemsHaveZone) {
+              toast({
+                title: "Validation Error",
+                description: t('Todos los elementos deben tener una zona correcta asignada', 'All items must have a correct zone assigned'),
+                variant: "destructive"
+              });
+              return;
+            }
+          }
+          // Save drag_drop_mode
+          payload.drag_drop_mode = content.mode;
+        }
       }
       
       if (data.type === 'assessment') {

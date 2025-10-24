@@ -18,30 +18,72 @@ interface DragDropLettersContent {
   autoShuffle: boolean;
 }
 
+interface DragDropMatchContent {
+  mode: 'match';
+  question: string;
+  questionImage?: string;
+  draggableItems: Array<{
+    id: string;
+    content: string | { type: 'image'; url: string };
+    correctZone: string;
+  }>;
+  dropZones: Array<{
+    id: string;
+    label: string;
+  }>;
+  allowMultiplePerZone: boolean;
+}
+
+type DragDropContent = DragDropLettersContent | DragDropMatchContent;
+
 interface DragDropEditorProps {
-  content: DragDropLettersContent;
-  onChange: (content: DragDropLettersContent) => void;
+  content: DragDropContent;
+  onChange: (content: DragDropContent) => void;
   language: 'es' | 'en';
 }
 
 export function DragDropEditor({ content, onChange, language }: DragDropEditorProps) {
   const { t } = useLanguage();
   const [newLetter, setNewLetter] = useState('');
+  const [newItemText, setNewItemText] = useState('');
 
   const isSpanish = language === 'es';
+
+  const handleModeChange = (mode: 'letters' | 'match') => {
+    if (mode === 'letters') {
+      onChange({
+        mode: 'letters',
+        question: content.question,
+        questionImage: content.questionImage,
+        targetWord: '',
+        availableLetters: [],
+        autoShuffle: true,
+      });
+    } else {
+      onChange({
+        mode: 'match',
+        question: content.question,
+        questionImage: content.questionImage,
+        draggableItems: [],
+        dropZones: [],
+        allowMultiplePerZone: false,
+      });
+    }
+  };
 
   const handleQuestionChange = (question: string) => {
     onChange({ ...content, question });
   };
 
   const handleTargetChange = (target: string) => {
+    if (content.mode !== 'letters') return;
     // Only allow letters (including Spanish accents)
     const sanitized = target.replace(/[^a-zA-Záéíóúüñ]/gi, '');
     onChange({ ...content, targetWord: sanitized });
   };
 
   const handleAutoGenerate = () => {
-    if (!content.targetWord) return;
+    if (content.mode !== 'letters' || !content.targetWord) return;
 
     const targetLetters = [...content.targetWord.toLowerCase()];
     const distractors = ['a', 'e', 'i', 'o', 'u', 'm', 'n', 's', 't', 'l', 'r', 'p', 'd', 'b', 'c'];
@@ -61,6 +103,7 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
   };
 
   const handleAddLetter = () => {
+    if (content.mode !== 'letters') return;
     if (!newLetter || newLetter.length !== 1) return;
     if (!/^[a-zA-Záéíóúüñ]$/i.test(newLetter)) return;
     
@@ -74,20 +117,110 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
   };
 
   const handleRemoveLetter = (index: number) => {
+    if (content.mode !== 'letters') return;
     const newLetters = content.availableLetters.filter((_, i) => i !== index);
     onChange({ ...content, availableLetters: newLetters });
   };
 
   const validateLetters = () => {
-    if (!content.targetWord) return true;
+    if (content.mode !== 'letters' || !content.targetWord) return true;
     const targetChars = [...content.targetWord.toLowerCase()];
     return targetChars.every(char => content.availableLetters.includes(char.toLowerCase()));
   };
 
   const isValid = validateLetters();
 
+  // Match Mode Handlers
+  const handleAddZone = () => {
+    if (content.mode !== 'match') return;
+    const newZone = {
+      id: `zone-${Date.now()}`,
+      label: '',
+    };
+    onChange({
+      ...content,
+      dropZones: [...content.dropZones, newZone],
+    });
+  };
+
+  const handleUpdateZone = (index: number, label: string) => {
+    if (content.mode !== 'match') return;
+    const newZones = [...content.dropZones];
+    newZones[index] = { ...newZones[index], label };
+    onChange({ ...content, dropZones: newZones });
+  };
+
+  const handleRemoveZone = (index: number) => {
+    if (content.mode !== 'match') return;
+    const zoneId = content.dropZones[index].id;
+    onChange({
+      ...content,
+      dropZones: content.dropZones.filter((_, i) => i !== index),
+      draggableItems: content.draggableItems.map(item => 
+        item.correctZone === zoneId ? { ...item, correctZone: '' } : item
+      ),
+    });
+  };
+
+  const handleAddItem = (type: 'text' | 'image', value: string) => {
+    if (content.mode !== 'match') return;
+    const newItem = {
+      id: `item-${Date.now()}`,
+      content: type === 'text' ? value : { type: 'image' as const, url: value },
+      correctZone: content.dropZones[0]?.id || '',
+    };
+    onChange({
+      ...content,
+      draggableItems: [...content.draggableItems, newItem],
+    });
+    setNewItemText('');
+  };
+
+  const handleUpdateItemZone = (index: number, zoneId: string) => {
+    if (content.mode !== 'match') return;
+    const newItems = [...content.draggableItems];
+    newItems[index] = { ...newItems[index], correctZone: zoneId };
+    onChange({ ...content, draggableItems: newItems });
+  };
+
+  const handleRemoveItem = (index: number) => {
+    if (content.mode !== 'match') return;
+    onChange({
+      ...content,
+      draggableItems: content.draggableItems.filter((_, i) => i !== index),
+    });
+  };
+
   return (
     <div className="space-y-4">
+      {/* Mode Selection */}
+      <div className="space-y-2">
+        <Label>{isSpanish ? 'Modo de Ejercicio' : 'Exercise Mode'}</Label>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="dragDropMode"
+              value="letters"
+              checked={content.mode === 'letters'}
+              onChange={() => handleModeChange('letters')}
+              className="w-4 h-4"
+            />
+            <span>{isSpanish ? 'Letras (Formar Palabra)' : 'Letters (Form Word)'}</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="dragDropMode"
+              value="match"
+              checked={content.mode === 'match'}
+              onChange={() => handleModeChange('match')}
+              className="w-4 h-4"
+            />
+            <span>{isSpanish ? 'Emparejar (Arrastrar a Zonas)' : 'Match (Drag to Zones)'}</span>
+          </label>
+        </div>
+      </div>
       {/* Question */}
       <div>
         <Label htmlFor="question">
@@ -118,7 +251,10 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
         />
       </div>
 
-      {/* Target Word */}
+      {/* Letters Mode Content */}
+      {content.mode === 'letters' && (
+        <>
+          {/* Target Word */}
       <div>
         <Label htmlFor="targetWord">
           {isSpanish ? 'Palabra Objetivo *' : 'Target Word *'}
@@ -207,21 +343,145 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
         )}
       </div>
 
-      {/* Auto-Shuffle */}
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="autoShuffle"
-          checked={content.autoShuffle}
-          onCheckedChange={(checked) => 
-            onChange({ ...content, autoShuffle: checked as boolean })
-          }
-        />
-        <Label htmlFor="autoShuffle" className="cursor-pointer">
-          {isSpanish 
-            ? 'Mezclar letras automáticamente al cargar' 
-            : 'Shuffle letters automatically on load'}
-        </Label>
-      </div>
+          {/* Auto-Shuffle */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="autoShuffle"
+              checked={content.autoShuffle}
+              onCheckedChange={(checked) => 
+                onChange({ ...content, autoShuffle: checked as boolean })
+              }
+            />
+            <Label htmlFor="autoShuffle" className="cursor-pointer">
+              {isSpanish 
+                ? 'Mezclar letras automáticamente al cargar' 
+                : 'Shuffle letters automatically on load'}
+            </Label>
+          </div>
+        </>
+      )}
+
+      {/* Match Mode Content */}
+      {content.mode === 'match' && (
+        <>
+          {/* Drop Zones */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label>{isSpanish ? 'Zonas de Destino *' : 'Drop Zones *'}</Label>
+              <Button type="button" variant="outline" size="sm" onClick={handleAddZone}>
+                {isSpanish ? '+ Añadir Zona' : '+ Add Zone'}
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {content.dropZones.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {isSpanish ? 'No hay zonas. Añade al menos 2 zonas.' : 'No zones. Add at least 2 zones.'}
+                </p>
+              ) : (
+                content.dropZones.map((zone, i) => (
+                  <div key={zone.id} className="flex gap-2">
+                    <Input
+                      value={zone.label}
+                      onChange={(e) => handleUpdateZone(i, e.target.value)}
+                      placeholder={isSpanish ? `Zona ${i + 1} (ej: Bosque)` : `Zone ${i + 1} (e.g., Forest)`}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveZone(i)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Draggable Items */}
+          <div>
+            <Label className="mb-2 block">{isSpanish ? 'Elementos Arrastrables *' : 'Draggable Items *'}</Label>
+            <div className="space-y-3">
+              {content.draggableItems.map((item, i) => (
+                <div key={item.id} className="flex gap-2 items-start p-3 border rounded-md">
+                  <div className="flex-1 space-y-2">
+                    {typeof item.content === 'string' ? (
+                      <div className="font-medium">{item.content}</div>
+                    ) : (
+                      <img src={item.content.url} alt="Item" className="h-20 w-20 object-cover rounded" />
+                    )}
+                    <div>
+                      <Label className="text-xs">{isSpanish ? 'Zona Correcta:' : 'Correct Zone:'}</Label>
+                      <select
+                        value={item.correctZone}
+                        onChange={(e) => handleUpdateItemZone(i, e.target.value)}
+                        className="w-full mt-1 p-2 border rounded"
+                      >
+                        <option value="">{isSpanish ? 'Seleccionar...' : 'Select...'}</option>
+                        {content.dropZones.map(zone => (
+                          <option key={zone.id} value={zone.id}>{zone.label || zone.id}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveItem(i)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Add New Item */}
+            <div className="mt-3 space-y-2 p-3 border rounded-md bg-muted/30">
+              <Label className="text-sm font-semibold">{isSpanish ? 'Añadir Elemento' : 'Add Item'}</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={newItemText}
+                  onChange={(e) => setNewItemText(e.target.value)}
+                  placeholder={isSpanish ? 'Texto del elemento...' : 'Item text...'}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleAddItem('text', newItemText)}
+                  disabled={!newItemText.trim() || content.dropZones.length === 0}
+                >
+                  {isSpanish ? '+ Texto' : '+ Text'}
+                </Button>
+              </div>
+              <div>
+                <Label className="text-xs">{isSpanish ? 'O añadir imagen:' : 'Or add image:'}</Label>
+                <ImagePasteZone
+                  onImageUploaded={(url) => handleAddItem('image', url)}
+                  currentImage={undefined}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Allow Multiple Per Zone */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="allowMultiple"
+              checked={content.allowMultiplePerZone}
+              onCheckedChange={(checked) =>
+                onChange({ ...content, allowMultiplePerZone: checked as boolean })
+              }
+            />
+            <Label htmlFor="allowMultiple" className="cursor-pointer">
+              {isSpanish
+                ? 'Permitir múltiples elementos por zona'
+                : 'Allow multiple items per zone'}
+            </Label>
+          </div>
+        </>
+      )}
     </div>
   );
 }
