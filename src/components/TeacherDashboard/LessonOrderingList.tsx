@@ -78,19 +78,44 @@ export const LessonOrderingList = ({ lessons, onReorder }: LessonOrderingListPro
     });
   };
 
-  const handleDomainChange = (lessonId: string, domainName: string) => {
-    const theme = DOMAIN_THEMES[domainName];
+  const handleDomainChange = (lessonId: string, newDomain: string) => {
+    const theme = DOMAIN_THEMES[newDomain];
+    const newDomainOrder = theme?.order ?? 999;
+
     const updatedLessons = lessons.map(lesson => {
       if (lesson.id === lessonId) {
         return {
           ...lesson,
-          domain_name: domainName,
-          domain_order: theme.order,
+          domain_name: newDomain,
+          domain_order: newDomainOrder,
         };
       }
       return lesson;
     });
-    onReorder(updatedLessons);
+
+    // Recalculate display_order based on new domain grouping
+    // CRITICAL: Sort by domain_order FIRST, then by display_order within domain
+    const sortedByDomain = updatedLessons
+      .filter(l => !l.parent_lesson_id)
+      .sort((a, b) => {
+        const domainOrderA = a.domain_order ?? 999;
+        const domainOrderB = b.domain_order ?? 999;
+        
+        if (domainOrderA !== domainOrderB) {
+          return domainOrderA - domainOrderB;
+        }
+        return (a.display_order ?? 999) - (b.display_order ?? 999);
+      });
+
+    // Recalculate sequential display_order across all domains
+    const reorderedLessons = sortedByDomain.map((lesson, idx) => ({
+      ...lesson,
+      display_order: idx,
+    }));
+
+    // Merge back with children
+    const children = updatedLessons.filter(l => l.parent_lesson_id);
+    onReorder([...reorderedLessons, ...children]);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -104,8 +129,20 @@ export const LessonOrderingList = ({ lessons, onReorder }: LessonOrderingListPro
     if (oldIndex !== -1 && newIndex !== -1) {
       const reordered = arrayMove(parentLessons, oldIndex, newIndex);
       
-      // Update display_order for all reordered lessons
-      const updatedLessons = reordered.map((lesson, index) => ({
+      // CRITICAL: Recalculate display_order sequentially across domains
+      // Sort by domain_order first to maintain pedagogical sequence
+      const sortedByDomain = reordered.sort((a, b) => {
+        const domainOrderA = a.domain_order ?? 999;
+        const domainOrderB = b.domain_order ?? 999;
+        
+        if (domainOrderA !== domainOrderB) {
+          return domainOrderA - domainOrderB;
+        }
+        return (a.display_order ?? 999) - (b.display_order ?? 999);
+      });
+
+      // Update display_order sequentially
+      const updatedLessons = sortedByDomain.map((lesson, index) => ({
         ...lesson,
         display_order: index,
       }));

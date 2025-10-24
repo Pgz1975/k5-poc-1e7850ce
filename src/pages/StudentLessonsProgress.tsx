@@ -28,13 +28,31 @@ export default function StudentLessonsProgress() {
 
   const { lessonsWithOrder } = useLessonOrdering(profile?.gradeLevel ?? 0);
 
-  // Group lessons by domain
-  const domainGroups: DomainGroup[] = useMemo(() => {
+  // Sort lessons by domain_order first, then display_order to ensure visual order matches unlocking order
+  const sortedLessons = useMemo(() => {
     if (!lessonsWithOrder) return [];
+    
+    return [...lessonsWithOrder].sort((a, b) => {
+      // Sort by domain_order first
+      const domainOrderA = a.domain_order ?? 999;
+      const domainOrderB = b.domain_order ?? 999;
+      
+      if (domainOrderA !== domainOrderB) {
+        return domainOrderA - domainOrderB;
+      }
+      
+      // Then sort by display_order within the same domain
+      return (a.display_order ?? 999) - (b.display_order ?? 999);
+    });
+  }, [lessonsWithOrder]);
+
+  // Group lessons by domain (after sorting)
+  const domainGroups: DomainGroup[] = useMemo(() => {
+    if (!sortedLessons) return [];
 
     const groups = new Map<string, DomainGroup>();
     
-    lessonsWithOrder.forEach(lesson => {
+    sortedLessons.forEach(lesson => {
       const domainName = lesson.domain_name || t("Sin categoría", "Uncategorized");
       
       if (!groups.has(domainName)) {
@@ -49,7 +67,7 @@ export default function StudentLessonsProgress() {
     });
 
     return Array.from(groups.values()).sort((a, b) => a.domain_order - b.domain_order);
-  }, [lessonsWithOrder, t]);
+  }, [sortedLessons, t]);
 
   // Create completion map
   const completedMap = useMemo(() => {
@@ -63,20 +81,20 @@ export default function StudentLessonsProgress() {
     return map;
   }, [progress]);
 
-  // Calculate locking status for all lessons
+  // Calculate locking status for all lessons (using sorted lessons)
   const lockingMap = useMemo(() => {
-    if (!lessonsWithOrder || !progress?.completedActivities) {
+    if (!sortedLessons || !progress?.completedActivities) {
       return new Map<string, boolean>();
     }
 
-    const orderedLessons = lessonsWithOrder.map(lesson => ({
+    const orderedLessons = sortedLessons.map(lesson => ({
       id: lesson.id,
       display_order: lesson.display_order ?? 999,
       assessment_id: lesson.id,
     }));
 
     return getLessonLockingStatus(orderedLessons, progress.completedActivities);
-  }, [lessonsWithOrder, progress?.completedActivities]);
+  }, [sortedLessons, progress?.completedActivities]);
 
   const calculateStars = (avgScore: number | null): number => {
     if (!avgScore) return 0;

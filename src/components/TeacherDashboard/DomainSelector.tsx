@@ -8,11 +8,16 @@ interface DomainSelectorProps {
 }
 
 export const DomainSelector = ({ value, onValueChange, language = 'es' }: DomainSelectorProps) => {
-  // Get Spanish domains
-  const domains = Object.keys(DOMAIN_THEMES).filter(key => 
-    !key.includes('Awareness') && !key.includes('Phonics') && !key.includes('Comprehension') && 
-    !key.includes('Vocabulary') && !key.includes('Syllable')
-  );
+  // Get Spanish domains (filter out English names)
+  const domains = Object.keys(DOMAIN_THEMES)
+    .filter(key => 
+      !key.includes('Awareness') && 
+      !key.includes('Phonics') && 
+      !key.includes('Comprehension') && 
+      !key.includes('Vocabulary') && 
+      !key.includes('Syllable')
+    )
+    .sort((a, b) => DOMAIN_THEMES[a].order - DOMAIN_THEMES[b].order);
 
   return (
     <Select value={value || undefined} onValueChange={onValueChange}>
