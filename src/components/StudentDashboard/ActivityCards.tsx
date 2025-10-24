@@ -44,8 +44,8 @@ export const ActivityCards = () => {
       description: t("¡Practica tu Lectura!", "Exercise Your Reading!"),
       progress: `${exercisesProgress.data?.completedCount ?? 0}/${exercisesProgress.data?.totalActivities ?? 0}`,
       route: "/student-dashboard/exercises",
-      gradient: "from-secondary/20 to-secondary/5",
-      iconColor: "text-secondary",
+      gradient: "from-primary/20 to-primary/5",
+      iconColor: "text-primary",
     },
     {
       icon: ClipboardCheck,
