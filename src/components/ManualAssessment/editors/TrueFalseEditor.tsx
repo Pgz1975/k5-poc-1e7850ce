@@ -23,15 +23,23 @@ export function TrueFalseEditor({ content, onChange }: TrueFalseEditorProps) {
   const { t, language } = useLanguage();
   const isSpanish = language === 'es';
 
-  // Ensure we always have exactly 2 answers for True/False
+  // Ensure we always have exactly 2 answers for True/False with correct labels
   const ensureTrueFalseAnswers = () => {
+    const trueLabel = isSpanish ? 'Verdadero' : 'True';
+    const falseLabel = isSpanish ? 'Falso' : 'False';
+    
     if (!content.answers || content.answers.length !== 2) {
       return [
-        { text: isSpanish ? 'Verdadero' : 'True', imageUrl: null, isCorrect: false },
-        { text: isSpanish ? 'Falso' : 'False', imageUrl: null, isCorrect: false }
+        { text: trueLabel, imageUrl: null, isCorrect: false },
+        { text: falseLabel, imageUrl: null, isCorrect: false }
       ];
     }
-    return content.answers;
+    
+    // Always update labels to match current language while preserving isCorrect state
+    return [
+      { text: trueLabel, imageUrl: null, isCorrect: content.answers[0]?.isCorrect || false },
+      { text: falseLabel, imageUrl: null, isCorrect: content.answers[1]?.isCorrect || false }
+    ];
   };
 
   const answers = ensureTrueFalseAnswers();
