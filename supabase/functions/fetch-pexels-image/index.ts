@@ -13,6 +13,10 @@ serve(async (req) => {
   }
 
   try {
+    if (!PEXELS_API_KEY) {
+      throw new Error('PEXELS_API_KEY is not configured');
+    }
+
     const { query } = await req.json();
     
     if (!query) {
