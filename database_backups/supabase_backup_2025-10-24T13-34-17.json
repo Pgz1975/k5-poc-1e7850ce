@@ -1,0 +1,3916 @@
+{
+  "metadata": {
+    "exported_at": "2025-10-24T13:34:17.802Z",
+    "project_id": "meertwtenhlmnlpwxhyz",
+    "project_url": "https://meertwtenhlmnlpwxhyz.supabase.co",
+    "tables_included": [
+      "manual_assessments",
+      "profiles",
+      "user_roles"
+    ],
+    "tables_excluded": [
+      "voice_sessions",
+      "pdf_text_content"
+    ]
+  },
+  "data": {
+    "manual_assessments": [
+      {
+        "id": "b8234b01-b004-47d9-b1b2-aaac2b9a5db8",
+        "type": "exercise",
+        "subtype": "drag_drop",
+        "title": "Formar palabras 5",
+        "description": null,
+        "content": {
+          "mode": "letters",
+          "question": "Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.",
+          "targetWord": "salón",
+          "autoShuffle": true,
+          "availableLetters": [
+            "ó",
+            "l",
+            "s",
+            "a",
+            "n"
+          ]
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-24T13:20:01.316+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T13:26:43.467311+00:00",
+        "updated_at": "2025-10-24T13:26:43.467311+00:00",
+        "metadata": {},
+        "voice_guidance": "🔊 Las letras tienen sonidos, y cuando juntamos esos sonidos, formamos palabras.\n🔊 Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.\n🔊 Después, lee la palabra o escríbela según lo que escuches.\n🔊¡Cada sonido te ayuda a descubrir la palabra!\n",
+        "activity_template": null,
+        "coqui_dialogue": "🔊 Las letras tienen sonidos, y cuando juntamos esos sonidos, formamos palabras.\n🔊 Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.\n🔊 Después, lee la palabra o escríbela según lo que escuches.\n🔊¡Cada sonido te ayuda a descubrir la palabra!\n",
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "5c290712-b7e8-4464-a2b4-a4b3e1ae5ea5",
+        "order_in_lesson": null,
+        "drag_drop_mode": "letters"
+      },
+      {
+        "id": "7728050d-4bf5-4c84-93fe-f2d678994b80",
+        "type": "exercise",
+        "subtype": "drag_drop",
+        "title": "Formar palabras 4",
+        "description": null,
+        "content": {
+          "mode": "letters",
+          "question": "Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.",
+          "targetWord": "pluma",
+          "autoShuffle": true,
+          "availableLetters": [
+            "o",
+            "l",
+            "p",
+            "m",
+            "a",
+            "u"
+          ]
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-24T13:18:06.383+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T13:24:48.367641+00:00",
+        "updated_at": "2025-10-24T13:24:48.367641+00:00",
+        "metadata": {},
+        "voice_guidance": "Las letras tienen sonidos, y cuando juntamos esos sonidos, formamos palabras.\n🔊 Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.\n🔊 Después, lee la palabra o escríbela según lo que escuches.\n🔊¡Cada sonido te ayuda a descubrir la palabra!\n",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "5c290712-b7e8-4464-a2b4-a4b3e1ae5ea5",
+        "order_in_lesson": null,
+        "drag_drop_mode": "letters"
+      },
+      {
+        "id": "0497a424-66cd-4092-9e59-b919c1c95295",
+        "type": "exercise",
+        "subtype": "drag_drop",
+        "title": "Formar palabras 3",
+        "description": null,
+        "content": {
+          "mode": "letters",
+          "question": "Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.",
+          "targetWord": "lápiz",
+          "autoShuffle": true,
+          "availableLetters": [
+            "á",
+            "e",
+            "l",
+            "p",
+            "z",
+            "i"
+          ]
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-24T12:11:44.186+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T12:18:26.159618+00:00",
+        "updated_at": "2025-10-24T12:18:26.159618+00:00",
+        "metadata": {},
+        "voice_guidance": "Las letras tienen sonidos, y cuando juntamos esos sonidos, formamos palabras.\n🔊 Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.\n🔊 Después, lee la palabra o escríbela según lo que escuches.\n🔊¡Cada sonido te ayuda a descubrir la palabra!\n",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "5c290712-b7e8-4464-a2b4-a4b3e1ae5ea5",
+        "order_in_lesson": null,
+        "drag_drop_mode": "letters"
+      },
+      {
+        "id": "b93f79c6-0e61-45c4-b0ed-5d068c4e10aa",
+        "type": "exercise",
+        "subtype": "drag_drop",
+        "title": "Formar palabras 2",
+        "description": null,
+        "content": {
+          "mode": "letters",
+          "question": "Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.",
+          "targetWord": "libro",
+          "autoShuffle": true,
+          "availableLetters": [
+            "l",
+            "b",
+            "i",
+            "r",
+            "a",
+            "o"
+          ]
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-24T12:08:17.762+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T12:14:59.939711+00:00",
+        "updated_at": "2025-10-24T12:14:59.939711+00:00",
+        "metadata": {},
+        "voice_guidance": "🔊 Las letras tienen sonidos, y cuando juntamos esos sonidos, formamos palabras.\n🔊 Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.\n🔊 Después, lee la palabra o escríbela según lo que escuches.\n🔊¡Cada sonido te ayuda a descubrir la palabra!\n",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "5c290712-b7e8-4464-a2b4-a4b3e1ae5ea5",
+        "order_in_lesson": null,
+        "drag_drop_mode": "letters"
+      },
+      {
+        "id": "2c26161f-b0ec-4255-a2b4-0b244b65ab8c",
+        "type": "exercise",
+        "subtype": "fill_blank",
+        "title": "Formar palabras 1",
+        "description": null,
+        "content": {
+          "mode": "single_word",
+          "prompt": "Las letras tienen sonidos, y cuando juntamos esos sonidos, formamos palabras. Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.\n",
+          "target": "mesa",
+          "letters": [
+            "o",
+            "m",
+            "e",
+            "s",
+            "a",
+            "l"
+          ],
+          "autoShuffle": true
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-24T11:55:33.045+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T11:56:33.753682+00:00",
+        "updated_at": "2025-10-24T12:02:15.228821+00:00",
+        "metadata": {},
+        "voice_guidance": "Las letras tienen sonidos, y cuando juntamos esos sonidos, formamos palabras.\n🔊 Escucha con atención, mira las letras y arrástralas para formar la palabra correcta.\n🔊 Después, lee la palabra o escríbela según lo que escuches.\n🔊¡Cada sonido te ayuda a descubrir la palabra!\n",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "5c290712-b7e8-4464-a2b4-a4b3e1ae5ea5",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "4104168b-b2ab-467c-b95b-0b796a88fe2a",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Nex lesson with image",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "est es un tet",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761304920375-Generated%20Image%20October%2017,%202025%20-%2011_36AM.png"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T11:22:09.344936+00:00",
+        "updated_at": "2025-10-24T11:24:41.572153+00:00",
+        "metadata": {},
+        "voice_guidance": "habla super rapido para ver",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "b7d5189f-2d9b-42b7-9cab-871c670591d5",
+        "type": "exercise",
+        "subtype": "true_false",
+        "title": "true or flse test",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "True",
+              "imageUrl": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761303782055-Neutral%20_%20Waiting.png",
+              "isCorrect": true
+            },
+            {
+              "text": "False",
+              "imageUrl": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761303788631-reading%20book.png",
+              "isCorrect": false
+            }
+          ],
+          "question": "choose the rightt answer "
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T11:03:11.939248+00:00",
+        "updated_at": "2025-10-24T11:24:45.991869+00:00",
+        "metadata": {},
+        "voice_guidance": null,
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "850ffa0d-c9e1-469b-8d07-6cfc63c3f62e",
+        "type": "exercise",
+        "subtype": "drag_drop",
+        "title": "drag and drop image to zone test",
+        "description": null,
+        "content": {
+          "mode": "match",
+          "question": "match Coqui to his attitudes",
+          "dropZones": [
+            {
+              "id": "zone-1761301536014",
+              "label": "happy"
+            },
+            {
+              "id": "zone-1761301567879",
+              "label": "thinking"
+            },
+            {
+              "id": "zone-1761301574086",
+              "label": "reading"
+            }
+          ],
+          "draggableItems": [
+            {
+              "id": "item-1761301585395",
+              "content": {
+                "url": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761301584791-reading%20book.png",
+                "type": "image"
+              },
+              "correctZone": "zone-1761301574086"
+            },
+            {
+              "id": "item-1761301596854",
+              "content": {
+                "url": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761301596441-excited.png",
+                "type": "image"
+              },
+              "correctZone": "zone-1761301536014"
+            },
+            {
+              "id": "item-1761301608126",
+              "content": {
+                "url": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761301607860-thinking.png",
+                "type": "image"
+              },
+              "correctZone": "zone-1761301567879"
+            }
+          ],
+          "allowMultiplePerZone": false
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T10:28:21.288825+00:00",
+        "updated_at": "2025-10-24T11:24:50.265462+00:00",
+        "metadata": {},
+        "voice_guidance": null,
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": "match"
+      },
+      {
+        "id": "8133e265-0047-43bd-8d12-00afb2dd3946",
+        "type": "exercise",
+        "subtype": "write_answer",
+        "title": "write answer test",
+        "description": null,
+        "content": {
+          "question": "what's the next word going to",
+          "caseSensitive": false,
+          "correctAnswer": "be",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761299402108-image.png"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T09:51:51.125796+00:00",
+        "updated_at": "2025-10-24T11:24:53.98119+00:00",
+        "metadata": {},
+        "voice_guidance": null,
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "0e830479-fc0e-4896-ae05-e2aaadbb0e70",
+        "type": "exercise",
+        "subtype": "fill_blank",
+        "title": "fill the blank test  instruccionesinstruccionesinstruccionesinstruccionesins  truccionesinstrucciones",
+        "description": null,
+        "content": {
+          "mode": "single_word",
+          "prompt": " instruccionesinstruccionesinstruccionesinstruccionesins  truccionesinstrucciones",
+          "target": "coqui",
+          "letters": [
+            "c",
+            "o",
+            "q",
+            "u",
+            "i",
+            "r",
+            "l"
+          ],
+          "autoShuffle": true
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-24T09:46:20.447752+00:00",
+        "updated_at": "2025-10-24T11:24:56.327392+00:00",
+        "metadata": {},
+        "voice_guidance": "habla despacio. guia elestudiante habla despacio. guia elestudiante",
+        "activity_template": null,
+        "coqui_dialogue": "habla despacio. guia elestudiantehabla despacio. guia elestudiante",
+        "pronunciation_words": [
+          "habla despacio. guia elestudiantehabla despacio. guia elestudiantevhabla despacio. guia elestudiante"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "2489a943-75a2-4603-a022-f7391f77e321",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "LAS VOCALES 3",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "a",
+              "imageUrl": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761243992994-image.png",
+              "isCorrect": true
+            },
+            {
+              "text": "b",
+              "imageUrl": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761244007620-image.png",
+              "isCorrect": false
+            },
+            {
+              "text": "c",
+              "imageUrl": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761244025170-image.png",
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál de estos dibujos comienza con la vocal Ee?"
+        },
+        "grade_level": 0,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T18:32:49.977+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T18:34:24.347505+00:00",
+        "updated_at": "2025-10-23T18:39:32.658603+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál de estos dibujos comienza con la vocal Ee?",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "333764ec-545a-4672-881c-f21583827bdb",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "333764ec-545a-4672-881c-f21583827bdb",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "LAS VOCALES Ee",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Esta es la vocal Ee. Observa que hay dos letras que la representan. La letra de color rojo es la mayúscula es la más grande y se utiliza al principio de los nombres propios y de las oraciones. La de color azul es la minúscula es la más pequeña y las usamos con más frecuencia que las mayúsculas.\n🔊 E e             \n \n🔊 Observa la posición de la boca en la imagen para poder emitir el sonido de esta vocal. Escucha atentamente su sonido.\n🔊 Esta es la vocal Ee. Observa las imágenes que comienzan con el sonido Ee. Escucha y repite cada uno de sus nombres.\n               \n            🔊 Escuela                             🔊 Escritorio                       🔊 Escalera \n"
+        },
+        "grade_level": 0,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-24T11:18:45.129+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T18:09:23.977714+00:00",
+        "updated_at": "2025-10-24T11:25:27.014909+00:00",
+        "metadata": {},
+        "voice_guidance": "Esta es la vocal Ee. Observa que hay dos letras que la representan. La letra de color rojo es la mayúscula es la más grande y se utiliza al principio de los nombres propios y de las oraciones. La de color azul es la minúscula es la más pequeña y las usamos con más frecuencia que las mayúsculas.\n🔊 E e             \n \n🔊 Observa la posición de la boca en la imagen para poder emitir el sonido de esta vocal. Escucha atentamente su sonido.\n🔊 Esta es la vocal Ee. Observa las imágenes que comienzan con el sonido Ee. Escucha y repite cada uno de sus nombres.\n               \n            🔊 Escuela                             🔊 Escritorio                       🔊 Escalera \n",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "8127471e-d6dc-4383-a26c-e03eeef59ed8",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "LAS VOCALES 2",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "1",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "2",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "3",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Con qué letra comienza el dibujo?",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761242250146-image.png"
+        },
+        "grade_level": 0,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T17:58:17.933+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T18:05:00.971808+00:00",
+        "updated_at": "2025-10-23T18:05:00.971808+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Con qué letra comienza el dibujo?",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "ffd27da9-cfd0-4d76-bcda-8ae295b06064",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "bf0c238d-5d8d-4dd9-9de2-dd84b4149f71",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "LAS VOCALES 1",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "a",
+              "imageUrl": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761241973514-image.png",
+              "isCorrect": true
+            },
+            {
+              "text": "b",
+              "imageUrl": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761241985878-image.png",
+              "isCorrect": false
+            },
+            {
+              "text": "c",
+              "imageUrl": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761241999007-image.png",
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál de estos dibujos comienza con la vocal Aa?\t"
+        },
+        "grade_level": 0,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T17:55:12.175+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T18:01:55.689284+00:00",
+        "updated_at": "2025-10-23T18:01:55.689284+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál de estos dibujos comienza con la vocal Aa?\t",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "ffd27da9-cfd0-4d76-bcda-8ae295b06064",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "ffd27da9-cfd0-4d76-bcda-8ae295b06064",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "LAS VOCALES Aa",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "\nLas vocales son 5 letras del abecedario. Estas representan un sonido vocálico. Estos sonidos los puedes pronunciar con tu boca abierta sin la obstrucción de la lengua, los labios o los dientes. Las vocales son:  Aa, Ee, Ii, Oo, Uu. \n\n🔊 A\n🔊 Esta es la vocal Aa. Observa que hay dos letras que la representan. La letra de color rojo es la mayúscula es la más grande y se utiliza al principio de los nombres propios y de las oraciones. La de color azul es la minúscula es la más pequeña y las usamos con más frecuencia que las mayúsculas.\nA a\n🔊   \n🔊 Observa la posición de la boca en la imagen para poder emitir el sonido de esta vocal. Escucha atentamente su sonido.\n🔊 Esta es la vocal Aa. Observa las imágenes que comienzan con el sonido Aa. Escucha y repite cada uno de sus nombres.\nA a\n \n           🔊 Avión\t\t                                🔊 Alfombra\t"
+        },
+        "grade_level": 0,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T18:01:12.667+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T17:45:15.838736+00:00",
+        "updated_at": "2025-10-23T18:07:55.258714+00:00",
+        "metadata": {},
+        "voice_guidance": "🔊¡Hola,! \n🔊 Hoy aprenderás algo muy importante: las vocales.\n🔊 Las vocales son las letras a, e, i, o, u.\n🔊 Cada una tiene su propio sonido, y juntas ayudan a formar muchas palabras que usamos todos los días.\n🔊 Escucha con atención, repite y observa cómo suena cada vocal.\n🔊 Recuerda:\n🔊 Abre bien la boca para pronunciar los sonidos. \n🔊 Escucha con cuidado para notar las diferencias. \n🔊¡Y di las vocales con alegría! \nVamos a descubrir las cinco vocales del abecedario.\n🔊 Escucha cómo suena cada una: a, e, i, o, u.\n🔊¡Muy bien,! Ahora repite conmigo.\n\nLas vocales son 5 letras del abecedario. Estas representan un sonido vocálico. Estos sonidos los puedes pronunciar con tu boca abierta sin la obstrucción de la lengua, los labios o los dientes. Las vocales son:  Aa, Ee, Ii, Oo, Uu. \n🔊 A\n🔊 Esta es la vocal Aa. Observa que hay dos letras que la representan. La letra de color rojo es la mayúscula es la más grande y se utiliza al principio de los nombres propios y de las oraciones. La de color azul es la minúscula es la más pequeña y las usamos con más frecuencia que las mayúsculas.\nA a\n🔊   \n🔊 Observa la posición de la boca en la imagen para poder emitir el sonido de esta vocal. Escucha atentamente su sonido.\n🔊 Esta es la vocal Aa. Observa las imágenes que comienzan con el sonido Aa. Escucha y repite cada uno de sus nombres.\nA a\n \n           🔊 Avión\t\t                                🔊 Alfombra\t\n",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "a08bce22-7cd6-472e-b9ad-653042fa2281",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "SALUDO",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¡Hola! \n🔊 Bienvenido a nuestra plataforma mágica de lectura.\n🔊 En esta plataforma mágica. \n🔊 Cada juego te ayudará a usar tus oídos atentos, tus ojos curiosos,\ny tu voz fuerte y alegre para leer mejor cada día. \n🔊 En cada juego escucharás sonidos, verás letras, imágenes y palabras. \n🔊 Escucha con atención.\n🔊 Repite los sonidos.\n🔊 Haz clic o toca las imágenes correctas. \n🔊 Cada vez que termines un ejercicio, ganarás estrellas y avanzarás al siguiente nivel. \n🔊¡Cuantos más sonidos descubras, mejor lector serás! \n"
+        },
+        "grade_level": 0,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T17:35:50.54+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T17:42:33.694589+00:00",
+        "updated_at": "2025-10-23T17:42:33.694589+00:00",
+        "metadata": {},
+        "voice_guidance": "¡Hola! \n🔊 Bienvenido a nuestra plataforma mágica de lectura.\n🔊 En esta plataforma mágica. \n🔊 Cada juego te ayudará a usar tus oídos atentos, tus ojos curiosos,\ny tu voz fuerte y alegre para leer mejor cada día. \n🔊 En cada juego escucharás sonidos, verás letras, imágenes y palabras. \n🔊 Escucha con atención.\n🔊 Repite los sonidos.\n🔊 Haz clic o toca las imágenes correctas. \n🔊 Cada vez que termines un ejercicio, ganarás estrellas y avanzarás al siguiente nivel. \n🔊¡Cuantos más sonidos descubras, mejor lector serás! \n",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "55dfdda5-9fce-4e70-b8c2-a6e8a0c4d6be",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Rimas Divertidas con Coquí",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "La rima es un conjunto de sonidos que se repiten al final de dos palabras. En ese sonido se incluyen las vocales y consonantes de la última sílaba. Por ejemplo, \"casa\" y \"taza\", \"gato\" y \"pato\" o \"foco\" y \"coco\" riman porque sus sonidos finales son idénticos.\n🔊 Ejemplo: sombrilla/bombilla\n"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-24T13:24:03.701+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T13:58:37.509198+00:00",
+        "updated_at": "2025-10-24T13:30:45.624524+00:00",
+        "metadata": {},
+        "voice_guidance": "La rima es un conjunto de sonidos que se repiten al final de dos palabras. En ese sonido se incluyen las vocales y consonantes de la última sílaba. Por ejemplo, \"casa\" y \"taza\", \"gato\" y \"pato\" o \"foco\" y \"coco\" riman porque sus sonidos finales son idénticos.\n🔊 Ejemplo: sombrilla/bombilla\n",
+        "activity_template": "rima_coqui",
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "960797e1-1d11-46ee-9b57-db58a77dd46b",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Escoge la sílaba 4",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "gui",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "gi",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "qui",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Mañana voy a tocar mi  ____tarra."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T14:07:46.765+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T13:56:17.279019+00:00",
+        "updated_at": "2025-10-23T14:07:46.96601+00:00",
+        "metadata": {},
+        "voice_guidance": "🔊 Instrucciones para el estudiante\n🔊 Escucha y lee con atención cada oración.\n🔊 Luego, escoge la sílaba correcta para completar la palabra incompleta.\n🔊¡Piensa en cómo suena la palabra completa y elige la respuesta correcta!\n no digas la palabra, la palabra es guitarra\n\nMañana voy a tocar mi  ____tarra.\na.\tgui\nb.\tgi\nc.\tqui\n",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "8b2ab422-87ed-4d1a-abe0-3a774fedb521",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "ce7296f9-3a95-4ee6-aa80-99844fccc79a",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Escoge la sílaba 3",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "chu",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "yu",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "llu",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "Voy a jugar en la _____via."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T13:46:54.767+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T13:53:36.921839+00:00",
+        "updated_at": "2025-10-23T13:53:36.921839+00:00",
+        "metadata": {},
+        "voice_guidance": null,
+        "activity_template": null,
+        "coqui_dialogue": "Instrucciones para el estudiante\n🔊 Escucha y lee con atención cada oración.\n🔊 Luego, escoge la sílaba correcta para completar la palabra incompleta.\n🔊¡Piensa en cómo suena la palabra completa y elige la respuesta correcta!\n\nno digas la contestacion la palabra es lluvia\n\nVoy a jugar en la _____via.\na.\tchu\nb.\tYu\nc.\tllu \n\n",
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "8b2ab422-87ed-4d1a-abe0-3a774fedb521",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "5059569e-5e56-4b1a-929f-f7f8e4960f0b",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Escoge la sílaba 2",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "li",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "chi",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "ni",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "La ____na está muy rica. "
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T13:44:12.752+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T13:47:31.382683+00:00",
+        "updated_at": "2025-10-23T13:50:55.57896+00:00",
+        "metadata": {},
+        "voice_guidance": "🔊 Instrucciones para el estudiante\n🔊 Escucha y lee con atención cada oración.\n🔊 Luego, escoge la sílaba correcta para completar la palabra incompleta.\n🔊¡Piensa en cómo suena la palabra completa y elige la respuesta correcta!\n\nla palabra es china pero no lo puedes decir\n\n🔊 La ____na está muy rica. \na.\tli\nb.\tchi\nc.\tni\n\n",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "8b2ab422-87ed-4d1a-abe0-3a774fedb521",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "72e31595-8d66-4e19-b295-bca77788b801",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Escoge la sílaba 1",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "ba",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "da",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "pa",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "El ______jarito está en la rama. "
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T13:38:40.641+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T13:29:53.190256+00:00",
+        "updated_at": "2025-10-23T13:45:22.841093+00:00",
+        "metadata": {},
+        "voice_guidance": "escoge la sílaba correcta para completar la palabra incompleta.\nno digas la contestacion \nsolo indica que debe buscar la silaba",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "8b2ab422-87ed-4d1a-abe0-3a774fedb521",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "8b2ab422-87ed-4d1a-abe0-3a774fedb521",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Escoge la sílaba que completa cada palabra incompleta",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Objetivo: Reconocer la sílaba que falta para completar una palabra, fortaleciendo la correspondencia grafema–fonema, la lectura silábica y la comprensión del significado de la palabra."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T13:19:36.521+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T13:26:19.328763+00:00",
+        "updated_at": "2025-10-23T13:26:19.328763+00:00",
+        "metadata": {},
+        "voice_guidance": "Instrucciones para el estudiante\n🔊 Escucha y lee con atención cada oración.\n🔊 Luego, escoge la sílaba correcta para completar la palabra incompleta.\n🔊¡Piensa en cómo suena la palabra completa y elige la respuesta correcta!\n",
+        "activity_template": "conciencia_s",
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "7a4c5c98-43a9-47bf-ba89-405aa64a8ced",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "subtipe test",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "SECTION 1: Hi! Let's play with tropical forest rhymes.\nSECTION 2: Listen: snail rhymes with pail. Do you hear how they end the same?\nSECTION 3: Now you: What rhymes with tree? Yes, bee!"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T11:45:20.756005+00:00",
+        "updated_at": "2025-10-24T13:16:44.125596+00:00",
+        "metadata": {},
+        "voice_guidance": "Emphasize the rhyming endings. Celebrate each correct rhyme.",
+        "activity_template": "rimas_tropicales",
+        "coqui_dialogue": "SECTION 1: Hi! Let's play with tropical forest rhymes.\nSECTION 2: Listen: snail rhymes with pail. Do you hear how they end the same?\nSECTION 3: Now you: What rhymes with tree? Yes, bee!",
+        "pronunciation_words": [
+          "snail",
+          "pail",
+          "tree",
+          "bee",
+          "butterfly",
+          "sky"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "5c290712-b7e8-4464-a2b4-a4b3e1ae5ea5",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Fonética (correspondencia grafema-fonema)",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Objetivo Desarrollar la habilidad de asociar sonidos con letras (correspondencia grafema-fonema) y formar palabras completas reconociendo la secuencia correcta de los sonidos."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T11:07:37.635544+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:22:30.404578+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": "Habla despacio y claramente. Enfatiza el sonido /s/. Celebra con \"¡Wepa!\" cuando lo hagan bien.\nEtapa\nDescripción de la tarea\nIA / Tecnología aplicada\nEvidencia de aprendizaje\n1. Audio inicial\nEl sistema pronuncia una palabra (ej. sol).\nVoz natural con acento neutro puertorriqueño.\nRegistro de intentos.\n2. Interacción\nEl estudiante arrastra letras desde un banco visual hasta la caja de construcción.\nIA registra el orden y el tiempo de respuesta.\nSecuencia correcta de letras.\n3. Revisión automática\nEl sistema compara el resultado con la ortografía correcta y ofrece retroalimentación inmediata.\nReconocimiento de patrón letra-sonido.\n% de aciertos en la formación.\n4. Refuerzo auditivo\nEl sistema reproduce la palabra completa y la resalta letra por letra.\nSíntesis de voz + reconocimiento fonémico.\nNivel de fluidez fonética.\n\nExplicación para el estudiante\nLas letras tienen sonidos, y cuando juntamos esos sonidos, formamos palabras.\nEscucha con atención, mira las letras y arrástralas para formar la palabra correcta.\nDespués, lee la palabra o escríbela según lo que escuches.\n¡Cada sonido te ayuda a descubrir una palabra nueva!",
+        "activity_template": "conciencia_s",
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "90874df8-6288-4123-8c82-fa4211e10c8d",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido final 8",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "n",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "ó",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "m",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Con qué sonido termina?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:18:49.640446+00:00",
+        "updated_at": "2025-10-23T03:19:32.913497+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Con qué sonido termina?\n\ncamión",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "c7d30040-c801-4eb9-870f-a9936cf3e940",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "ad89a19b-d78b-40b7-af35-89f8b2455fd8",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido final 7",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "s",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "m",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Con qué sonido termina?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:16:18.293248+00:00",
+        "updated_at": "2025-10-23T03:16:18.293248+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Con qué sonido termina?\npalmas",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "c7d30040-c801-4eb9-870f-a9936cf3e940",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "439e21f3-10e4-4f72-ab65-bd59edbf0369",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido final 6",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "p",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "m",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "o",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Con qué sonido termina?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:15:01.00131+00:00",
+        "updated_at": "2025-10-23T03:15:01.00131+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Con qué sonido termina?\ncampo",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "c7d30040-c801-4eb9-870f-a9936cf3e940",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "7063cf8a-5653-4421-9003-d43750c7cb91",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido final 5",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "l",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "z",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "u",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Con qué sonido termina?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:13:48.449918+00:00",
+        "updated_at": "2025-10-23T03:13:48.449918+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Con qué sonido termina?\nluz",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "c7d30040-c801-4eb9-870f-a9936cf3e940",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "6c6d2c8b-9405-43f0-9ca2-92b26d99ce63",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido final 4",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "j",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "e",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Con qué sonido termina?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:12:34.278057+00:00",
+        "updated_at": "2025-10-23T03:12:34.278057+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Con qué sonido termina?\noleaje",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "c7d30040-c801-4eb9-870f-a9936cf3e940",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "e8351a27-ed8d-4b14-a42a-fcb9f42cd578",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido final 3",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "e",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "n",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Con qué sonido termina?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:10:52.973546+00:00",
+        "updated_at": "2025-10-23T03:10:52.973546+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Con qué sonido termina?\narena",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "c7d30040-c801-4eb9-870f-a9936cf3e940",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "a25bca99-610e-4a7b-a9a0-3f0051763bd8",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido final 2",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "o",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "l",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "s",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Con qué sonido termina?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:09:41.307399+00:00",
+        "updated_at": "2025-10-23T03:09:41.307399+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Con qué sonido termina?\nsol",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "c7d30040-c801-4eb9-870f-a9936cf3e940",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "2043dcd3-7372-4ba9-a275-717af556a473",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido final 1",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "r",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "l",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "f",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Con qué sonido termina?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:04:41.463794+00:00",
+        "updated_at": "2025-10-23T03:08:23.460387+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Con qué sonido termina?\nflor",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": [
+          "flor"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "c7d30040-c801-4eb9-870f-a9936cf3e940",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "c7d30040-c801-4eb9-870f-a9936cf3e940",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Detección de sonido final",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Objetivo: Identificar y reconocer el sonido final (fonema final) en palabras familiares del entorno cotidiano, fortaleciendo la conciencia fonémica y la comprensión de la estructura sonora del lenguaje."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T11:07:37.635544+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:01:38.647786+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": "Escucha con mucha atención.\nTodas las palabras tienen un sonido que se escucha al final.\nTu trabajo será descubrir con qué sonido termina cada palabra.\nPor ejemplo:\nEscucha la palabra bote.\n¿Con qué sonido termina?\n/t/ o /e/?\n¡Correcto! Brote termina con /e/.\n¡Prepárate para escuchar el sonido que cierra cada palabra!",
+        "activity_template": "conciencia_s",
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "2a436d0a-621a-4104-bd55-6d9c3fd46f0e",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido del medio 9",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "o",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "c",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "b",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas en el centro?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T03:00:06.668997+00:00",
+        "updated_at": "2025-10-23T03:00:06.668997+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Qué sonido escuchas en el centro?\nboca",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "54312047-b763-4f89-8d07-143d0a9168fe",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "sonido del medio 8",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "l",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "n",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas en el centro?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:59:11.492726+00:00",
+        "updated_at": "2025-10-23T02:59:11.492726+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Qué sonido escuchas en el centro?\nflan",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "5e981d1d-e863-4d6e-9b02-2284219c7e49",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido del medio 7",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "p",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "i",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "ñ",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas en el centro?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:58:12.260814+00:00",
+        "updated_at": "2025-10-23T02:58:12.260814+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Qué sonido escuchas en el centro?\npiña",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "2e0b62b3-0ec3-460a-8406-cc1cf7ac8bfd",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido del medio 6",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "f",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "r",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "e",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Qué sonido escuchas en el centro?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:57:01.266242+00:00",
+        "updated_at": "2025-10-23T02:57:01.266242+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Qué sonido escuchas en el centro?\nfresa",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "00b54134-f94b-4385-8b84-b8d954cc6f92",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido del medio 5",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "u",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "j",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "g",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas en el centro?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:55:23.581334+00:00",
+        "updated_at": "2025-10-23T02:55:23.581334+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Qué sonido escuchas en el centro?\njugo",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "cd65bcb4-b2dd-4d04-9013-d62f5b4c35e4",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido del medio 4",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "l",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "ch",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "e",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Qué sonido escuchas en el centro?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:53:52.464482+00:00",
+        "updated_at": "2025-10-23T02:53:52.464482+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Qué sonido escuchas en el centro?\nleche",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "1bea38eb-2008-4917-8eea-95bcf2e5a2ca",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido del medio 3",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "c",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "f",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas en el centro?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:46:40.155052+00:00",
+        "updated_at": "2025-10-23T02:46:40.155052+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Qué sonido escuchas en el centro?\ncafe",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "27fa5f08-e402-4d11-b51a-f61523bab8bf",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido del medio 2",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "p",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "n",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas en el centro?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:45:29.82896+00:00",
+        "updated_at": "2025-10-23T02:45:29.82896+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Qué sonido escuchas en el centro?\npan",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "4db6c6be-cff3-48e0-b5da-1825b8122be7",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido del medio 1",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "m",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "o",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "g",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas en el centro?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:44:11.418851+00:00",
+        "updated_at": "2025-10-23T02:44:11.418851+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Qué sonido escuchas en el centro?\ngomas",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "10060923-9bb8-4a94-8ddd-0ffbf80bd975",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Encuentra el sonido del medio",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Objetivo: Reconocer y aislar el sonido del medio (fonema central) en palabras de uso común, ampliando la conciencia fonémica más allá del sonido inicial y final."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T11:07:37.635544+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:38:24.478016+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": "Habla despacio y claramente. Enfatiza el sonido /s/. Celebra con \"¡Wepa!\" cuando lo hagan bien.",
+        "activity_template": "conciencia_s",
+        "coqui_dialogue": "Escucha muy bien la palabra que diré.\nToda palabra tiene un sonido en el centro.\nTu tarea es descubrir cuál sonido escuchas en el medio.\nPor ejemplo:\nEscucha la palabra plano.\n¿Qué sonido escuchas en el centro?\n/p/, /l/ a /n/o/?\n¡Correcto! En grano, el sonido del medio es /a/.\n¡Vamos a escuchar, pensar y encontrar el sonido escondido!",
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "43ca30f3-d9cf-4ad0-9d9f-e73d2758d74f",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Doble palabra 9",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "silla",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "mesa",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál empieza con /s/?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:33:53.643452+00:00",
+        "updated_at": "2025-10-23T02:33:53.643452+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál empieza con /s/?\nsilla\nmesa",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "ddab36ad-0334-4f92-88b5-50a0f80a15c7",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Doble palabra 8",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "gato",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "perro",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál empieza con /g/?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:32:07.642388+00:00",
+        "updated_at": "2025-10-23T02:32:07.642388+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál empieza con /g/?\ngato\nperro",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "e66d5c15-8c2e-4e4f-8eea-29dad271a499",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Doble palabra 7",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "plátano",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "guineo",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál empieza con /p/?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:30:03.262718+00:00",
+        "updated_at": "2025-10-23T02:30:43.654727+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál empieza con /p/?\nplatano\nguineo",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "6fa1d1d5-95bf-44a6-ad8d-f5e61828ba61",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Doble palabra 6",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "luna",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "sol",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál empieza con /l/?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:28:04.38801+00:00",
+        "updated_at": "2025-10-23T02:28:04.38801+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál empieza con /l/?\nluna\nsol",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "907e0b94-3120-4943-83bd-9fe001efbce5",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Doble palabra 5",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "tarde",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "noche",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál empieza con /t/?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:16:11.352189+00:00",
+        "updated_at": "2025-10-23T02:16:11.352189+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál empieza con /t/?\ntarde\nnoche",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "20a1a6d2-4c2e-4213-b58f-567e0089d38f",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Doble palabra 4",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "mucho",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "poco",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Cuál empieza con /m/?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T02:13:50.074537+00:00",
+        "updated_at": "2025-10-23T02:13:50.074537+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál empieza con /m/?\nmucho\npoco",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "45d1ead8-b4b0-40d2-a0ff-7b3a9db979f4",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Doble palabra 3",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "bonito",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "feo",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál empieza con /b/?\n"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T01:55:19.768991+00:00",
+        "updated_at": "2025-10-23T01:55:49.284092+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál empieza con /b/?\nbonito\nfeo",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "8a9944f7-6192-4418-bd67-1d6d4822bc6e",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Doble palabra 2",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "frio",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "calor",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál empieza con /f/?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T01:52:40.482845+00:00",
+        "updated_at": "2025-10-23T01:52:40.482845+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál empieza con /f/?\nfrio\ncalor",
+        "activity_template": null,
+        "coqui_dialogue": "¿Cuál empieza con /f/?\nfrio\ncalor",
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "025b161b-07e2-4801-be27-0473eb04a574",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Doble palabra 1",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "Calle",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "Avenida",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Cuál empieza con el sonido /c/?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T01:48:49.426655+00:00",
+        "updated_at": "2025-10-23T01:50:05.258342+00:00",
+        "metadata": {},
+        "voice_guidance": "¿Cuál empieza con el sonido /c/?\ncalle\navenida",
+        "activity_template": null,
+        "coqui_dialogue": "¿Cuál empieza con el sonido /c/?\ncalle\navenida",
+        "pronunciation_words": [
+          "calle",
+          "avenida"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "219e4bea-3bdb-4551-a7b6-2c4f5378177a",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Doble palabra",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Escucha las dos palabras con atención.\nTe diré un sonido y tú tendrás que escoger cuál palabra empieza con ese sonido.\nPor ejemplo:\nEscucha “bonito” y “feo.”\n¿Cuál empieza con /b/?\n¡Muy bien! Bonito empieza con /b/.\nEscucha, piensa y selecciona.\n¡Vamos a jugar con los sonidos de las palabras!"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T11:07:37.635544+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T01:40:52.18592+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": "Habla despacio y claramente. Enfatiza el sonido. lee el contenido de la enseñanza y Celebra con \"¡Wepa!\" cuando lo hagan bien.",
+        "activity_template": "conciencia_s",
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "fd1af9ac-475a-4188-af0c-d783b27c2492",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido inicial 9",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "u",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "g",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas primero?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-23T01:27:48.452638+00:00",
+        "updated_at": "2025-10-23T01:35:42.20054+00:00",
+        "metadata": {},
+        "voice_guidance": "lee la palabra \"guagua\"",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": [
+          "guagua"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "f5d32445-faf3-4e28-bdbb-25239b62d20a",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "ejercicio de test",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "1",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "2",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "I'll update the query to fetch the parent lesson title and display it next to the \"Linked\" badge.\n\nI'll update the query to fetch the parent lesson title and display it next to the \"Linked\" badge.\n\nEdited\nAdminDashboard.tsx\nThe \"Linked\" badge now shows the parent lesson title when an exercise is linked to a lesson."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:41:27.302773+00:00",
+        "updated_at": "2025-10-22T16:41:27.302773+00:00",
+        "metadata": {},
+        "voice_guidance": null,
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": "efc8a8eb-3a49-4271-a88c-e074f395e668",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "efc8a8eb-3a49-4271-a88c-e074f395e668",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Lesson test Escucha y Repite con Coquí",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": " for an exercise to be saveable, ALL of these conditions must be met:\n\nTitle must be longer than 3 characters ✓\nQuestion must be longer than 10 characters ✓\nAt least 2 answers must be present ✓\nAt least ONE answer must be marked as correct AND have text "
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:38:25.523298+00:00",
+        "updated_at": "2025-10-24T13:16:55.383148+00:00",
+        "metadata": {},
+        "voice_guidance": "Habla con entusiasmo. Pausa 2 segundos después de cada palabra. Celebra cada intento.",
+        "activity_template": "coqui_escucha",
+        "coqui_dialogue": "SECTION 1: ¡Hola! Soy Coquí. Hoy vamos a practicar escuchando y repitiendo palabras bonitas de Puerto Rico.\nSECTION 2: Escucha con atención. Voy a decir una palabra y tú la repites después de mí.\nSECTION 3: ¡Perfecto! Tu voz suena muy bien. Sigamos practicando.\nSECTION 4: ¡Wepa! Lo estás haciendo chévere. Eres un campeón del español.",
+        "pronunciation_words": [
+          "playa",
+          "mangó",
+          "palma",
+          "coquí",
+          "borinquen"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "b42cf539-9448-48f4-8418-c5e4176a13af",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "ejercicio vinculado a leccion test again",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "1",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "2",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "ejjercicio mljkjmkljmlkjlkkjmljkmlkj",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761150692674-2024-10-08%2015_50_16-React%20App.png"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:33:20.967126+00:00",
+        "updated_at": "2025-10-22T16:33:20.967126+00:00",
+        "metadata": {},
+        "voice_guidance": "habla muy despacio",
+        "activity_template": null,
+        "coqui_dialogue": "test",
+        "pronunciation_words": [
+          "uno"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "af18f65c-0aae-4bdb-800b-119972f3d40d",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "8dc0bba6-6cfb-43bc-8ec7-b573df1480fc",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido inicial 8",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "r",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "c",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas primero?",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761150324813-image.png"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:32:12.629056+00:00",
+        "updated_at": "2025-10-22T16:32:12.629056+00:00",
+        "metadata": {},
+        "voice_guidance": "lee la palabra \"carro\"",
+        "activity_template": null,
+        "coqui_dialogue": "¿Qué sonido escuchas primero?",
+        "pronunciation_words": [
+          "carro"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "14dae0e8-4d9e-4c4c-b8a2-3f4ea69a63bc",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido inicial 7",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "l",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "p",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "t",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas primero?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:30:11.117463+00:00",
+        "updated_at": "2025-10-22T16:30:11.117463+00:00",
+        "metadata": {},
+        "voice_guidance": "lee lento y claro la palabra \"plátano\"",
+        "activity_template": null,
+        "coqui_dialogue": "¿Qué sonido escuchas primero?",
+        "pronunciation_words": [
+          "Plátano"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "af18f65c-0aae-4bdb-800b-119972f3d40d",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "test again",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "esto es el contenido principal"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:28:59.704947+00:00",
+        "updated_at": "2025-10-24T13:16:29.136069+00:00",
+        "metadata": {},
+        "voice_guidance": "gabla lento",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "c18168a0-5cef-4b3c-9207-9a10d9790ff2",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido inicial 6",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "c",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "r",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "b",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Qué sonido escuchas primero?",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761150014663-image.png"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:27:11.849721+00:00",
+        "updated_at": "2025-10-22T16:27:11.849721+00:00",
+        "metadata": {},
+        "voice_guidance": "lee lento y claro la palabra \"barco\"",
+        "activity_template": null,
+        "coqui_dialogue": "¿Qué sonido escuchas primero?",
+        "pronunciation_words": [
+          "barco"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "ddcbe0fb-5b78-4243-8ade-bc072b09c76a",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido inicial 5",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "o",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "q",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "c",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Qué sonido escuchas primero?"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:19:46.30831+00:00",
+        "updated_at": "2025-10-22T16:19:46.30831+00:00",
+        "metadata": {},
+        "voice_guidance": "lee lento y claro la palabra \"coquí\"",
+        "activity_template": null,
+        "coqui_dialogue": "¿Qué sonido escuchas primero?",
+        "pronunciation_words": [
+          "coquí"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "2f535019-0025-42d7-a276-0880b23db219",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido inicial 4",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "l",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "i",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas primero?",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761148987858-image.png"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:09:57.573631+00:00",
+        "updated_at": "2025-10-22T16:09:57.573631+00:00",
+        "metadata": {},
+        "voice_guidance": "lee lento y claro la palabra \"isla\"",
+        "activity_template": null,
+        "coqui_dialogue": "¿Qué sonido escuchas primero?",
+        "pronunciation_words": [
+          "isla"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "eaef3308-6ea1-4377-bfc4-cdd818ed7a66",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido inicial 3",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "l",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "r",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "f",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Qué sonido escuchas primero?",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761148750815-image.png"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T16:06:01.61586+00:00",
+        "updated_at": "2025-10-22T16:06:01.61586+00:00",
+        "metadata": {},
+        "voice_guidance": "lee lento y claro la palabra \"flor\"",
+        "activity_template": null,
+        "coqui_dialogue": "¿Qué sonido escuchas primero?",
+        "pronunciation_words": [
+          "flor"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "f78bb86d-15f4-4318-a784-cac094b65703",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido inicial 2",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "a",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "m",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "r",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¿Qué sonido escuchas primero?",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761148340888-image.png"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-24T11:24:18.662333+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T15:59:09.446568+00:00",
+        "updated_at": "2025-10-24T11:24:18.662333+00:00",
+        "metadata": {},
+        "voice_guidance": "leer lento y claro la palabra \"mar\"",
+        "activity_template": null,
+        "coqui_dialogue": "¿Qué sonido escuchas primero?",
+        "pronunciation_words": [
+          "Mar"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "e751c9b6-cd65-474a-8a3d-f6a25074f376",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": "Sonido inicial",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "l",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "o",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "s",
+              "imageUrl": null,
+              "isCorrect": true
+            }
+          ],
+          "question": "¿Qué sonido escuchas primero?\n\n"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T15:31:46.918391+00:00",
+        "updated_at": "2025-10-22T15:31:46.918391+00:00",
+        "metadata": {},
+        "voice_guidance": "Lee lento y claro la palabra \"sol\"",
+        "activity_template": null,
+        "coqui_dialogue": "¿Qué sonido escuchas primero?",
+        "pronunciation_words": [
+          "sol"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "2f3bdc99-b40c-45fe-a895-428ac8bbf128",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Identificando el Sonido /s/ con Coquí",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¡Escucha con mucha atención!\nCada palabra tiene un sonido que se escucha al principio.\nCuando el sistema diga una palabra, escucha y elige el primer sonido que oyes.\nPor ejemplo, si escuchas “plato”, el primer sonido es /p/.\n¡Vamos a jugar con los sonidos para descubrir cómo comienzan las palabras!"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T11:07:37.635544+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T15:20:12.100388+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": "Habla despacio y claramente. Enfatiza el sonido /s/. Celebra con \"¡Wepa!\" cuando lo hagan bien.",
+        "activity_template": "conciencia_s",
+        "coqui_dialogue": "SECTION 1: ¡Hola! Soy Coquí del bosque de El Yunque. Hoy vamos a descubrir palabras que comienzan con el sonido /s/.\nSECTION 2: Escucha estas palabras de Puerto Rico: sol, sapo, serpiente. ¿Escuchas el sonido /s/ al principio?\nSECTION 3: Ahora repite después de mí: sss-sol, sss-sapo, sss-serpiente.\nSECTION 4: ¡Excelente! El sonido /s/ suena como una serpiente: ssssss.",
+        "pronunciation_words": [
+          "sol",
+          "sapo",
+          "serpiente",
+          "silla",
+          "sopa"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "41b2d6c7-8b4a-4e55-8d7c-38b6e1c9fa01",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Lectura Fluida de Puerto Rico con Coquí",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Actividad: Escoge la sílaba que completa cada palabra incompleta\nObjetivo: Reconocer la sílaba que falta para completar una palabra, fortaleciendo la correspondencia grafema–fonema, la lectura silábica y la comprensión del significado de la palabra.\n"
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T11:07:37.635544+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T14:34:23.570222+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": "Lee con expresión natural. Pausa en las comas. Celebra la fluidez.",
+        "activity_template": "fluidez_pr",
+        "coqui_dialogue": "SECTION 1: ¡Hola! Soy Coquí. Hoy vamos a leer frases sobre nuestra bella isla.\nSECTION 2: Escucha primero: \"El coquí canta en El Yunque.\" Ahora tú.\nSECTION 3: ¡Muy bien! Lee con ritmo, como si estuvieras contando un cuento.\nSECTION 4: ¡Wepa! Lees con tanta fluidez. Estoy orgulloso de ti.",
+        "pronunciation_words": [
+          "El Yunque",
+          "San Juan",
+          "luquillo",
+          "fajardo",
+          "ponce"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "5044bc15-a303-4007-9fb8-1cf3db677cb4",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Dividing Words into Syllables with Coquí",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Objetivo: Desarrollar la capacidad de identificar, segmentar y contar sílabas en palabras orales y escritas, comprendiendo que cada sílaba se pronuncia con un solo golpe de voz.\nLa sílaba está compuesta por uno o más sonidos que se pronuncian con un solo golpe de voz. En el lenguaje escrito las sílabas se dividen con un símbolo llamado guión (-)."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T11:07:37.635544+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T14:24:00.100454+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": "Pause clearly between syllables. Clap to the rhythm of each syllable.",
+        "activity_template": "segmentacion",
+        "coqui_dialogue": "SECTION 1: Hi! I'm Coquí. Words are like trains with cars. Each car is a syllable.\nSECTION 2: Listen: co-qui. My name has two syllables. Clap with me: co-qui.\nSECTION 3: Now you. Divide this word into syllables: but-ter-fly.\nSECTION 4: Perfect! You separated all the syllables like an expert.",
+        "pronunciation_words": [
+          "coqui",
+          "butterfly",
+          "mango",
+          "island",
+          "rainforest"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "a86ddb21-aaf5-4f46-8e91-05b1aa5e8354",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Conciencia fonémica",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "¡Escucha con mucha atención!\nCada palabra tiene un sonido que se escucha al principio.\nCuando el sistema diga una palabra, escucha y elige el primer sonido que oyes.\nPor ejemplo, si escuchas “plato”, el primer sonido es /p/.\n¡Vamos a jugar con los sonidos para descubrir cómo comienzan las palabras!\n\nPalabra Sonido inicial correcto Opciones Visual Referencia Cultural\nsol\ns\nl\no\ns\nClima tropical\nmar\nm\na\nm\nr\nMar Caribe\nflor\nf\nl\nr\nf\nFlor de Maga símbolo nacional\nIsla\ni\nl\ni\na\ncoquí\nc\no\nq\nc\nSímbolo de Puerto Rico\nbarco\nb\nc\nr\nb\nTransporte marítimo\nplátano\np\nL\np\nt\nComida típica\ncarro\na\nr\nc\na\nTransporte\nterrestre\nguagua\ng\nu\ng\na\nTransporte típico\n\nPantalla 1 – Instrucción auditiva y visual:\n“Escucha la palabra: coquí.\n¿Qué sonido escuchas primero?”\nOpciones:\n/c/ /r/ /a/\nRespuestas automáticas:\n\n“¡Excelente! Coquí empieza con /c/.”\n“Escucha otra vez: coquí. Repite conmigo: /c/.”\nVisual:\nAnimación del coquí cantando y la letra C brillando."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T11:07:37.635544+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T14:21:34.80607+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": "Modo\nDescripción\nPropósito\nModo auditivo simple\nEscucha y selecciona entre 3 letras.\nDiscriminación fonémica inicial.\nModo visual guiado\nAparece la palabra escrita. El estudiante toca la primera letra que “suena igual”.\nConexión grafema-fonema.\nModo desafío\nEscucha dos palabras (ej. bloque, cristal) y selecciona cuál empieza con /b/.\nComparación fonémica entre palabras.",
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "9f750023-c594-4c14-85c8-d94f61f67108",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Dividing Words into Syllables with Coquí",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Desarrollar la capacidad de identificar, segmentar y contar sílabas en palabras orales y escritas, comprendiendo que cada sílaba se pronuncia con un solo golpe de voz.\nLa sílaba está compuesta por uno o más sonidos que se pronuncian con un solo golpe de voz. En el lenguaje escrito las sílabas se dividen con un símbolo llamado guión (-)."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": "2025-10-23T11:07:37.635544+00:00",
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T13:57:31.364722+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": "Pause clearly between syllables. Clap to the rhythm of each syllable.",
+        "activity_template": "segmentacion",
+        "coqui_dialogue": "SECTION 1: Hi! I'm Coquí. Words are like trains with cars. Each car is a syllable.\nSECTION 2: Listen: co-qui. My name has two syllables. Clap with me: co-qui.\nSECTION 3: Now you. Divide this word into syllables: but-ter-fly.\nSECTION 4: Perfect! You separated all the syllables like an expert.",
+        "pronunciation_words": [
+          "coqui",
+          "butterfly",
+          "mango",
+          "island",
+          "rainforest"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "4abaa9ab-6c58-43cc-8c26-8b234de74985",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Dividing Words into Syllables with Coquí",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Objetivo: Desarrollar la capacidad de identificar, segmentar y contar sílabas en palabras orales y escritas, comprendiendo que cada sílaba se pronuncia con un solo golpe de voz.\n\nLa sílaba está compuesta por uno o más sonidos que se pronuncian con un solo golpe de voz. En el lenguaje escrito las sílabas se dividen con un símbolo llamado guión (-)."
+        },
+        "grade_level": 1,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "draft",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-22T13:55:35.199473+00:00",
+        "updated_at": "2025-10-24T13:16:05.222646+00:00",
+        "metadata": {},
+        "voice_guidance": "Pause clearly between syllables. Clap to the rhythm of each syllable.",
+        "activity_template": "segmentacion",
+        "coqui_dialogue": "SECTION 1: Hi! I'm Coquí. Words are like trains with cars. Each car is a syllable.\nSECTION 2: Listen: co-qui. My name has two syllables. Clap with me: co-qui.\nSECTION 3: Now you. Divide this word into syllables: but-ter-fly.\nSECTION 4: Perfect! You separated all the syllables like an expert.",
+        "pronunciation_words": [
+          "coqui",
+          "butterfly",
+          "mango",
+          "island",
+          "rainforest"
+        ],
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "586c1835-bb64-40fa-98b8-a2180c338a18",
+        "type": "exercise",
+        "subtype": "multiple_choice",
+        "title": " Read the informational text carefully. Then, choo",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "insects",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "dogs",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "sharks",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": " Read the informational text carefully. Then, choose the correct \nanswer:\nWhat other animals can you find on this type of forest?",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761063783103-image.png"
+        },
+        "grade_level": 1,
+        "language": "en",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-21T16:24:31.126631+00:00",
+        "updated_at": "2025-10-21T16:24:31.126631+00:00",
+        "metadata": {},
+        "voice_guidance": null,
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "8953b8be-a9d1-48d0-9854-3b6832c84a57",
+        "type": "assessment",
+        "subtype": "multiple_choice",
+        "title": "English  Assessment  Grade | 1st grade  Subject | English",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "d",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "c",
+              "imageUrl": null,
+              "isCorrect": false
+            },
+            {
+              "text": "b",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Look at the picture.  Choose the correct beginning and ending sound.\n__ og",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761063205153-image.png"
+        },
+        "grade_level": 1,
+        "language": "en",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "created_at": "2025-10-21T16:14:13.411524+00:00",
+        "updated_at": "2025-10-23T11:38:24.429017+00:00",
+        "metadata": {},
+        "voice_guidance": null,
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      },
+      {
+        "id": "d4925bad-9535-418e-b2f3-cc89edc9235a",
+        "type": "lesson",
+        "subtype": "lesson",
+        "title": "Lección 3: Tamaño y Posición",
+        "description": null,
+        "content": {
+          "answers": [
+            {
+              "text": "cierto",
+              "imageUrl": null,
+              "isCorrect": true
+            },
+            {
+              "text": "falso",
+              "imageUrl": null,
+              "isCorrect": false
+            }
+          ],
+          "question": "Los niños están adentro del salón.",
+          "questionImage": "https://meertwtenhlmnlpwxhyz.supabase.co/storage/v1/object/public/manual-assessment-images/1761050478338-image.png"
+        },
+        "grade_level": 0,
+        "language": "es",
+        "subject_area": "reading",
+        "curriculum_standards": null,
+        "enable_voice": true,
+        "voice_speed": 1,
+        "auto_read_question": true,
+        "difficulty_level": null,
+        "estimated_duration_minutes": 5,
+        "status": "published",
+        "published_at": null,
+        "view_count": 0,
+        "completion_count": 0,
+        "average_score": null,
+        "created_by": "25390fc0-096f-4940-bfb3-4535f8e45ac0",
+        "created_at": "2025-10-21T12:42:00.009516+00:00",
+        "updated_at": "2025-10-23T11:53:06.644585+00:00",
+        "metadata": {},
+        "voice_guidance": null,
+        "activity_template": null,
+        "coqui_dialogue": null,
+        "pronunciation_words": null,
+        "max_attempts": 3,
+        "parent_lesson_id": null,
+        "order_in_lesson": null,
+        "drag_drop_mode": null
+      }
+    ],
+    "profiles": [
+      {
+        "id": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "full_name": "Administrator",
+        "avatar_url": "/avatars/admin-1.jpg",
+        "created_at": "2025-10-21T13:52:57.998335+00:00",
+        "updated_at": "2025-10-21T14:14:01.732188+00:00",
+        "grade_level": null,
+        "assigned_region": null,
+        "school_id": null,
+        "language_specialization": null,
+        "learning_languages": [
+          "es",
+          "en"
+        ]
+      }
+    ],
+    "user_roles": [
+      {
+        "id": "a85bc4de-f53b-4df6-bdf7-39de2524896d",
+        "user_id": "49063ede-8e67-429e-87f6-2f291cba1203",
+        "role": "depr_executive",
+        "created_at": "2025-10-21T14:09:42.358148+00:00"
+      }
+    ]
+  }
+}
