@@ -33,33 +33,34 @@ export function MultipleChoicePlayer({
   return (
     <div className="space-y-4 mb-8">
       {content.answers.map((answer, index) => (
-        <Button
-          key={index}
-          onClick={() => onAnswer(index)}
-          disabled={showFeedback}
-          className={`w-full p-4 sm:p-6 justify-start min-h-[80px] ${
-            showFeedback && selectedAnswer === index
-              ? isCorrect
-                ? 'bg-success hover:bg-success/90 text-success-foreground'
-                : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
-              : ''
-          }`}
-          variant={showFeedback && selectedAnswer === index ? 'default' : 'outline'}
-          aria-label={`${t("Opción", "Option")} ${String.fromCharCode(65 + index)}: ${answer.text}`}
-          aria-pressed={selectedAnswer === index}
-        >
-          <span className="font-bold mr-3 sm:mr-4 text-base sm:text-xl self-start">{String.fromCharCode(65 + index)})</span>
-          <div className="flex-1 flex items-center gap-3 sm:gap-4">
-            {answer.imageUrl && (
+        <div key={index} className="flex items-center gap-4">
+          {answer.imageUrl && (
+            <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-md overflow-hidden bg-muted">
               <img
                 src={answer.imageUrl}
                 alt={`${t("Opción", "Option")} ${index + 1}`}
-                className="h-16 w-16 sm:h-20 sm:w-20 object-cover rounded flex-shrink-0"
+                className="w-full h-full object-cover"
               />
-            )}
-            <span className="text-lg sm:text-2xl text-left">{answer.text}</span>
-          </div>
-        </Button>
+            </div>
+          )}
+          <Button
+            onClick={() => onAnswer(index)}
+            disabled={showFeedback}
+            className={`flex-1 p-4 sm:p-6 justify-start min-h-[80px] ${
+              showFeedback && selectedAnswer === index
+                ? isCorrect
+                  ? 'bg-success hover:bg-success/90 text-success-foreground'
+                  : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
+                : ''
+            }`}
+            variant={showFeedback && selectedAnswer === index ? 'default' : 'outline'}
+            aria-label={`${t("Opción", "Option")} ${String.fromCharCode(65 + index)}: ${answer.text}`}
+            aria-pressed={selectedAnswer === index}
+          >
+            <span className="font-bold mr-3 sm:mr-4 text-base sm:text-xl self-start">{String.fromCharCode(65 + index)})</span>
+            <span className="text-lg sm:text-2xl text-left flex-1">{answer.text}</span>
+          </Button>
+        </div>
       ))}
     </div>
   );
