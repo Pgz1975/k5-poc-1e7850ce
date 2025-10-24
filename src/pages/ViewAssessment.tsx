@@ -29,6 +29,7 @@ export default function ViewAssessment() {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [transcript, setTranscript] = useState<string[]>([]);
   const [metrics, setMetrics] = useState<any>({});
   const clientRef = useRef<EnhancedRealtimeClient | null>(null);
@@ -61,6 +62,7 @@ export default function ViewAssessment() {
     if (isConnected || isLoading || !assessment) return;
 
     setIsLoading(true);
+    setPermissionDenied(false);
     try {
       const client = new EnhancedRealtimeClient({
         studentId: user?.id || 'demo',
@@ -89,24 +91,37 @@ export default function ViewAssessment() {
       }, 1000);
     } catch (error) {
       console.error('Voice connection failed:', error);
-      toast({
-        title: t("Error", "Error"),
-        description: t("No se pudo conectar la voz", "Could not connect voice"),
-        variant: "destructive"
-      });
+      
+      // Check if it's a permission error
+      if (error instanceof Error && 
+          (error.name === 'NotAllowedError' || error.message.includes('Permission denied'))) {
+        setPermissionDenied(true);
+        toast({
+          title: t("Permiso de Micrófono Requerido", "Microphone Permission Required"),
+          description: t(
+            "Necesitas permitir el acceso al micrófono para usar la voz interactiva. El ejercicio funciona sin voz.",
+            "You need to allow microphone access to use interactive voice. The exercise works without voice."
+          ),
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: t("Error", "Error"),
+          description: t("No se pudo conectar la voz", "Could not connect voice"),
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Cleanup on unmount
   useEffect(() => {
-    if (assessment && !isConnected && !isLoading) {
-      startVoiceSession();
-    }
     return () => {
       clientRef.current?.disconnect();
     };
-  }, [assessment]);
+  }, []);
 
   const handleAnswer = (index: number) => {
     setSelectedAnswer(index);
@@ -214,11 +229,42 @@ export default function ViewAssessment() {
           )}
         </div>
 
-        {/* Voice Status */}
+        {/* Voice Status & Connection */}
         <div className="flex justify-between items-center mb-6">
-          <Badge variant={isConnected ? 'default' : 'secondary'}>
-            {isConnected ? '🔊 ' + t("Voz Activa", "Voice Active") : '🔇 ' + t("Voz Inactiva", "Voice Inactive")}
-          </Badge>
+          <div className="flex gap-3 items-center">
+            {!isConnected && !permissionDenied && (
+              <Button
+                onClick={startVoiceSession}
+                disabled={isLoading}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t("Conectando...", "Connecting...")}
+                  </>
+                ) : (
+                  <>
+                    🔊 {t("Activar Voz", "Activate Voice")}
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {isConnected && (
+              <Badge variant="default">
+                🔊 {t("Voz Activa", "Voice Active")}
+              </Badge>
+            )}
+
+            {permissionDenied && (
+              <Badge variant="destructive" className="gap-1">
+                🔇 {t("Sin Micrófono", "No Microphone")}
+              </Badge>
+            )}
+          </div>
 
           {isAIPlaying && (
             <div className="flex items-center gap-2 text-primary animate-pulse">
