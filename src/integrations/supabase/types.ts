@@ -183,6 +183,7 @@ export type Database = {
           curriculum_standards: string[] | null
           description: string | null
           difficulty_level: number | null
+          drag_drop_mode: string | null
           enable_voice: boolean | null
           estimated_duration_minutes: number | null
           grade_level: number
@@ -216,6 +217,7 @@ export type Database = {
           curriculum_standards?: string[] | null
           description?: string | null
           difficulty_level?: number | null
+          drag_drop_mode?: string | null
           enable_voice?: boolean | null
           estimated_duration_minutes?: number | null
           grade_level: number
@@ -249,6 +251,7 @@ export type Database = {
           curriculum_standards?: string[] | null
           description?: string | null
           difficulty_level?: number | null
+          drag_drop_mode?: string | null
           enable_voice?: boolean | null
           estimated_duration_minutes?: number | null
           grade_level?: number

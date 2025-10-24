@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, ArrowLeft, ListChecks, HelpCircle, type LucideIcon } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, ListChecks, HelpCircle, PenLine, Move, type LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SubtypeSelectorProps {
@@ -47,8 +47,24 @@ export function SubtypeSelector({ type, onSelect, onBack }: SubtypeSelectorProps
       icon: HelpCircle,
       titleEs: 'Completar Espacios',
       titleEn: 'Fill in the Blank',
-      descriptionEs: 'Completar la frase',
-      descriptionEn: 'Complete the sentence'
+      descriptionEs: 'Arrastrar letras para formar palabras',
+      descriptionEn: 'Drag letters to form words'
+    },
+    {
+      id: 'write_answer',
+      icon: PenLine,
+      titleEs: 'Escribir Respuesta',
+      titleEn: 'Write Answer',
+      descriptionEs: 'Escribir la palabra correcta',
+      descriptionEn: 'Write the correct word'
+    },
+    {
+      id: 'drag_drop',
+      icon: Move,
+      titleEs: 'Arrastrar y Soltar',
+      titleEn: 'Drag and Drop',
+      descriptionEs: 'Arrastrar elementos para responder',
+      descriptionEn: 'Drag elements to answer'
     }
   ];
 
