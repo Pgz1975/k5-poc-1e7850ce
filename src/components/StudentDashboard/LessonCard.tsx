@@ -53,25 +53,19 @@ export function LessonCard({
     <Card
       className={`relative overflow-hidden transition-all duration-300 cursor-pointer ${
         isLocked
-          ? "opacity-60 hover:scale-100"
+          ? "hover:scale-100"
           : "hover:scale-105 hover:shadow-xl"
-      } ${isLocked ? "animate-shake-on-click" : ""}`}
+      }`}
       onClick={handleClick}
     >
-      {/* Lock Overlay */}
-      {isLocked && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center">
-          <Lock className="w-12 h-12 text-muted-foreground" />
-        </div>
-      )}
-
       <CardContent className="p-6 space-y-4">
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-lg font-bold line-clamp-2 flex-1">{title}</h3>
-          {isCompleted && (
-            <CheckCircle className="w-6 h-6 text-success flex-shrink-0" />
-          )}
+          <div className="flex gap-2 flex-shrink-0">
+            {isLocked && <Lock className="w-5 h-5 text-muted-foreground" />}
+            {isCompleted && <CheckCircle className="w-5 h-5 text-success" />}
+          </div>
         </div>
 
         {/* Description */}
