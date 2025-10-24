@@ -200,6 +200,20 @@ export default function ViewAssessment() {
       <Header />
 
       <main className="container mx-auto px-6 py-8 max-w-4xl">
+        {/* Activity Title */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            {assessment.title}
+          </h1>
+          {assessment.type && (
+            <Badge variant="outline" className="text-sm">
+              {assessment.type === 'lesson' && t("Lección", "Lesson")}
+              {assessment.type === 'exercise' && t("Ejercicio", "Exercise")}
+              {assessment.type === 'assessment' && t("Evaluación", "Assessment")}
+            </Badge>
+          )}
+        </div>
+
         {/* Voice Status */}
         <div className="flex justify-between items-center mb-6">
           <Badge variant={isConnected ? 'default' : 'secondary'}>
