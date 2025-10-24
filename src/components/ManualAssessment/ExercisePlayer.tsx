@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MultipleChoicePlayer } from './players/MultipleChoicePlayer';
 import { TrueFalsePlayer } from './players/TrueFalsePlayer';
 import { FillBlankPlayer } from './players/FillBlankPlayer';
@@ -33,6 +33,15 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [score, setScore] = useState<number>(0);
   const [hasCompleted, setHasCompleted] = useState(false);
+
+  // Reset state when exercise changes
+  useEffect(() => {
+    setSelectedAnswer(null);
+    setShowFeedback(false);
+    setIsCorrect(null);
+    setScore(0);
+    setHasCompleted(false);
+  }, [exercise.id]);
 
   const handleAnswer = (answerIndex: number) => {
     if (showFeedback) return;
