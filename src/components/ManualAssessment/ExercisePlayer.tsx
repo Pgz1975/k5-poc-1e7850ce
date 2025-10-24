@@ -28,6 +28,12 @@ interface ExercisePlayerProps {
 
 export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: ExercisePlayerProps) {
   const { t } = useLanguage();
+  
+  // Guard against transient undefined props during transitions
+  if (!exercise) {
+    return null;
+  }
+
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -41,7 +47,7 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
     setIsCorrect(null);
     setScore(0);
     setHasCompleted(false);
-  }, [exercise.id]);
+  }, [exercise?.id]);
 
   const handleAnswer = (answerIndex: number) => {
     if (showFeedback) return;
