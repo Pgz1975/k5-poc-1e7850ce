@@ -82,14 +82,6 @@ export default function ViewLesson() {
 
       if (error) throw error;
 
-      // Celebration confetti
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
-      });
-
       // Invalidate queries to refresh lesson list and unlock next lesson
       await queryClient.invalidateQueries({ 
         queryKey: ['student-progress', 'lesson', profile?.gradeLevel, profile?.learningLanguages] 
@@ -98,12 +90,33 @@ export default function ViewLesson() {
         queryKey: ['lessons-with-order', profile?.gradeLevel] 
       });
 
-      toast.success(t("¡Lección completada!", "Lesson completed!"));
-      
-      // Navigate after a short delay to enjoy the confetti
-      setTimeout(() => {
-        navigate("/student-dashboard/lessons");
-      }, 1500);
+      // Check if lesson has exercises
+      const { data: exercises } = await supabase
+        .from("manual_assessments")
+        .select("id")
+        .eq("parent_lesson_id", id)
+        .order("order_in_lesson");
+
+      if (exercises && exercises.length > 0) {
+        // Has exercises - navigate to exercise flow
+        toast.success(t("¡Lección completada! Ahora los ejercicios.", "Lesson completed! Now the exercises."));
+        navigate(`/lesson/${id}/exercises`);
+      } else {
+        // No exercises - show confetti and return to dashboard
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+        });
+
+        toast.success(t("¡Lección completada!", "Lesson completed!"));
+        
+        // Navigate after a short delay to enjoy the confetti
+        setTimeout(() => {
+          navigate("/student-dashboard/lessons");
+        }, 1500);
+      }
     } catch (error) {
       console.error("Error marking lesson as complete:", error);
       toast.error(t("Error al completar la lección", "Error completing lesson"));
