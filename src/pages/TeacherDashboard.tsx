@@ -8,6 +8,7 @@ import { Users, TrendingUp, BookOpen, AlertCircle, Download, Filter } from "luci
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { ManageLessonsDrawer } from "@/components/TeacherDashboard/ManageLessonsDrawer";
 
 const TeacherDashboard = () => {
   const { t } = useLanguage();
@@ -58,6 +59,7 @@ const TeacherDashboard = () => {
                 </p>
               </div>
               <div className="flex gap-2">
+                <ManageLessonsDrawer />
                 <Button variant="outline" className="gap-2">
                   <Filter className="h-4 w-4" />
                   {t("Filtros", "Filters")}
