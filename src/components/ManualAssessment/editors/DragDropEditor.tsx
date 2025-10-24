@@ -438,29 +438,42 @@ export function DragDropEditor({ content, onChange, language }: DragDropEditorPr
             </div>
 
             {/* Add New Item */}
-            <div className="mt-3 space-y-2 p-3 border rounded-md bg-muted/30">
-              <Label className="text-sm font-semibold">{t('Añadir Elemento', 'Add Item')}</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={newItemText}
-                  onChange={(e) => setNewItemText(e.target.value)}
-                  placeholder={t('Texto del elemento...', 'Item text...')}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleAddItem('text', newItemText)}
-                  disabled={!newItemText.trim() || content.dropZones.length === 0}
-                >
-                  {t('+ Texto', '+ Text')}
-                </Button>
+            <div className="mt-3 space-y-3 p-4 border-2 border-dashed rounded-md bg-muted/30">
+              <Label className="text-sm font-semibold">{t('Añadir Nuevo Elemento', 'Add New Item')}</Label>
+              
+              {/* Text Item */}
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">{t('Añadir elemento de texto:', 'Add text item:')}</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={newItemText}
+                    onChange={(e) => setNewItemText(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && newItemText.trim() && content.dropZones.length > 0 && handleAddItem('text', newItemText)}
+                    placeholder={t('Texto del elemento...', 'Item text...')}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleAddItem('text', newItemText)}
+                    disabled={!newItemText.trim() || content.dropZones.length === 0}
+                  >
+                    {t('+ Añadir Texto', '+ Add Text')}
+                  </Button>
+                </div>
               </div>
-              <div>
-                <Label className="text-xs">{t('O añadir imagen:', 'Or add image:')}</Label>
+
+              {/* Image Item */}
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">{t('Añadir elemento de imagen:', 'Add image item:')}</Label>
                 <ImagePasteZone
-                  onImageUploaded={(url) => handleAddItem('image', url)}
+                  onImageUploaded={(url) => content.dropZones.length > 0 && handleAddItem('image', url)}
                   currentImage={undefined}
                 />
+                {content.dropZones.length === 0 && (
+                  <p className="text-xs text-destructive">
+                    {t('⚠️ Añade zonas primero', '⚠️ Add zones first')}
+                  </p>
+                )}
               </div>
             </div>
           </div>
