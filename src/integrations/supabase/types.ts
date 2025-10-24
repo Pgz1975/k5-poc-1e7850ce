@@ -170,6 +170,57 @@ export type Database = {
           },
         ]
       }
+      lesson_ordering: {
+        Row: {
+          assessment_id: string
+          created_at: string | null
+          display_order: number
+          domain_name: string | null
+          domain_order: number | null
+          grade_level: number
+          id: string
+          parent_lesson_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assessment_id: string
+          created_at?: string | null
+          display_order: number
+          domain_name?: string | null
+          domain_order?: number | null
+          grade_level: number
+          id?: string
+          parent_lesson_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assessment_id?: string
+          created_at?: string | null
+          display_order?: number
+          domain_name?: string | null
+          domain_order?: number | null
+          grade_level?: number
+          id?: string
+          parent_lesson_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_ordering_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "manual_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_ordering_parent_lesson_id_fkey"
+            columns: ["parent_lesson_id"]
+            isOneToOne: false
+            referencedRelation: "manual_assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       manual_assessments: {
         Row: {
           activity_template: string | null
