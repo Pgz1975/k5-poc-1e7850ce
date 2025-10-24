@@ -216,7 +216,19 @@ export function MatchModePlayer({ content, onAnswer, voiceClient }: MatchModePla
       </Card>
 
       <DragOverlay>
-        {activeItem && <DraggableItem item={activeItem} isDragging />}
+        {activeItem && (
+          <div className="p-2 rounded-md border-4 border-primary bg-secondary shadow-lg">
+            {typeof activeItem.content === 'string' ? (
+              <span className="font-medium">{activeItem.content}</span>
+            ) : (
+              <img
+                src={activeItem.content.url}
+                alt="Item"
+                className="h-20 w-20 object-cover rounded pointer-events-none select-none"
+              />
+            )}
+          </div>
+        )}
       </DragOverlay>
     </DndContext>
   );
