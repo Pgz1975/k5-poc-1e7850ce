@@ -25,11 +25,12 @@ export const useLessonOrdering = (gradeLevel: number) => {
   const { data: lessonsWithOrder } = useQuery({
     queryKey: ['lessons-with-order', gradeLevel],
     queryFn: async () => {
-      // First get all assessments for this grade (parent lessons only)
+      // First get all published parent lessons for this grade
       const { data: assessments, error: assessError } = await supabase
         .from('manual_assessments')
-        .select('*')
+        .select('id, title, description, type, grade_level, language, status, parent_lesson_id, order_in_lesson, estimated_duration_minutes, created_at')
         .eq('grade_level', gradeLevel)
+        .eq('status', 'published')
         .is('parent_lesson_id', null) // Only parent lessons, not exercises
         .order('created_at');
       

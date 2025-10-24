@@ -40,18 +40,22 @@ export const ManageLessonsDrawer = () => {
   };
 
   const handleSave = () => {
-    const updates = reorderedLessons
+    // Use reorderedLessons if available, otherwise use lessonsWithOrder for initial save
+    const lessonsToSave = reorderedLessons.length > 0 ? reorderedLessons : (lessonsWithOrder || []);
+    
+    const updates = lessonsToSave
       .filter(lesson => !lesson.parent_lesson_id) // Only parent lessons
       .map((lesson, index) => ({
         grade_level: parseInt(selectedGrade),
         assessment_id: lesson.id,
-        display_order: index,
+        display_order: lesson.display_order ?? index,
         domain_name: lesson.domain_name || null,
         domain_order: lesson.domain_order || null,
         parent_lesson_id: null,
       }));
 
     updateOrdering(updates);
+    setIsOpen(false);
   };
 
   return (
@@ -116,7 +120,7 @@ export const ManageLessonsDrawer = () => {
             </Button>
             <Button
               onClick={handleSave}
-              disabled={isUpdating || reorderedLessons.length === 0}
+              disabled={isUpdating || !lessonsWithOrder || lessonsWithOrder.length === 0}
               className="gap-2"
             >
               <Save className="h-4 w-4" />
