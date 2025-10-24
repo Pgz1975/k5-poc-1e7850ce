@@ -33,6 +33,7 @@ import StudentAssessmentsProgress from "./pages/StudentAssessmentsProgress";
 import ViewLesson from "./pages/ViewLesson";
 import LessonExerciseFlow from "./pages/LessonExerciseFlow";
 import GenerateContent from "./pages/GenerateContent";
+import GenerateContentAdmin from "./pages/GenerateContentAdmin";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,7 @@ const App = () => (
               <Route path="/create-demo-users" element={<CreateDemoUsers />} />
               <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               <Route path="/generate-content" element={<ProtectedRoute><GenerateContent /></ProtectedRoute>} />
+              <Route path="/generate-content-admin" element={<ProtectedRoute><GenerateContentAdmin /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
