@@ -244,6 +244,7 @@ export type Database = {
           metadata: Json | null
           order_in_lesson: number | null
           parent_lesson_id: string | null
+          passing_score: number | null
           pronunciation_words: string[] | null
           published_at: string | null
           status: string | null
@@ -278,6 +279,7 @@ export type Database = {
           metadata?: Json | null
           order_in_lesson?: number | null
           parent_lesson_id?: string | null
+          passing_score?: number | null
           pronunciation_words?: string[] | null
           published_at?: string | null
           status?: string | null
@@ -312,6 +314,7 @@ export type Database = {
           metadata?: Json | null
           order_in_lesson?: number | null
           parent_lesson_id?: string | null
+          passing_score?: number | null
           pronunciation_words?: string[] | null
           published_at?: string | null
           status?: string | null
