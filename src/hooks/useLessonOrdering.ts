@@ -25,11 +25,12 @@ export const useLessonOrdering = (gradeLevel: number) => {
   const { data: lessonsWithOrder } = useQuery({
     queryKey: ['lessons-with-order', gradeLevel],
     queryFn: async () => {
-      // First get all assessments for this grade
+      // First get all assessments for this grade (parent lessons only)
       const { data: assessments, error: assessError } = await supabase
         .from('manual_assessments')
         .select('*')
         .eq('grade_level', gradeLevel)
+        .is('parent_lesson_id', null) // Only parent lessons, not exercises
         .order('created_at');
       
       if (assessError) throw assessError;
@@ -45,12 +46,20 @@ export const useLessonOrdering = (gradeLevel: number) => {
       // Merge ordering info with assessments
       const orderMap = new Map(ordering?.map(o => [o.assessment_id, o]) || []);
       
-      return assessments?.map(assessment => ({
+      const lessonsWithOrderData = assessments?.map(assessment => ({
         ...assessment,
         display_order: orderMap.get(assessment.id)?.display_order,
         domain_name: orderMap.get(assessment.id)?.domain_name,
         domain_order: orderMap.get(assessment.id)?.domain_order,
       })) as LessonWithOrder[];
+
+      // Sort by display_order if available, otherwise by created_at
+      return lessonsWithOrderData?.sort((a, b) => {
+        if (a.display_order !== undefined && b.display_order !== undefined) {
+          return a.display_order - b.display_order;
+        }
+        return 0;
+      });
     }
   });
 

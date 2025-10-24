@@ -6,13 +6,16 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Star, Target, Clock } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { ExerciseCard } from "@/components/StudentDashboard/ExerciseCard";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useMemo } from "react";
 
 export default function StudentExercisesProgress() {
   const { t, language } = useLanguage();
-  const navigate = useNavigate();
   const { data: profile, isLoading: profileLoading } = useStudentProfile();
 
   const { data: progress, isLoading: progressLoading } = useStudentProgress({
@@ -20,6 +23,61 @@ export default function StudentExercisesProgress() {
     gradeLevel: profile?.gradeLevel ?? 0,
     learningLanguages: profile?.learningLanguages ?? ["es", "en"],
   });
+
+  // Fetch all exercises including those linked to lessons
+  const { data: allExercises } = useQuery({
+    queryKey: ["all-exercises", profile?.gradeLevel, profile?.learningLanguages],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("manual_assessments")
+        .select(`
+          *,
+          parent_lesson:manual_assessments!parent_lesson_id(title)
+        `)
+        .eq("grade_level", profile?.gradeLevel ?? 0)
+        .in("language", (profile?.learningLanguages ?? ["es"]) as ("es" | "en" | "es-PR")[])
+        .eq("status", "published")
+        .order("created_at");
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!profile?.gradeLevel,
+  });
+
+  // Create completion map
+  const completedMap = useMemo(() => {
+    const map = new Map();
+    progress?.completedActivities.forEach(activity => {
+      map.set(activity.activity_id, {
+        score: activity.score,
+        attempts: 1, // TODO: Track actual attempts
+      });
+    });
+    return map;
+  }, [progress]);
+
+  // Group exercises by subject area
+  const exerciseGroups = useMemo(() => {
+    if (!allExercises) return [];
+
+    const groups = new Map<string, any[]>();
+    
+    allExercises.forEach(exercise => {
+      const category = exercise.subject_area || t("General", "General");
+      
+      if (!groups.has(category)) {
+        groups.set(category, []);
+      }
+      
+      groups.get(category)!.push(exercise);
+    });
+
+    return Array.from(groups.entries()).map(([name, exercises]) => ({
+      name,
+      exercises,
+    }));
+  }, [allExercises, t]);
 
   const calculateStars = (avgScore: number | null): number => {
     if (!avgScore) return 0;
@@ -107,52 +165,34 @@ export default function StudentExercisesProgress() {
           </CardContent>
         </Card>
 
-        {/* Next Goal */}
-        <Card className="border-2 border-secondary/20 bg-gradient-to-r from-secondary/5 to-transparent">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-2">
-              {t("Próximo Objetivo", "Next Goal")}
-            </h3>
-            <p className="text-muted-foreground">
-              {t("¡Completa tu próxima actividad!", "Complete your next activity!")}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Next Exercise */}
-        {progress?.nextActivity && (
-          <Card className="border-2 border-accent shadow-lg">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-start gap-4">
-                <Target className="w-10 h-10 text-secondary flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-2">
-                    {t("Próximo Ejercicio", "Next Exercise")}
-                  </h3>
-                  <p className="text-2xl font-semibold text-secondary mb-2">
-                    {progress.nextActivity.title}
-                  </p>
-                  <p className="text-muted-foreground mb-3">
-                    {progress.nextActivity.description}
-                  </p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="w-4 h-4" />
-                    <span>
-                      {progress.nextActivity.estimated_duration_minutes} {t("minutos", "minutes")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <Button
-                size="lg"
-                className="w-full text-lg"
-                onClick={() => navigate(`/view-assessment/${progress.nextActivity?.id}`)}
-              >
-                {t("¡Practicar Ahora!", "Practice Now!")}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        {/* All Exercises by Category */}
+        {exerciseGroups.map((group) => (
+          <div key={group.name} className="space-y-4">
+            <h2 className="text-2xl font-bold text-secondary">
+              {group.name}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {group.exercises.map((exercise: any) => {
+                const isCompleted = completedMap.has(exercise.id);
+                
+                return (
+                  <ExerciseCard
+                    key={exercise.id}
+                    id={exercise.id}
+                    title={exercise.title}
+                    description={exercise.description}
+                    type={exercise.type}
+                    subtype={exercise.subtype}
+                    parentLessonTitle={exercise.parent_lesson?.title}
+                    isCompleted={isCompleted}
+                    completionData={completedMap.get(exercise.id)}
+                    category={exercise.subject_area}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        ))}
 
         {/* Back Button */}
         <div className="text-center">

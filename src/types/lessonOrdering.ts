@@ -20,6 +20,7 @@ export interface LessonWithOrder {
   status: string;
   parent_lesson_id: string | null;
   order_in_lesson: number | null;
+  estimated_duration_minutes: number | null;
   display_order?: number;
   domain_name?: string | null;
   domain_order?: number | null;

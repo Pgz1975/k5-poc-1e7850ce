@@ -1,18 +1,21 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { useStudentProgress } from "@/hooks/useStudentProgress";
+import { useLessonOrdering } from "@/hooks/useLessonOrdering";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Star, BookOpen, Clock } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { LessonCard } from "@/components/StudentDashboard/LessonCard";
+import { DomainGroup } from "@/types/lessonOrdering";
+import { useMemo } from "react";
 
 export default function StudentLessonsProgress() {
   const { t, language } = useLanguage();
-  const navigate = useNavigate();
   const { data: profile, isLoading: profileLoading } = useStudentProfile();
 
   const { data: progress, isLoading: progressLoading } = useStudentProgress({
@@ -20,6 +23,43 @@ export default function StudentLessonsProgress() {
     gradeLevel: profile?.gradeLevel ?? 0,
     learningLanguages: profile?.learningLanguages ?? ["es", "en"],
   });
+
+  const { lessonsWithOrder } = useLessonOrdering(profile?.gradeLevel ?? 0);
+
+  // Group lessons by domain
+  const domainGroups: DomainGroup[] = useMemo(() => {
+    if (!lessonsWithOrder) return [];
+
+    const groups = new Map<string, DomainGroup>();
+    
+    lessonsWithOrder.forEach(lesson => {
+      const domainName = lesson.domain_name || t("Sin categoría", "Uncategorized");
+      
+      if (!groups.has(domainName)) {
+        groups.set(domainName, {
+          domain_name: domainName,
+          domain_order: lesson.domain_order ?? 999,
+          lessons: [],
+        });
+      }
+      
+      groups.get(domainName)!.lessons.push(lesson);
+    });
+
+    return Array.from(groups.values()).sort((a, b) => a.domain_order - b.domain_order);
+  }, [lessonsWithOrder, t]);
+
+  // Create completion map
+  const completedMap = useMemo(() => {
+    const map = new Map();
+    progress?.completedActivities.forEach(activity => {
+      map.set(activity.activity_id, {
+        score: activity.score,
+        completedAt: activity.completed_at,
+      });
+    });
+    return map;
+  }, [progress]);
 
   const calculateStars = (avgScore: number | null): number => {
     if (!avgScore) return 0;
@@ -107,52 +147,33 @@ export default function StudentLessonsProgress() {
           </CardContent>
         </Card>
 
-        {/* Next Goal */}
-        <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-2">
-              {t("Próximo Objetivo", "Next Goal")}
-            </h3>
-            <p className="text-muted-foreground">
-              {t("¡Completa tu próxima actividad!", "Complete your next activity!")}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Next Lesson */}
-        {progress?.nextActivity && (
-          <Card className="border-2 border-accent shadow-lg">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-start gap-4">
-                <BookOpen className="w-10 h-10 text-primary flex-shrink-0" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold mb-2">
-                    {t("Próxima Lección", "Next Lesson")}
-                  </h3>
-                  <p className="text-2xl font-semibold text-primary mb-2">
-                    {progress.nextActivity.title}
-                  </p>
-                  <p className="text-muted-foreground mb-3">
-                    {progress.nextActivity.description}
-                  </p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="w-4 h-4" />
-                    <span>
-                      {progress.nextActivity.estimated_duration_minutes} {t("minutos", "minutes")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <Button
-                size="lg"
-                className="w-full text-lg"
-                onClick={() => navigate(`/lesson/${progress.nextActivity?.id}`)}
-              >
-                {t("¡Continuar Aprendiendo!", "Continue Learning!")}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        {/* All Lessons by Domain */}
+        {domainGroups.map((domain) => (
+          <div key={domain.domain_name} className="space-y-4">
+            <h2 className="text-2xl font-bold text-primary">
+              {domain.domain_name}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {domain.lessons.map((lesson, index) => {
+                const isCompleted = completedMap.has(lesson.id);
+                const isLocked = index > 0 && !completedMap.has(domain.lessons[index - 1].id);
+                
+                return (
+                  <LessonCard
+                    key={lesson.id}
+                    id={lesson.id}
+                    title={lesson.title}
+                    description={lesson.description}
+                    estimatedDuration={lesson.estimated_duration_minutes || 5}
+                    isLocked={isLocked}
+                    isCompleted={isCompleted}
+                    completionData={completedMap.get(lesson.id)}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        ))}
 
         {/* Back Button */}
         <div className="text-center">
