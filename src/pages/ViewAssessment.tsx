@@ -132,6 +132,21 @@ export default function ViewAssessment() {
     }
   };
 
+  const handleTryAgain = () => {
+    setSelectedAnswer(null);
+    setShowFeedback(false);
+    setIsCorrect(false);
+    
+    if (clientRef.current) {
+      const language = assessment.language;
+      clientRef.current.sendText(
+        language === 'es'
+          ? 'Vamos a intentarlo de nuevo. ¡Tú puedes!'
+          : 'Let\'s try again. You can do it!'
+      );
+    }
+  };
+
   // Normalize fill_blank content for backward compatibility
   const normalizeFillBlank = (content: any) => {
     // If already new format, return as is
@@ -346,11 +361,23 @@ export default function ViewAssessment() {
         {/* Feedback */}
         {showFeedback && (
           <Card className={`p-6 mt-6 ${isCorrect ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500'}`}>
-            <p className="text-2xl font-bold text-center">
+            <p className="text-2xl font-bold text-center mb-4">
               {isCorrect
                 ? t("¡Correcto! ¡Excelente trabajo!", "Correct! Excellent work!")
                 : t("Intenta de nuevo", "Try again")}
             </p>
+            {!isCorrect && (
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handleTryAgain}
+                  variant="outline"
+                  size="lg"
+                  className="text-lg"
+                >
+                  {t("Volver a intentar", "Try again")}
+                </Button>
+              </div>
+            )}
           </Card>
         )}
 

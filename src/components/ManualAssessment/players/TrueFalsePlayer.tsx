@@ -35,11 +35,11 @@ export function TrueFalsePlayer({
       {content.answers.map((answer, index) => (
         <div key={index} className="flex flex-col gap-4">
           {answer.imageUrl && (
-            <div className="w-full rounded-lg overflow-hidden border-2">
+            <div className="w-full rounded-lg overflow-hidden border-2 bg-muted">
               <img 
                 src={answer.imageUrl} 
                 alt={answer.text}
-                className="w-full h-48 object-cover"
+                className="w-full h-48 object-contain"
               />
             </div>
           )}
