@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { DndContext, DragEndEvent, closestCenter, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, closestCenter, DragOverlay, DragStartEvent, useDroppable } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -104,10 +104,17 @@ function shuffle<T>(array: T[]): T[] {
 export function FillBlankPlayer({ content, onAnswer, voiceClient }: FillBlankPlayerProps) {
   const { t } = useLanguage();
   
-  const [pool, setPool] = useState<string[]>(() => 
-    content.autoShuffle ? shuffle(content.letters) : content.letters
-  );
-  const [slots, setSlots] = useState<(string | null)[]>(
+  const tokenIdCounter = useRef(0);
+  const createTokenLetter = (char: string): TokenLetter => ({ id: `token-${tokenIdCounter.current++}`, char });
+
+  // Make pool container droppable
+  const { setNodeRef: setPoolRef, isOver: isPoolOver } = useDroppable({ id: 'pool' });
+  
+  const [pool, setPool] = useState<TokenLetter[]>(() => {
+    const tokens = content.letters.map(createTokenLetter);
+    return content.autoShuffle ? shuffle(tokens) : tokens;
+  });
+  const [slots, setSlots] = useState<(TokenLetter | null)[]>(
     Array(content.target.length).fill(null)
   );
   const [isChecked, setIsChecked] = useState(false);
@@ -171,34 +178,33 @@ export function FillBlankPlayer({ content, onAnswer, voiceClient }: FillBlankPla
     }
   };
 
-  const handleCheck = () => {
-    const userAnswer = slots.join('').toLowerCase();
-    const targetAnswer = content.target.toLowerCase();
-    const correct = userAnswer === targetAnswer;
-    
-    setIsChecked(true);
-    setIsCorrect(correct);
-    onAnswer(userAnswer, correct);
+const handleCheck = () => {
+  const userAnswer = slots.map(t => t?.char || '').join('').toLowerCase();
+  const targetAnswer = content.target.toLowerCase();
+  const correct = userAnswer === targetAnswer;
+  
+  setIsChecked(true);
+  setIsCorrect(correct);
+  onAnswer(userAnswer, correct);
 
-    if (correct) {
-      voiceClient?.sendText(t("¡Correcto! Excelente trabajo.", "Correct! Excellent work."));
-    } else {
-      voiceClient?.sendText(t("Intenta de nuevo. ¡Tú puedes!", "Try again. You can do it!"));
-    }
-  };
+  if (correct) {
+    voiceClient?.sendText(t("¡Correcto! Excelente trabajo.", "Correct! Excellent work."));
+  } else {
+    voiceClient?.sendText(t("Intenta de nuevo. ¡Tú puedes!", "Try again. You can do it!"));
+  }
+};
 
-  const handleReset = () => {
-    // Return all letters to pool
-    const allLetters = [...pool, ...slots.filter(s => s !== null)] as string[];
-    setPool(content.autoShuffle ? shuffle(allLetters) : allLetters);
-    setSlots(Array(content.target.length).fill(null));
-    setIsChecked(false);
-    setIsCorrect(false);
-  };
+const handleReset = () => {
+  const allTokens = [...pool, ...slots.filter(s => s !== null)] as TokenLetter[];
+  setPool(content.autoShuffle ? shuffle(allTokens) : allTokens);
+  setSlots(Array(content.target.length).fill(null));
+  setIsChecked(false);
+  setIsCorrect(false);
+};
 
-  const allPoolIds = pool.map((_, i) => `pool-${i}`);
-  const allSlotIds = slots.map((_, i) => `slot-${i}`);
-  const allIds = [...allPoolIds, ...allSlotIds, 'pool'];
+const allPoolIds = pool.map((t) => `pool-${t.id}`);
+const allSlotIds = slots.map((_, i) => `slot-${i}`);
+const allIds = [...allPoolIds, ...allSlotIds, 'pool'];
 
   return (
     <DndContext 
@@ -228,18 +234,18 @@ export function FillBlankPlayer({ content, onAnswer, voiceClient }: FillBlankPla
               role="region"
               aria-labelledby="slots-instruction"
             >
-              {slots.map((letter, i) => (
-                letter ? (
-                  <LetterTile 
-                    key={`slot-${i}`} 
-                    id={`slot-${i}`} 
-                    letter={letter} 
-                    isInSlot 
-                  />
-                ) : (
-                  <EmptySlot key={`slot-${i}`} id={`slot-${i}`} />
-                )
-              ))}
+{slots.map((token, i) => (
+  token ? (
+    <LetterTile 
+      key={`slot-${i}-${token.id}`} 
+      id={`slot-${i}`} 
+      letter={token.char} 
+      isInSlot 
+    />
+  ) : (
+    <EmptySlot key={`slot-${i}`} id={`slot-${i}`} />
+  )
+))}
             </div>
           </SortableContext>
         </div>
@@ -249,13 +255,16 @@ export function FillBlankPlayer({ content, onAnswer, voiceClient }: FillBlankPla
           <p className="text-sm text-muted-foreground mb-3" id="pool-instruction">
             {t('Letras disponibles:', 'Available letters:')}
           </p>
-          <SortableContext items={allPoolIds} strategy={verticalListSortingStrategy}>
-            <div 
-              id="pool"
-              className="flex flex-wrap gap-1.5 sm:gap-2 justify-center min-h-14 sm:min-h-16 p-3 sm:p-4 border-2 border-dashed rounded-lg bg-muted/20"
-              role="region"
-              aria-labelledby="pool-instruction"
-            >
+<SortableContext items={allPoolIds} strategy={verticalListSortingStrategy}>
+  <div 
+    ref={setPoolRef}
+    id="pool"
+    className={`flex flex-wrap gap-1.5 sm:gap-2 justify-center min-h-14 sm:min-h-16 p-3 sm:p-4 border-2 border-dashed rounded-lg transition-colors ${
+      isPoolOver ? 'bg-primary/10 border-primary' : 'bg-muted/20'
+    }`}
+    role="region"
+    aria-labelledby="pool-instruction"
+  >
               {pool.length === 0 ? (
                 <p className="text-sm text-muted-foreground self-center">
                   {t('No quedan letras', 'No letters left')}
@@ -310,17 +319,17 @@ export function FillBlankPlayer({ content, onAnswer, voiceClient }: FillBlankPla
         )}
       </Card>
 
-      <DragOverlay>
-        {activeId && activeId.startsWith('pool-') ? (
-          <div className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-md bg-primary text-primary-foreground border-2 border-primary opacity-80">
-            {pool[parseInt(activeId.replace('pool-', ''))]}
-          </div>
-        ) : activeId && activeId.startsWith('slot-') ? (
-          <div className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-md bg-primary text-primary-foreground border-2 border-primary opacity-80">
-            {slots[parseInt(activeId.replace('slot-', ''))]}
-          </div>
-        ) : null}
-      </DragOverlay>
+<DragOverlay>
+  {activeId && activeId.startsWith('pool-') ? (
+    <div className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-md bg-primary text-primary-foreground border-2 border-primary opacity-80">
+      {pool.find(t => t.id === activeId.replace('pool-', ''))?.char}
+    </div>
+  ) : activeId && activeId.startsWith('slot-') ? (
+    <div className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-md bg-primary text-primary-foreground border-2 border-primary opacity-80">
+      {slots[parseInt(activeId.replace('slot-', ''))]?.char}
+    </div>
+  ) : null}
+</DragOverlay>
     </DndContext>
   );
 }
