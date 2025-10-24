@@ -396,12 +396,25 @@ export default function CreateAssessment() {
         return hasTitle && hasQuestion && hasAnswer;
       }
       
-      // Drag drop (letters mode) has different validation
+      // Drag drop validation
       if (data.subtype === 'drag_drop') {
         const hasQuestion = data.content?.question && data.content.question.trim().length > 0;
-        const hasTarget = data.content?.targetWord && data.content.targetWord.trim().length > 0;
-        const hasLetters = data.content?.availableLetters && data.content.availableLetters.length > 0;
-        return hasTitle && hasQuestion && hasTarget && hasLetters;
+        
+        // Letters mode: requires targetWord and availableLetters
+        if (data.content?.mode === 'letters') {
+          const hasTarget = data.content?.targetWord && data.content.targetWord.trim().length > 0;
+          const hasLetters = data.content?.availableLetters && data.content.availableLetters.length > 0;
+          return hasTitle && hasQuestion && hasTarget && hasLetters;
+        }
+        
+        // Match mode: requires dropZones and draggableItems
+        if (data.content?.mode === 'match') {
+          const hasZones = data.content?.dropZones && data.content.dropZones.length >= 2;
+          const hasItems = data.content?.draggableItems && data.content.draggableItems.length >= 1;
+          return hasTitle && hasQuestion && hasZones && hasItems;
+        }
+        
+        return hasTitle && hasQuestion;
       }
       
       // EXERCISE/ASSESSMENT: needs question and answers with at least one correct
