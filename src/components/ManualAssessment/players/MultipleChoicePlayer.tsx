@@ -37,7 +37,7 @@ export function MultipleChoicePlayer({
           key={index}
           onClick={() => onAnswer(index)}
           disabled={showFeedback}
-          className={`w-full text-lg sm:text-2xl p-4 sm:p-8 justify-start ${
+          className={`w-full p-4 sm:p-6 justify-start min-h-[80px] ${
             showFeedback && selectedAnswer === index
               ? isCorrect
                 ? 'bg-success hover:bg-success/90 text-success-foreground'
@@ -48,16 +48,16 @@ export function MultipleChoicePlayer({
           aria-label={`${t("Opción", "Option")} ${String.fromCharCode(65 + index)}: ${answer.text}`}
           aria-pressed={selectedAnswer === index}
         >
-          <span className="font-bold mr-2 sm:mr-4 text-base sm:text-xl">{String.fromCharCode(65 + index)})</span>
-          <div className="flex-1 text-left">
-            {answer.text}
+          <span className="font-bold mr-3 sm:mr-4 text-base sm:text-xl self-start">{String.fromCharCode(65 + index)})</span>
+          <div className="flex-1 flex items-center gap-3 sm:gap-4">
             {answer.imageUrl && (
               <img
                 src={answer.imageUrl}
                 alt={`${t("Opción", "Option")} ${index + 1}`}
-                className="mt-2 h-20 w-20 sm:h-24 sm:w-24 object-contain rounded"
+                className="h-16 w-16 sm:h-20 sm:w-20 object-cover rounded flex-shrink-0"
               />
             )}
+            <span className="text-lg sm:text-2xl text-left">{answer.text}</span>
           </div>
         </Button>
       ))}
