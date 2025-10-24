@@ -219,12 +219,12 @@ export function MatchModePlayer({ content, onAnswer, voiceClient }: MatchModePla
 
       <DragOverlay>
         {activeItem && (
-          <div className="p-2 rounded-md border-4 border-primary bg-secondary shadow-lg">
+          <div className="p-2 rounded-lg border-2 border-primary bg-secondary shadow-lg">
             {activeItem.type === 'image' || (typeof activeItem.content !== 'string' && activeItem.content.type === 'image') ? (
               <img
                 src={activeItem.type === 'image' ? activeItem.content as string : (activeItem.content as { type: 'image'; url: string }).url}
                 alt={activeItem.label || 'Item'}
-                className="h-20 w-20 object-cover rounded pointer-events-none select-none"
+                className="h-32 w-32 sm:h-40 sm:w-40 object-cover rounded pointer-events-none select-none"
               />
             ) : (
               <span className="font-medium">
@@ -266,9 +266,9 @@ function DropZone({ zone, items, isChecked, isPool }: DropZoneProps) {
       `}
     >
       <h3 className="font-semibold mb-3 text-center">{zone.label}</h3>
-      <div className="flex flex-wrap gap-2 justify-center">
+      <div className={`${isPool ? 'grid grid-cols-2 gap-4 max-w-md mx-auto' : 'flex flex-wrap gap-2'} justify-center`}>
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground self-center">
+          <p className="text-sm text-muted-foreground self-center col-span-2">
             {isPool ? '—' : t('(vacío)', '(empty)')}
           </p>
         ) : (
@@ -319,7 +319,7 @@ function DraggableItem({ item, isCorrect, isDragging }: DraggableItemProps) {
       {...listeners}
       {...attributes}
       className={`
-        p-2 rounded-md border-4 transition-all
+        p-2 rounded-lg border transition-all
         ${borderColor}
         ${dragging || isDragging ? 'opacity-50 scale-105 shadow-lg' : 'hover:shadow-md'}
         ${isCorrect === true ? 'bg-success/10' : ''}
@@ -330,7 +330,7 @@ function DraggableItem({ item, isCorrect, isDragging }: DraggableItemProps) {
         <img
           src={item.type === 'image' ? item.content as string : (item.content as { type: 'image'; url: string }).url}
           alt={item.label || 'Item'}
-          className="h-20 w-20 object-cover rounded pointer-events-none select-none"
+          className="h-32 w-32 sm:h-40 sm:w-40 object-cover rounded pointer-events-none select-none"
         />
       ) : (
         <span className="font-medium">
