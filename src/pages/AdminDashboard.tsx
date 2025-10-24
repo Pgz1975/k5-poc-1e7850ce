@@ -247,7 +247,7 @@ const AdminDashboard = () => {
 
   const handleEditAssessment = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/create-assessment?edit=${id}`);
+    window.open(`/create-assessment?edit=${id}`, '_blank');
   };
 
   const handlePublishAssessment = async (id: string, currentStatus: string, e: React.MouseEvent) => {
@@ -351,7 +351,7 @@ const AdminDashboard = () => {
                 <Card 
                   key={action.path}
                   className="hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => navigate(action.path)}
+                  onClick={() => window.open(action.path, '_blank')}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-3">
@@ -509,7 +509,7 @@ const AdminDashboard = () => {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => navigate("/create-assessment")}
+                  onClick={() => window.open("/create-assessment", '_blank')}
                 >
                   Create New
                 </Button>
@@ -538,7 +538,7 @@ const AdminDashboard = () => {
                           "flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors",
                           isChild && "ml-8 bg-muted/30 border-l-4 border-primary/40 hover:bg-muted/60"
                         )}
-                        onClick={() => navigate(`/assessment/${assessment.id}`)}
+                        onClick={() => window.open(`/assessment/${assessment.id}`, '_blank')}
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -626,7 +626,7 @@ const AdminDashboard = () => {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => navigate("/pdf-demo")}
+                  onClick={() => window.open("/pdf-demo", '_blank')}
                 >
                   Upload New
                 </Button>
@@ -642,7 +642,7 @@ const AdminDashboard = () => {
                     <div 
                       key={doc.id}
                       className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                      onClick={() => navigate("/pdf-demo")}
+                      onClick={() => window.open("/pdf-demo", '_blank')}
                     >
                       <div className="flex-1">
                         <p className="font-medium">{doc.filename}</p>
