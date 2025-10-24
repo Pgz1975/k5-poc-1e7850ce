@@ -40,14 +40,14 @@ export const ManageLessonsDrawer = () => {
   };
 
   const handleSave = () => {
-    const updates: Partial<LessonOrder>[] = reorderedLessons
+    const updates = reorderedLessons
       .filter(lesson => !lesson.parent_lesson_id) // Only parent lessons
       .map((lesson, index) => ({
         grade_level: parseInt(selectedGrade),
         assessment_id: lesson.id,
         display_order: index,
-        domain_name: lesson.domain_name,
-        domain_order: lesson.domain_order,
+        domain_name: lesson.domain_name || null,
+        domain_order: lesson.domain_order || null,
         parent_lesson_id: null,
       }));
 
