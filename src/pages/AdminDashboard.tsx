@@ -17,9 +17,11 @@ import {
   Link2,
   Layers,
   Check,
-  Eye
+  Eye,
+  Filter
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +35,14 @@ const AdminDashboard = () => {
   const [pdfDocuments, setPdfDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [parentLessons, setParentLessons] = useState<Record<string, string>>({});
+  
+  // Filter states
+  const [selectedGrade, setSelectedGrade] = useState<number | 'all'>('all');
+  const [visibleTypes, setVisibleTypes] = useState<Set<string>>(
+    new Set(['lesson', 'exercise', 'assessment'])
+  );
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
   useEffect(() => {
     if (!authLoading) {
@@ -140,6 +150,39 @@ const AdminDashboard = () => {
     organized.push(...orphanedExercises);
     
     return organized;
+  };
+
+  const applyFilters = (assessments: any[]) => {
+    return assessments.filter(assessment => {
+      // Grade filter
+      if (selectedGrade !== 'all' && assessment.grade_level !== selectedGrade) {
+        return false;
+      }
+      
+      // Type filter
+      if (!visibleTypes.has(assessment.type)) {
+        return false;
+      }
+      
+      // Language filter
+      if (selectedLanguage !== 'all' && assessment.language !== selectedLanguage) {
+        return false;
+      }
+      
+      // Status filter
+      if (selectedStatus !== 'all' && assessment.status !== selectedStatus) {
+        return false;
+      }
+      
+      return true;
+    });
+  };
+
+  const handleClearFilters = () => {
+    setSelectedGrade('all');
+    setVisibleTypes(new Set(['lesson', 'exercise', 'assessment']));
+    setSelectedLanguage('all');
+    setSelectedStatus('all');
   };
 
   const handleDeleteAssessment = async (id: string, e: React.MouseEvent) => {
@@ -326,6 +369,128 @@ const AdminDashboard = () => {
 
         {/* Content Overview */}
         <div className="grid gap-6">
+          {/* Filters Section */}
+          <Card className="mb-6">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-lg">Filters</CardTitle>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleClearFilters}
+                >
+                  Clear All
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Grade Level Filter */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Grade Level</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { value: 'all', label: 'All Grades' },
+                      { value: 0, label: 'K' },
+                      { value: 1, label: '1' },
+                      { value: 2, label: '2' },
+                      { value: 3, label: '3' },
+                      { value: 4, label: '4' },
+                      { value: 5, label: '5' }
+                    ].map(grade => (
+                      <Button
+                        key={grade.value}
+                        variant={selectedGrade === grade.value ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setSelectedGrade(grade.value as number | 'all')}
+                      >
+                        {grade.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Activity Type Filter */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Activity Type</label>
+                  <div className="flex flex-wrap gap-4">
+                    {[
+                      { value: 'lesson', label: 'Lessons', icon: Layers },
+                      { value: 'exercise', label: 'Exercises', icon: FileCheck },
+                      { value: 'assessment', label: 'Assessments', icon: FileText }
+                    ].map(type => {
+                      const Icon = type.icon;
+                      return (
+                        <label key={type.value} className="flex items-center gap-2 cursor-pointer">
+                          <Checkbox
+                            checked={visibleTypes.has(type.value)}
+                            onCheckedChange={(checked) => {
+                              const newTypes = new Set(visibleTypes);
+                              if (checked) {
+                                newTypes.add(type.value);
+                              } else {
+                                newTypes.delete(type.value);
+                              }
+                              setVisibleTypes(newTypes);
+                            }}
+                          />
+                          <Icon className="h-4 w-4" />
+                          <span className="text-sm">{type.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Language & Status Filters */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Language</label>
+                    <div className="flex gap-2">
+                      {[
+                        { value: 'all', label: 'All' },
+                        { value: 'es', label: 'ES' },
+                        { value: 'en', label: 'EN' }
+                      ].map(lang => (
+                        <Button
+                          key={lang.value}
+                          variant={selectedLanguage === lang.value ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSelectedLanguage(lang.value)}
+                        >
+                          {lang.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Status</label>
+                    <div className="flex gap-2">
+                      {[
+                        { value: 'all', label: 'All' },
+                        { value: 'draft', label: 'Draft' },
+                        { value: 'published', label: 'Published' }
+                      ].map(stat => (
+                        <Button
+                          key={stat.value}
+                          variant={selectedStatus === stat.value ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setSelectedStatus(stat.value)}
+                        >
+                          {stat.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Manual Assessments */}
           <Card>
             <CardHeader>
@@ -342,14 +507,21 @@ const AdminDashboard = () => {
                   Create New
                 </Button>
               </div>
-              <CardDescription>Recently created assessments</CardDescription>
+              <CardDescription>
+                Recently created assessments
+                {applyFilters(manualAssessments).length !== manualAssessments.length && (
+                  <span className="text-primary ml-2">
+                    (Showing {applyFilters(manualAssessments).length} of {manualAssessments.length})
+                  </span>
+                )}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {manualAssessments.length === 0 ? (
                 <p className="text-muted-foreground text-sm">No assessments created yet</p>
               ) : (
                   <div className="space-y-2">
-                  {organizeContentHierarchy(manualAssessments).map((assessment) => {
+                  {organizeContentHierarchy(applyFilters(manualAssessments)).map((assessment) => {
                     const isLesson = assessment.type === 'lesson';
                     const isExercise = assessment.type === 'exercise';
                     const isAssessment = assessment.type === 'assessment';
