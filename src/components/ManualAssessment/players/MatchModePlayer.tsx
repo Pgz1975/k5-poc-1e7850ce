@@ -219,12 +219,12 @@ export function MatchModePlayer({ content, onAnswer, voiceClient }: MatchModePla
 
       <DragOverlay>
         {activeItem && (
-          <div className="rounded-lg border-2 border-primary shadow-lg overflow-hidden">
+          <div className="rounded-lg border-2 border-primary shadow-lg overflow-hidden h-32 w-32 sm:h-40 sm:w-40">
             {activeItem.type === 'image' || (typeof activeItem.content !== 'string' && activeItem.content.type === 'image') ? (
               <img
                 src={activeItem.type === 'image' ? activeItem.content as string : (activeItem.content as { type: 'image'; url: string }).url}
                 alt={activeItem.label || 'Item'}
-                className="h-32 w-32 sm:h-40 sm:w-40 object-cover pointer-events-none select-none"
+                className="w-full h-full object-cover pointer-events-none select-none"
               />
             ) : (
               <span className="font-medium p-2 block bg-secondary">
@@ -320,6 +320,7 @@ function DraggableItem({ item, isCorrect, isDragging }: DraggableItemProps) {
       {...attributes}
       className={`
         rounded-lg border transition-all overflow-hidden
+        h-32 w-32 sm:h-40 sm:w-40
         ${borderColor}
         ${dragging || isDragging ? 'opacity-50 scale-105 shadow-lg' : 'hover:shadow-md'}
         ${isCorrect === true ? 'bg-success/10' : ''}
@@ -330,7 +331,7 @@ function DraggableItem({ item, isCorrect, isDragging }: DraggableItemProps) {
         <img
           src={item.type === 'image' ? item.content as string : (item.content as { type: 'image'; url: string }).url}
           alt={item.label || 'Item'}
-          className="h-32 w-32 sm:h-40 sm:w-40 object-cover pointer-events-none select-none"
+          className="w-full h-full object-cover pointer-events-none select-none"
         />
       ) : (
         <span className="font-medium p-2 block">
