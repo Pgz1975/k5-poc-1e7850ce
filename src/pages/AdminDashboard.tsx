@@ -56,18 +56,15 @@ const AdminDashboard = () => {
         supabase
           .from("manual_assessments")
           .select("id, title, created_at, grade_level, language, status, type, subtype, parent_lesson_id")
-          .order("created_at", { ascending: false })
-          .limit(10),
+          .order("created_at", { ascending: false }),
         supabase
           .from("generated_assessments")
           .select("id, assessment_type, created_at, grade_level, language, metadata")
-          .order("created_at", { ascending: false })
-          .limit(10),
+          .order("created_at", { ascending: false }),
         supabase
           .from("pdf_documents")
           .select("id, filename, created_at, processing_status, grade_level")
-          .order("created_at", { ascending: false })
-          .limit(10),
+          .order("created_at", { ascending: false }),
       ]);
 
       if (manualRes.data) {
