@@ -140,6 +140,11 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
   const { t } = useLanguage();
   const tokenIdCounter = useRef(0);
   
+  // Make pool container droppable
+  const { setNodeRef: setPoolRef, isOver: isPoolOver } = useDroppable({
+    id: 'pool'
+  });
+  
   // Convert strings to TokenLetter objects with stable IDs
   const createTokenLetter = (char: string): TokenLetter => ({
     id: `token-${tokenIdCounter.current++}`,
@@ -330,8 +335,11 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
           </p>
           <SortableContext items={allPoolIds} strategy={verticalListSortingStrategy}>
             <div 
+              ref={setPoolRef}
               id="pool"
-              className="flex flex-wrap gap-1.5 sm:gap-2 justify-center min-h-14 sm:min-h-16 p-3 sm:p-4 border-2 border-dashed rounded-lg bg-muted/20"
+              className={`flex flex-wrap gap-1.5 sm:gap-2 justify-center min-h-14 sm:min-h-16 p-3 sm:p-4 border-2 border-dashed rounded-lg transition-colors ${
+                isPoolOver ? 'bg-primary/10 border-primary' : 'bg-muted/20'
+              }`}
               role="region"
               aria-labelledby="pool-instruction"
             >
