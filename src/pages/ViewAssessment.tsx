@@ -225,20 +225,22 @@ export default function ViewAssessment() {
           </div>
         )}
 
-        {/* Question */}
-        <Card className="p-8 mb-6">
-          <h2 className="text-4xl font-bold mb-6 text-foreground">
-            {assessment.content.question}
-          </h2>
+        {/* Question - Only for multiple choice and true/false */}
+        {assessment.subtype !== 'fill_blank' && assessment.subtype !== 'write_answer' && (
+          <Card className="p-8 mb-6">
+            <h2 className="text-4xl font-bold mb-6 text-foreground">
+              {assessment.content.question}
+            </h2>
 
-          {assessment.content.questionImage && (
-            <img
-              src={assessment.content.questionImage}
-              alt="Question"
-              className="w-full max-h-96 object-contain rounded border-2 mb-4"
-            />
-          )}
-        </Card>
+            {assessment.content.questionImage && (
+              <img
+                src={assessment.content.questionImage}
+                alt="Question"
+                className="w-full max-h-96 object-contain rounded border-2 mb-4"
+              />
+            )}
+          </Card>
+        )}
 
         {/* Type-Specific Players */}
         {assessment.subtype === 'fill_blank' ? (
