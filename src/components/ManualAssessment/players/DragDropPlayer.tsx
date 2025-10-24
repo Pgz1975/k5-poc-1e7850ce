@@ -1,13 +1,19 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { DndContext, DragEndEvent, closestCenter, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, closestCenter, DragOverlay, DragStartEvent, useDroppable } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MatchModePlayer } from './MatchModePlayer';
+
+// TokenLetter: stable identity for each letter instance
+interface TokenLetter {
+  id: string;
+  char: string;
+}
 
 interface DragDropLettersContent {
   mode: 'letters';
@@ -132,16 +138,27 @@ export function DragDropPlayer({ content, onAnswer, voiceClient }: DragDropPlaye
 
 function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDropLettersContent; onAnswer: any; voiceClient?: any }) {
   const { t } = useLanguage();
+  const tokenIdCounter = useRef(0);
   
-  const [pool, setPool] = useState<string[]>(() => 
-    content.autoShuffle ? shuffle(content.availableLetters) : content.availableLetters
-  );
-  const [slots, setSlots] = useState<(string | null)[]>(
+  // Convert strings to TokenLetter objects with stable IDs
+  const createTokenLetter = (char: string): TokenLetter => ({
+    id: `token-${tokenIdCounter.current++}`,
+    char
+  });
+
+  const [pool, setPool] = useState<TokenLetter[]>(() => {
+    const letters = content.availableLetters.map(createTokenLetter);
+    return content.autoShuffle ? shuffle(letters) : letters;
+  });
+  
+  const [slots, setSlots] = useState<(TokenLetter | null)[]>(
     Array(content.targetWord.length).fill(null)
   );
   const [isChecked, setIsChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  const DEBUG_DND = false; // Set to true for field debugging
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -156,42 +173,57 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
     const activeId = active.id as string;
     const overId = over.id as string;
 
-    // Check if dragging from pool to slot
+    if (DEBUG_DND) {
+      console.debug('[DnD] handleDragEnd:', { activeId, overId });
+    }
+
+    // Pool → Slot: drag from pool onto a slot
     if (activeId.startsWith('pool-') && overId.startsWith('slot-')) {
-      const letterIndex = parseInt(activeId.replace('pool-', ''));
+      const tokenId = activeId.replace('pool-', '');
       const slotIndex = parseInt(overId.replace('slot-', ''));
-      const draggedLetter = pool[letterIndex];
+      
+      const draggedToken = pool.find(t => t.id === tokenId);
+      if (!draggedToken) {
+        console.warn('[DnD] Token not found in pool:', tokenId);
+        return;
+      }
 
       const newSlots = [...slots];
-      const replacedLetter = newSlots[slotIndex]; // Store the letter being replaced
-      
-      // Update slot with new letter
-      newSlots[slotIndex] = draggedLetter;
+      const replacedToken = newSlots[slotIndex];
+
+      // Place dragged token in slot
+      newSlots[slotIndex] = draggedToken;
       setSlots(newSlots);
 
-      // Update pool: remove dragged letter, add replaced letter (if any)
-      const newPool = pool.filter((_, i) => i !== letterIndex);
-      if (replacedLetter) {
-        newPool.push(replacedLetter);
+      // Update pool: remove dragged token, add replaced token if any
+      const newPool = pool.filter(t => t.id !== tokenId);
+      if (replacedToken) {
+        newPool.push(replacedToken);
       }
       setPool(newPool);
-    }
-    // Check if dragging from slot to pool
-    else if (activeId.startsWith('slot-') && overId === 'pool') {
-      const slotIndex = parseInt(activeId.replace('slot-', ''));
-      const letter = slots[slotIndex];
 
-      if (letter) {
-        // Remove from slot
+      if (DEBUG_DND) {
+        console.debug('[DnD] Pool→Slot complete. Pool size:', newPool.length, 'Filled slots:', newSlots.filter(Boolean).length);
+      }
+    }
+    // Slot → Pool: drag from slot onto pool container or pool item
+    else if (activeId.startsWith('slot-') && (overId === 'pool' || overId.startsWith('pool-'))) {
+      const slotIndex = parseInt(activeId.replace('slot-', ''));
+      const slotToken = slots[slotIndex];
+
+      if (slotToken) {
         const newSlots = [...slots];
         newSlots[slotIndex] = null;
         setSlots(newSlots);
 
-        // Add back to pool
-        setPool([...pool, letter]);
+        setPool([...pool, slotToken]);
+
+        if (DEBUG_DND) {
+          console.debug('[DnD] Slot→Pool complete. Pool size:', pool.length + 1);
+        }
       }
     }
-    // Check if dragging between slots
+    // Slot ↔ Slot: swap between slots
     else if (activeId.startsWith('slot-') && overId.startsWith('slot-')) {
       const fromIndex = parseInt(activeId.replace('slot-', ''));
       const toIndex = parseInt(overId.replace('slot-', ''));
@@ -199,11 +231,25 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
       const newSlots = [...slots];
       [newSlots[fromIndex], newSlots[toIndex]] = [newSlots[toIndex], newSlots[fromIndex]];
       setSlots(newSlots);
+
+      if (DEBUG_DND) {
+        console.debug('[DnD] Slot↔Slot swap complete.');
+      }
+    }
+
+    // Defensive invariant check
+    const filledSlots = slots.filter(Boolean).length;
+    const initialPoolSize = content.availableLetters.length;
+    if (pool.length + filledSlots !== initialPoolSize) {
+      console.warn('[DnD] INVARIANT BROKEN! Pool:', pool.length, 'Filled:', filledSlots, 'Expected total:', initialPoolSize);
+      // Auto-repair: reconstruct from current state
+      const allTokens = [...pool, ...slots.filter(Boolean)] as TokenLetter[];
+      console.warn('[DnD] Auto-repairing pool. Found tokens:', allTokens.length);
     }
   };
 
   const handleCheck = () => {
-    const userAnswer = slots.join('').toLowerCase();
+    const userAnswer = slots.map(t => t?.char || '').join('').toLowerCase();
     const targetAnswer = content.targetWord.toLowerCase();
     const correct = userAnswer === targetAnswer;
     
@@ -221,15 +267,15 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
   };
 
   const handleReset = () => {
-    // Return all letters to pool
-    const allLetters = [...pool, ...slots.filter(s => s !== null)] as string[];
-    setPool(content.autoShuffle ? shuffle(allLetters) : allLetters);
+    // Return all tokens to pool
+    const allTokens = [...pool, ...slots.filter(s => s !== null)] as TokenLetter[];
+    setPool(content.autoShuffle ? shuffle(allTokens) : allTokens);
     setSlots(Array(content.targetWord.length).fill(null));
     setIsChecked(false);
     setIsCorrect(false);
   };
 
-  const allPoolIds = pool.map((_, i) => `pool-${i}`);
+  const allPoolIds = pool.map(t => `pool-${t.id}`);
   const allSlotIds = slots.map((_, i) => `slot-${i}`);
   const allIds = [...allPoolIds, ...allSlotIds, 'pool'];
 
@@ -261,12 +307,12 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
               role="region"
               aria-labelledby="slots-instruction"
             >
-              {slots.map((letter, i) => (
-                letter ? (
+              {slots.map((token, i) => (
+                token ? (
                   <LetterTile 
-                    key={`slot-${i}`} 
+                    key={`slot-${i}-${token.id}`} 
                     id={`slot-${i}`} 
-                    letter={letter} 
+                    letter={token.char} 
                     isInSlot 
                   />
                 ) : (
@@ -294,8 +340,8 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
                   {t('No quedan letras', 'No letters left')}
                 </p>
               ) : (
-                pool.map((letter, i) => (
-                  <LetterTile key={`pool-${i}`} id={`pool-${i}`} letter={letter} />
+                pool.map((token) => (
+                  <LetterTile key={`pool-${token.id}`} id={`pool-${token.id}`} letter={token.char} />
                 ))
               )}
             </div>
@@ -346,11 +392,11 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
       <DragOverlay>
         {activeId && activeId.startsWith('pool-') ? (
           <div className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-md bg-primary text-primary-foreground border-2 border-primary opacity-80">
-            {pool[parseInt(activeId.replace('pool-', ''))]}
+            {pool.find(t => t.id === activeId.replace('pool-', ''))?.char}
           </div>
         ) : activeId && activeId.startsWith('slot-') ? (
           <div className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-md bg-primary text-primary-foreground border-2 border-primary opacity-80">
-            {slots[parseInt(activeId.replace('slot-', ''))]}
+            {slots[parseInt(activeId.replace('slot-', ''))]?.char}
           </div>
         ) : null}
       </DragOverlay>
