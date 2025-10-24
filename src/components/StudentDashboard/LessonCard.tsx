@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lock, CheckCircle, Star, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Lock, CheckCircle, Star, Clock, BookOpen } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 
@@ -34,39 +35,49 @@ export function LessonCard({
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const getScoreBadgeColor = (score: number) => {
-    if (score >= 90) return "bg-yellow-500 text-white";
-    if (score >= 75) return "bg-gray-400 text-white";
-    if (score >= 60) return "bg-amber-700 text-white";
-    return "bg-gray-300 text-gray-700";
+  const getStars = (score: number) => {
+    if (score >= 90) return 5;
+    if (score >= 75) return 4;
+    if (score >= 60) return 3;
+    if (score >= 40) return 2;
+    return 1;
   };
 
   const handleClick = () => {
-    if (isLocked) {
-      // Shake animation handled by CSS
-      return;
-    }
+    if (isLocked) return;
     navigate(`/lesson/${id}`);
   };
 
   return (
     <Card
-      className={`relative overflow-hidden transition-all duration-300 cursor-pointer ${
-        isLocked
-          ? "hover:scale-100"
-          : "hover:scale-105 hover:shadow-xl"
+      className={`border-2 bg-primary/10 border-primary/20 hover:bg-primary/20 transition-all duration-300 cursor-pointer ${
+        isLocked ? "hover:scale-100" : "hover:scale-105 hover:shadow-xl"
       }`}
       onClick={handleClick}
     >
       <CardContent className="p-6 space-y-4">
-        {/* Header */}
+        {/* Icon and Status */}
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-lg font-bold line-clamp-2 flex-1">{title}</h3>
-          <div className="flex gap-2 flex-shrink-0">
+          <div className="p-3 rounded-full bg-background/50">
+            <BookOpen className="w-6 h-6" />
+          </div>
+          <div className="flex gap-2">
             {isLocked && <Lock className="w-5 h-5 text-muted-foreground" />}
-            {isCompleted && <CheckCircle className="w-5 h-5 text-success" />}
+            {isCompleted && completionData && (
+              <div className="flex gap-1">
+                {Array.from({ length: getStars(completionData.score) }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Title */}
+        <h3 className="text-lg font-bold line-clamp-2">{title}</h3>
 
         {/* Description */}
         {description && (
@@ -112,16 +123,6 @@ export function LessonCard({
           </div>
         )}
 
-        {/* Completion Badge */}
-        {completionData && (
-          <div className="flex items-center gap-2">
-            <Badge className={getScoreBadgeColor(completionData.score)}>
-              <Star className="w-3 h-3 mr-1" />
-              {Math.round(completionData.score)}%
-            </Badge>
-          </div>
-        )}
-
         {/* Duration */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="w-4 h-4" />
@@ -129,6 +130,30 @@ export function LessonCard({
             {estimatedDuration} {t("min", "min")}
           </span>
         </div>
+
+        {/* Action Button */}
+        <Button
+          variant={isCompleted ? "outline" : "default"}
+          className="w-full"
+          disabled={isLocked}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClick();
+          }}
+        >
+          {isLocked
+            ? t("Bloqueado", "Locked")
+            : isCompleted
+            ? t("Repasar", "Review")
+            : t("Comenzar", "Start")}
+        </Button>
+
+        {/* Score Display */}
+        {completionData && (
+          <div className="text-center text-sm text-muted-foreground">
+            {t("Mejor puntaje:", "Best score:")} {Math.round(completionData.score)}%
+          </div>
+        )}
       </CardContent>
     </Card>
   );
