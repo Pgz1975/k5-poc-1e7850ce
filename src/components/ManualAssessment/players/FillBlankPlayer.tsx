@@ -52,14 +52,18 @@ function LetterTile({ letter, id, isInSlot }: LetterTileProps) {
       {...attributes}
       {...listeners}
       className={`
-        w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-md
+        w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-xl sm:text-2xl font-bold rounded-md
         cursor-grab active:cursor-grabbing select-none
-        transition-colors
+        transition-colors touch-none
         ${isInSlot 
           ? 'bg-primary text-primary-foreground border-2 border-primary' 
           : 'bg-secondary text-secondary-foreground border-2 border-border hover:bg-secondary/80'
         }
       `}
+      role="button"
+      tabIndex={0}
+      aria-label={`${letter}`}
+      aria-grabbed={isDragging}
     >
       {letter}
     </div>
@@ -73,13 +77,15 @@ function EmptySlot({ id }: { id: string }) {
     <div
       ref={setNodeRef}
       className={`
-        w-12 h-12 flex items-center justify-center rounded-md
+        w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-md
         border-2 border-dashed transition-colors
         ${isOver 
           ? 'border-primary bg-primary/10' 
           : 'border-muted-foreground/30 bg-muted/20'
         }
       `}
+      role="button"
+      aria-label="Empty slot"
     >
       <span className="text-muted-foreground">_</span>
     </div>
@@ -200,24 +206,28 @@ export function FillBlankPlayer({ content, onAnswer, voiceClient }: FillBlankPla
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <Card className="p-6">
-        <h2 className="text-2xl font-semibold mb-4">{content.prompt}</h2>
+      <Card className="p-4 sm:p-6">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4">{content.prompt}</h2>
         
         {content.imageUrl && (
           <img 
             src={content.imageUrl} 
-            alt="Question" 
-            className="max-h-64 mx-auto mb-6 rounded-lg border-2 object-contain" 
+            alt={t("Imagen de la pregunta", "Question image")} 
+            className="max-h-48 sm:max-h-64 mx-auto mb-6 rounded-lg border-2 object-contain" 
           />
         )}
 
         {/* Answer Slots */}
         <div className="mb-6">
-          <p className="text-sm text-muted-foreground mb-3">
+          <p className="text-sm text-muted-foreground mb-3" id="slots-instruction">
             {t('Arrastra las letras aquí:', 'Drag letters here:')}
           </p>
           <SortableContext items={allSlotIds} strategy={verticalListSortingStrategy}>
-            <div className="flex gap-2 justify-center flex-wrap">
+            <div 
+              className="flex gap-1.5 sm:gap-2 justify-center flex-wrap"
+              role="region"
+              aria-labelledby="slots-instruction"
+            >
               {slots.map((letter, i) => (
                 letter ? (
                   <LetterTile 
@@ -236,13 +246,15 @@ export function FillBlankPlayer({ content, onAnswer, voiceClient }: FillBlankPla
 
         {/* Letter Pool */}
         <div className="mb-6">
-          <p className="text-sm text-muted-foreground mb-3">
+          <p className="text-sm text-muted-foreground mb-3" id="pool-instruction">
             {t('Letras disponibles:', 'Available letters:')}
           </p>
           <SortableContext items={allPoolIds} strategy={verticalListSortingStrategy}>
             <div 
               id="pool"
-              className="flex flex-wrap gap-2 justify-center min-h-16 p-4 border-2 border-dashed rounded-lg bg-muted/20"
+              className="flex flex-wrap gap-1.5 sm:gap-2 justify-center min-h-14 sm:min-h-16 p-3 sm:p-4 border-2 border-dashed rounded-lg bg-muted/20"
+              role="region"
+              aria-labelledby="pool-instruction"
             >
               {pool.length === 0 ? (
                 <p className="text-sm text-muted-foreground self-center">
@@ -258,18 +270,19 @@ export function FillBlankPlayer({ content, onAnswer, voiceClient }: FillBlankPla
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 justify-center mb-4">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
           <Button 
             onClick={handleCheck} 
             disabled={slots.some(s => s === null) || isChecked}
             size="lg"
+            className="w-full sm:w-auto"
           >
             {isChecked 
               ? t('✓ Revisado', '✓ Checked') 
               : t('Verificar Respuesta', 'Check Answer')}
           </Button>
           {isChecked && (
-            <Button onClick={handleReset} variant="outline" size="lg">
+            <Button onClick={handleReset} variant="outline" size="lg" className="w-full sm:w-auto">
               {t('Intentar de Nuevo', 'Try Again')}
             </Button>
           )}

@@ -56,47 +56,54 @@ export function WriteAnswerPlayer({ content, onAnswer, voiceClient }: WriteAnswe
   };
 
   return (
-    <Card className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">{content.question}</h2>
+    <Card className="p-4 sm:p-6">
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4">{content.question}</h2>
       
       {content.questionImage && (
         <img 
           src={content.questionImage} 
-          alt="Question" 
-          className="max-h-64 mx-auto mb-6 rounded-lg border-2 object-contain" 
+          alt={t("Imagen de la pregunta", "Question image")} 
+          className="max-h-48 sm:max-h-64 mx-auto mb-6 rounded-lg border-2 object-contain" 
         />
       )}
 
       {/* Answer Input */}
       <div className="mb-6">
-        <p className="text-sm text-muted-foreground mb-3">
+        <label htmlFor="answer-input" className="text-sm text-muted-foreground mb-3 block">
           {t('Escribe tu respuesta:', 'Type your answer:')}
-        </p>
+        </label>
         <Input
+          id="answer-input"
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder={t("Escribe aquí...", "Type here...")}
           disabled={isSubmitted}
-          className="text-xl p-4"
+          className="text-lg sm:text-xl p-3 sm:p-4"
           autoFocus
           maxLength={50}
+          aria-label={t("Campo de respuesta", "Answer field")}
+          aria-describedby="answer-hint"
         />
+        <p id="answer-hint" className="text-xs text-muted-foreground mt-1">
+          {t('Solo una palabra, sin espacios', 'Single word only, no spaces')}
+        </p>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3 justify-center mb-4">
+      <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
         <Button 
           onClick={handleSubmit} 
           disabled={!userInput.trim() || isSubmitted}
           size="lg"
+          className="w-full sm:w-auto"
         >
           {isSubmitted 
             ? t('✓ Enviado', '✓ Submitted') 
             : t('Enviar Respuesta', 'Submit Answer')}
         </Button>
         {isSubmitted && (
-          <Button onClick={handleReset} variant="outline" size="lg">
+          <Button onClick={handleReset} variant="outline" size="lg" className="w-full sm:w-auto">
             {t('Intentar de Nuevo', 'Try Again')}
           </Button>
         )}

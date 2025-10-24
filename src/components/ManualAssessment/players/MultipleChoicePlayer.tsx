@@ -37,23 +37,25 @@ export function MultipleChoicePlayer({
           key={index}
           onClick={() => onAnswer(index)}
           disabled={showFeedback}
-          className={`w-full text-2xl p-8 justify-start ${
+          className={`w-full text-lg sm:text-2xl p-4 sm:p-8 justify-start ${
             showFeedback && selectedAnswer === index
               ? isCorrect
-                ? 'bg-green-500 hover:bg-green-600'
-                : 'bg-red-500 hover:bg-red-600'
+                ? 'bg-success hover:bg-success/90 text-success-foreground'
+                : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
               : ''
           }`}
           variant={showFeedback && selectedAnswer === index ? 'default' : 'outline'}
+          aria-label={`${t("Opción", "Option")} ${String.fromCharCode(65 + index)}: ${answer.text}`}
+          aria-pressed={selectedAnswer === index}
         >
-          <span className="font-bold mr-4">{String.fromCharCode(65 + index)})</span>
+          <span className="font-bold mr-2 sm:mr-4 text-base sm:text-xl">{String.fromCharCode(65 + index)})</span>
           <div className="flex-1 text-left">
             {answer.text}
             {answer.imageUrl && (
               <img
                 src={answer.imageUrl}
                 alt={`${t("Opción", "Option")} ${index + 1}`}
-                className="mt-2 h-24 w-24 object-cover rounded"
+                className="mt-2 h-20 w-20 sm:h-24 sm:w-24 object-contain rounded"
               />
             )}
           </div>
