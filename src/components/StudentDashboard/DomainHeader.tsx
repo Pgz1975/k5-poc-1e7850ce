@@ -1,5 +1,6 @@
 import { getDomainTheme } from "@/config/domainThemes";
 import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 
 interface DomainHeaderProps {
   domainName: string;
@@ -11,6 +12,9 @@ export function DomainHeader({ domainName, lessonsCount, completedCount }: Domai
   const theme = getDomainTheme(domainName);
   const Icon = theme.icon;
   const progress = lessonsCount > 0 ? (completedCount / lessonsCount) * 100 : 0;
+  
+  // Calculate stars (0-5 based on completion percentage)
+  const stars = Math.min(5, Math.floor((progress / 100) * 5));
 
   return (
     <motion.div
@@ -31,9 +35,21 @@ export function DomainHeader({ domainName, lessonsCount, completedCount }: Domai
       </div>
       
       <div className="flex-1">
-        <h2 className="text-2xl font-bold" style={{ color: theme.color }}>
-          {domainName}
-        </h2>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-2xl font-bold" style={{ color: theme.color }}>
+            {domainName}
+          </h2>
+          <div className="flex gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className="w-5 h-5"
+                fill={i < stars ? theme.color : "none"}
+                stroke={theme.color}
+              />
+            ))}
+          </div>
+        </div>
         <div className="flex items-center gap-2 mt-1">
           <div className="flex-1 h-2 bg-background/50 rounded-full overflow-hidden">
             <motion.div

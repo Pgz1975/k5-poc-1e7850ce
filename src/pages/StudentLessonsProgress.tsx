@@ -133,37 +133,6 @@ export default function StudentLessonsProgress() {
           </p>
         </div>
 
-        {/* Progress Overview */}
-        <Card className="border-2 shadow-lg">
-          <CardContent className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">{t("Tu Progreso", "Your Progress")}</h2>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`w-6 h-6 ${
-                      star <= stars ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <p className="text-lg text-muted-foreground italic">{getComment(stars)}</p>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>{t("Lecciones Completadas", "Lessons Completed")}</span>
-                <span className="font-bold">
-                  {progress?.completedCount}/{progress?.totalActivities}
-                </span>
-              </div>
-              <Progress value={progress?.progressPercentage ?? 0} className="h-3" />
-            </div>
-          </CardContent>
-        </Card>
-
         {/* All Lessons by Domain */}
         {domainGroups.map((domain) => {
           const domainCompletedCount = domain.lessons.filter(lesson => 

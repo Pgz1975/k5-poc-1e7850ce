@@ -18,6 +18,8 @@ import { DraggableLessonItem } from './DraggableLessonItem';
 import { LessonWithOrder, DomainGroup } from '@/types/lessonOrdering';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { DomainSelector } from './DomainSelector';
+import { DOMAIN_THEMES } from '@/config/domainThemes';
 
 interface LessonOrderingListProps {
   lessons: LessonWithOrder[];
@@ -74,6 +76,21 @@ export const LessonOrderingList = ({ lessons, onReorder }: LessonOrderingListPro
       }
       return next;
     });
+  };
+
+  const handleDomainChange = (lessonId: string, domainName: string) => {
+    const theme = DOMAIN_THEMES[domainName];
+    const updatedLessons = lessons.map(lesson => {
+      if (lesson.id === lessonId) {
+        return {
+          ...lesson,
+          domain_name: domainName,
+          domain_order: theme.order,
+        };
+      }
+      return lesson;
+    });
+    onReorder(updatedLessons);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -135,12 +152,21 @@ export const LessonOrderingList = ({ lessons, onReorder }: LessonOrderingListPro
 
                 return (
                   <div key={lesson.id}>
-                    <DraggableLessonItem
-                      lesson={lesson}
-                      children={children}
-                      isExpanded={isExpanded}
-                      onToggle={() => toggleExpanded(lesson.id)}
-                    />
+                    <div className="mb-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm text-muted-foreground">Dominio:</span>
+                        <DomainSelector
+                          value={lesson.domain_name}
+                          onValueChange={(value) => handleDomainChange(lesson.id, value)}
+                        />
+                      </div>
+                      <DraggableLessonItem
+                        lesson={lesson}
+                        children={children}
+                        isExpanded={isExpanded}
+                        onToggle={() => toggleExpanded(lesson.id)}
+                      />
+                    </div>
 
                     {/* Child Exercises */}
                     {isExpanded && children.length > 0 && (
