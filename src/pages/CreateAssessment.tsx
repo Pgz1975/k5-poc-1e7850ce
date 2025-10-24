@@ -369,17 +369,26 @@ export default function CreateAssessment() {
 
   // Type-specific validation
   const isValid = () => {
-    const hasTitle = data.title && data.title.length > 3;
-    const hasQuestion = data.content?.question && data.content.question.length > 10;
+    const hasTitle = data.title && data.title.length > 0;
     
     if (data.type === 'lesson') {
       // LESSON: voice_guidance is MANDATORY, content is required
       const hasVoiceGuidance = data.voice_guidance && data.voice_guidance.trim().length > 0;
+      const hasQuestion = data.content?.question && data.content.question.length > 0;
       return hasTitle && hasQuestion && hasVoiceGuidance;
     }
     
     if (data.type === 'exercise' || data.type === 'assessment') {
-      // EXERCISE/ASSESSMENT: needs answers with at least one correct
+      // Fill blank has different validation
+      if (data.subtype === 'fill_blank') {
+        const hasPrompt = data.content?.prompt && data.content.prompt.trim().length > 0;
+        const hasTarget = data.content?.target && data.content.target.trim().length > 0;
+        const hasLetters = data.content?.letters && data.content.letters.length > 0;
+        return hasTitle && hasPrompt && hasTarget && hasLetters;
+      }
+      
+      // EXERCISE/ASSESSMENT: needs question and answers with at least one correct
+      const hasQuestion = data.content?.question && data.content.question.length > 0;
       const hasAnswers = data.content?.answers && data.content.answers.length >= 2;
       const hasCorrectAnswer = data.content?.answers?.some(a => a.isCorrect && a.text.trim());
       return hasTitle && hasQuestion && hasAnswers && hasCorrectAnswer;
