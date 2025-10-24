@@ -1,10 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getLessonLockingStatus } from "@/utils/lessonUnlocking";
 
 interface UseStudentProgressProps {
   activityType: "lesson" | "exercise" | "assessment";
   gradeLevel: number;
   learningLanguages: string[];
+}
+
+interface ActivityWithLocking {
+  id: string;
+  title: string;
+  description: string | null;
+  estimated_duration_minutes: number | null;
+  isLocked: boolean;
+  display_order?: number;
 }
 
 export const useStudentProgress = ({
@@ -19,7 +29,80 @@ export const useStudentProgress = ({
       
       if (!user) throw new Error("No authenticated user");
 
-      // Fetch all published activities for grade and language
+      // Fetch completed activities
+      const { data: completedActivities, error: completedError } = await supabase
+        .from("completed_activity")
+        .select("activity_id, score, completed_at")
+        .eq("student_id", user.id)
+        .eq("activity_type", activityType);
+
+      if (completedError) throw completedError;
+
+      // For lessons, fetch ordering data to determine sequence
+      if (activityType === "lesson") {
+        const { data: ordering, error: orderingError } = await supabase
+          .from("lesson_ordering")
+          .select(`
+            id,
+            assessment_id,
+            display_order,
+            manual_assessments (
+              id,
+              title,
+              description,
+              estimated_duration_minutes
+            )
+          `)
+          .eq("grade_level", gradeLevel)
+          .order("display_order");
+
+        if (orderingError) throw orderingError;
+
+        // Get locking status for all lessons
+        const lockingMap = getLessonLockingStatus(
+          ordering?.map(o => ({
+            id: o.id,
+            display_order: o.display_order,
+            assessment_id: o.assessment_id,
+          })) ?? [],
+          completedActivities ?? []
+        );
+
+        // Map lessons with locking status
+        const activitiesWithLocking: ActivityWithLocking[] = ordering?.map(o => ({
+          id: o.assessment_id,
+          title: (o.manual_assessments as any)?.title ?? "Untitled",
+          description: (o.manual_assessments as any)?.description,
+          estimated_duration_minutes: (o.manual_assessments as any)?.estimated_duration_minutes,
+          isLocked: lockingMap.get(o.assessment_id) ?? false,
+          display_order: o.display_order,
+        })) ?? [];
+
+        const completedIds = new Set(completedActivities?.map(c => c.activity_id) ?? []);
+        const totalActivities = activitiesWithLocking.length;
+        const completedCount = completedActivities?.length ?? 0;
+
+        // Calculate average score
+        const scores = completedActivities?.map(c => c.score).filter(s => s !== null) ?? [];
+        const avgScore = scores.length > 0 
+          ? scores.reduce((sum, s) => sum + (s ?? 0), 0) / scores.length
+          : null;
+
+        // Find next unlocked activity
+        const nextActivity = activitiesWithLocking.find(a => !completedIds.has(a.id) && !a.isLocked);
+
+        return {
+          totalActivities,
+          completedCount,
+          completedActivities: completedActivities ?? [],
+          activities: activitiesWithLocking,
+          avgScore,
+          nextActivity,
+          progressPercentage: totalActivities > 0 ? (completedCount / totalActivities) * 100 : 0,
+        };
+      }
+
+      // For non-lesson activities, fetch normally without locking
       const { data: activities, error: activitiesError } = await supabase
         .from("manual_assessments")
         .select("id, title, description, estimated_duration_minutes")
@@ -32,33 +115,29 @@ export const useStudentProgress = ({
 
       if (activitiesError) throw activitiesError;
 
-      // Fetch completed activities
-      const { data: completedActivities, error: completedError } = await supabase
-        .from("completed_activity")
-        .select("activity_id, score, completed_at")
-        .eq("student_id", user.id)
-        .eq("activity_type", activityType);
-
-      if (completedError) throw completedError;
+      const activitiesWithLocking: ActivityWithLocking[] = activities?.map(a => ({
+        ...a,
+        isLocked: false, // Exercises are not locked
+      })) ?? [];
 
       const completedIds = new Set(completedActivities?.map(c => c.activity_id) ?? []);
-      const totalActivities = activities?.length ?? 0;
+      const totalActivities = activitiesWithLocking.length;
       const completedCount = completedActivities?.length ?? 0;
 
-      // Calculate average score (dummy data for now)
+      // Calculate average score
       const scores = completedActivities?.map(c => c.score).filter(s => s !== null) ?? [];
       const avgScore = scores.length > 0 
         ? scores.reduce((sum, s) => sum + (s ?? 0), 0) / scores.length
         : null;
 
       // Find next uncompleted activity
-      const nextActivity = activities?.find(a => !completedIds.has(a.id));
+      const nextActivity = activitiesWithLocking.find(a => !completedIds.has(a.id));
 
       return {
         totalActivities,
         completedCount,
         completedActivities: completedActivities ?? [],
-        activities: activities ?? [],
+        activities: activitiesWithLocking,
         avgScore,
         nextActivity,
         progressPercentage: totalActivities > 0 ? (completedCount / totalActivities) * 100 : 0,

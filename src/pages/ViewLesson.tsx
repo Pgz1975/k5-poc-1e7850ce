@@ -7,14 +7,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CoquiMascot } from "@/components/CoquiMascot";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet";
+import { checkLessonLocked } from "@/utils/lessonUnlocking";
+import { useStudentProfile } from "@/hooks/useStudentProfile";
 
 export default function ViewLesson() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { data: profile } = useStudentProfile();
 
   const { data: lesson, isLoading } = useQuery({
     queryKey: ["lesson", id],
@@ -29,6 +32,37 @@ export default function ViewLesson() {
       if (error) throw error;
       return data;
     },
+  });
+
+  // Check if lesson is locked
+  const { data: lockData, isLoading: lockLoading } = useQuery({
+    queryKey: ["lesson-lock-status", id, profile?.gradeLevel],
+    queryFn: async () => {
+      if (!id || !profile?.gradeLevel) return { isLocked: false };
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return { isLocked: false };
+
+      // Get ordering for this grade
+      const { data: ordering } = await supabase
+        .from("lesson_ordering")
+        .select("id, assessment_id, display_order")
+        .eq("grade_level", profile.gradeLevel)
+        .order("display_order");
+
+      // Get completed activities
+      const { data: completed } = await supabase
+        .from("completed_activity")
+        .select("activity_id, score, completed_at")
+        .eq("student_id", user.id)
+        .eq("activity_type", "lesson");
+
+      if (!ordering || !completed) return { isLocked: false };
+
+      const isLocked = checkLessonLocked(id, ordering, completed);
+      return { isLocked };
+    },
+    enabled: !!id && !!profile?.gradeLevel,
   });
 
   const handleComplete = async () => {
@@ -54,7 +88,7 @@ export default function ViewLesson() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || lockLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -69,6 +103,52 @@ export default function ViewLesson() {
         <main className="flex-1 flex items-center justify-center">
           <p>{t("Lección no encontrada", "Lesson not found")}</p>
         </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show locked message if lesson is locked
+  if (lockData?.isLocked) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-primary/5">
+        <Helmet>
+          <title>{t("Lección Bloqueada", "Locked Lesson")} - LecturaPR</title>
+        </Helmet>
+
+        <Header />
+
+        <main className="flex-1 container mx-auto px-4 py-8 flex items-center justify-center">
+          <Card className="max-w-md border-2 shadow-lg">
+            <CardContent className="p-8 text-center space-y-6">
+              <div className="flex justify-center">
+                <div className="p-6 rounded-full bg-muted">
+                  <Lock className="w-16 h-16 text-muted-foreground" />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <h1 className="text-2xl font-bold">
+                  {t("Esta lección está bloqueada", "This lesson is locked")}
+                </h1>
+                <p className="text-muted-foreground">
+                  {t(
+                    "Completa la lección anterior para desbloquear esta",
+                    "Complete the previous lesson to unlock this one"
+                  )}
+                </p>
+              </div>
+
+              <Button
+                size="lg"
+                onClick={() => navigate("/student-dashboard/lessons")}
+              >
+                {t("Ver Mis Lecciones", "View My Lessons")}
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+
         <Footer />
       </div>
     );
