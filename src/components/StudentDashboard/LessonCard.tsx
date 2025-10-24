@@ -45,9 +45,30 @@ export function LessonCard({
     return 1;
   };
 
+  const exerciseCount = exerciseProgress?.total || 0;
+  const completedCount = exerciseProgress?.completed || 0;
+  const isPartiallyComplete = isCompleted && completedCount > 0 && completedCount < exerciseCount;
+  const isFullyComplete = isCompleted && (exerciseCount === 0 || completedCount === exerciseCount);
+
+  // Button text logic
+  const buttonText = isLocked
+    ? t("Bloqueado", "Locked")
+    : isFullyComplete
+    ? t("Revisar", "Review")
+    : isPartiallyComplete
+    ? t("Continuar", "Resume")
+    : t("Comenzar", "Start");
+
   const handleClick = () => {
     if (isLocked) return;
-    navigate(`/lesson/${id}`);
+    
+    if (isCompleted && exerciseCount > 0) {
+      // Has exercises - go to exercise flow
+      navigate(`/lesson/${id}/exercises`);
+    } else {
+      // No exercises or not started - show lesson content
+      navigate(`/lesson/${id}`);
+    }
   };
 
   return (
@@ -58,8 +79,12 @@ export function LessonCard({
       whileHover={isLocked ? {} : { scale: 1.05 }}
     >
       <Card
-        className={`border-2 bg-primary/10 border-primary/20 hover:bg-primary/20 transition-all duration-300 cursor-pointer relative overflow-hidden ${
-          isLocked ? "opacity-60" : "hover:shadow-xl"
+        className={`border-2 transition-all duration-300 cursor-pointer relative overflow-hidden ${
+          isLocked 
+            ? "opacity-60 bg-muted" 
+            : isPartiallyComplete 
+              ? "border-orange-300 bg-orange-50/50 hover:bg-orange-50 hover:shadow-xl"
+              : "bg-primary/10 border-primary/20 hover:bg-primary/20 hover:shadow-xl"
         }`}
         onClick={handleClick}
       >
@@ -81,9 +106,27 @@ export function LessonCard({
             <div className="p-3 rounded-full bg-background/50">
               <BookOpen className="w-6 h-6" />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               {isLocked && <Lock className="w-5 h-5 text-muted-foreground" />}
-              {isCompleted && completionData && (
+              
+              {/* Stars for completed exercises */}
+              {exerciseCount > 0 && (
+                <div className="flex gap-1">
+                  {Array.from({ length: exerciseCount }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-4 h-4 ${
+                        i < completedCount
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {/* Legacy score stars (if no exercises) */}
+              {exerciseCount === 0 && isCompleted && completionData && (
                 <motion.div
                   className="flex gap-1"
                   initial={{ scale: 0 }}
@@ -149,11 +192,7 @@ export function LessonCard({
             handleClick();
           }}
         >
-          {isLocked
-            ? t("Bloqueado", "Locked")
-            : isCompleted
-            ? t("Repasar", "Review")
-            : t("Comenzar", "Start")}
+          {buttonText}
         </Button>
 
         {/* Score Display */}

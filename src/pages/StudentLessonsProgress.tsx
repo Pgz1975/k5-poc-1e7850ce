@@ -1,6 +1,9 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { useStudentProgress } from "@/hooks/useStudentProgress";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLessonOrdering } from "@/hooks/useLessonOrdering";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -18,6 +21,7 @@ import { DomainHeader } from "@/components/StudentDashboard/DomainHeader";
 
 export default function StudentLessonsProgress() {
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const { data: profile, isLoading: profileLoading } = useStudentProfile();
 
   const { data: progress, isLoading: progressLoading } = useStudentProgress({
@@ -27,6 +31,51 @@ export default function StudentLessonsProgress() {
   });
 
   const { lessonsWithOrder } = useLessonOrdering(profile?.gradeLevel ?? 0);
+
+  // Fetch exercise progress for all lessons
+  const { data: exerciseProgressData } = useQuery({
+    queryKey: ['all-lessons-exercise-progress', user?.id],
+    queryFn: async () => {
+      if (!user?.id || !lessonsWithOrder) return {};
+
+      const lessonIds = lessonsWithOrder.map(l => l.id);
+      
+      // Get all exercises for these lessons
+      const { data: allExercises } = await supabase
+        .from('manual_assessments')
+        .select('id, parent_lesson_id')
+        .in('parent_lesson_id', lessonIds)
+        .order('order_in_lesson');
+
+      // Get completed exercises
+      const exerciseIds = allExercises?.map(e => e.id) || [];
+      const { data: completedExercises } = await supabase
+        .from('completed_activity')
+        .select('activity_id, score')
+        .eq('student_id', user.id)
+        .eq('activity_type', 'exercise')
+        .in('activity_id', exerciseIds);
+
+      // Build progress map by lesson
+      const progressMap: Record<string, { total: number; completed: number; scores: any[] }> = {};
+      
+      lessonsWithOrder.forEach(lesson => {
+        const lessonExercises = allExercises?.filter(e => e.parent_lesson_id === lesson.id) || [];
+        const completed = completedExercises?.filter(c => 
+          lessonExercises.some(e => e.id === c.activity_id)
+        ) || [];
+
+        progressMap[lesson.id] = {
+          total: lessonExercises.length,
+          completed: completed.length,
+          scores: completed,
+        };
+      });
+
+      return progressMap;
+    },
+    enabled: !!user?.id && !!lessonsWithOrder && lessonsWithOrder.length > 0,
+  });
 
   // Sort lessons by domain_order first, then display_order to ensure visual order matches unlocking order
   const sortedLessons = useMemo(() => {
@@ -168,6 +217,7 @@ export default function StudentLessonsProgress() {
               {domain.lessons.map((lesson) => {
                 const isCompleted = completedMap.has(lesson.id);
                 const isLocked = lockingMap.get(lesson.id) ?? false;
+                const exerciseProgress = exerciseProgressData?.[lesson.id];
                 
                 return (
                   <LessonCard
@@ -179,6 +229,7 @@ export default function StudentLessonsProgress() {
                     isLocked={isLocked}
                     isCompleted={isCompleted}
                     completionData={completedMap.get(lesson.id)}
+                    exerciseProgress={exerciseProgress}
                   />
                 );
               })}
