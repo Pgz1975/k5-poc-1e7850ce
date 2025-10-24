@@ -58,6 +58,7 @@ export default function CreateAssessment() {
       question: '',
       answers: [
         { text: '', imageUrl: null, isCorrect: false },
+        { text: '', imageUrl: null, isCorrect: false },
         { text: '', imageUrl: null, isCorrect: false }
       ]
     },
