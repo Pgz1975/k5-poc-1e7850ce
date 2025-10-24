@@ -23,6 +23,12 @@ interface FillBlankPlayerProps {
   voiceClient?: any;
 }
 
+// Stable token for each letter instance
+interface TokenLetter {
+  id: string;
+  char: string;
+}
+
 interface LetterTileProps {
   letter: string;
   id: string;
@@ -134,40 +140,37 @@ export function FillBlankPlayer({ content, onAnswer, voiceClient }: FillBlankPla
     const activeId = active.id as string;
     const overId = over.id as string;
 
-    // Check if dragging from pool to slot
+    // Pool → Slot
     if (activeId.startsWith('pool-') && overId.startsWith('slot-')) {
-      const letterIndex = parseInt(activeId.replace('pool-', ''));
+      const tokenId = activeId.replace('pool-', '');
       const slotIndex = parseInt(overId.replace('slot-', ''));
-      const letter = pool[letterIndex];
 
-      // Remove from pool
-      setPool(pool.filter((_, i) => i !== letterIndex));
-      
-      // Add to slot (replacing existing if any)
+      const draggedToken = pool.find(t => t.id === tokenId);
+      if (!draggedToken) return;
+
       const newSlots = [...slots];
-      if (newSlots[slotIndex]) {
-        // Return old letter to pool
-        setPool(prev => [...prev, newSlots[slotIndex]!]);
-      }
-      newSlots[slotIndex] = letter;
-      setSlots(newSlots);
-    }
-    // Check if dragging from slot to pool
-    else if (activeId.startsWith('slot-') && overId === 'pool') {
-      const slotIndex = parseInt(activeId.replace('slot-', ''));
-      const letter = slots[slotIndex];
+      const replacedToken = newSlots[slotIndex];
 
-      if (letter) {
-        // Remove from slot
+      newSlots[slotIndex] = draggedToken;
+      setSlots(newSlots);
+
+      const newPool = pool.filter(t => t.id !== tokenId);
+      if (replacedToken) newPool.push(replacedToken);
+      setPool(newPool);
+    }
+    // Slot → Pool (drop on pool container or any pool item)
+    else if (activeId.startsWith('slot-') && (overId === 'pool' || overId.startsWith('pool-'))) {
+      const slotIndex = parseInt(activeId.replace('slot-', ''));
+      const slotToken = slots[slotIndex];
+
+      if (slotToken) {
         const newSlots = [...slots];
         newSlots[slotIndex] = null;
         setSlots(newSlots);
-
-        // Add back to pool
-        setPool([...pool, letter]);
+        setPool([...pool, slotToken]);
       }
     }
-    // Check if dragging between slots
+    // Slot ↔ Slot swap
     else if (activeId.startsWith('slot-') && overId.startsWith('slot-')) {
       const fromIndex = parseInt(activeId.replace('slot-', ''));
       const toIndex = parseInt(overId.replace('slot-', ''));
@@ -270,8 +273,8 @@ const allIds = [...allPoolIds, ...allSlotIds, 'pool'];
                   {t('No quedan letras', 'No letters left')}
                 </p>
               ) : (
-                pool.map((letter, i) => (
-                  <LetterTile key={`pool-${i}`} id={`pool-${i}`} letter={letter} />
+                pool.map((token) => (
+                  <LetterTile key={`pool-${token.id}`} id={`pool-${token.id}`} letter={token.char} />
                 ))
               )}
             </div>
