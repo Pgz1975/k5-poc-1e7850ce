@@ -369,127 +369,134 @@ const AdminDashboard = () => {
 
         {/* Content Overview */}
         <div className="grid gap-6">
-          {/* Filters Section */}
-          <Card className="mb-6">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Filter className="h-5 w-5 text-primary" />
-                  <CardTitle className="text-lg">Filters</CardTitle>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleClearFilters}
-                >
-                  Clear All
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {/* Grade Level Filter */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Grade Level</label>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      { value: 'all', label: 'All Grades' },
-                      { value: 0, label: 'K' },
-                      { value: 1, label: '1' },
-                      { value: 2, label: '2' },
-                      { value: 3, label: '3' },
-                      { value: 4, label: '4' },
-                      { value: 5, label: '5' }
-                    ].map(grade => (
-                      <Button
-                        key={grade.value}
-                        variant={selectedGrade === grade.value ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setSelectedGrade(grade.value as number | 'all')}
-                      >
-                        {grade.label}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Activity Type Filter */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Activity Type</label>
-                  <div className="flex flex-wrap gap-4">
-                    {[
-                      { value: 'lesson', label: 'Lessons', icon: Layers },
-                      { value: 'exercise', label: 'Exercises', icon: FileCheck },
-                      { value: 'assessment', label: 'Assessments', icon: FileText }
-                    ].map(type => {
-                      const Icon = type.icon;
-                      return (
-                        <label key={type.value} className="flex items-center gap-2 cursor-pointer">
-                          <Checkbox
-                            checked={visibleTypes.has(type.value)}
-                            onCheckedChange={(checked) => {
-                              const newTypes = new Set(visibleTypes);
-                              if (checked) {
-                                newTypes.add(type.value);
-                              } else {
-                                newTypes.delete(type.value);
-                              }
-                              setVisibleTypes(newTypes);
-                            }}
-                          />
-                          <Icon className="h-4 w-4" />
-                          <span className="text-sm">{type.label}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Language & Status Filters */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Language</label>
-                    <div className="flex gap-2">
-                      {[
-                        { value: 'all', label: 'All' },
-                        { value: 'es', label: 'ES' },
-                        { value: 'en', label: 'EN' }
-                      ].map(lang => (
-                        <Button
-                          key={lang.value}
-                          variant={selectedLanguage === lang.value ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setSelectedLanguage(lang.value)}
-                        >
-                          {lang.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Status</label>
-                    <div className="flex gap-2">
-                      {[
-                        { value: 'all', label: 'All' },
-                        { value: 'draft', label: 'Draft' },
-                        { value: 'published', label: 'Published' }
-                      ].map(stat => (
-                        <Button
-                          key={stat.value}
-                          variant={selectedStatus === stat.value ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setSelectedStatus(stat.value)}
-                        >
-                          {stat.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
+          {/* Compact Filters Section */}
+          <div className="border rounded-lg p-3 bg-card space-y-2">
+            {/* Line 1: Grade + Type */}
+            <div className="flex items-center gap-6 flex-wrap">
+              {/* Grade Level */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground min-w-[40px]">Grade:</span>
+                <div className="flex gap-1">
+                  {[
+                    { value: 'all', label: 'All' },
+                    { value: 0, label: 'K' },
+                    { value: 1, label: '1' },
+                    { value: 2, label: '2' },
+                    { value: 3, label: '3' },
+                    { value: 4, label: '4' },
+                    { value: 5, label: '5' }
+                  ].map(grade => (
+                    <Button
+                      key={grade.value}
+                      variant={selectedGrade === grade.value ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => setSelectedGrade(grade.value as number | 'all')}
+                    >
+                      {grade.label}
+                    </Button>
+                  ))}
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Activity Type */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground min-w-[40px]">Type:</span>
+                <div className="flex gap-3">
+                  {[
+                    { value: 'lesson', label: 'Lessons', icon: Layers },
+                    { value: 'exercise', label: 'Exercises', icon: FileCheck },
+                    { value: 'assessment', label: 'Assessments', icon: FileText }
+                  ].map(type => {
+                    const Icon = type.icon;
+                    return (
+                      <label key={type.value} className="flex items-center gap-1.5 cursor-pointer">
+                        <Checkbox
+                          checked={visibleTypes.has(type.value)}
+                          onCheckedChange={(checked) => {
+                            const newTypes = new Set(visibleTypes);
+                            if (checked) {
+                              newTypes.add(type.value);
+                            } else {
+                              newTypes.delete(type.value);
+                            }
+                            setVisibleTypes(newTypes);
+                          }}
+                        />
+                        <Icon className="h-3.5 w-3.5" />
+                        <span className="text-xs">{type.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Line 2: Language + Status + Clear */}
+            <div className="flex items-center gap-6 flex-wrap">
+              {/* Language */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground min-w-[40px]">Lang:</span>
+                <div className="flex gap-1">
+                  {[
+                    { value: 'all', label: 'All' },
+                    { value: 'es', label: 'ES' },
+                    { value: 'en', label: 'EN' }
+                  ].map(lang => (
+                    <Button
+                      key={lang.value}
+                      variant={selectedLanguage === lang.value ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => setSelectedLanguage(lang.value)}
+                    >
+                      {lang.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground min-w-[40px]">Status:</span>
+                <div className="flex gap-1">
+                  {[
+                    { value: 'all', label: 'All' },
+                    { value: 'draft', label: 'Draft' },
+                    { value: 'published', label: 'Pub' }
+                  ].map(stat => (
+                    <Button
+                      key={stat.value}
+                      variant={selectedStatus === stat.value ? 'default' : 'outline'}
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => setSelectedStatus(stat.value)}
+                    >
+                      {stat.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Clear All */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-7 px-2 text-xs ml-auto"
+                onClick={handleClearFilters}
+              >
+                <Filter className="h-3 w-3 mr-1" />
+                Clear
+              </Button>
+
+              {/* Results Counter */}
+              {applyFilters(manualAssessments).length !== manualAssessments.length && (
+                <span className="text-xs text-primary font-medium">
+                  Showing {applyFilters(manualAssessments).length} of {manualAssessments.length}
+                </span>
+              )}
+            </div>
+          </div>
 
           {/* Manual Assessments */}
           <Card>
@@ -509,11 +516,6 @@ const AdminDashboard = () => {
               </div>
               <CardDescription>
                 Recently created assessments
-                {applyFilters(manualAssessments).length !== manualAssessments.length && (
-                  <span className="text-primary ml-2">
-                    (Showing {applyFilters(manualAssessments).length} of {manualAssessments.length})
-                  </span>
-                )}
               </CardDescription>
             </CardHeader>
             <CardContent>
