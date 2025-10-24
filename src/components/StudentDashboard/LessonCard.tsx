@@ -1,9 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Lock, CheckCircle, Star, Clock, BookOpen } from "lucide-react";
+import { Lock, CheckCircle, Star, Clock, BookOpen, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
+import { ProgressRing } from "@/components/ui/progress-ring";
+import { motion } from "framer-motion";
 
 interface LessonCardProps {
   id: string;
@@ -49,32 +51,55 @@ export function LessonCard({
   };
 
   return (
-    <Card
-      className={`border-2 bg-primary/10 border-primary/20 hover:bg-primary/20 transition-all duration-300 cursor-pointer ${
-        isLocked ? "hover:scale-100" : "hover:scale-105 hover:shadow-xl"
-      }`}
-      onClick={handleClick}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={isLocked ? {} : { scale: 1.05 }}
     >
-      <CardContent className="p-6 space-y-4">
-        {/* Icon and Status */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="p-3 rounded-full bg-background/50">
-            <BookOpen className="w-6 h-6" />
+      <Card
+        className={`border-2 bg-primary/10 border-primary/20 hover:bg-primary/20 transition-all duration-300 cursor-pointer relative overflow-hidden ${
+          isLocked ? "opacity-60" : "hover:shadow-xl"
+        }`}
+        onClick={handleClick}
+      >
+        {/* Unlock sparkle effect */}
+        {!isLocked && !isCompleted && (
+          <motion.div
+            className="absolute top-2 right-2"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" />
+          </motion.div>
+        )}
+
+        <CardContent className="p-6 space-y-4">
+          {/* Icon and Status */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="p-3 rounded-full bg-background/50">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <div className="flex gap-2">
+              {isLocked && <Lock className="w-5 h-5 text-muted-foreground" />}
+              {isCompleted && completionData && (
+                <motion.div
+                  className="flex gap-1"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                >
+                  {Array.from({ length: getStars(completionData.score) }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                    />
+                  ))}
+                </motion.div>
+              )}
+            </div>
           </div>
-          <div className="flex gap-2">
-            {isLocked && <Lock className="w-5 h-5 text-muted-foreground" />}
-            {isCompleted && completionData && (
-              <div className="flex gap-1">
-                {Array.from({ length: getStars(completionData.score) }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* Title */}
         <h3 className="text-lg font-bold line-clamp-2">{title}</h3>
@@ -88,38 +113,21 @@ export function LessonCard({
 
         {/* Progress Ring - if there are exercises */}
         {exerciseProgress && exerciseProgress.total > 0 && (
-          <div className="flex items-center gap-2">
-            <div className="relative w-12 h-12">
-              <svg className="w-12 h-12 transform -rotate-90">
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                  className="text-muted"
-                />
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="20"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                  strokeDasharray={`${
-                    (exerciseProgress.completed / exerciseProgress.total) * 125.6
-                  } 125.6`}
-                  className="text-primary transition-all duration-500"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold">
-                {exerciseProgress.completed}/{exerciseProgress.total}
+          <div className="flex items-center gap-3">
+            <ProgressRing
+              progress={(exerciseProgress.completed / exerciseProgress.total) * 100}
+              size={48}
+              strokeWidth={4}
+              showLabel={false}
+            />
+            <div className="flex-1">
+              <div className="text-sm font-medium">
+                {exerciseProgress.completed}/{exerciseProgress.total} {t("ejercicios", "exercises")}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {t("Completados", "Completed")}
               </div>
             </div>
-            <span className="text-sm text-muted-foreground">
-              {t("Ejercicios completados", "Exercises completed")}
-            </span>
           </div>
         )}
 
@@ -156,5 +164,6 @@ export function LessonCard({
         )}
       </CardContent>
     </Card>
+    </motion.div>
   );
 }

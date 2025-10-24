@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { CoquiMascot } from "@/components/CoquiMascot";
 import { CheckCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 import { Helmet } from "react-helmet";
 import { checkLessonLocked } from "@/utils/lessonUnlocking";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
@@ -81,6 +82,14 @@ export default function ViewLesson() {
 
       if (error) throw error;
 
+      // Celebration confetti
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+      });
+
       // Invalidate queries to refresh lesson list and unlock next lesson
       await queryClient.invalidateQueries({ 
         queryKey: ['student-progress', 'lesson', profile?.gradeLevel, profile?.learningLanguages] 
@@ -90,7 +99,11 @@ export default function ViewLesson() {
       });
 
       toast.success(t("¡Lección completada!", "Lesson completed!"));
-      navigate("/student-dashboard/lessons");
+      
+      // Navigate after a short delay to enjoy the confetti
+      setTimeout(() => {
+        navigate("/student-dashboard/lessons");
+      }, 1500);
     } catch (error) {
       console.error("Error marking lesson as complete:", error);
       toast.error(t("Error al completar la lección", "Error completing lesson"));
