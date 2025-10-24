@@ -14,6 +14,7 @@ import { LessonCard } from "@/components/StudentDashboard/LessonCard";
 import { DomainGroup } from "@/types/lessonOrdering";
 import { useMemo } from "react";
 import { getLessonLockingStatus } from "@/utils/lessonUnlocking";
+import { DomainHeader } from "@/components/StudentDashboard/DomainHeader";
 
 export default function StudentLessonsProgress() {
   const { t, language } = useLanguage();
@@ -164,11 +165,18 @@ export default function StudentLessonsProgress() {
         </Card>
 
         {/* All Lessons by Domain */}
-        {domainGroups.map((domain) => (
-          <div key={domain.domain_name} className="space-y-4">
-            <h2 className="text-2xl font-bold text-primary">
-              {domain.domain_name}
-            </h2>
+        {domainGroups.map((domain) => {
+          const domainCompletedCount = domain.lessons.filter(lesson => 
+            completedMap.has(lesson.id)
+          ).length;
+
+          return (
+            <div key={domain.domain_name} className="space-y-4">
+              <DomainHeader
+                domainName={domain.domain_name}
+                lessonsCount={domain.lessons.length}
+                completedCount={domainCompletedCount}
+              />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {domain.lessons.map((lesson) => {
                 const isCompleted = completedMap.has(lesson.id);
@@ -189,7 +197,8 @@ export default function StudentLessonsProgress() {
               })}
             </div>
           </div>
-        ))}
+          );
+        })}
 
         {/* Back Button */}
         <div className="text-center">
