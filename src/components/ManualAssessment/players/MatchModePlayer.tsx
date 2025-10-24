@@ -13,6 +13,8 @@ interface DragDropMatchContent {
   questionImage?: string;
   draggableItems: Array<{
     id: string;
+    type?: 'image' | 'text';
+    label?: string;
     content: string | { type: 'image'; url: string };
     correctZone: string;
   }>;
@@ -218,14 +220,16 @@ export function MatchModePlayer({ content, onAnswer, voiceClient }: MatchModePla
       <DragOverlay>
         {activeItem && (
           <div className="p-2 rounded-md border-4 border-primary bg-secondary shadow-lg">
-            {typeof activeItem.content === 'string' ? (
-              <span className="font-medium">{activeItem.content}</span>
-            ) : (
+            {activeItem.type === 'image' || (typeof activeItem.content !== 'string' && activeItem.content.type === 'image') ? (
               <img
-                src={activeItem.content.url}
-                alt="Item"
+                src={activeItem.type === 'image' ? activeItem.content as string : (activeItem.content as { type: 'image'; url: string }).url}
+                alt={activeItem.label || 'Item'}
                 className="h-20 w-20 object-cover rounded pointer-events-none select-none"
               />
+            ) : (
+              <span className="font-medium">
+                {typeof activeItem.content === 'string' ? activeItem.content : activeItem.label}
+              </span>
             )}
           </div>
         )}
@@ -238,6 +242,8 @@ interface DropZoneProps {
   zone: { id: string; label: string };
   items: Array<{
     id: string;
+    type?: 'image' | 'text';
+    label?: string;
     content: string | { type: 'image'; url: string };
     correctZone: string;
   }>;
@@ -282,6 +288,8 @@ function DropZone({ zone, items, isChecked, isPool }: DropZoneProps) {
 interface DraggableItemProps {
   item: {
     id: string;
+    type?: 'image' | 'text';
+    label?: string;
     content: string | { type: 'image'; url: string };
     correctZone: string;
   };
@@ -318,14 +326,16 @@ function DraggableItem({ item, isCorrect, isDragging }: DraggableItemProps) {
         ${isCorrect === false ? 'bg-destructive/10' : 'bg-secondary'}
       `}
     >
-      {typeof item.content === 'string' ? (
-        <span className="font-medium">{item.content}</span>
-      ) : (
+      {item.type === 'image' || (typeof item.content !== 'string' && item.content.type === 'image') ? (
         <img
-          src={item.content.url}
-          alt="Item"
+          src={item.type === 'image' ? item.content as string : (item.content as { type: 'image'; url: string }).url}
+          alt={item.label || 'Item'}
           className="h-20 w-20 object-cover rounded pointer-events-none select-none"
         />
+      ) : (
+        <span className="font-medium">
+          {typeof item.content === 'string' ? item.content : item.label}
+        </span>
       )}
     </div>
   );
