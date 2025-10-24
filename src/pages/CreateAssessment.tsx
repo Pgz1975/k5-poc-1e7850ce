@@ -373,57 +373,47 @@ export default function CreateAssessment() {
 
   // Type-specific validation
   const isValid = () => {
-    const hasTitle = data.title && data.title.length > 0;
+    // Allow image-only content - no text validation required
     
     if (data.type === 'lesson') {
-      // LESSON: voice_guidance is MANDATORY, content is required
-      const hasVoiceGuidance = data.voice_guidance && data.voice_guidance.trim().length > 0;
-      const hasQuestion = data.content?.question && data.content.question.length > 0;
-      return hasTitle && hasQuestion && hasVoiceGuidance;
+      // LESSON: Only check that content object exists
+      return data.content !== undefined;
     }
     
     if (data.type === 'exercise' || data.type === 'assessment') {
-      // Fill blank has different validation
+      // Fill blank: only check arrays exist
       if (data.subtype === 'fill_blank') {
-        const hasPrompt = data.content?.prompt && data.content.prompt.trim().length > 0;
-        const hasTarget = data.content?.target && data.content.target.trim().length > 0;
         const hasLetters = data.content?.letters && data.content.letters.length > 0;
-        return hasTitle && hasPrompt && hasTarget && hasLetters;
+        return hasLetters;
       }
       
-      // Write answer has different validation
+      // Write answer: allow empty if image provided
       if (data.subtype === 'write_answer') {
-        const hasQuestion = data.content?.question && data.content.question.trim().length > 0;
-        const hasAnswer = data.content?.correctAnswer && data.content.correctAnswer.trim().length > 0;
-        return hasTitle && hasQuestion && hasAnswer;
+        return true; // Always valid, can be image-only
       }
       
       // Drag drop validation
       if (data.subtype === 'drag_drop') {
-        const hasQuestion = data.content?.question && data.content.question.trim().length > 0;
-        
-        // Letters mode: requires targetWord and availableLetters
+        // Letters mode: requires availableLetters
         if (data.content?.mode === 'letters') {
-          const hasTarget = data.content?.targetWord && data.content.targetWord.trim().length > 0;
           const hasLetters = data.content?.availableLetters && data.content.availableLetters.length > 0;
-          return hasTitle && hasQuestion && hasTarget && hasLetters;
+          return hasLetters;
         }
         
         // Match mode: requires dropZones and draggableItems
         if (data.content?.mode === 'match') {
           const hasZones = data.content?.dropZones && data.content.dropZones.length >= 2;
           const hasItems = data.content?.draggableItems && data.content.draggableItems.length >= 1;
-          return hasTitle && hasQuestion && hasZones && hasItems;
+          return hasZones && hasItems;
         }
         
-        return hasTitle && hasQuestion;
+        return true;
       }
       
-      // EXERCISE/ASSESSMENT: needs question and answers with at least one correct
-      const hasQuestion = data.content?.question && data.content.question.length > 0;
+      // EXERCISE/ASSESSMENT: needs answers with at least one correct (text or image)
       const hasAnswers = data.content?.answers && data.content.answers.length >= 2;
-      const hasCorrectAnswer = data.content?.answers?.some(a => a.isCorrect && a.text.trim());
-      return hasTitle && hasQuestion && hasAnswers && hasCorrectAnswer;
+      const hasCorrectAnswer = data.content?.answers?.some(a => a.isCorrect);
+      return hasAnswers && hasCorrectAnswer;
     }
     
     return false;
