@@ -123,23 +123,36 @@ export default function LessonExerciseFlow() {
     const exercise = exercises[currentExerciseIndex];
 
     if (passed) {
-      // Check if we should update (only if new score is better)
-      const existingScore = exerciseScores.get(exerciseId);
-      
-      if (!existingScore || score > existingScore) {
-        await saveCompletionMutation.mutateAsync({ exerciseId, score });
+      try {
+        // Check if we should update (only if new score is better)
+        const existingScore = exerciseScores.get(exerciseId);
         
-        // Update local state
+        if (!existingScore || score > existingScore) {
+          await saveCompletionMutation.mutateAsync({ exerciseId, score });
+        }
+        
+        // ALWAYS update local state when passed (regardless of score comparison)
         setCompletedExercises(prev => new Set(prev).add(exerciseId));
-        setExerciseScores(prev => new Map(prev).set(exerciseId, score));
-      }
+        setExerciseScores(prev => {
+          const newMap = new Map(prev);
+          const currentBest = newMap.get(exerciseId) || 0;
+          newMap.set(exerciseId, Math.max(currentBest, score));
+          return newMap;
+        });
 
-      // Move to next exercise or show celebration
-      if (currentExerciseIndex < exercises.length - 1) {
-        setCurrentExerciseIndex(prev => prev + 1);
-        toast.success(t('¡Ejercicio completado!', 'Exercise completed!'));
-      } else {
-        setShowCelebration(true);
+        // Move to next exercise or show celebration
+        if (currentExerciseIndex < exercises.length - 1) {
+          toast.success(t('¡Ejercicio completado!', 'Exercise completed!'));
+          // Small delay to show toast before switching
+          setTimeout(() => {
+            setCurrentExerciseIndex(prev => prev + 1);
+          }, 500);
+        } else {
+          setShowCelebration(true);
+        }
+      } catch (error) {
+        console.error('Error saving exercise completion:', error);
+        toast.error(t('Error al guardar el progreso', 'Error saving progress'));
       }
     } else {
       toast.error(t(
