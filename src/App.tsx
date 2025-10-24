@@ -31,6 +31,7 @@ import StudentLessonsProgress from "./pages/StudentLessonsProgress";
 import StudentExercisesProgress from "./pages/StudentExercisesProgress";
 import StudentAssessmentsProgress from "./pages/StudentAssessmentsProgress";
 import ViewLesson from "./pages/ViewLesson";
+import LessonExerciseFlow from "./pages/LessonExerciseFlow";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/student-dashboard/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentExercisesProgress /></ProtectedRoute>} />
               <Route path="/student-dashboard/assessments" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentAssessmentsProgress /></ProtectedRoute>} />
               <Route path="/lesson/:id" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ViewLesson /></ProtectedRoute>} />
+              <Route path="/lesson/:lessonId/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><LessonExerciseFlow /></ProtectedRoute>} />
               <Route path="/activities" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><Activities /></ProtectedRoute>} />
               <Route path="/available-assessments" element={<ProtectedRoute><AvailableAssessments /></ProtectedRoute>} />
               <Route path="/teacher-dashboard" element={<ProtectedRoute allowedRoles={["teacher", "teacher_english", "teacher_spanish"]}><TeacherDashboard /></ProtectedRoute>} />
