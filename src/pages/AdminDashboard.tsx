@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { 
   FileText, 
   Upload, 
@@ -110,6 +111,35 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const organizeContentHierarchy = (assessments: any[]) => {
+    const lessons = assessments.filter(a => !a.parent_lesson_id);
+    const exercises = assessments.filter(a => a.parent_lesson_id);
+    
+    const organized: any[] = [];
+    
+    lessons.forEach(lesson => {
+      // Add the lesson
+      organized.push({ ...lesson, isParent: true });
+      
+      // Find and add all exercises linked to this lesson
+      const linkedExercises = exercises
+        .filter(ex => ex.parent_lesson_id === lesson.id)
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      
+      linkedExercises.forEach(ex => {
+        organized.push({ ...ex, isChild: true });
+      });
+    });
+    
+    // Add orphaned exercises (exercises without valid parent) at the end
+    const orphanedExercises = exercises.filter(ex => 
+      !lessons.some(l => l.id === ex.parent_lesson_id)
+    );
+    organized.push(...orphanedExercises);
+    
+    return organized;
   };
 
   const handleDeleteAssessment = async (id: string, e: React.MouseEvent) => {
@@ -319,21 +349,26 @@ const AdminDashboard = () => {
                 <p className="text-muted-foreground text-sm">No assessments created yet</p>
               ) : (
                   <div className="space-y-2">
-                  {manualAssessments.map((assessment) => {
+                  {organizeContentHierarchy(manualAssessments).map((assessment) => {
                     const isLesson = assessment.type === 'lesson';
                     const isExercise = assessment.type === 'exercise';
                     const isAssessment = assessment.type === 'assessment';
                     const hasParent = assessment.parent_lesson_id;
+                    const isChild = assessment.isChild;
+                    const isParent = assessment.isParent;
                     
                     return (
                       <div 
                         key={assessment.id}
-                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                        className={cn(
+                          "flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors",
+                          isChild && "ml-8 bg-muted/30 border-l-4 border-primary/40 hover:bg-muted/60"
+                        )}
                         onClick={() => navigate(`/assessment/${assessment.id}`)}
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium">{assessment.title}</p>
+                            <p className={cn("font-medium", isChild && "text-[0.95rem]")}>{assessment.title}</p>
                             {isLesson && (
                               <Badge variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-300">
                                 <Layers className="h-3 w-3 mr-1" />
