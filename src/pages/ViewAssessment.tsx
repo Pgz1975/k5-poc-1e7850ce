@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Volume2, Loader2 } from 'lucide-react';
 import CoquiMascot from '@/components/CoquiMascot';
 import { FillBlankPlayer } from '@/components/ManualAssessment/players/FillBlankPlayer';
+import { WriteAnswerPlayer } from '@/components/ManualAssessment/players/WriteAnswerPlayer';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedRealtimeClient } from '@/utils/EnhancedRealtimeClient';
@@ -253,6 +254,15 @@ export default function ViewAssessment() {
                   clientRef.current.sendText(t("Intenta de nuevo. Revisa las letras.", "Try again. Check the letters."));
                 }
               }
+            }}
+            voiceClient={clientRef.current}
+          />
+        ) : assessment.subtype === 'write_answer' ? (
+          <WriteAnswerPlayer
+            content={assessment.content}
+            onAnswer={(answer, correct) => {
+              setIsCorrect(correct);
+              setShowFeedback(true);
             }}
             voiceClient={clientRef.current}
           />

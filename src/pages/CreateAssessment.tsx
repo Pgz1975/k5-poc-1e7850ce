@@ -14,6 +14,7 @@ import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { AnswerList } from '@/components/ManualAssessment/AnswerList';
 import { ImagePasteZone } from '@/components/ManualAssessment/ImagePasteZone';
 import { FillBlankEditor } from '@/components/ManualAssessment/editors/FillBlankEditor';
+import { WriteAnswerEditor } from '@/components/ManualAssessment/editors/WriteAnswerEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -385,6 +386,13 @@ export default function CreateAssessment() {
         const hasTarget = data.content?.target && data.content.target.trim().length > 0;
         const hasLetters = data.content?.letters && data.content.letters.length > 0;
         return hasTitle && hasPrompt && hasTarget && hasLetters;
+      }
+      
+      // Write answer has different validation
+      if (data.subtype === 'write_answer') {
+        const hasQuestion = data.content?.question && data.content.question.trim().length > 0;
+        const hasAnswer = data.content?.correctAnswer && data.content.correctAnswer.trim().length > 0;
+        return hasTitle && hasQuestion && hasAnswer;
       }
       
       // EXERCISE/ASSESSMENT: needs question and answers with at least one correct
@@ -833,6 +841,16 @@ export default function CreateAssessment() {
                           target: '', 
                           letters: [], 
                           autoShuffle: true 
+                        }}
+                        onChange={(content: any) => setData({ ...data, content })}
+                        language={(data.settings?.language || 'es') as 'es' | 'en'}
+                      />
+                    ) : data.subtype === 'write_answer' ? (
+                      <WriteAnswerEditor
+                        content={data.content?.correctAnswer ? data.content : {
+                          question: data.content?.question || '',
+                          correctAnswer: '',
+                          caseSensitive: false
                         }}
                         onChange={(content: any) => setData({ ...data, content })}
                         language={(data.settings?.language || 'es') as 'es' | 'en'}
