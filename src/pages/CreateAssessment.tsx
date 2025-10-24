@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGr
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { AnswerList } from '@/components/ManualAssessment/AnswerList';
 import { ImagePasteZone } from '@/components/ManualAssessment/ImagePasteZone';
+import { FillBlankEditor } from '@/components/ManualAssessment/editors/FillBlankEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -23,21 +24,14 @@ interface AssessmentData {
   type: 'lesson' | 'exercise' | 'assessment';
   subtype: string;
   title: string;
+  language?: 'es' | 'en';
   voice_guidance?: string;
   activity_template?: string;
   coqui_dialogue?: string;
   pronunciation_words?: string;
   parent_lesson_id?: string; // NEW: Link exercises to lessons
   max_attempts?: number;
-  content: {
-    question: string;
-    questionImage?: string;
-    answers: Array<{
-      text: string;
-      imageUrl: string | null;
-      isCorrect: boolean;
-    }>;
-  };
+  content?: any; // Flexible content structure for different exercise types
   settings: {
     gradeLevel: number;
     language: 'es' | 'en';
@@ -821,39 +815,56 @@ export default function CreateAssessment() {
                       />
                     </div>
 
-                    <div>
-                      <Label>{isSpanish ? 'Pregunta *' : 'Question *'}</Label>
-                      <Textarea
-                        value={data.content?.question || ''}
-                        onChange={(e) => setData({
-                          ...data,
-                          content: { ...data.content!, question: e.target.value }
-                        })}
-                        placeholder={isSpanish ? 'Ingrese la pregunta' : 'Enter the question'}
-                        rows={4}
+                    {/* Type-Specific Editors */}
+                    {data.subtype === 'fill_blank' ? (
+                      <FillBlankEditor
+                        content={data.content?.mode === 'single_word' ? data.content : { 
+                          mode: 'single_word', 
+                          prompt: data.content?.question || '', 
+                          target: '', 
+                          letters: [], 
+                          autoShuffle: true 
+                        }}
+                        onChange={(content: any) => setData({ ...data, content })}
+                        language={(data.settings?.language || 'es') as 'es' | 'en'}
                       />
-                    </div>
+                    ) : (
+                      <>
+                        <div>
+                          <Label>{isSpanish ? 'Pregunta *' : 'Question *'}</Label>
+                          <Textarea
+                            value={data.content?.question || ''}
+                            onChange={(e) => setData({
+                              ...data,
+                              content: { ...data.content!, question: e.target.value }
+                            })}
+                            placeholder={isSpanish ? 'Ingrese la pregunta' : 'Enter the question'}
+                            rows={4}
+                          />
+                        </div>
 
-                    <ImagePasteZone
-                      onImageUploaded={(imageUrl) => {
-                        setData({
-                          ...data,
-                          content: { ...data.content!, questionImage: imageUrl }
-                        });
-                      }}
-                      currentImage={data.content?.questionImage}
-                    />
+                        <ImagePasteZone
+                          onImageUploaded={(imageUrl) => {
+                            setData({
+                              ...data,
+                              content: { ...data.content!, questionImage: imageUrl }
+                            });
+                          }}
+                          currentImage={data.content?.questionImage}
+                        />
 
-                    <div>
-                      <Label>{isSpanish ? 'Respuestas *' : 'Answers *'}</Label>
-                      <AnswerList
-                        answers={data.content?.answers || []}
-                        onChange={(answers) => setData({
-                          ...data,
-                          content: { ...data.content!, answers }
-                        })}
-                      />
-                    </div>
+                        <div>
+                          <Label>{isSpanish ? 'Respuestas *' : 'Answers *'}</Label>
+                          <AnswerList
+                            answers={data.content?.answers || []}
+                            onChange={(answers) => setData({
+                              ...data,
+                              content: { ...data.content!, answers }
+                            })}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </Card>
 

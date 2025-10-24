@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Volume2, Loader2 } from 'lucide-react';
 import CoquiMascot from '@/components/CoquiMascot';
+import { FillBlankPlayer } from '@/components/ManualAssessment/players/FillBlankPlayer';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedRealtimeClient } from '@/utils/EnhancedRealtimeClient';
@@ -127,6 +128,35 @@ export default function ViewAssessment() {
     }
   };
 
+  // Normalize fill_blank content for backward compatibility
+  const normalizeFillBlank = (content: any) => {
+    // If already new format, return as is
+    if (content.target && content.letters) {
+      return {
+        mode: 'single_word' as const,
+        prompt: content.prompt || '',
+        target: content.target,
+        letters: content.letters,
+        imageUrl: content.imageUrl || content.questionImage,
+        autoShuffle: content.autoShuffle ?? true
+      };
+    }
+
+    // Legacy format: extract from question and answers
+    const target = content.answers?.find((a: any) => a.correct)?.text || '';
+    const lettersMatch = content.question?.match(/\[(.*?)\]/);
+    const letters = lettersMatch?.[1]?.split(',').map((l: string) => l.trim()) || [];
+    
+    return {
+      mode: 'single_word' as const,
+      prompt: content.question?.replace(/\[.*?\]/, '').trim() || '',
+      target,
+      letters,
+      imageUrl: content.questionImage,
+      autoShuffle: true
+    };
+  };
+
   const getCoquiState = () => {
     if (isAIPlaying) return 'speaking';
     if (showFeedback) {
@@ -209,36 +239,54 @@ export default function ViewAssessment() {
           )}
         </Card>
 
-        {/* Answers */}
-        <div className="space-y-4 mb-8">
-          {assessment.content.answers.map((answer: any, index: number) => (
-            <Button
-              key={index}
-              onClick={() => handleAnswer(index)}
-              disabled={showFeedback}
-              className={`w-full text-2xl p-8 justify-start ${
-                showFeedback && selectedAnswer === index
-                  ? isCorrect
-                    ? 'bg-green-500 hover:bg-green-600'
-                    : 'bg-red-500 hover:bg-red-600'
-                  : ''
-              }`}
-              variant={showFeedback && selectedAnswer === index ? 'default' : 'outline'}
-            >
-              <span className="font-bold mr-4">{String.fromCharCode(65 + index)})</span>
-              <div className="flex-1 text-left">
-                {answer.text}
-                {answer.imageUrl && (
-                  <img
-                    src={answer.imageUrl}
-                    alt={`Answer ${index + 1}`}
-                    className="mt-2 h-24 w-24 object-cover rounded"
-                  />
-                )}
-              </div>
-            </Button>
-          ))}
-        </div>
+        {/* Type-Specific Players */}
+        {assessment.subtype === 'fill_blank' ? (
+          <FillBlankPlayer
+            content={normalizeFillBlank(assessment.content)}
+            onAnswer={(answer, correct) => {
+              setIsCorrect(correct);
+              setShowFeedback(true);
+              if (clientRef.current) {
+                if (correct) {
+                  clientRef.current.sendText(t("¡Excelente! Formaste la palabra correctamente.", "Excellent! You formed the word correctly."));
+                } else {
+                  clientRef.current.sendText(t("Intenta de nuevo. Revisa las letras.", "Try again. Check the letters."));
+                }
+              }
+            }}
+            voiceClient={clientRef.current}
+          />
+        ) : (
+          <div className="space-y-4 mb-8">
+            {assessment.content.answers.map((answer: any, index: number) => (
+              <Button
+                key={index}
+                onClick={() => handleAnswer(index)}
+                disabled={showFeedback}
+                className={`w-full text-2xl p-8 justify-start ${
+                  showFeedback && selectedAnswer === index
+                    ? isCorrect
+                      ? 'bg-green-500 hover:bg-green-600'
+                      : 'bg-red-500 hover:bg-red-600'
+                    : ''
+                }`}
+                variant={showFeedback && selectedAnswer === index ? 'default' : 'outline'}
+              >
+                <span className="font-bold mr-4">{String.fromCharCode(65 + index)})</span>
+                <div className="flex-1 text-left">
+                  {answer.text}
+                  {answer.imageUrl && (
+                    <img
+                      src={answer.imageUrl}
+                      alt={`Answer ${index + 1}`}
+                      className="mt-2 h-24 w-24 object-cover rounded"
+                    />
+                  )}
+                </div>
+              </Button>
+            ))}
+          </div>
+        )}
 
         {/* Coquí Mascot */}
         <div className="flex justify-center">
