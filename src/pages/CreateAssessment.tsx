@@ -15,6 +15,7 @@ import { AnswerList } from '@/components/ManualAssessment/AnswerList';
 import { ImagePasteZone } from '@/components/ManualAssessment/ImagePasteZone';
 import { FillBlankEditor } from '@/components/ManualAssessment/editors/FillBlankEditor';
 import { WriteAnswerEditor } from '@/components/ManualAssessment/editors/WriteAnswerEditor';
+import { DragDropEditor } from '@/components/ManualAssessment/editors/DragDropEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -393,6 +394,14 @@ export default function CreateAssessment() {
         const hasQuestion = data.content?.question && data.content.question.trim().length > 0;
         const hasAnswer = data.content?.correctAnswer && data.content.correctAnswer.trim().length > 0;
         return hasTitle && hasQuestion && hasAnswer;
+      }
+      
+      // Drag drop (letters mode) has different validation
+      if (data.subtype === 'drag_drop') {
+        const hasQuestion = data.content?.question && data.content.question.trim().length > 0;
+        const hasTarget = data.content?.targetWord && data.content.targetWord.trim().length > 0;
+        const hasLetters = data.content?.availableLetters && data.content.availableLetters.length > 0;
+        return hasTitle && hasQuestion && hasTarget && hasLetters;
       }
       
       // EXERCISE/ASSESSMENT: needs question and answers with at least one correct
@@ -851,6 +860,18 @@ export default function CreateAssessment() {
                           question: data.content?.question || '',
                           correctAnswer: '',
                           caseSensitive: false
+                        }}
+                        onChange={(content: any) => setData({ ...data, content })}
+                        language={(data.settings?.language || 'es') as 'es' | 'en'}
+                      />
+                    ) : data.subtype === 'drag_drop' ? (
+                      <DragDropEditor
+                        content={data.content?.mode === 'letters' ? data.content : {
+                          mode: 'letters',
+                          question: data.content?.question || '',
+                          targetWord: '',
+                          availableLetters: [],
+                          autoShuffle: true
                         }}
                         onChange={(content: any) => setData({ ...data, content })}
                         language={(data.settings?.language || 'es') as 'es' | 'en'}

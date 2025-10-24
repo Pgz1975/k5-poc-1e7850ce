@@ -8,6 +8,7 @@ import { Volume2, Loader2 } from 'lucide-react';
 import CoquiMascot from '@/components/CoquiMascot';
 import { FillBlankPlayer } from '@/components/ManualAssessment/players/FillBlankPlayer';
 import { WriteAnswerPlayer } from '@/components/ManualAssessment/players/WriteAnswerPlayer';
+import { DragDropPlayer } from '@/components/ManualAssessment/players/DragDropPlayer';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedRealtimeClient } from '@/utils/EnhancedRealtimeClient';
@@ -226,7 +227,9 @@ export default function ViewAssessment() {
         )}
 
         {/* Question - Only for multiple choice and true/false */}
-        {assessment.subtype !== 'fill_blank' && assessment.subtype !== 'write_answer' && (
+        {assessment.subtype !== 'fill_blank' && 
+         assessment.subtype !== 'write_answer' && 
+         assessment.subtype !== 'drag_drop' && (
           <Card className="p-8 mb-6">
             <h2 className="text-4xl font-bold mb-6 text-foreground">
               {assessment.content.question}
@@ -265,6 +268,22 @@ export default function ViewAssessment() {
             onAnswer={(answer, correct) => {
               setIsCorrect(correct);
               setShowFeedback(true);
+            }}
+            voiceClient={clientRef.current}
+          />
+        ) : assessment.subtype === 'drag_drop' ? (
+          <DragDropPlayer
+            content={assessment.content}
+            onAnswer={(answer, correct) => {
+              setIsCorrect(correct);
+              setShowFeedback(true);
+              if (clientRef.current) {
+                if (correct) {
+                  clientRef.current.sendText(t("¡Excelente! Formaste la palabra correctamente.", "Excellent! You formed the word correctly."));
+                } else {
+                  clientRef.current.sendText(t("Intenta de nuevo. Reorganiza las letras.", "Try again. Rearrange the letters."));
+                }
+              }
             }}
             voiceClient={clientRef.current}
           />
