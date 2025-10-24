@@ -219,15 +219,15 @@ export function MatchModePlayer({ content, onAnswer, voiceClient }: MatchModePla
 
       <DragOverlay>
         {activeItem && (
-          <div className="p-2 rounded-lg border-2 border-primary bg-secondary shadow-lg">
+          <div className="rounded-lg border-2 border-primary shadow-lg overflow-hidden">
             {activeItem.type === 'image' || (typeof activeItem.content !== 'string' && activeItem.content.type === 'image') ? (
               <img
                 src={activeItem.type === 'image' ? activeItem.content as string : (activeItem.content as { type: 'image'; url: string }).url}
                 alt={activeItem.label || 'Item'}
-                className="h-32 w-32 sm:h-40 sm:w-40 object-cover rounded pointer-events-none select-none"
+                className="h-32 w-32 sm:h-40 sm:w-40 object-cover pointer-events-none select-none"
               />
             ) : (
-              <span className="font-medium">
+              <span className="font-medium p-2 block bg-secondary">
                 {typeof activeItem.content === 'string' ? activeItem.content : activeItem.label}
               </span>
             )}
@@ -265,7 +265,7 @@ function DropZone({ zone, items, isChecked, isPool }: DropZoneProps) {
         ${isOver ? 'border-primary bg-primary/10' : ''}
       `}
     >
-      <h3 className="font-semibold mb-3 text-center">{zone.label}</h3>
+      {!isPool && <h3 className="font-semibold mb-3 text-center">{zone.label}</h3>}
       <div className={`${isPool ? 'grid grid-cols-2 gap-4 max-w-md mx-auto' : 'flex flex-wrap gap-2'} justify-center`}>
         {items.length === 0 ? (
           <p className="text-sm text-muted-foreground self-center col-span-2">
@@ -319,21 +319,21 @@ function DraggableItem({ item, isCorrect, isDragging }: DraggableItemProps) {
       {...listeners}
       {...attributes}
       className={`
-        p-2 rounded-lg border transition-all
+        rounded-lg border transition-all overflow-hidden
         ${borderColor}
         ${dragging || isDragging ? 'opacity-50 scale-105 shadow-lg' : 'hover:shadow-md'}
         ${isCorrect === true ? 'bg-success/10' : ''}
-        ${isCorrect === false ? 'bg-destructive/10' : 'bg-secondary'}
+        ${isCorrect === false ? 'bg-destructive/10' : ''}
       `}
     >
       {item.type === 'image' || (typeof item.content !== 'string' && item.content.type === 'image') ? (
         <img
           src={item.type === 'image' ? item.content as string : (item.content as { type: 'image'; url: string }).url}
           alt={item.label || 'Item'}
-          className="h-32 w-32 sm:h-40 sm:w-40 object-cover rounded pointer-events-none select-none"
+          className="h-32 w-32 sm:h-40 sm:w-40 object-cover pointer-events-none select-none"
         />
       ) : (
-        <span className="font-medium">
+        <span className="font-medium p-2 block">
           {typeof item.content === 'string' ? item.content : item.label}
         </span>
       )}
