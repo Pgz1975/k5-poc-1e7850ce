@@ -33,179 +33,154 @@
 
 ## 🔄 Inactivity Management System
 
-### Core Logic Flow
+### Core Logic Flow (Hook-Based)
 
 ```typescript
-export class CoquiInactivityManager {
-  private silenceTimer: NodeJS.Timeout | null = null;
-  private warningTimer: NodeJS.Timeout | null = null;
-  private lastActivityTime: number = Date.now();
-  private hasWarnedUser: boolean = false;
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-  // Configuration
-  private readonly SILENCE_THRESHOLD = 15000; // 15 seconds
-  private readonly WARNING_DURATION = 10000;  // 10 seconds to respond
+export function useCoquiInactivity({
+  onWarning,
+  onTimeout,
+  onCountdown
+}: {
+  onWarning: () => void;
+  onTimeout: () => void;
+  onCountdown: (seconds: number) => void;
+}) {
+  const [status, setStatus] = useState<'idle' | 'warning' | 'timedOut'>('idle');
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  constructor(
-    private onInactivityWarning: () => void,
-    private onSessionTimeout: () => void,
-    private onCountdownUpdate: (seconds: number) => void
-  ) {}
+  const clearTimers = useCallback(() => {
+    [silenceTimerRef, warningTimerRef, countdownIntervalRef].forEach(ref => {
+      if (ref.current) {
+        clearTimeout(ref.current);
+        ref.current = null;
+      }
+    });
+  }, []);
 
-  // Called on any user activity (voice or interaction)
-  public recordActivity(): void {
-    this.lastActivityTime = Date.now();
-    this.resetTimers();
-    this.hasWarnedUser = false;
-  }
+  const startWarningPhase = useCallback(() => {
+    setStatus('warning');
+    onWarning();
 
-  // Start monitoring for inactivity
-  public startMonitoring(): void {
-    this.resetTimers();
-
-    this.silenceTimer = setTimeout(() => {
-      this.triggerInactivityWarning();
-    }, this.SILENCE_THRESHOLD);
-  }
-
-  private triggerInactivityWarning(): void {
-    if (this.hasWarnedUser) return;
-
-    this.hasWarnedUser = true;
-    this.onInactivityWarning(); // Trigger Coqui to ask "¿Está todo bien?"
-
-    // Start countdown timer
     let remainingSeconds = 10;
-    this.onCountdownUpdate(remainingSeconds);
+    onCountdown(remainingSeconds);
 
-    const countdownInterval = setInterval(() => {
+    countdownIntervalRef.current = setInterval(() => {
       remainingSeconds--;
-      this.onCountdownUpdate(remainingSeconds);
+      onCountdown(remainingSeconds);
 
-      if (remainingSeconds <= 0) {
-        clearInterval(countdownInterval);
-        this.onSessionTimeout();
+      if (remainingSeconds <= 0 && countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+        setStatus('timedOut');
+        onTimeout();
       }
     }, 1000);
 
-    // Store interval for cleanup
-    this.warningTimer = setTimeout(() => {
-      clearInterval(countdownInterval);
-      this.onSessionTimeout();
-    }, this.WARNING_DURATION);
-  }
+    warningTimerRef.current = setTimeout(() => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+      setStatus('timedOut');
+      onTimeout();
+    }, 10000);
+  }, [onCountdown, onTimeout, onWarning]);
 
-  private resetTimers(): void {
-    if (this.silenceTimer) {
-      clearTimeout(this.silenceTimer);
-      this.silenceTimer = null;
-    }
+  const recordActivity = useCallback(() => {
+    clearTimers();
+    setStatus('idle');
+    silenceTimerRef.current = setTimeout(startWarningPhase, 15000);
+  }, [clearTimers, startWarningPhase]);
 
-    if (this.warningTimer) {
-      clearTimeout(this.warningTimer);
-      this.warningTimer = null;
-    }
-  }
+  const stopMonitoring = useCallback(() => {
+    clearTimers();
+    setStatus('idle');
+  }, [clearTimers]);
 
-  public cleanup(): void {
-    this.resetTimers();
-  }
+  useEffect(() => () => clearTimers(), [clearTimers]);
+
+  return {
+    status,
+    startMonitoring: recordActivity, // first call arms the silence timer
+    recordActivity,
+    stopMonitoring
+  };
 }
 ```
 
-### Integration with Voice Session
+### Integration with `useRealtimeVoice`
 
 ```typescript
-export class CoquiSessionManager {
-  private client: EnhancedRealtimeClient | null = null;
-  private inactivityManager: CoquiInactivityManager | null = null;
-  private isWarningActive: boolean = false;
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useRealtimeVoice } from '@/hooks/useRealtimeVoice';
 
-  async startSession(options: {
-    studentId: string;
-    activityId: string;
-    context: any;
-    onTimeout: () => void;
-    onCountdownUpdate: (seconds: number) => void;
-  }): Promise<void> {
-    const { studentId, activityId, context, onTimeout, onCountdownUpdate } = options;
+export function useCoquiSession(activityId: string) {
+  const { user } = useAuth();
+  const { language } = useLanguage();
+  const [countdown, setCountdown] = useState(10);
+  const inactivity = useCoquiInactivity({
+    onWarning: () => sendEmpathyCheck(),
+    onTimeout: () => handleTimeout(),
+    onCountdown: setCountdown
+  });
 
-    // Initialize inactivity manager
-    this.inactivityManager = new CoquiInactivityManager(
-      // On warning callback
-      () => this.sendInactivityCheck(),
-      // On timeout callback
-      () => this.handleSessionTimeout(onTimeout),
-      // On countdown update
-      onCountdownUpdate
-    );
-
-    // Initialize realtime client
-    this.client = new EnhancedRealtimeClient({
-      studentId,
-      language: context.activity.language,
-      gradeLevel: context.activity.gradeLevel,
-      assessmentId: activityId,
-
-      onTranscription: (text, isUser) => {
-        console.log(`[Coqui] ${isUser ? 'Student' : 'AI'}: ${text}`);
-
-        // Record activity on any transcription
-        if (isUser) {
-          this.inactivityManager?.recordActivity();
-          this.isWarningActive = false;
-        }
-      },
-
-      onEvent: (event) => {
-        // Record activity on user audio
-        if (event.type === 'input_audio_buffer.speech_started') {
-          this.inactivityManager?.recordActivity();
-        }
+  const {
+    connect,
+    disconnect,
+    isConnected,
+    isAIPlaying,
+    sendText
+  } = useRealtimeVoice({
+    studentId: user?.id ?? 'demo-student',
+    language: language === 'es' ? 'es-PR' : 'en-US',
+    onTranscription: (_text, isUser) => {
+      if (isUser) inactivity.recordActivity();
+    },
+    onAudioLevel: (dbLevel) => {
+      if (dbLevel > -40) {
+        inactivity.recordActivity();
       }
-    });
+    }
+  });
 
-    await this.client.connect();
-    this.inactivityManager.startMonitoring();
-  }
+  const startSession = useCallback(async () => {
+    await connect();
+    inactivity.startMonitoring();
+  }, [connect, inactivity]);
 
-  private async sendInactivityCheck(): Promise<void> {
-    if (!this.client || this.isWarningActive) return;
+  const endSession = useCallback(() => {
+    inactivity.stopMonitoring();
+    disconnect();
+  }, [disconnect, inactivity]);
 
-    this.isWarningActive = true;
-
-    const language = this.client.config.language;
-    const message = language === 'es-PR'
+  const sendEmpathyCheck = () => {
+    const prompt = language === 'es'
       ? "¿Está todo bien? ¿Necesitas más tiempo para pensar?"
-      : "Is everything okay? Do you need more time to think?";
+      : "Is everything okay? Do you need more time?";
+    sendText(prompt);
+  };
 
-    this.client.sendText(message);
-  }
+  const handleTimeout = () => {
+    const goodbye = language === 'es'
+      ? "No hay problema. Haz clic en mí cuando quieras continuar."
+      : "No problem! Click me when you're ready to continue.";
+    sendText(goodbye);
+    setTimeout(endSession, 3000);
+  };
 
-  private async handleSessionTimeout(onTimeout: () => void): Promise<void> {
-    if (!this.client) return;
-
-    const language = this.client.config.language;
-    const goodbyeMessage = language === 'es-PR'
-      ? "No hay problema. Estaré aquí cuando me necesites. ¡Haz clic en mí cuando quieras continuar!"
-      : "No problem! I'll be here when you need me. Just click on me when you want to continue!";
-
-    // Send goodbye message
-    this.client.sendText(goodbyeMessage);
-
-    // Wait for message to complete
-    setTimeout(() => {
-      this.disconnect();
-      onTimeout();
-    }, 3000);
-  }
-
-  public disconnect(): void {
-    this.inactivityManager?.cleanup();
-    this.client?.disconnect();
-    this.client = null;
-    this.inactivityManager = null;
-  }
+  return {
+    countdown,
+    isConnected,
+    isAIPlaying,
+    startSession,
+    endSession,
+    resetTimeout: inactivity.recordActivity
+  };
 }
 ```
 
@@ -343,79 +318,46 @@ export const CoquiTimeoutIndicator: React.FC<CoquiTimeoutIndicatorProps> = ({
 ### Integration with Coqui Mascot
 
 ```typescript
-export const CoquiWithTimeout: React.FC<{
-  activityId: string;
-  activityType: string;
-  activityContent: any;
-}> = ({ activityId, activityType, activityContent }) => {
-  const [isSessionActive, setIsSessionActive] = useState(false);
-  const [showTimeout, setShowTimeout] = useState(false);
-  const [countdown, setCountdown] = useState(10);
+export const CoquiWithTimeout: React.FC<{ activityId: string }> = ({ activityId }) => {
   const [mascotState, setMascotState] = useState<'waiting' | 'speaking' | 'thinking'>('waiting');
+  const {
+    countdown,
+    isConnected,
+    isAIPlaying,
+    startSession,
+    endSession,
+    resetTimeout
+  } = useCoquiSession(activityId);
 
-  const sessionManager = useRef<CoquiSessionManager | null>(null);
-
-  const startSession = async () => {
-    setIsSessionActive(true);
-    setMascotState('thinking');
-    setShowTimeout(false);
-
-    sessionManager.current = new CoquiSessionManager();
-
-    await sessionManager.current.startSession({
-      studentId: user?.id,
-      activityId,
-      context: await buildContext(activityId),
-
-      onTimeout: () => {
-        setIsSessionActive(false);
-        setMascotState('waiting');
-        setShowTimeout(false);
-      },
-
-      onCountdownUpdate: (seconds) => {
-        if (seconds === 10) {
-          setShowTimeout(true);
-        }
-        setCountdown(seconds);
-
-        if (seconds === 0) {
-          setShowTimeout(false);
-        }
-      }
-    });
-
-    setMascotState('waiting');
-  };
-
-  const handleReactivate = () => {
-    // Cancel timeout and continue session
-    sessionManager.current?.recordActivity();
-    setShowTimeout(false);
-  };
+  useEffect(() => {
+    if (isAIPlaying) {
+      setMascotState('speaking');
+    } else if (isConnected) {
+      setMascotState('thinking');
+    } else {
+      setMascotState('waiting');
+    }
+  }, [isAIPlaying, isConnected]);
 
   return (
     <div className="relative inline-block">
-      {/* Coqui Mascot */}
       <CoquiMascot
         state={mascotState}
-        onClick={!isSessionActive ? startSession : undefined}
+        onClick={!isConnected ? startSession : endSession}
         className={cn(
           "cursor-pointer transition-all",
-          isSessionActive && "animate-pulse"
+          isConnected && "animate-pulse"
         )}
       />
 
-      {/* Timeout Indicator */}
       <CoquiTimeoutIndicator
         countdownSeconds={countdown}
-        isVisible={showTimeout}
+        isVisible={countdown < 10 && countdown > 0}
         position="above"
-        onReactivate={handleReactivate}
+        onReactivate={resetTimeout}
       />
 
-      {/* Status Badge */}
-      {isSessionActive && (
+      {isConnected && (
         <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
           <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
             Activo
@@ -698,23 +640,45 @@ export class CoquiMetricsCollector {
 
 ```
 src/
-├── services/
-│   ├── coqui/
-│   │   ├── CoquiSessionManager.ts      # Core session logic
-│   │   ├── CoquiInactivityManager.ts   # Timeout handling
-│   │   ├── CoquiContextService.ts      # Context building
-│   │   ├── CoquiMetricsCollector.ts    # Demo metrics
-│   │   └── CoquiModeSelector.ts        # Demo/Prod modes
 ├── components/
-│   ├── coqui/
-│   │   ├── CoquiWithTimeout.tsx        # Main component
-│   │   ├── CoquiTimeoutIndicator.tsx   # Visual countdown
-│   │   ├── CoquiSessionBadge.tsx       # Status indicator
-│   │   └── CoquiMascot.tsx             # Mascot animation
+│   ├── StudentDashboard/
+│   │   └── CoquiVoiceChat.tsx          # Entry point for student experience
+│   └── coqui/
+│       ├── CoquiTimeoutIndicator.tsx   # Visual countdown (new)
+│       ├── CoquiSessionBadge.tsx       # Status indicator (new)
+│       └── CoquiMascot.jsx             # Existing mascot component
 ├── hooks/
-│   ├── useCoquiSession.ts              # Session hook
-│   └── useCoquiMetrics.ts              # Metrics hook
+│   ├── useRealtimeVoice.ts             # Existing voice connection hook
+│   ├── useCoquiInactivity.ts           # New inactivity manager hook
+│   └── useCoquiSession.ts              # Wrapper that coordinates voice + inactivity
+└── utils/
+    └── realtime/
+        └── RealtimeVoiceClientEnhanced.ts  # Low-level audio/WebSocket plumbing
 ```
+
+---
+
+## 🧭 Alignment Tasks for Current Hook-Based Architecture
+
+To keep Phase 1 deliverables attainable without a ground-up refactor, implement the smart-timeout experience on top of the existing `CoquiVoiceChat` + `useRealtimeVoice` stack:
+
+- **Voice Hook Enhancements**  
+  - Extend `useRealtimeVoice` / `RealtimeVoiceClientEnhanced` to emit `onUserActivity` / `onSilenceStart` callbacks so the inactivity manager can subscribe without a new session class.
+  - Provide a typed event bridge (e.g., `useRealtimeVoiceActivity`) that exposes student/AI speaking state and resets timers when `input_audio_buffer.speech_started` comes from the relay.
+
+- **Inactivity Logic Layer**  
+  - Create `useCoquiInactivity` that wraps the new callbacks, enforces the 15 s + 10 s countdown logic, and surfaces `state`, `countdown`, and `onReactivate` handlers back to `CoquiVoiceChat`.
+  - Ensure the hook pauses timers when the AI is speaking to avoid premature warnings.
+
+- **UI Components**  
+  - Build `components/coqui/CoquiTimeoutIndicator.tsx` and wire it into the student dashboard card, matching the visual spec in this plan.
+  - Add a lightweight `CoquiSessionBadge` that reflects “Activo / Pausado / Finalizado” so students see status changes triggered by the inactivity hook.
+
+- **Data & Migrations**  
+  - Introduce Supabase migrations for any new tables referenced here (`demo_metrics`, `coqui_interactions`, timeout audit logs) before the frontend ships, so telemetry writers don’t fail at runtime.
+  - Update the realtime relay (and future metrics collector) to record timeout warnings vs. final session closures, enabling the KPIs listed in the Executive Summary.
+
+Document these tasks in the demo backlog and keep the scope tied to the hook-based implementation so milestones remain achievable without blocking on a large-scale refactor.
 
 ---
 
