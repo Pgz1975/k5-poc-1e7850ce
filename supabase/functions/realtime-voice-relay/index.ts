@@ -236,7 +236,8 @@ function handleSessionCreated(session: SessionState): void {
   }
   
   if (session.voiceGuidance) {
-    fullInstructions += `\n\nACTIVITY-SPECIFIC GUIDANCE:\n${session.voiceGuidance}`;
+    // Override ALL base instructions if voice guidance is provided
+    fullInstructions = session.voiceGuidance;
   }
 
   const hasContext = !!session.voiceGuidance || !!session.activityId;
@@ -261,7 +262,7 @@ function handleSessionCreated(session: SessionState): void {
         model: 'whisper-1'
       },
       temperature: 0.8,
-      max_response_output_tokens: 4096
+      max_response_output_tokens: 16384
     },
   };
 
