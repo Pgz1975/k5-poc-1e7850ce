@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import CoquiMascot from "@/components/CoquiMascot";
 import { Mic, Globe } from "lucide-react";
 import { toast } from "sonner";
-import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MicrophonePermissionModalProps {
@@ -21,54 +20,6 @@ export const MicrophonePermissionModal = ({
   const { language: contextLanguage } = useLanguage();
   const [language, setLanguage] = useState<'es' | 'en'>(contextLanguage === 'es' ? 'es' : 'en');
   const [isRequesting, setIsRequesting] = useState(false);
-  const [isPlayingWelcome, setIsPlayingWelcome] = useState(false);
-  const [mascotState, setMascotState] = useState<"happy" | "speaking" | "loading">("happy");
-
-  const { connect, disconnect, sendText, isConnected, isAIPlaying } = useRealtimeVoice({
-    studentId: 'welcome-modal',
-    language: language === 'es' ? 'es-PR' : 'en-US'
-  });
-
-  // Send welcome message when connection is established
-  useEffect(() => {
-    if (isPlayingWelcome && isConnected && !isAIPlaying) {
-      console.log('[MicPermissionModal] Connection ready, sending welcome message');
-      const welcomeMessage = language === 'es'
-        ? "¡Perfecto! Ya tengo permiso para usar tu micrófono. Cuando quieras hablar conmigo durante tus lecciones, solo haz clic sobre mí y estaré listo para ayudarte."
-        : "Perfect! I now have permission to use your microphone. When you want to talk to me during your lessons, just click on me and I'll be ready to help you.";
-      
-      sendText(welcomeMessage);
-    }
-  }, [isPlayingWelcome, isConnected, isAIPlaying, language, sendText]);
-
-  // Update mascot state based on AI playing status
-  useEffect(() => {
-    if (isPlayingWelcome) {
-      setMascotState(isAIPlaying ? "speaking" : "happy");
-    }
-  }, [isAIPlaying, isPlayingWelcome]);
-
-  // Close modal after welcome message finishes
-  useEffect(() => {
-    if (isPlayingWelcome && !isAIPlaying && isConnected) {
-      const cleanup = async () => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        disconnect();
-        setIsPlayingWelcome(false);
-        onPermissionGranted();
-      };
-      cleanup();
-    }
-  }, [isPlayingWelcome, isAIPlaying, isConnected]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (isConnected) {
-        disconnect();
-      }
-    };
-  }, [isConnected]);
 
   const content = {
     es: {
@@ -121,12 +72,8 @@ export const MicrophonePermissionModal = ({
         icon: '🐸'
       });
 
-      // Now connect to voice service
-      setMascotState("loading");
-      await connect();
-      
-      // Set flag - the useEffect will send message when connection is ready
-      setIsPlayingWelcome(true);
+      // Close modal immediately - welcome will be spoken by WelcomeSpeaker
+      onPermissionGranted();
       
     } catch (error) {
       console.error('Microphone permission error:', error);
@@ -159,7 +106,7 @@ export const MicrophonePermissionModal = ({
           {/* Coquí Mascot */}
           <div className="relative">
             <CoquiMascot 
-              state={mascotState}
+              state="happy"
               size="medium"
               position="inline"
               className="animate-bounce-gentle"
