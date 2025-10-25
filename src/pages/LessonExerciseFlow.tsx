@@ -9,6 +9,7 @@ import { LessonCompletionScreen } from '@/components/LessonCompletion/LessonComp
 import { Progress } from '@/components/ui/progress';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import CoquiMascot from '@/components/CoquiMascot';
 
 export default function LessonExerciseFlow() {
   const { lessonId } = useParams<{ lessonId: string }>();
@@ -285,6 +286,14 @@ export default function LessonExerciseFlow() {
         exercise={currentExercise}
         onComplete={(score, passed) => handleExerciseComplete(currentExercise.id, score, passed)}
         onExit={handleBack}
+      />
+
+      {/* Coquí Mascot */}
+      <CoquiMascot 
+        state="reading" 
+        size="small" 
+        position="inline"
+        className="fixed bottom-4 right-4"
       />
     </div>
   );
