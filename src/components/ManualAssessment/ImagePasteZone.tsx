@@ -92,13 +92,31 @@ export function ImagePasteZone({ onImageUploaded, currentImage, correctAnswer }:
 
     setIsFetchingPexels(true);
     try {
+      console.log('Fetching Pexels image for:', query);
+      
       const { data, error } = await supabase.functions.invoke('search-pexels', {
         body: { query: query.trim(), per_page: 1 }
       });
 
-      if (error) throw error;
+      console.log('Pexels response:', { data, error });
 
-      if (data?.photos && data.photos.length > 0) {
+      if (error) {
+        console.error('Pexels error:', error);
+        throw error;
+      }
+
+      // Handle the new response structure with images array
+      if (data?.images && data.images.length > 0) {
+        const imageUrl = data.images[0].url;
+        setPreviewUrl(imageUrl);
+        onImageUploaded(imageUrl);
+        
+        toast({
+          title: t("¡Imagen encontrada!", "Image found!"),
+          description: t(`Imagen de ${data.images[0].photographer}`, `Image by ${data.images[0].photographer}`)
+        });
+      } else if (data?.photos && data.photos.length > 0) {
+        // Fallback for old response format
         const imageUrl = data.photos[0].src.large;
         setPreviewUrl(imageUrl);
         onImageUploaded(imageUrl);
@@ -118,7 +136,7 @@ export function ImagePasteZone({ onImageUploaded, currentImage, correctAnswer }:
       console.error('Pexels fetch error:', error);
       toast({
         title: t("Error al buscar", "Search failed"),
-        description: t("No se pudo buscar en Pexels", "Could not search Pexels"),
+        description: error instanceof Error ? error.message : t("No se pudo buscar en Pexels", "Could not search Pexels"),
         variant: 'destructive'
       });
     } finally {
