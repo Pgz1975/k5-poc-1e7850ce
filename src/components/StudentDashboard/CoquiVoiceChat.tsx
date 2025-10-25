@@ -64,6 +64,16 @@ export const CoquiVoiceChat = () => {
     }
   }, [messages]);
 
+  // Cleanup: End session when leaving the page
+  useEffect(() => {
+    return () => {
+      if (isConnected) {
+        console.log('[CoquiVoiceChat] 🧹 Cleanup - ending session on unmount');
+        endSession();
+      }
+    };
+  }, [isConnected, endSession]);
+
   const handleToggleConnection = async () => {
     if (isConnected) {
       setMascotState('neutral');
