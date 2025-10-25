@@ -6,6 +6,7 @@ interface ParentLesson {
   description: string;
   imageSearchTerms: string[];
   voiceGuidance: string;
+  lessonContent: string; // Main teaching content
 }
 
 interface ExerciseTemplate {
@@ -16,6 +17,7 @@ interface ExerciseTemplate {
   contentBuilder: (images: (string | null)[]) => any;
   imageSearchTerms: string[];
   voiceGuidance: string;
+  requireAllImages?: boolean;
 }
 
 export async function generateGrade2SpanishContent() {
@@ -29,50 +31,133 @@ export async function generateGrade2SpanishContent() {
 
   const createdBy = user.id;
 
-  // Define 5 parent lessons - one for each domain (dominio)
+  // Define 5 parent lessons with teaching content
   const parentLessons: ParentLesson[] = [
     {
       title: "AI G2: Dominio 1 - Fonética y Conciencia Fonológica",
       description: "Dígrafos, grupos consonánticos y palabras multisilábicas",
-      imageSearchTerms: ["spanish alphabet letters colorful"],
-      voiceGuidance: "¡Hola! Soy tu amigo Coquí. En esta lección aprenderemos sobre los sonidos especiales del español. Vamos a practicar con dígrafos como CH, LL, y RR, y palabras con muchas sílabas. ¡Será muy divertido!",
+      imageSearchTerms: ["spanish alphabet classroom children learning"],
+      voiceGuidance: "¡Hola! Soy tu amigo Coquí. En esta lección aprenderemos sobre los sonidos especiales del español.",
+      lessonContent: `Los dígrafos son dos letras juntas que forman un solo sonido.
+
+En español tenemos:
+• CH - como en "chocolate"
+• LL - como en "lluvia"
+• RR - como en "perro"
+
+También aprenderemos grupos consonánticos:
+• BR - brazo
+• PL - plato
+• GR - grande
+• FL - flor
+
+Recuerda: Las palabras largas se dividen en sílabas. Cada sílaba tiene al menos una vocal.
+Ejemplo: ma-ri-po-sa (4 sílabas)`
     },
     {
       title: "AI G2: Dominio 2 - Fluidez Lectora",
       description: "Lectura fluida con ritmo y entonación adecuados",
-      imageSearchTerms: ["child reading book spanish"],
-      voiceGuidance: "En esta lección vamos a practicar la lectura en voz alta. Aprenderás a leer con buena velocidad, sin trabarte, y respetando los signos de puntuación. ¡Tu meta es leer entre 80 y 120 palabras por minuto!",
+      imageSearchTerms: ["children reading books Puerto Rico school"],
+      voiceGuidance: "En esta lección vamos a practicar la lectura en voz alta. Tu meta es leer entre 80 y 120 palabras por minuto.",
+      lessonContent: `Los signos de puntuación son tus guías de lectura:
+
+El Punto (.) - Pausa larga
+La Coma (,) - Pausa corta
+¿Interrogación? - Sube la voz
+¡Exclamación! - Muestra emoción
+
+Palabras de alta frecuencia que debes reconocer rápido:
+el, la, los, las, un, una, y, o, pero, porque
+
+Practica leyendo:
+"En Puerto Rico, el coquí canta todas las noches. Su canto suena como su nombre: ¡co-quí, co-quí!"`
     },
     {
       title: "AI G2: Dominio 3 - Desarrollo de Vocabulario",
       description: "Sinónimos, antónimos y lenguaje figurado",
-      imageSearchTerms: ["spanish dictionary words vocabulary"],
-      voiceGuidance: "¡Vamos a enriquecer nuestro vocabulario! Aprenderemos palabras nuevas, sus sinónimos y antónimos. También descubriremos expresiones divertidas como 'tan alto como una jirafa'. ¡Ampliarás tu mundo de palabras!",
+      imageSearchTerms: ["spanish vocabulary words dictionary"],
+      voiceGuidance: "¡Vamos a enriquecer nuestro vocabulario! Aprenderemos palabras nuevas y sus relaciones.",
+      lessonContent: `Sinónimos - Palabras con significados parecidos:
+• feliz = contento
+• triste = apenado
+• grande = enorme
+
+Antónimos - Palabras opuestas:
+• día ↔ noche
+• caliente ↔ frío
+• lleno ↔ vacío
+
+Lenguaje Figurado:
+• "Tan alto como una palmera" = muy alto
+• "Rápido como el viento" = muy veloz
+
+Vocabulario Boricua:
+• chinchorro = kiosco de playa
+• piragua = raspado de hielo
+• vejigante = máscara de carnaval`
     },
     {
       title: "AI G2: Dominio 4 - Comprensión Literal",
-      description: "Entender información explícita en textos narrativos e informativos",
-      imageSearchTerms: ["story book Puerto Rico children"],
-      voiceGuidance: "En esta sección leeremos cuentos y textos informativos sobre Puerto Rico. Aprenderás a identificar personajes, lugares, eventos y la idea principal. Practicaremos respondiendo preguntas de ¿Quién?, ¿Qué?, ¿Dónde? y ¿Cuándo?",
+      description: "Entender información explícita en textos",
+      imageSearchTerms: ["story book reading Puerto Rico"],
+      voiceGuidance: "Aprenderás a identificar personajes, lugares y eventos. Practicaremos las preguntas clave.",
+      lessonContent: `Las Preguntas Clave para Comprender:
+
+¿QUIÉN? - Los personajes
+¿QUÉ? - Los eventos
+¿DÓNDE? - El lugar
+¿CUÁNDO? - El tiempo
+¿POR QUÉ? - Las razones
+
+Para encontrar la idea principal:
+1. Lee el título
+2. Lee la primera oración
+3. Busca palabras que se repiten
+
+Secuencia de eventos:
+Primero → Luego → Después → Finalmente`
     },
     {
       title: "AI G2: Dominio 5 - Comprensión Inferencial",
       description: "Hacer inferencias, predicciones y pensamiento crítico",
-      imageSearchTerms: ["thinking child question mark"],
-      voiceGuidance: "¡Es hora de pensar más allá del texto! Aprenderás a deducir información que no está escrita directamente, hacer predicciones sobre lo que pasará después, y entender el mensaje del autor. ¡Serás un detective de la lectura!",
+      imageSearchTerms: ["thinking child reading book question"],
+      voiceGuidance: "¡Serás un detective de la lectura! Aprenderás a descubrir información no escrita.",
+      lessonContent: `Inferir es descubrir información usando pistas.
+
+Ejemplo:
+"Ana entró empapada a la casa."
+Podemos inferir: Estaba lloviendo
+
+Hacer Predicciones:
+Usa pistas del texto para imaginar qué pasará.
+
+Causa y Efecto:
+Causa: Estudió mucho → Efecto: Sacó buena nota
+
+Propósito del Autor:
+• Informar - dar datos
+• Entretener - contar historias
+• Persuadir - convencer
+
+Recuerda: Siempre busca evidencia en el texto para apoyar tus ideas.`
     },
   ];
 
   // Fetch images for parent lessons
   console.log("📸 Fetching parent lesson images from Pexels...");
   const parentImages: (string | null)[] = [];
+
   for (const lesson of parentLessons) {
-    const image = await searchPexelsImage(lesson.imageSearchTerms[0]);
+    let image = null;
+    for (const searchTerm of lesson.imageSearchTerms) {
+      image = await searchPexelsImage(searchTerm);
+      if (image) break;
+      await new Promise(resolve => setTimeout(resolve, 600));
+    }
     parentImages.push(image?.src.large || null);
-    await new Promise(resolve => setTimeout(resolve, 500));
   }
 
-  // Insert parent lessons
+  // Insert parent lessons with proper structure
   console.log("📚 Creating parent lessons...");
   const { data: insertedParents, error: parentError } = await supabase
     .from("manual_assessments")
@@ -88,8 +173,9 @@ export async function generateGrade2SpanishContent() {
         subject_area: "reading" as const,
         status: "published" as const,
         content: {
-          image_url: parentImages[index],
-          description: lesson.description,
+          question: lesson.lessonContent, // Main lesson content goes in question field
+          questionImage: parentImages[index], // Optional lesson image
+          answers: [] // Empty for lessons
         },
         enable_voice: true,
         auto_read_question: true,
@@ -97,7 +183,7 @@ export async function generateGrade2SpanishContent() {
         passing_score: 70,
         max_attempts: 3,
         difficulty_level: 2,
-        estimated_duration_minutes: 25,
+        estimated_duration_minutes: 20,
         curriculum_standards: ["DEPR Grade 2 Spanish Literacy"],
         voice_guidance: lesson.voiceGuidance,
       }))
@@ -111,117 +197,106 @@ export async function generateGrade2SpanishContent() {
 
   console.log(`✅ Created ${insertedParents.length} parent lessons`);
 
-  // Define exercises for each domain
+  // Define exercises with corrected structure
   const lessonExercises: ExerciseTemplate[][] = [
-    // Dominio 1: Fonética y Conciencia Fonológica
+    // Dominio 1: Fonética - 6 exercises
     [
       {
-        title: "AI G2: Construye palabras con dígrafos",
+        title: "AI G2: Identifica el dígrafo CH",
+        type: "exercise",
+        subtype: "multiple_choice",
+        description: "Reconoce palabras con CH",
+        imageSearchTerms: ["chocolate", "milk", "chair", "car"],
+        voiceGuidance: "El dígrafo CH suena como en chocolate. ¿Cuál palabra tiene ese sonido?",
+        requireAllImages: true,
+        contentBuilder: (images) => {
+          // Ensure all images or none
+          const hasAllImages = images.every(img => img !== null);
+          const useImages = hasAllImages ? images : [null, null, null, null];
+
+          return {
+            question: "¿Cuál palabra contiene el dígrafo CH?",
+            questionImage: null,
+            answers: [
+              { text: "chocolate", imageUrl: useImages[0], isCorrect: true },
+              { text: "leche", imageUrl: useImages[1], isCorrect: false },
+              { text: "silla", imageUrl: useImages[2], isCorrect: false },
+              { text: "carro", imageUrl: useImages[3], isCorrect: false },
+            ],
+          };
+        },
+      },
+      {
+        title: "AI G2: Forma palabras con LL",
         type: "exercise",
         subtype: "drag_drop",
-        description: "Arrastra sílabas para formar palabras con CH, LL, RR",
-        imageSearchTerms: ["spanish letters", "alphabet blocks"],
-        voiceGuidance: "Vamos a construir palabras usando los dígrafos CH, LL y RR. Recuerda que estos pares de letras forman un solo sonido. Por ejemplo, CH suena como en 'chavo', LL como en 'lluvia', y RR como en 'perro'.",
+        description: "Arrastra letras para formar palabras con LL",
+        imageSearchTerms: [],
+        voiceGuidance: "Forma la palabra 'lluvia' arrastrando las letras correctas.",
         contentBuilder: (images) => ({
           mode: "letters",
-          question: "Arrastra las sílabas para formar la palabra correcta",
-          questionText: "Une las sílabas para formar palabras con dígrafos. Escucha bien el sonido especial que hacen CH, LL y RR.",
-          questionImage: images[0],
-          targetWord: "cachorro",
-          availableLetters: ["ca", "cho", "rro", "ma", "te", "si", "la"],
+          question: "Arrastra las letras para formar 'lluvia'",
+          targetWord: "lluvia",
+          availableLetters: ["ll", "u", "v", "i", "a", "m", "p", "s"],
           autoShuffle: true,
         }),
       },
       {
-        title: "AI G2: Completa con el dígrafo correcto",
+        title: "AI G2: Completa con RR",
         type: "exercise",
         subtype: "fill_blank",
-        description: "Completa palabras con CH, LL o RR",
-        imageSearchTerms: ["milk glass", "key metal", "dog puppy"],
-        voiceGuidance: "Completa cada palabra con el dígrafo que falta. Piensa en el sonido que necesitas: ¿CH como en leche, LL como en llave, o RR como en perro?",
+        description: "Completa palabras con RR",
+        imageSearchTerms: [],
+        voiceGuidance: "Completa la palabra usando las letras correctas. Recuerda que RR suena fuerte.",
         contentBuilder: (images) => ({
           mode: "single_word",
-          prompt: "Completa: le___e (leche)",
-          target: "leche",
-          letters: ["c", "h", "l", "l", "r", "r", "m", "n"],
-          imageUrl: images[0],
-          autoShuffle: true,
+          prompt: "Animal que dice guau: pe___",
+          target: "perro",
+          letters: ["p", "e", "rr", "o"],
+          autoShuffle: false,
         }),
       },
       {
-        title: "AI G2: Identifica grupos consonánticos",
+        title: "AI G2: Grupos consonánticos",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Selecciona palabras con BR, PL, GR, FL",
-        imageSearchTerms: ["tree branch", "plate dish", "grapes fruit", "flower bloom"],
-        voiceGuidance: "Los grupos consonánticos son dos consonantes juntas como BR, PL, GR, FL. Escucha bien: BRazo, PLato, GRande, FLor. ¿Puedes identificar cuál palabra tiene el grupo consonántico?",
+        description: "Identifica grupos BR, PL, GR",
+        imageSearchTerms: [],
+        voiceGuidance: "Los grupos consonánticos son dos consonantes juntas. ¿Cuál palabra tiene BR?",
         contentBuilder: (images) => ({
-          question: "¿Cuál palabra contiene el grupo consonántico 'BR'?",
-          questionText: "Lee cada opción con cuidado. Busca la palabra que tiene las letras BR juntas, como en 'brazo'.",
-          questionImage: images[0],
+          question: "¿Qué palabra contiene el grupo consonántico BR?",
+          questionImage: null,
           answers: [
-            { text: "brazo", imageUrl: images[0], isCorrect: true },
-            { text: "mesa", imageUrl: images[1], isCorrect: false },
-            { text: "silla", imageUrl: images[2], isCorrect: false },
-            { text: "cama", imageUrl: images[3], isCorrect: false },
+            { text: "brazo", imageUrl: null, isCorrect: true },
+            { text: "paso", imageUrl: null, isCorrect: false },
+            { text: "mesa", imageUrl: null, isCorrect: false },
+            { text: "casa", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: Separa en sílabas",
+        title: "AI G2: Cuenta las sílabas",
         type: "exercise",
-        subtype: "drag_drop",
-        description: "Divide palabras multisilábicas en sílabas",
-        imageSearchTerms: ["butterfly colorful"],
-        voiceGuidance: "Vamos a separar palabras largas en sílabas. Recuerda: cada sílaba tiene al menos una vocal. Por ejemplo: ma-ri-po-sa tiene 4 sílabas.",
+        subtype: "write_answer",
+        description: "Cuenta sílabas en palabras",
+        imageSearchTerms: [],
+        voiceGuidance: "Cuenta las sílabas: ma-ri-po-sa. ¿Cuántas hay?",
         contentBuilder: (images) => ({
-          mode: "match",
-          question: "Separa la palabra 'mariposa' en sílabas",
-          questionText: "Arrastra cada sílaba a su lugar correcto. Ma-ri-po-sa tiene 4 sílabas.",
-          questionImage: images[0],
-          draggableItems: [
-            { id: "1", type: "text", content: "ma", label: "ma", correctZone: "silaba1" },
-            { id: "2", type: "text", content: "ri", label: "ri", correctZone: "silaba2" },
-            { id: "3", type: "text", content: "po", label: "po", correctZone: "silaba3" },
-            { id: "4", type: "text", content: "sa", label: "sa", correctZone: "silaba4" },
-          ],
-          dropZones: [
-            { id: "silaba1", label: "1ª sílaba" },
-            { id: "silaba2", label: "2ª sílaba" },
-            { id: "silaba3", label: "3ª sílaba" },
-            { id: "silaba4", label: "4ª sílaba" },
-          ],
-          allowMultiplePerZone: false,
+          question: "¿Cuántas sílabas tiene 'mariposa'? (escribe el número)",
+          questionImage: null,
+          correctAnswer: "4",
+          caseSensitive: false,
         }),
       },
       {
-        title: "AI G2: Escucha y selecciona",
-        type: "exercise",
-        subtype: "multiple_choice",
-        description: "Selección múltiple auditiva",
-        imageSearchTerms: ["spanish words", "vocabulary", "letters", "school supplies"],
-        voiceGuidance: "Escucha con atención la palabra que voy a decir. Luego selecciona la opción escrita que corresponde. La palabra es: 'chocolate'.",
-        contentBuilder: (images) => ({
-          question: "Escucha: 'chocolate'. ¿Cuál es la palabra correcta?",
-          questionImage: images[0],
-          answers: [
-            { text: "chocolate", imageUrl: null, isCorrect: true },
-            { text: "chocalate", imageUrl: null, isCorrect: false },
-            { text: "chokolate", imageUrl: null, isCorrect: false },
-            { text: "chocolat", imageUrl: null, isCorrect: false },
-          ],
-        }),
-      },
-      {
-        title: "AI G2: Lectura guiada básica",
+        title: "AI G2: ¿Tiene dígrafo?",
         type: "exercise",
         subtype: "true_false",
-        description: "Practica la correlación grafofonémica",
-        imageSearchTerms: ["reading practice spanish"],
-        voiceGuidance: "Lee conmigo: 'El carro rojo corre rápido'. Nota cómo la doble RR suena fuerte. ¿Practicamos juntos?",
+        description: "Identifica si hay dígrafo",
+        imageSearchTerms: [],
+        voiceGuidance: "¿La palabra 'carro' tiene el dígrafo RR?",
         contentBuilder: (images) => ({
-          question: "La palabra 'carro' tiene el dígrafo RR",
-          questionImage: images[0],
+          question: "La palabra 'carro' contiene el dígrafo RR",
           answers: [
             { text: "Verdadero", imageUrl: null, isCorrect: true },
             { text: "Falso", imageUrl: null, isCorrect: false },
@@ -229,37 +304,35 @@ export async function generateGrade2SpanishContent() {
         }),
       },
     ],
-    // Dominio 2: Fluidez Lectora
+    // Dominio 2: Fluidez - 5 exercises
     [
       {
-        title: "AI G2: Lectura cronometrada",
+        title: "AI G2: Identifica las pausas",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Lee el texto y responde preguntas de comprensión",
-        imageSearchTerms: ["Puerto Rico beach", "coqui frog", "tropical forest"],
-        voiceGuidance: "Lee este texto sobre Puerto Rico en voz alta. Trata de leer entre 80 y 120 palabras por minuto. Respeta las pausas en las comas y los puntos.",
+        description: "Reconoce dónde pausar al leer",
+        imageSearchTerms: [],
+        voiceGuidance: "Los puntos son pausas largas. Las comas son pausas cortas.",
         contentBuilder: (images) => ({
-          question: "Después de leer: ¿Dónde vive el coquí?",
-          questionText: "Texto: 'El coquí es una ranita pequeña que vive en Puerto Rico. Le gusta cantar por las noches en el bosque de El Yunque. Su canto suena como su nombre: co-quí, co-quí.'",
-          questionImage: images[1],
+          question: "¿Cuántas pausas hay en: 'Luis, Ana y Pedro juegan.'?",
+          questionImage: null,
           answers: [
-            { text: "En el bosque de El Yunque", imageUrl: images[2], isCorrect: true },
-            { text: "En la playa", imageUrl: images[0], isCorrect: false },
-            { text: "En la ciudad", imageUrl: null, isCorrect: false },
-            { text: "En el río", imageUrl: null, isCorrect: false },
+            { text: "2 pausas", imageUrl: null, isCorrect: true },
+            { text: "1 pausa", imageUrl: null, isCorrect: false },
+            { text: "3 pausas", imageUrl: null, isCorrect: false },
+            { text: "0 pausas", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: Practica la entonación",
+        title: "AI G2: Lee con emoción",
         type: "exercise",
         subtype: "true_false",
-        description: "Reconoce signos de puntuación para modular la voz",
-        imageSearchTerms: ["exclamation mark", "question mark"],
-        voiceGuidance: "Los signos de puntuación nos dicen cómo leer. El signo de interrogación (¿?) sube la voz al preguntar. El de exclamación (¡!) muestra emoción. Practiquemos: '¡Qué lindo día!' vs '¿Qué hora es?'",
+        description: "Entonación en exclamaciones",
+        imageSearchTerms: [],
+        voiceGuidance: "Las exclamaciones se leen con emoción y entusiasmo.",
         contentBuilder: (images) => ({
-          question: "¿La oración '¡Vamos a la playa!' debe leerse con emoción?",
-          questionImage: images[0],
+          question: "¡Qué lindo día! se debe leer con emoción",
           answers: [
             { text: "Verdadero", imageUrl: null, isCorrect: true },
             { text: "Falso", imageUrl: null, isCorrect: false },
@@ -267,296 +340,299 @@ export async function generateGrade2SpanishContent() {
         }),
       },
       {
-        title: "AI G2: Palabras de alta frecuencia",
+        title: "AI G2: Palabras frecuentes",
         type: "exercise",
         subtype: "drag_drop",
-        description: "Automatización de palabras comunes",
-        imageSearchTerms: ["common spanish words"],
-        voiceGuidance: "Estas son palabras que verás mucho al leer. Debes reconocerlas rápidamente sin deletrear: el, la, de, que, y, a, en, un, por, con.",
+        description: "Forma palabras de alta frecuencia",
+        imageSearchTerms: [],
+        voiceGuidance: "Estas palabras aparecen mucho. Debes reconocerlas rápido.",
         contentBuilder: (images) => ({
           mode: "letters",
-          question: "Forma rápidamente la palabra de alta frecuencia",
-          questionImage: images[0],
+          question: "Forma una palabra muy común",
           targetWord: "porque",
-          availableLetters: ["por", "que", "par", "qui", "pe", "ro"],
-          autoShuffle: true,
-        }),
-      },
-      {
-        title: "AI G2: Lectura con pausas",
-        type: "exercise",
-        subtype: "multiple_choice",
-        description: "Respeta comas y puntos al leer",
-        imageSearchTerms: ["reading child"],
-        voiceGuidance: "Lee este texto haciendo pausas cortas en las comas y pausas largas en los puntos: 'María, mi hermana, tiene un gato. El gato es negro, blanco y gris.'",
-        contentBuilder: (images) => ({
-          question: "¿Cuántas pausas (comas) hay en: 'María, mi hermana, tiene un gato'?",
-          questionImage: images[0],
-          answers: [
-            { text: "2 pausas", imageUrl: null, isCorrect: true },
-            { text: "1 pausa", imageUrl: null, isCorrect: false },
-            { text: "3 pausas", imageUrl: null, isCorrect: false },
-            { text: "No hay pausas", imageUrl: null, isCorrect: false },
-          ],
+          availableLetters: ["por", "que"],
+          autoShuffle: false,
         }),
       },
       {
         title: "AI G2: Comprensión rápida",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Lee y comprende rápidamente",
-        imageSearchTerms: ["Puerto Rican food mofongo"],
-        voiceGuidance: "Lee rápido pero con atención: 'El mofongo es un plato típico de Puerto Rico. Se hace con plátano verde machacado y chicharrón.'",
+        description: "Lee y comprende",
+        imageSearchTerms: [],
+        voiceGuidance: "Lee: 'El coquí canta en El Yunque por las noches.' ¿Cuándo canta?",
         contentBuilder: (images) => ({
-          question: "¿Con qué se hace el mofongo?",
-          questionImage: images[0],
+          question: "Según el texto, ¿cuándo canta el coquí?",
+          questionImage: null,
           answers: [
-            { text: "Plátano verde y chicharrón", imageUrl: images[0], isCorrect: true },
-            { text: "Arroz y habichuelas", imageUrl: null, isCorrect: false },
-            { text: "Yuca y carne", imageUrl: null, isCorrect: false },
-            { text: "Papa y pollo", imageUrl: null, isCorrect: false },
+            { text: "Por las noches", imageUrl: null, isCorrect: true },
+            { text: "Por las mañanas", imageUrl: null, isCorrect: false },
+            { text: "Al mediodía", imageUrl: null, isCorrect: false },
+            { text: "Todo el día", imageUrl: null, isCorrect: false },
           ],
+        }),
+      },
+      {
+        title: "AI G2: Meta de velocidad",
+        type: "exercise",
+        subtype: "write_answer",
+        description: "Conoce tu meta de lectura",
+        imageSearchTerms: [],
+        voiceGuidance: "En segundo grado debes leer entre 80 y 120 palabras por minuto.",
+        contentBuilder: (images) => ({
+          question: "¿Cuántas palabras por minuto es la meta mínima? (escribe el número)",
+          questionImage: null,
+          correctAnswer: "80",
+          caseSensitive: false,
         }),
       },
     ],
-    // Dominio 3: Desarrollo de Vocabulario
+    // Dominio 3: Vocabulario - 6 exercises
     [
       {
-        title: "AI G2: Sinónimos - palabras hermanas",
-        type: "exercise",
-        subtype: "drag_drop",
-        description: "Empareja palabras con significados similares",
-        imageSearchTerms: ["happy child", "sad child", "big elephant", "small mouse"],
-        voiceGuidance: "Los sinónimos son palabras diferentes que significan casi lo mismo. Por ejemplo: 'bonito' y 'hermoso', 'saltar' y 'brincar'. Son como hermanos de significado.",
-        contentBuilder: (images) => ({
-          mode: "match",
-          question: "Empareja cada palabra con su sinónimo",
-          questionText: "Une las palabras que significan lo mismo. Por ejemplo: feliz = contento, grande = enorme.",
-          questionImage: null,
-          draggableItems: [
-            { id: "1", type: "text", content: "feliz", label: "feliz", correctZone: "contento" },
-            { id: "2", type: "text", content: "triste", label: "triste", correctZone: "apenado" },
-            { id: "3", type: "text", content: "grande", label: "grande", correctZone: "enorme" },
-            { id: "4", type: "text", content: "pequeño", label: "pequeño", correctZone: "chiquito" },
-          ],
-          dropZones: [
-            { id: "contento", label: "contento" },
-            { id: "apenado", label: "apenado" },
-            { id: "enorme", label: "enorme" },
-            { id: "chiquito", label: "chiquito" },
-          ],
-          allowMultiplePerZone: false,
-        }),
-      },
-      {
-        title: "AI G2: Antónimos - opuestos",
+        title: "AI G2: Encuentra el sinónimo",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Identifica palabras con significados opuestos",
-        imageSearchTerms: ["hot cold", "day night", "up down"],
-        voiceGuidance: "Los antónimos son palabras opuestas. Como 'día' y 'noche', 'caliente' y 'frío'. Son totalmente diferentes, como el blanco y el negro.",
+        description: "Palabras con significado similar",
+        imageSearchTerms: [],
+        voiceGuidance: "Los sinónimos son palabras hermanas. Significan casi lo mismo.",
         contentBuilder: (images) => ({
-          question: "¿Cuál es el antónimo de 'lleno'?",
-          questionText: "Busca la palabra que significa lo contrario de 'lleno'. Si un vaso está lleno de agua, lo opuesto sería...",
-          questionImage: images[0],
+          question: "¿Cuál es sinónimo de 'contento'?",
+          questionImage: null,
           answers: [
-            { text: "vacío", imageUrl: null, isCorrect: true },
-            { text: "grande", imageUrl: null, isCorrect: false },
-            { text: "mojado", imageUrl: null, isCorrect: false },
-            { text: "nuevo", imageUrl: null, isCorrect: false },
+            { text: "feliz", imageUrl: null, isCorrect: true },
+            { text: "triste", imageUrl: null, isCorrect: false },
+            { text: "enojado", imageUrl: null, isCorrect: false },
+            { text: "cansado", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: Familias de palabras",
+        title: "AI G2: Encuentra el antónimo",
+        type: "exercise",
+        subtype: "multiple_choice",
+        description: "Palabras opuestas",
+        imageSearchTerms: [],
+        voiceGuidance: "Los antónimos son totalmente opuestos.",
+        contentBuilder: (images) => ({
+          question: "¿Cuál es el antónimo de 'caliente'?",
+          questionImage: null,
+          answers: [
+            { text: "frío", imageUrl: null, isCorrect: true },
+            { text: "tibio", imageUrl: null, isCorrect: false },
+            { text: "suave", imageUrl: null, isCorrect: false },
+            { text: "duro", imageUrl: null, isCorrect: false },
+          ],
+        }),
+      },
+      {
+        title: "AI G2: Clasifica palabras",
         type: "exercise",
         subtype: "drag_drop",
-        description: "Agrupa palabras por categorías semánticas",
-        imageSearchTerms: ["animals zoo", "fruits tropical", "school supplies"],
-        voiceGuidance: "Las familias de palabras son grupos relacionados. Por ejemplo, la familia 'animales': perro, gato, caballo. O la familia 'frutas': mango, piña, guayaba.",
+        description: "Agrupa por categorías",
+        imageSearchTerms: [],
+        voiceGuidance: "Clasifica las palabras en sus familias correctas.",
         contentBuilder: (images) => ({
           mode: "match",
-          question: "Clasifica las palabras en sus familias",
-          questionText: "Arrastra cada palabra a su familia correcta: Animales, Frutas o Útiles escolares.",
-          questionImage: null,
-          draggableItems: [
-            { id: "1", type: "text", content: "mango", label: "mango", correctZone: "frutas" },
-            { id: "2", type: "text", content: "perro", label: "perro", correctZone: "animales" },
-            { id: "3", type: "text", content: "lápiz", label: "lápiz", correctZone: "utiles" },
-            { id: "4", type: "text", content: "piña", label: "piña", correctZone: "frutas" },
-            { id: "5", type: "text", content: "gato", label: "gato", correctZone: "animales" },
-            { id: "6", type: "text", content: "libreta", label: "libreta", correctZone: "utiles" },
-          ],
+          question: "Arrastra cada palabra a su familia",
           dropZones: [
-            { id: "animales", label: "Animales" },
             { id: "frutas", label: "Frutas" },
-            { id: "utiles", label: "Útiles escolares" },
+            { id: "animales", label: "Animales" },
+          ],
+          draggableItems: [
+            {
+              id: "item-1",
+              content: "mango",
+              type: "text",
+              correctZone: "frutas"
+            },
+            {
+              id: "item-2",
+              content: "perro",
+              type: "text",
+              correctZone: "animales"
+            },
+            {
+              id: "item-3",
+              content: "piña",
+              type: "text",
+              correctZone: "frutas"
+            },
+            {
+              id: "item-4",
+              content: "gato",
+              type: "text",
+              correctZone: "animales"
+            },
           ],
           allowMultiplePerZone: true,
         }),
       },
       {
-        title: "AI G2: Lenguaje figurado básico",
+        title: "AI G2: Lenguaje figurado",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Reconoce símiles y personificaciones sencillas",
-        imageSearchTerms: ["giraffe tall", "butterfly stomach"],
-        voiceGuidance: "El lenguaje figurado usa comparaciones divertidas. 'Tan alto como una jirafa' no significa que seas una jirafa, sino muy alto. 'Mariposas en el estómago' significa estar nervioso.",
+        description: "Comprende comparaciones",
+        imageSearchTerms: [],
+        voiceGuidance: "Las comparaciones con 'como' no son literales.",
         contentBuilder: (images) => ({
-          question: "¿Qué significa 'tan alto como una jirafa'?",
-          questionText: "Esta expresión es un símil. No significa que la persona sea una jirafa, sino que es...",
-          questionImage: images[0],
+          question: "¿Qué significa 'rápido como el viento'?",
+          questionImage: null,
           answers: [
-            { text: "Muy alta", imageUrl: images[0], isCorrect: true },
-            { text: "Un animal", imageUrl: null, isCorrect: false },
-            { text: "Amarilla", imageUrl: null, isCorrect: false },
-            { text: "Del zoológico", imageUrl: null, isCorrect: false },
+            { text: "Muy rápido", imageUrl: null, isCorrect: true },
+            { text: "Es viento", imageUrl: null, isCorrect: false },
+            { text: "Hace viento", imageUrl: null, isCorrect: false },
+            { text: "Le gusta el viento", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: Contexto para entender",
+        title: "AI G2: Vocabulario boricua",
+        type: "exercise",
+        subtype: "write_answer",
+        description: "Palabras de Puerto Rico",
+        imageSearchTerms: [],
+        voiceGuidance: "En Puerto Rico, un raspado de hielo con sirope se llama...",
+        contentBuilder: (images) => ({
+          question: "¿Cómo se llama el raspado de hielo con sirope en PR?",
+          questionImage: null,
+          correctAnswer: "piragua",
+          caseSensitive: false,
+        }),
+      },
+      {
+        title: "AI G2: Usa el contexto",
         type: "exercise",
         subtype: "fill_blank",
-        description: "Usa pistas del contexto para entender palabras nuevas",
-        imageSearchTerms: ["rain umbrella"],
-        voiceGuidance: "Cuando no conoces una palabra, las otras palabras te dan pistas. Lee: 'Usé el paraguas porque estaba lloviendo.' ¿Qué será un paraguas? Las pistas dicen que se usa cuando llueve.",
+        description: "Deduce significados",
+        imageSearchTerms: [],
+        voiceGuidance: "Las palabras alrededor te dan pistas del significado.",
         contentBuilder: (images) => ({
           mode: "single_word",
-          prompt: "El ___ protege de la lluvia",
+          prompt: "Usé el ___ porque llovía (protege de la lluvia)",
           target: "paraguas",
-          letters: ["p", "a", "r", "a", "g", "u", "a", "s"],
-          imageUrl: images[0],
-          autoShuffle: false,
-        }),
-      },
-      {
-        title: "AI G2: Palabras del entorno boricua",
-        type: "exercise",
-        subtype: "multiple_choice",
-        description: "Vocabulario de Puerto Rico",
-        imageSearchTerms: ["Puerto Rico flag", "vejigante mask", "puerto rico beach"],
-        voiceGuidance: "En Puerto Rico tenemos palabras especiales. 'Vejigante' es una máscara tradicional del carnaval. 'Piragua' es un raspado de hielo con sirope. ¡Son palabras boricuas!",
-        contentBuilder: (images) => ({
-          question: "¿Qué es una 'piragua' en Puerto Rico?",
-          questionImage: images[2],
-          answers: [
-            { text: "Un raspado de hielo con sirope", imageUrl: null, isCorrect: true },
-            { text: "Un barco pequeño", imageUrl: null, isCorrect: false },
-            { text: "Un pájaro tropical", imageUrl: null, isCorrect: false },
-            { text: "Una flor", imageUrl: null, isCorrect: false },
-          ],
+          letters: ["pa", "ra", "gu", "as"],
+          autoShuffle: true,
         }),
       },
     ],
-    // Dominio 4: Comprensión Literal
+    // Dominio 4: Comprensión Literal - 6 exercises
     [
       {
-        title: "AI G2: ¿Quién es el personaje?",
+        title: "AI G2: Identifica personajes",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Identifica personajes principales en el cuento",
-        imageSearchTerms: ["Puerto Rican boy", "grandmother cooking", "coqui frog"],
-        voiceGuidance: "Lee con atención: 'Juan vive con su abuela en Ponce. Todas las mañanas, la abuela prepara un rico desayuno con café y pan.' ¿Quiénes son los personajes?",
+        description: "Encuentra los personajes",
+        imageSearchTerms: [],
+        voiceGuidance: "Lee: 'Juan y su perro Max fueron al parque.' ¿Quiénes son los personajes?",
         contentBuilder: (images) => ({
-          question: "¿Quiénes son los personajes del texto?",
-          questionText: "Texto: 'Juan vive con su abuela en Ponce. Todas las mañanas, la abuela prepara un rico desayuno con café y pan.'",
-          questionImage: images[0],
+          question: "En el texto, ¿quiénes son los personajes?",
+          questionImage: null,
           answers: [
-            { text: "Juan y su abuela", imageUrl: images[1], isCorrect: true },
-            { text: "Juan y su mamá", imageUrl: null, isCorrect: false },
+            { text: "Juan y Max", imageUrl: null, isCorrect: true },
             { text: "Solo Juan", imageUrl: null, isCorrect: false },
-            { text: "La abuela y el abuelo", imageUrl: null, isCorrect: false },
+            { text: "El parque", imageUrl: null, isCorrect: false },
+            { text: "Juan y María", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: ¿Dónde ocurre la historia?",
+        title: "AI G2: ¿Dónde ocurre?",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Identifica el escenario del texto",
-        imageSearchTerms: ["Ponce Puerto Rico", "Old San Juan", "El Yunque forest", "beach puerto rico"],
-        voiceGuidance: "El escenario es el lugar donde pasa la historia. Lee: 'Los niños jugaban en la plaza de Ponce mientras las palomas volaban alrededor de la fuente.' ¿Dónde están?",
+        description: "Identifica el lugar",
+        imageSearchTerms: [],
+        voiceGuidance: "Lee: 'Los niños jugaban en la plaza de recreo.' ¿Dónde están?",
         contentBuilder: (images) => ({
           question: "¿Dónde están jugando los niños?",
-          questionText: "Texto: 'Los niños jugaban en la plaza de Ponce mientras las palomas volaban alrededor de la fuente.'",
-          questionImage: images[0],
+          questionImage: null,
           answers: [
-            { text: "En la plaza de Ponce", imageUrl: images[0], isCorrect: true },
-            { text: "En el Viejo San Juan", imageUrl: images[1], isCorrect: false },
-            { text: "En El Yunque", imageUrl: images[2], isCorrect: false },
-            { text: "En la playa", imageUrl: images[3], isCorrect: false },
+            { text: "En la plaza de recreo", imageUrl: null, isCorrect: true },
+            { text: "En casa", imageUrl: null, isCorrect: false },
+            { text: "En la escuela", imageUrl: null, isCorrect: false },
+            { text: "En la playa", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: Ordena los eventos",
+        title: "AI G2: Ordena eventos",
         type: "exercise",
         subtype: "drag_drop",
-        description: "Secuencia cronológica de eventos",
-        imageSearchTerms: ["morning sunrise", "afternoon sun", "night moon"],
-        voiceGuidance: "Lee la historia y ordena qué pasó primero, segundo y tercero. 'María se despertó temprano. Luego desayunó con su familia. Finalmente, se fue a la escuela.'",
+        description: "Secuencia de acontecimientos",
+        imageSearchTerms: [],
+        voiceGuidance: "Ordena qué pasó primero, segundo y tercero.",
         contentBuilder: (images) => ({
           mode: "match",
-          question: "Ordena los eventos del cuento",
-          questionText: "Arrastra los eventos en el orden correcto: primero, segundo, tercero.",
-          questionImage: null,
-          draggableItems: [
-            { id: "1", type: "text", content: "Se fue a la escuela", label: "Se fue a la escuela", correctZone: "tercero" },
-            { id: "2", type: "text", content: "Se despertó temprano", label: "Se despertó temprano", correctZone: "primero" },
-            { id: "3", type: "text", content: "Desayunó con su familia", label: "Desayunó con su familia", correctZone: "segundo" },
-          ],
+          question: "Ordena los eventos en secuencia",
           dropZones: [
-            { id: "primero", label: "1° Primero" },
-            { id: "segundo", label: "2° Segundo" },
-            { id: "tercero", label: "3° Tercero" },
+            { id: "primero", label: "Primero" },
+            { id: "segundo", label: "Segundo" },
+            { id: "tercero", label: "Tercero" },
+          ],
+          draggableItems: [
+            {
+              id: "item-1",
+              content: "Se levantó",
+              type: "text",
+              correctZone: "primero"
+            },
+            {
+              id: "item-2",
+              content: "Desayunó",
+              type: "text",
+              correctZone: "segundo"
+            },
+            {
+              id: "item-3",
+              content: "Fue a la escuela",
+              type: "text",
+              correctZone: "tercero"
+            },
           ],
           allowMultiplePerZone: false,
         }),
       },
       {
-        title: "AI G2: Idea principal del texto",
+        title: "AI G2: Idea principal",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Encuentra la idea central del párrafo",
-        imageSearchTerms: ["coqui Puerto Rico frog"],
-        voiceGuidance: "La idea principal es lo más importante del texto. Lee: 'El coquí es el símbolo de Puerto Rico. Esta ranita canta por las noches. Su canto alegra los campos boricuas.' ¿Cuál es la idea principal?",
+        description: "Encuentra el tema central",
+        imageSearchTerms: [],
+        voiceGuidance: "La idea principal es lo más importante del texto.",
         contentBuilder: (images) => ({
-          question: "¿Cuál es la idea principal del texto sobre el coquí?",
-          questionText: "Texto: 'El coquí es el símbolo de Puerto Rico. Esta ranita canta por las noches. Su canto alegra los campos boricuas.'",
-          questionImage: images[0],
+          question: "Lee: 'El coquí es el símbolo de PR. Canta de noche.' ¿Cuál es la idea principal?",
+          questionImage: null,
           answers: [
-            { text: "El coquí es el símbolo de Puerto Rico", imageUrl: images[0], isCorrect: true },
-            { text: "El coquí canta de día", imageUrl: null, isCorrect: false },
-            { text: "El coquí es grande", imageUrl: null, isCorrect: false },
-            { text: "El coquí vive en el mar", imageUrl: null, isCorrect: false },
+            { text: "El coquí es el símbolo de PR", imageUrl: null, isCorrect: true },
+            { text: "Canta fuerte", imageUrl: null, isCorrect: false },
+            { text: "Es verde", imageUrl: null, isCorrect: false },
+            { text: "Vive en árboles", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: Mapa del cuento",
+        title: "AI G2: Detalles específicos",
         type: "exercise",
         subtype: "write_answer",
-        description: "Completa información explícita del texto",
-        imageSearchTerms: ["story map diagram"],
-        voiceGuidance: "Vamos a completar un mapa del cuento. Lee: 'Ana encontró un gatito en el parque. Lo llevó a casa y le dio leche.' ¿Qué encontró Ana?",
+        description: "Encuentra información exacta",
+        imageSearchTerms: [],
+        voiceGuidance: "Lee: 'El coquí mide 3 centímetros.' ¿Cuánto mide?",
         contentBuilder: (images) => ({
-          question: "¿Qué encontró Ana? (una palabra)",
-          questionImage: images[0],
-          correctAnswer: "gatito",
+          question: "¿Cuántos centímetros mide el coquí? (número)",
+          questionImage: null,
+          correctAnswer: "3",
           caseSensitive: false,
         }),
       },
       {
-        title: "AI G2: Usa las ilustraciones",
+        title: "AI G2: ¿Es correcto?",
         type: "exercise",
         subtype: "true_false",
-        description: "Las imágenes ayudan a comprender",
-        imageSearchTerms: ["rain umbrella child"],
-        voiceGuidance: "Las ilustraciones nos dan información extra. Si ves una imagen de lluvia y un niño con paraguas, puedes entender mejor cuando el texto dice 'Era un día lluvioso'.",
+        description: "Verifica información",
+        imageSearchTerms: [],
+        voiceGuidance: "Según el texto, ¿es correcta esta información?",
         contentBuilder: (images) => ({
-          question: "Las ilustraciones nos ayudan a entender mejor el texto",
-          questionImage: images[0],
+          question: "El texto dice: 'El coquí canta de noche.' ¿Es cierto?",
           answers: [
             { text: "Verdadero", imageUrl: null, isCorrect: true },
             { text: "Falso", imageUrl: null, isCorrect: false },
@@ -564,159 +640,174 @@ export async function generateGrade2SpanishContent() {
         }),
       },
     ],
-    // Dominio 5: Comprensión Inferencial
+    // Dominio 5: Comprensión Inferencial - 8 exercises
     [
       {
-        title: "AI G2: ¿Por qué pasó esto?",
+        title: "AI G2: Infiere la causa",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Inferir causas no explícitas",
-        imageSearchTerms: ["wet floor", "spilled water", "crying child"],
-        voiceGuidance: "A veces el texto no dice todo directamente. Lee: 'El piso estaba mojado. María resbaló.' El texto no dice por qué estaba mojado, pero podemos deducir que alguien derramó agua.",
+        description: "Deduce por qué pasó algo",
+        imageSearchTerms: [],
+        voiceGuidance: "Lee: 'Ana llegó mojada a casa.' ¿Por qué estará mojada?",
         contentBuilder: (images) => ({
-          question: "Lee: 'El piso estaba mojado. María resbaló.' ¿Por qué crees que el piso estaba mojado?",
-          questionText: "Piensa: ¿Qué pudo haber pasado antes para que el piso estuviera mojado? El texto no lo dice, pero puedes deducirlo.",
-          questionImage: images[0],
+          question: "Si Ana llegó mojada, ¿qué pudo haber pasado?",
+          questionImage: null,
           answers: [
-            { text: "Alguien derramó agua", imageUrl: images[1], isCorrect: true },
-            { text: "María lo secó", imageUrl: null, isCorrect: false },
-            { text: "Estaba limpio", imageUrl: null, isCorrect: false },
-            { text: "Era de madera", imageUrl: null, isCorrect: false },
+            { text: "Estaba lloviendo", imageUrl: null, isCorrect: true },
+            { text: "Hacía calor", imageUrl: null, isCorrect: false },
+            { text: "Era de noche", imageUrl: null, isCorrect: false },
+            { text: "Estaba cansada", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: Predice qué pasará",
+        title: "AI G2: Predice el final",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Hacer predicciones lógicas",
-        imageSearchTerms: ["dark clouds rain", "umbrella", "sunny day"],
-        voiceGuidance: "Usa las pistas para predecir. Lee: 'Las nubes negras cubrieron el cielo. Juan corrió a buscar su paraguas.' ¿Qué crees que pasará después?",
+        description: "Anticipa qué pasará",
+        imageSearchTerms: [],
+        voiceGuidance: "Las nubes están negras y hay viento. ¿Qué pasará?",
         contentBuilder: (images) => ({
-          question: "Lee: 'Las nubes negras cubrieron el cielo. Juan corrió a buscar su paraguas.' ¿Qué pasará después?",
-          questionImage: images[0],
+          question: "Si hay nubes negras y viento fuerte, ¿qué pasará?",
+          questionImage: null,
           answers: [
-            { text: "Va a llover", imageUrl: images[0], isCorrect: true },
-            { text: "Saldrá el sol", imageUrl: images[2], isCorrect: false },
+            { text: "Va a llover", imageUrl: null, isCorrect: true },
+            { text: "Saldrá el sol", imageUrl: null, isCorrect: false },
             { text: "Nevará", imageUrl: null, isCorrect: false },
             { text: "Hará calor", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: El mensaje del cuento",
+        title: "AI G2: ¿Cómo se siente?",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Identificar la moraleja o enseñanza",
-        imageSearchTerms: ["sharing children", "helping others", "teamwork kids"],
-        voiceGuidance: "Los cuentos tienen enseñanzas. Lee: 'Pedro compartió su merienda con Ana que no tenía. Ana se sintió feliz y agradecida.' ¿Qué nos enseña este cuento?",
+        description: "Infiere emociones",
+        imageSearchTerms: [],
+        voiceGuidance: "Si alguien tiene lágrimas en los ojos, ¿cómo se siente?",
         contentBuilder: (images) => ({
-          question: "¿Qué lección nos enseña el cuento de Pedro y Ana?",
-          questionText: "Cuento: 'Pedro compartió su merienda con Ana que no tenía. Ana se sintió feliz y agradecida.' ¿Cuál es el mensaje?",
-          questionImage: images[0],
+          question: "Luis tiene lágrimas en los ojos. ¿Cómo se siente?",
+          questionImage: null,
           answers: [
-            { text: "Es bueno compartir con otros", imageUrl: images[0], isCorrect: true },
-            { text: "No hay que traer merienda", imageUrl: null, isCorrect: false },
-            { text: "Ana debe traer comida", imageUrl: null, isCorrect: false },
-            { text: "Pedro come mucho", imageUrl: null, isCorrect: false },
+            { text: "Triste", imageUrl: null, isCorrect: true },
+            { text: "Feliz", imageUrl: null, isCorrect: false },
+            { text: "Enojado", imageUrl: null, isCorrect: false },
+            { text: "Aburrido", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: ¿Quién cuenta la historia?",
+        title: "AI G2: El mensaje",
         type: "exercise",
         subtype: "multiple_choice",
-        description: "Identificar el punto de vista del narrador",
-        imageSearchTerms: ["storyteller", "perspective view"],
-        voiceGuidance: "¿Quién cuenta la historia? Si dice 'Yo fui al parque', el personaje cuenta su propia historia. Si dice 'María fue al parque', alguien más la cuenta.",
+        description: "Identifica la enseñanza",
+        imageSearchTerms: [],
+        voiceGuidance: "¿Qué nos enseña el cuento?",
         contentBuilder: (images) => ({
-          question: "Lee: 'Yo vi un arcoíris hermoso después de la lluvia.' ¿Quién cuenta esto?",
-          questionImage: images[0],
+          question: "Si el niño honesto ganó amigos, ¿qué nos enseña?",
+          questionImage: null,
           answers: [
-            { text: "El personaje mismo", imageUrl: null, isCorrect: true },
-            { text: "Un narrador externo", imageUrl: null, isCorrect: false },
-            { text: "La mamá", imageUrl: null, isCorrect: false },
-            { text: "El maestro", imageUrl: null, isCorrect: false },
+            { text: "Ser honesto es bueno", imageUrl: null, isCorrect: true },
+            { text: "Jugar es malo", imageUrl: null, isCorrect: false },
+            { text: "No tener amigos", imageUrl: null, isCorrect: false },
+            { text: "Correr rápido", imageUrl: null, isCorrect: false },
           ],
         }),
       },
       {
-        title: "AI G2: Compara dos textos",
+        title: "AI G2: Propósito del texto",
+        type: "exercise",
+        subtype: "multiple_choice",
+        description: "¿Para qué se escribió?",
+        imageSearchTerms: [],
+        voiceGuidance: "¿El autor quiere informar, entretener o convencer?",
+        contentBuilder: (images) => ({
+          question: "'¡Recicla para salvar el planeta!' ¿Cuál es el propósito?",
+          questionImage: null,
+          answers: [
+            { text: "Convencernos de reciclar", imageUrl: null, isCorrect: true },
+            { text: "Contar un cuento", imageUrl: null, isCorrect: false },
+            { text: "Dar información", imageUrl: null, isCorrect: false },
+            { text: "Hacernos reír", imageUrl: null, isCorrect: false },
+          ],
+        }),
+      },
+      {
+        title: "AI G2: Compara personajes",
         type: "exercise",
         subtype: "drag_drop",
-        description: "Encuentra semejanzas y diferencias",
-        imageSearchTerms: ["rain weather", "water cycle"],
-        voiceGuidance: "Lee dos textos sobre la lluvia. Texto A: 'La lluvia moja las plantas.' Texto B: 'El agua se evapora y forma nubes.' Uno es poético, otro es científico.",
+        description: "Diferencias entre personajes",
+        imageSearchTerms: [],
+        voiceGuidance: "¿En qué se diferencian los personajes?",
         contentBuilder: (images) => ({
           mode: "match",
-          question: "¿Qué información aparece en cada texto?",
-          questionText: "Texto A habla de cómo la lluvia moja las plantas. Texto B explica el ciclo del agua. Clasifica la información.",
-          questionImage: images[0],
-          draggableItems: [
-            { id: "1", type: "text", content: "Moja las plantas", label: "Moja las plantas", correctZone: "textoA" },
-            { id: "2", type: "text", content: "Ciclo del agua", label: "Ciclo del agua", correctZone: "textoB" },
-            { id: "3", type: "text", content: "Evaporación", label: "Evaporación", correctZone: "textoB" },
-            { id: "4", type: "text", content: "Plantas verdes", label: "Plantas verdes", correctZone: "textoA" },
-          ],
+          question: "Clasifica: hormiga trabajó, cigarra cantó",
           dropZones: [
-            { id: "textoA", label: "Texto A (poético)" },
-            { id: "textoB", label: "Texto B (científico)" },
+            { id: "hormiga", label: "Hormiga" },
+            { id: "cigarra", label: "Cigarra" },
+          ],
+          draggableItems: [
+            {
+              id: "item-1",
+              content: "trabajadora",
+              type: "text",
+              correctZone: "hormiga"
+            },
+            {
+              id: "item-2",
+              content: "cantaba",
+              type: "text",
+              correctZone: "cigarra"
+            },
+            {
+              id: "item-3",
+              content: "preparada",
+              type: "text",
+              correctZone: "hormiga"
+            },
+            {
+              id: "item-4",
+              content: "descuidada",
+              type: "text",
+              correctZone: "cigarra"
+            },
           ],
           allowMultiplePerZone: true,
         }),
       },
       {
-        title: "AI G2: Propósito del autor",
-        type: "exercise",
-        subtype: "multiple_choice",
-        description: "¿Para qué escribió el autor este texto?",
-        imageSearchTerms: ["recycling kids", "information book", "entertainment story"],
-        voiceGuidance: "Los autores escriben por diferentes razones: informar (dar datos), entretener (contar cuentos), o persuadir (convencer). ¿Cuál es el propósito aquí?",
-        contentBuilder: (images) => ({
-          question: "Lee: '¡Recicla! Salva el planeta separando la basura.' ¿Cuál es el propósito?",
-          questionImage: images[0],
-          answers: [
-            { text: "Persuadir - convencernos de reciclar", imageUrl: images[0], isCorrect: true },
-            { text: "Entretener con un cuento", imageUrl: images[2], isCorrect: false },
-            { text: "Informar datos científicos", imageUrl: images[1], isCorrect: false },
-            { text: "Enseñar matemáticas", imageUrl: null, isCorrect: false },
-          ],
-        }),
-      },
-      {
-        title: "AI G2: Evidencia del texto",
+        title: "AI G2: Causa y efecto",
         type: "exercise",
         subtype: "write_answer",
-        description: "Justifica inferencias con evidencia",
-        imageSearchTerms: ["sad child", "evidence clues"],
-        voiceGuidance: "Cuando inferimos algo, necesitamos evidencia del texto. Si dices 'Ana estaba triste', debes encontrar la frase que lo sugiere, como 'Ana tenía lágrimas en los ojos'.",
+        description: "Conecta causa con resultado",
+        imageSearchTerms: [],
+        voiceGuidance: "Si Juan estudió y sacó A, ¿por qué sacó buena nota?",
         contentBuilder: (images) => ({
-          question: "Si Ana tenía lágrimas en los ojos, ¿cómo se sentía? (una palabra)",
-          questionImage: images[0],
-          correctAnswer: "triste",
+          question: "Juan sacó A porque... (una palabra)",
+          questionImage: null,
+          correctAnswer: "estudió",
           caseSensitive: false,
         }),
       },
       {
-        title: "AI G2: Causa y efecto implícito",
+        title: "AI G2: ¿Es inferencia correcta?",
         type: "exercise",
         subtype: "true_false",
-        description: "Relaciona causas y efectos no explícitos",
-        imageSearchTerms: ["homework study", "good grades"],
-        voiceGuidance: "Lee: 'Luis estudió mucho para el examen. Sacó una A.' El texto no dice que estudiar causó la buena nota, pero podemos conectar causa (estudiar) y efecto (buena nota).",
+        description: "Valida inferencias",
+        imageSearchTerms: [],
+        voiceGuidance: "¿Es correcta esta inferencia del texto?",
         contentBuilder: (images) => ({
-          question: "Luis sacó buena nota porque estudió mucho",
-          questionImage: images[0],
+          question: "Si dice 'saltó de alegría', inferimos que está feliz",
           answers: [
-            { text: "Verdadero - es la causa más probable", imageUrl: null, isCorrect: true },
-            { text: "Falso - no hay relación", imageUrl: null, isCorrect: false },
+            { text: "Verdadero", imageUrl: null, isCorrect: true },
+            { text: "Falso", imageUrl: null, isCorrect: false },
           ],
         }),
       },
     ],
   ];
 
-  // Process exercises for each domain
+  // Process exercises
   const allExercises = [];
   const allOrderingRecords = [];
 
@@ -726,23 +817,19 @@ export async function generateGrade2SpanishContent() {
 
     console.log(`\n📝 Processing exercises for: ${parent.title}`);
 
-    // Grade 2 has different exercise counts per domain
-    // Domain 1 & 2: 6 exercises each
-    // Domain 3: 6 exercises
-    // Domain 4: 6 exercises
-    // Domain 5: 8 exercises
-    const exercisesToProcess = exercises.slice(0, parentIndex === 4 ? 8 : 6);
+    for (let exerciseIndex = 0; exerciseIndex < exercises.length; exerciseIndex++) {
+      const template = exercises[exerciseIndex];
 
-    for (let exerciseIndex = 0; exerciseIndex < exercisesToProcess.length; exerciseIndex++) {
-      const template = exercisesToProcess[exerciseIndex];
+      console.log(`  🎯 Creating: ${template.title}`);
 
-      console.log(`  🖼️  Fetching images for: ${template.title}`);
+      // Fetch images if needed
       const exerciseImages: (string | null)[] = [];
-
-      for (const searchTerm of template.imageSearchTerms) {
-        const image = await searchPexelsImage(searchTerm);
-        exerciseImages.push(image?.src.large || null);
-        await new Promise(resolve => setTimeout(resolve, 500));
+      if (template.imageSearchTerms.length > 0) {
+        for (const searchTerm of template.imageSearchTerms) {
+          const image = await searchPexelsImage(searchTerm);
+          exerciseImages.push(image?.src.large || null);
+          await new Promise(resolve => setTimeout(resolve, 600));
+        }
       }
 
       const content = template.contentBuilder(exerciseImages);
@@ -766,7 +853,7 @@ export async function generateGrade2SpanishContent() {
         passing_score: 70,
         max_attempts: 3,
         difficulty_level: 2,
-        estimated_duration_minutes: 5,
+        estimated_duration_minutes: 4,
         curriculum_standards: ["DEPR Grade 2 Spanish Literacy"],
         voice_guidance: template.voiceGuidance,
       });
@@ -787,7 +874,7 @@ export async function generateGrade2SpanishContent() {
 
   console.log(`✅ Created ${insertedExercises.length} exercises`);
 
-  // Get current max display_order for grade 2
+  // Get current max display_order
   const { data: maxOrderData } = await supabase
     .from("lesson_ordering")
     .select("display_order")
@@ -797,10 +884,9 @@ export async function generateGrade2SpanishContent() {
 
   let nextDisplayOrder = (maxOrderData?.[0]?.display_order || 0) + 1;
 
-  // Create lesson ordering records
-  console.log("\n📊 Creating lesson ordering for Grade 2...");
+  // Create ordering
+  console.log("\n📊 Creating lesson ordering...");
 
-  // Add parent lessons
   for (const parent of insertedParents) {
     allOrderingRecords.push({
       assessment_id: parent.id,
@@ -810,7 +896,6 @@ export async function generateGrade2SpanishContent() {
     });
   }
 
-  // Add exercises
   for (const exercise of insertedExercises) {
     allOrderingRecords.push({
       assessment_id: exercise.id,
@@ -831,10 +916,10 @@ export async function generateGrade2SpanishContent() {
 
   console.log(`✅ Created ${allOrderingRecords.length} ordering records`);
 
-  console.log("\n🎉 Grade 2 content generation complete!");
-  console.log(`📚 Total parent lessons (dominios): ${insertedParents.length}`);
-  console.log(`📝 Total exercises: ${insertedExercises.length}`);
-  console.log(`📊 Total ordering records: ${allOrderingRecords.length}`);
+  console.log("\n🎉 Grade 2 Spanish content generation complete!");
+  console.log(`📚 5 Dominios (parent lessons) with teaching content`);
+  console.log(`📝 ${insertedExercises.length} exercises aligned to DEPR standards`);
+  console.log(`✅ All content properly formatted for the platform`);
 
   return {
     parents: insertedParents,
