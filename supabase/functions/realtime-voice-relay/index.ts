@@ -243,6 +243,24 @@ function handleSessionCreated(session: SessionState): void {
   const hasContext = !!session.voiceGuidance || !!session.activityId;
   log(`Sending session.update${hasContext ? ' with context' : ''}`);
 
+  const isWelcomeSpeaker = session.studentId === 'welcome-speaker';
+
+  const turnDetection = isWelcomeSpeaker
+    ? {
+        type: 'server_vad',
+        threshold: 0.95, // Very high to avoid false barge-in during TTS
+        prefix_padding_ms: 300,
+        silence_duration_ms: 1500,
+        create_response: false // Do not auto-start a new response when mic picks up sound
+      }
+    : {
+        type: 'server_vad',
+        threshold: 0.45,
+        prefix_padding_ms: 300,
+        silence_duration_ms: 1200,
+        create_response: true
+      };
+
   const sessionConfig = {
     type: 'session.update',
     session: {
@@ -251,16 +269,8 @@ function handleSessionCreated(session: SessionState): void {
       voice: 'shimmer',
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
-      turn_detection: {
-        type: 'server_vad',
-        threshold: 0.45,
-        prefix_padding_ms: 300,
-        silence_duration_ms: 1200,
-        create_response: true
-      },
-      input_audio_transcription: {
-        model: 'whisper-1'
-      },
+      turn_detection: turnDetection,
+      input_audio_transcription: isWelcomeSpeaker ? undefined : { model: 'whisper-1' },
       temperature: 0.8,
       max_response_output_tokens: 4096
     },
