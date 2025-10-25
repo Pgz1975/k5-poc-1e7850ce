@@ -82,37 +82,6 @@ export const CoquiLessonAssistant = ({
     }
   }, [messages]);
 
-  // Auto-start voice session for lessons (not exercises)
-  useEffect(() => {
-    if (activityType === 'lesson' && !isConnected && !isConnecting) {
-      const autoStart = async () => {
-        console.log('[CoquiLessonAssistant] 🚀 Auto-starting for lesson');
-        setIsPanelOpen(true);
-        setMascotState('loading');
-        
-        try {
-          await startSession();
-          setMascotState('happy');
-          
-          const greeting = t(
-            "¡Hola! Estoy aquí para ayudarte con esta lección. Puedes hacerme cualquier pregunta.",
-            "Hi! I'm here to help you with this lesson. Feel free to ask me anything."
-          );
-          
-          setTimeout(() => {
-            sendText(greeting);
-          }, 1000);
-        } catch (error) {
-          console.error('[CoquiLessonAssistant] Auto-start failed:', error);
-          setMascotState('neutral');
-          setIsPanelOpen(false);
-        }
-      };
-      
-      autoStart();
-    }
-  }, [activityType, isConnected, isConnecting, startSession, sendText, t]);
-
   // Cleanup: End session when leaving the page
   useEffect(() => {
     return () => {
@@ -129,19 +98,23 @@ export const CoquiLessonAssistant = ({
       setIsPanelOpen(true);
       resetTimeout();
     } else {
-      // Start new session
+      // Start new session - user interaction grants mic permission
       setIsPanelOpen(true);
       setMascotState('loading');
-      
-      const welcomeMessage = activityType === 'lesson'
-        ? t("¡Hola! ¿Necesitas ayuda con esta lección?", "Hi! Do you need help with this lesson?")
-        : t("¡Hola! ¿Tienes preguntas sobre este ejercicio?", "Hi! Do you have questions about this exercise?");
-      
-      toast.success(welcomeMessage);
       
       try {
         await startSession();
         setMascotState('happy');
+        
+        // Send greeting after successful connection
+        const greeting = t(
+          "¡Hola! Estoy aquí para ayudarte con esta lección. Puedes hacerme cualquier pregunta.",
+          "Hi! I'm here to help you with this lesson. Feel free to ask me anything."
+        );
+        
+        setTimeout(() => {
+          sendText(greeting);
+        }, 1000);
       } catch (error) {
         console.error('[CoquiLessonAssistant] Failed to start session:', error);
         setMascotState('neutral');
