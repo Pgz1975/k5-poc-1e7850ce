@@ -270,16 +270,30 @@ export default function ViewLesson() {
             </Card>
 
             {/* Interactive Coquí Assistant - Positioned next to content */}
-            <div className="hidden lg:block">
+            <div className="hidden lg:block flex-shrink-0">
               <CoquiLessonAssistant
                 activityId={lesson.id}
                 activityType="lesson"
+                position="inline"
                 voiceGuidance={`You are helping a K-5 student understand lesson: "${lesson.title}". 
                   ${lesson.description ? `Lesson description: ${lesson.description}` : ''}
                   Explain concepts, answer questions about the content, and provide examples in ${language === 'es' ? 'Spanish' : 'English'}.
                   Keep responses under 30 seconds and age-appropriate for elementary students.`}
               />
             </div>
+          </div>
+
+          {/* Mobile - Fixed Bottom Right */}
+          <div className="lg:hidden">
+            <CoquiLessonAssistant
+              activityId={lesson.id}
+              activityType="lesson"
+              position="fixed"
+              voiceGuidance={`You are helping a K-5 student understand lesson: "${lesson.title}". 
+                ${lesson.description ? `Lesson description: ${lesson.description}` : ''}
+                Explain concepts, answer questions about the content, and provide examples in ${language === 'es' ? 'Spanish' : 'English'}.
+                Keep responses under 30 seconds and age-appropriate for elementary students.`}
+            />
           </div>
 
           {/* Complete Button */}

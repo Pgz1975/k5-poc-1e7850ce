@@ -20,12 +20,14 @@ interface CoquiLessonAssistantProps {
   activityId: string;
   activityType: 'lesson' | 'exercise';
   voiceGuidance: string;
+  position?: 'fixed' | 'inline';
 }
 
 export const CoquiLessonAssistant = ({ 
   activityId, 
   activityType, 
-  voiceGuidance 
+  voiceGuidance,
+  position = 'fixed'
 }: CoquiLessonAssistantProps) => {
   const { t } = useLanguage();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -128,9 +130,12 @@ export const CoquiLessonAssistant = ({
 
   return (
     <>
-      {/* Clickable Mascot - Fixed Bottom Right */}
+      {/* Clickable Mascot */}
       <div 
-        className="fixed bottom-6 right-6 z-40 cursor-pointer group"
+        className={`
+          z-40 cursor-pointer group
+          ${position === 'fixed' ? 'fixed bottom-6 right-6' : 'sticky top-24'}
+        `}
         onClick={handleMascotClick}
       >
         <div className="relative">
