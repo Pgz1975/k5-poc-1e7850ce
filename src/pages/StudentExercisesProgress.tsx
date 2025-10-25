@@ -37,12 +37,13 @@ export default function StudentExercisesProgress() {
         `)
         .eq("type", "exercise")
         .not("parent_lesson_id", "is", null)
+        .in("language", (profile?.learningLanguages ?? ["es", "en"]) as ("es" | "en" | "es-PR")[])
         .order("order_in_lesson");
 
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.gradeLevel,
+    enabled: !!profile?.gradeLevel && !!profile?.learningLanguages,
   });
 
   // Fetch lesson ordering to get domain information
