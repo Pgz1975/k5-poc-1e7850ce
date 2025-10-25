@@ -226,47 +226,61 @@ export default function ViewLesson() {
             </CardContent>
           </Card>
 
-          {/* Lesson Content */}
-          <Card className="border-2">
-            <CardContent className="p-8 prose prose-lg max-w-none">
-              {lesson.content && typeof lesson.content === 'object' && 'text' in lesson.content && lesson.content.text && (
-                <div dangerouslySetInnerHTML={{ __html: String(lesson.content.text) }} />
-              )}
-              
-              {lesson.content && typeof lesson.content === 'object' && !('text' in lesson.content && lesson.content.text) && 'question' in lesson.content && lesson.content.question && (
-                <div className="whitespace-pre-wrap">
-                  {String(lesson.content.question)}
-                </div>
-              )}
-              
-              {lesson.content && typeof lesson.content === 'object' && 'questionImage' in lesson.content && lesson.content.questionImage && (
-                <img 
-                  src={String(lesson.content.questionImage)} 
-                  alt="Lesson content" 
-                  className="rounded-lg shadow-md w-full mt-4" 
-                />
-              )}
-              
-              {lesson.content && typeof lesson.content === 'object' && 'images' in lesson.content && Array.isArray(lesson.content.images) && lesson.content.images.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  {lesson.content.images.map((image: any, index: number) => (
-                    <img
-                      key={index}
-                      src={image.url}
-                      alt={image.alt || `Lesson image ${index + 1}`}
-                      className="rounded-lg shadow-md w-full"
-                    />
-                  ))}
-                </div>
-              )}
-              
-              {(!lesson.content || (typeof lesson.content === 'object' && !('text' in lesson.content && lesson.content.text) && !('question' in lesson.content && lesson.content.question))) && (
-                <p className="text-muted-foreground italic">
-                  {t("Esta lección aún no tiene contenido.", "This lesson has no content yet.")}
-                </p>
-              )}
-            </CardContent>
-          </Card>
+          {/* Lesson Content with Mascot */}
+          <div className="flex gap-6 items-start">
+            <Card className="border-2 flex-1">
+              <CardContent className="p-8 prose prose-lg max-w-none">
+                {lesson.content && typeof lesson.content === 'object' && 'text' in lesson.content && lesson.content.text && (
+                  <div dangerouslySetInnerHTML={{ __html: String(lesson.content.text) }} />
+                )}
+                
+                {lesson.content && typeof lesson.content === 'object' && !('text' in lesson.content && lesson.content.text) && 'question' in lesson.content && lesson.content.question && (
+                  <div className="whitespace-pre-wrap">
+                    {String(lesson.content.question)}
+                  </div>
+                )}
+                
+                {lesson.content && typeof lesson.content === 'object' && 'questionImage' in lesson.content && lesson.content.questionImage && (
+                  <img 
+                    src={String(lesson.content.questionImage)} 
+                    alt="Lesson content" 
+                    className="rounded-lg shadow-md w-full mt-4" 
+                  />
+                )}
+                
+                {lesson.content && typeof lesson.content === 'object' && 'images' in lesson.content && Array.isArray(lesson.content.images) && lesson.content.images.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                    {lesson.content.images.map((image: any, index: number) => (
+                      <img
+                        key={index}
+                        src={image.url}
+                        alt={image.alt || `Lesson image ${index + 1}`}
+                        className="rounded-lg shadow-md w-full"
+                      />
+                    ))}
+                  </div>
+                )}
+                
+                {(!lesson.content || (typeof lesson.content === 'object' && !('text' in lesson.content && lesson.content.text) && !('question' in lesson.content && lesson.content.question))) && (
+                  <p className="text-muted-foreground italic">
+                    {t("Esta lección aún no tiene contenido.", "This lesson has no content yet.")}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Interactive Coquí Assistant - Positioned next to content */}
+            <div className="hidden lg:block">
+              <CoquiLessonAssistant
+                activityId={lesson.id}
+                activityType="lesson"
+                voiceGuidance={`You are helping a K-5 student understand lesson: "${lesson.title}". 
+                  ${lesson.description ? `Lesson description: ${lesson.description}` : ''}
+                  Explain concepts, answer questions about the content, and provide examples in ${language === 'es' ? 'Spanish' : 'English'}.
+                  Keep responses under 30 seconds and age-appropriate for elementary students.`}
+              />
+            </div>
+          </div>
 
           {/* Complete Button */}
           <div className="flex justify-center gap-4">
@@ -287,16 +301,6 @@ export default function ViewLesson() {
             </Button>
           </div>
         </div>
-        
-        {/* Interactive Coquí Assistant */}
-        <CoquiLessonAssistant
-          activityId={lesson.id}
-          activityType="lesson"
-          voiceGuidance={`You are helping a K-5 student understand lesson: "${lesson.title}". 
-            ${lesson.description ? `Lesson description: ${lesson.description}` : ''}
-            Explain concepts, answer questions about the content, and provide examples in ${language === 'es' ? 'Spanish' : 'English'}.
-            Keep responses under 30 seconds and age-appropriate for elementary students.`}
-        />
       </main>
 
       <Footer />
