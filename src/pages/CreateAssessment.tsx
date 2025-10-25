@@ -93,7 +93,7 @@ export default function CreateAssessment({
           .from('manual_assessments')
           .select('*')
           .eq('id', editId)
-          .eq('created_by', user.id)
+          // DEBUG MODE: No created_by filter - allow editing any activity
           .single();
 
         if (error) throw error;
