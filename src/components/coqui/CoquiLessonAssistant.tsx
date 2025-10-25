@@ -113,6 +113,16 @@ export const CoquiLessonAssistant = ({
     }
   }, [activityType, isConnected, isConnecting, startSession, sendText, t]);
 
+  // Cleanup: End session when leaving the page
+  useEffect(() => {
+    return () => {
+      if (isConnected) {
+        console.log('[CoquiLessonAssistant] 🧹 Cleanup - ending session on unmount');
+        endSession();
+      }
+    };
+  }, [isConnected, endSession]);
+
   const handleMascotClick = async () => {
     if (isConnected) {
       // Already connected - just open panel
