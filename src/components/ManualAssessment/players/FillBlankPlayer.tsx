@@ -216,16 +216,6 @@ const allIds = [...allPoolIds, ...allSlotIds, 'pool'];
       onDragEnd={handleDragEnd}
     >
       <Card className="p-4 sm:p-6">
-        <h2 className="text-xl sm:text-2xl font-semibold mb-4">{content.prompt}</h2>
-        
-        {content.imageUrl && (
-          <img 
-            src={content.imageUrl} 
-            alt={t("Imagen de la pregunta", "Question image")} 
-            className="max-h-48 sm:max-h-64 mx-auto mb-6 rounded-lg border-2 object-contain" 
-          />
-        )}
-
         {/* Answer Slots */}
         <div className="mb-6">
           <p className="text-sm text-muted-foreground mb-3" id="slots-instruction">

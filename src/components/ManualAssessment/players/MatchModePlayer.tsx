@@ -134,16 +134,6 @@ export function MatchModePlayer({ content, onAnswer, voiceClient }: MatchModePla
       onDragEnd={handleDragEnd}
     >
       <Card className="p-6">
-        <h2 className="text-2xl font-semibold mb-4">{content.question}</h2>
-
-        {content.questionImage && (
-          <img
-            src={content.questionImage}
-            alt="Question"
-            className="max-h-64 mx-auto mb-6 rounded-lg border-2 object-contain"
-          />
-        )}
-
         {/* Drop Zones */}
         <div className="mb-6">
           <p className="text-sm text-muted-foreground mb-3">
