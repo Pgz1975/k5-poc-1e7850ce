@@ -120,12 +120,18 @@ export const useStudentProgress = ({
         isLocked: false, // Exercises are not locked
       })) ?? [];
 
-      const completedIds = new Set(completedActivities?.map(c => c.activity_id) ?? []);
-      const totalActivities = activitiesWithLocking.length;
-      const completedCount = completedActivities?.length ?? 0;
+      // Filter completed activities to only count those in the current grade/language
+      const availableActivityIds = new Set(activitiesWithLocking.map(a => a.id));
+      const relevantCompletedActivities = completedActivities?.filter(c => 
+        availableActivityIds.has(c.activity_id)
+      ) ?? [];
 
-      // Calculate average score
-      const scores = completedActivities?.map(c => c.score).filter(s => s !== null) ?? [];
+      const completedIds = new Set(relevantCompletedActivities.map(c => c.activity_id));
+      const totalActivities = activitiesWithLocking.length;
+      const completedCount = relevantCompletedActivities.length;
+
+      // Calculate average score from relevant completed activities
+      const scores = relevantCompletedActivities.map(c => c.score).filter(s => s !== null);
       const avgScore = scores.length > 0 
         ? scores.reduce((sum, s) => sum + (s ?? 0), 0) / scores.length
         : null;
@@ -136,7 +142,7 @@ export const useStudentProgress = ({
       return {
         totalActivities,
         completedCount,
-        completedActivities: completedActivities ?? [],
+        completedActivities: relevantCompletedActivities,
         activities: activitiesWithLocking,
         avgScore,
         nextActivity,
