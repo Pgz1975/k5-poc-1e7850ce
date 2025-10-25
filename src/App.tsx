@@ -68,6 +68,7 @@ const App = () => (
               <Route path="/assessment-generator" element={<ProtectedRoute><AssessmentGenerator /></ProtectedRoute>} />
               <Route path="/generated/:id" element={<ProtectedRoute><GeneratedAssessment /></ProtectedRoute>} />
               <Route path="/create-assessment" element={<ProtectedRoute><CreateAssessment /></ProtectedRoute>} />
+              <Route path="/assessments/edit/:id" element={<ProtectedRoute><CreateAssessment /></ProtectedRoute>} />
               <Route path="/assessment/:id" element={<ProtectedRoute><ViewAssessment /></ProtectedRoute>} />
               <Route path="/view-assessment/:id" element={<ProtectedRoute><ViewAssessment /></ProtectedRoute>} />
               <Route path="/create-demo-users" element={<CreateDemoUsers />} />

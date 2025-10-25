@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Header } from '@/components/Header';
 import { TypeSelector } from '@/components/ManualAssessment/TypeSelector';
@@ -56,7 +56,8 @@ export default function CreateAssessment({
   onSaveSuccess 
 }: CreateAssessmentProps = {}) {
   const [searchParams] = useSearchParams();
-  const editId = propEditId || searchParams.get('edit');
+  const params = useParams();
+  const editId = propEditId || params.id || searchParams.get('edit');
   const [step, setStep] = useState<'type' | 'subtype' | 'content'>('type');
   const [data, setData] = useState<Partial<AssessmentData>>({
     settings: {
@@ -143,6 +144,7 @@ export default function CreateAssessment({
   }, [editId, user, navigate, toast]);
 
   // Fetch teacher's lessons for linking exercises
+  // DEBUG MODE: Show all lessons, not just user's own
   const { data: teacherLessons } = useQuery({
     queryKey: ['teacher-lessons', user?.id],
     queryFn: async () => {
@@ -150,7 +152,7 @@ export default function CreateAssessment({
         .from('manual_assessments')
         .select('id, title, grade_level, language')
         .eq('type', 'lesson')
-        .eq('created_by', user?.id)
+        // DEBUG MODE: No created_by filter - show all lessons
         .order('created_at', { ascending: false });
       
       if (error) throw error;
