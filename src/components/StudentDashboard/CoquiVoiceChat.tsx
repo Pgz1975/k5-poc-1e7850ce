@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import CoquiMascot from "@/components/CoquiMascot";
-import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
-import { useAuth } from "@/contexts/AuthContext";
+import { useCoquiSession } from "@/hooks/useCoquiSession";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CoquiClickHint } from "./CoquiClickHint";
+import { CoquiTimeoutIndicator } from "@/components/coqui/CoquiTimeoutIndicator";
+import { CoquiSessionBadge } from "@/components/coqui/CoquiSessionBadge";
 
 interface Message {
   text: string;
@@ -15,131 +16,43 @@ interface Message {
   timestamp: number;
 }
 
-interface TranscriptBuffer {
-  text: string;
-  isUser: boolean;
-  lastUpdate: number;
-}
-
 export const CoquiVoiceChat = () => {
   const { t, language } = useLanguage();
-  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [mascotState, setMascotState] = useState("waiting");
   const [isMuted, setIsMuted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const transcriptBufferRef = useRef<TranscriptBuffer | null>(null);
-  const bufferTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-
-  // Function to flush the buffer and add message
-  const flushBuffer = () => {
-    if (transcriptBufferRef.current && transcriptBufferRef.current.text.trim()) {
-      setMessages(prev => {
-        const lastMsg = prev[prev.length - 1];
-        
-        // If the last message is from the same speaker and recent, append to it
-        if (lastMsg && 
-            lastMsg.isUser === transcriptBufferRef.current!.isUser && 
-            Date.now() - lastMsg.timestamp < 3000) {
-          return [
-            ...prev.slice(0, -1),
-            {
-              ...lastMsg,
-              text: lastMsg.text + ' ' + transcriptBufferRef.current!.text.trim(),
-              timestamp: Date.now()
-            }
-          ];
-        }
-        
-        // Otherwise create a new message
-        return [...prev, {
-          text: transcriptBufferRef.current!.text.trim(),
-          isUser: transcriptBufferRef.current!.isUser,
-          timestamp: Date.now()
-        }];
-      });
-      
-      transcriptBufferRef.current = null;
-    }
-  };
-
+  // Use new session hook with inactivity management
   const {
+    countdown,
     isConnected,
     isConnecting,
     isAIPlaying,
     transcript,
-    connect,
-    disconnect,
-  } = useRealtimeVoice({
-    studentId: user?.id || 'demo-student',
-    language: language === 'es' ? 'es-PR' : 'en-US',
-    onTranscription: (text, isUser) => {
-      // Clear any existing timeout
-      if (bufferTimeoutRef.current) {
-        clearTimeout(bufferTimeoutRef.current);
-      }
+    startSession,
+    endSession,
+    resetTimeout,
+    inactivityStatus
+  } = useCoquiSession();
 
-      // Check if this is a switch from AI to User or vice versa
-      const isSpeakerSwitch = transcriptBufferRef.current && transcriptBufferRef.current.isUser !== isUser;
-      
-      if (isSpeakerSwitch) {
-        // Flush the previous speaker's buffer before starting new one
-        flushBuffer();
-      }
+  // Convert transcript array to messages
+  useEffect(() => {
+    const newMessages: Message[] = transcript.map(t => ({
+      text: t.text,
+      isUser: t.isUser,
+      timestamp: Date.now()
+    }));
+    setMessages(newMessages);
+  }, [transcript]);
 
-      // Initialize or append to buffer for current speaker
-      if (!transcriptBufferRef.current || transcriptBufferRef.current.isUser !== isUser) {
-        transcriptBufferRef.current = {
-          text: text,
-          isUser,
-          lastUpdate: Date.now()
-        };
-      } else {
-        // Same speaker - append text with space if needed
-        const currentText = transcriptBufferRef.current.text;
-        const needsSpace = currentText.length > 0 && 
-                          !currentText.endsWith(' ') && 
-                          !text.startsWith(' ') &&
-                          !text.match(/^[,.!?;:]/) &&
-                          !currentText.match(/[¡¿]$/);
-        
-        transcriptBufferRef.current.text += (needsSpace ? ' ' : '') + text;
-        transcriptBufferRef.current.lastUpdate = Date.now();
-      }
-
-      // Set timeout to flush buffer after pause (1 second for more complete phrases)
-      bufferTimeoutRef.current = setTimeout(() => {
-        flushBuffer();
-      }, 1000);
-      
-      // Update mascot state based on who's speaking
-      if (!isUser) {
-        const lowerText = transcriptBufferRef.current.text.toLowerCase();
-        if (lowerText.includes('excelente') || 
-            lowerText.includes('muy bien') ||
-            lowerText.includes('excellent') ||
-            lowerText.includes('great job')) {
-          setMascotState('excited');
-        } else {
-          setMascotState('speaking');
-        }
-      } else {
-        setMascotState('thinking');
-      }
-    }
-  });
-
-  // Update mascot based on audio playback
+  // Update mascot based on audio playback and connection state
   useEffect(() => {
     if (isAIPlaying) {
       setMascotState('speaking');
-    } else if (isConnected && !isAIPlaying) {
-      // When AI stops playing, flush any pending transcription
-      if (bufferTimeoutRef.current) {
-        clearTimeout(bufferTimeoutRef.current);
-      }
-      flushBuffer();
+    } else if (isConnected) {
+      setMascotState('thinking');
+    } else {
       setMascotState('waiting');
     }
   }, [isAIPlaying, isConnected]);
@@ -151,32 +64,16 @@ export const CoquiVoiceChat = () => {
     }
   }, [messages]);
 
-  // Cleanup buffer timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (bufferTimeoutRef.current) {
-        clearTimeout(bufferTimeoutRef.current);
-      }
-      flushBuffer();
-    };
-  }, []);
-
   const handleToggleConnection = async () => {
     if (isConnected) {
-      // Flush any pending transcription before disconnecting
-      flushBuffer();
-      if (bufferTimeoutRef.current) {
-        clearTimeout(bufferTimeoutRef.current);
-      }
-      disconnect();
       setMascotState('neutral');
       setMessages([]);
-      transcriptBufferRef.current = null;
+      endSession();
     } else {
       // Mark hint as dismissed when user clicks to connect
       localStorage.setItem("coqui-hint-dismissed", "true");
       setMascotState('loading');
-      await connect();
+      await startSession();
       setMascotState('happy');
     }
   };
@@ -184,7 +81,7 @@ export const CoquiVoiceChat = () => {
   return (
     <Card className="border-2 border-primary/20 bg-gradient-to-br from-background via-primary/5 to-background shadow-lg">
       <CardContent className="p-4 space-y-3">
-        {/* Mascot Section with Click Hint */}
+        {/* Mascot Section with Click Hint and Timeout Indicator */}
         <div className="flex flex-col items-center space-y-2">
           <div className="relative inline-block" onClick={!isConnected ? handleToggleConnection : undefined}>
             <CoquiMascot 
@@ -193,6 +90,25 @@ export const CoquiVoiceChat = () => {
               position="inline"
               className={isConnected ? "animate-breathe" : "cursor-pointer"}
             />
+            
+            {/* Timeout Warning Indicator */}
+            <CoquiTimeoutIndicator
+              countdownSeconds={countdown}
+              isVisible={countdown < 10 && countdown > 0 && isConnected}
+              position="above"
+              onReactivate={resetTimeout}
+            />
+            
+            {/* Session Status Badge */}
+            {isConnected && (
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                <CoquiSessionBadge
+                  isConnected={isConnected}
+                  inactivityStatus={inactivityStatus}
+                />
+              </div>
+            )}
+            
             {!isConnected && <CoquiClickHint />}
           </div>
           
