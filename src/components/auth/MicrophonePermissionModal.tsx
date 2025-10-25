@@ -29,6 +29,18 @@ export const MicrophonePermissionModal = ({
     language: language === 'es' ? 'es-PR' : 'en-US'
   });
 
+  // Send welcome message when connection is established
+  useEffect(() => {
+    if (isPlayingWelcome && isConnected && !isAIPlaying) {
+      console.log('[MicPermissionModal] Connection ready, sending welcome message');
+      const welcomeMessage = language === 'es'
+        ? "¡Perfecto! Ya tengo permiso para usar tu micrófono. Cuando quieras hablar conmigo durante tus lecciones, solo haz clic sobre mí y estaré listo para ayudarte."
+        : "Perfect! I now have permission to use your microphone. When you want to talk to me during your lessons, just click on me and I'll be ready to help you.";
+      
+      sendText(welcomeMessage);
+    }
+  }, [isPlayingWelcome, isConnected, isAIPlaying, language, sendText]);
+
   // Update mascot state based on AI playing status
   useEffect(() => {
     if (isPlayingWelcome) {
@@ -109,18 +121,12 @@ export const MicrophonePermissionModal = ({
         icon: '🐸'
       });
 
-      // Now connect to voice service and send welcome message
+      // Now connect to voice service
       setMascotState("loading");
       await connect();
       
-      const welcomeMessage = language === 'es'
-        ? "¡Perfecto! Ya tengo permiso para usar tu micrófono. Cuando quieras hablar conmigo durante tus lecciones, solo haz clic sobre mí y estaré listo para ayudarte."
-        : "Perfect! I now have permission to use your microphone. When you want to talk to me during your lessons, just click on me and I'll be ready to help you.";
-      
+      // Set flag - the useEffect will send message when connection is ready
       setIsPlayingWelcome(true);
-      setTimeout(() => {
-        sendText(welcomeMessage);
-      }, 500);
       
     } catch (error) {
       console.error('Microphone permission error:', error);
