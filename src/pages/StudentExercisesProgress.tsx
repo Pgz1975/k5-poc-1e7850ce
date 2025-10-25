@@ -10,6 +10,7 @@ import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { ExerciseCard } from "@/components/StudentDashboard/ExerciseCard";
+import { DomainHeader } from "@/components/StudentDashboard/DomainHeader";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
@@ -24,7 +25,7 @@ export default function StudentExercisesProgress() {
     learningLanguages: profile?.learningLanguages ?? ["es", "en"],
   });
 
-  // Fetch all exercises including those linked to lessons
+  // Fetch all exercises with their parent lesson domain information
   const { data: allExercises } = useQuery({
     queryKey: ["all-exercises", profile?.gradeLevel, profile?.learningLanguages],
     queryFn: async () => {
@@ -34,10 +35,26 @@ export default function StudentExercisesProgress() {
           *,
           parent_lesson:manual_assessments!parent_lesson_id(title)
         `)
+        .eq("type", "exercise")
+        .not("parent_lesson_id", "is", null)
+        .order("order_in_lesson");
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!profile?.gradeLevel,
+  });
+
+  // Fetch lesson ordering to get domain information
+  const { data: lessonOrdering } = useQuery({
+    queryKey: ["lesson-ordering", profile?.gradeLevel],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("lesson_ordering")
+        .select("assessment_id, domain_name, domain_order, display_order")
         .eq("grade_level", profile?.gradeLevel ?? 0)
-        .in("language", (profile?.learningLanguages ?? ["es"]) as ("es" | "en" | "es-PR")[])
-        .eq("status", "published")
-        .order("created_at");
+        .order("domain_order")
+        .order("display_order");
 
       if (error) throw error;
       return data;
@@ -57,27 +74,53 @@ export default function StudentExercisesProgress() {
     return map;
   }, [progress]);
 
-  // Group exercises by subject area
+  // Group exercises by domain (matching lesson organization)
   const exerciseGroups = useMemo(() => {
-    if (!allExercises) return [];
+    if (!allExercises || !lessonOrdering) return [];
 
-    const groups = new Map<string, any[]>();
-    
-    allExercises.forEach(exercise => {
-      const category = exercise.subject_area || t("General", "General");
-      
-      if (!groups.has(category)) {
-        groups.set(category, []);
-      }
-      
-      groups.get(category)!.push(exercise);
+    // Create a map of parent_lesson_id to domain info
+    const domainMap = new Map();
+    lessonOrdering.forEach(lo => {
+      domainMap.set(lo.assessment_id, {
+        domain_name: lo.domain_name || t("Sin categoría", "Uncategorized"),
+        domain_order: lo.domain_order ?? 999,
+        display_order: lo.display_order ?? 999,
+      });
     });
 
-    return Array.from(groups.entries()).map(([name, exercises]) => ({
-      name,
-      exercises,
-    }));
-  }, [allExercises, t]);
+    // Group exercises by domain
+    const groups = new Map<string, any>();
+    
+    allExercises.forEach(exercise => {
+      const domainInfo = domainMap.get(exercise.parent_lesson_id);
+      const domainName = domainInfo?.domain_name || t("Sin categoría", "Uncategorized");
+      const domainOrder = domainInfo?.domain_order ?? 999;
+      
+      if (!groups.has(domainName)) {
+        groups.set(domainName, {
+          domain_name: domainName,
+          domain_order: domainOrder,
+          exercises: [],
+        });
+      }
+      
+      groups.get(domainName)!.exercises.push({
+        ...exercise,
+        display_order: domainInfo?.display_order ?? 999,
+      });
+    });
+
+    // Sort domains by domain_order
+    return Array.from(groups.values())
+      .sort((a, b) => a.domain_order - b.domain_order)
+      .map(group => ({
+        ...group,
+        exercises: group.exercises.sort((a: any, b: any) => 
+          (a.display_order ?? 999) - (b.display_order ?? 999) ||
+          (a.order_in_lesson ?? 999) - (b.order_in_lesson ?? 999)
+        ),
+      }));
+  }, [allExercises, lessonOrdering, t]);
 
   const calculateStars = (avgScore: number | null): number => {
     if (!avgScore) return 0;
@@ -165,34 +208,42 @@ export default function StudentExercisesProgress() {
           </CardContent>
         </Card>
 
-        {/* All Exercises by Category */}
-        {exerciseGroups.map((group) => (
-          <div key={group.name} className="space-y-4">
-            <h2 className="text-2xl font-bold text-secondary">
-              {group.name}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {group.exercises.map((exercise: any) => {
-                const isCompleted = completedMap.has(exercise.id);
-                
-                return (
-                  <ExerciseCard
-                    key={exercise.id}
-                    id={exercise.id}
-                    title={exercise.title}
-                    description={exercise.description}
-                    type={exercise.type}
-                    subtype={exercise.subtype}
-                    parentLessonTitle={exercise.parent_lesson?.title}
-                    isCompleted={isCompleted}
-                    completionData={completedMap.get(exercise.id)}
-                    category={exercise.subject_area}
-                  />
-                );
-              })}
+        {/* All Exercises by Domain */}
+        {exerciseGroups.map((domain) => {
+          const domainCompletedCount = domain.exercises.filter((exercise: any) => 
+            completedMap.has(exercise.id)
+          ).length;
+
+          return (
+            <div key={domain.domain_name} className="space-y-4">
+              <DomainHeader
+                domainName={domain.domain_name}
+                lessonsCount={domain.exercises.length}
+                completedCount={domainCompletedCount}
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {domain.exercises.map((exercise: any) => {
+                  const isCompleted = completedMap.has(exercise.id);
+                  
+                  return (
+                    <ExerciseCard
+                      key={exercise.id}
+                      id={exercise.id}
+                      title={exercise.title}
+                      description={exercise.description}
+                      type={exercise.type}
+                      subtype={exercise.subtype}
+                      parentLessonTitle={exercise.parent_lesson?.title}
+                      isCompleted={isCompleted}
+                      completionData={completedMap.get(exercise.id)}
+                      category={exercise.subject_area}
+                    />
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Back Button */}
         <div className="text-center">
