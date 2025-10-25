@@ -163,10 +163,11 @@ src/services/coqui/
 ## 🛠️ Implementation Phases
 
 ### Phase 1: Core Demo Features (Weeks 1-3)
-- ✅ Natural conversation flow (baseline ✅ via `useRealtimeVoice`)
-- ⬜ Inactivity detection system (pending hook work)
-- ⬜ Visual timeout indicator (pending UI component)
-- ⬜ Session restart capability (basic connect/disconnect works; needs timeout integration)
+- ✅ Natural conversation flow (baseline via `useRealtimeVoice`)
+- ✅ Inactivity detection system (`useCoquiInactivity` hook)
+- ✅ Visual timeout indicator (`CoquiTimeoutIndicator` component)
+- ✅ Session restart capability (`useCoquiSession` hook with timeout integration)
+- ✅ Demo metrics table (Supabase `demo_metrics` table)
 
 ### Phase 2: Intelligence (Weeks 4-5)
 - [ ] Context-aware responses
@@ -255,11 +256,11 @@ A: **No**. It's designed to be friendly and encouraging, not stressful.
 
 ### Demo Launch Requirements
 1. ✅ Natural conversation flow working
-2. ⬜ 15-second inactivity detection implemented
-3. ⬜ Visual countdown indicator ready
-4. ⬜ Session restart capability tested (post-timeout)
+2. ✅ 15-second inactivity detection implemented
+3. ✅ Visual countdown indicator ready
+4. ✅ Session restart capability tested (post-timeout)
 5. ⏳ Pilot group identified
-6. ⏳ Metrics collection configured
+6. ✅ Metrics collection configured (`demo_metrics` table)
 
 ---
 
@@ -272,6 +273,14 @@ A: **No**. It's designed to be friendly and encouraging, not stressful.
 
 ---
 
-**Document Status**: ⚠️ Pending implementation of timeout UX (baseline voice ready)
+**Document Status**: ✅ Core implementation complete (inactivity management, UI, telemetry)
+
+**Implementation Files**:
+- `src/hooks/useCoquiInactivity.ts` - 15s inactivity detection with 10s countdown
+- `src/hooks/useCoquiSession.ts` - Session management with timeout integration
+- `src/components/coqui/CoquiTimeoutIndicator.tsx` - Visual countdown UI
+- `src/components/coqui/CoquiSessionBadge.tsx` - Status badge component
+- `src/components/StudentDashboard/CoquiVoiceChat.tsx` - Updated with new hooks
+- Supabase `demo_metrics` table - Session telemetry
 
 *Last Updated: October 25, 2025*

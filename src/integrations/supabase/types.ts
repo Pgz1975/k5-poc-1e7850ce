@@ -120,6 +120,72 @@ export type Database = {
           },
         ]
       }
+      demo_metrics: {
+        Row: {
+          activity_id: string | null
+          created_at: string | null
+          duration_ms: number | null
+          ended_at: string | null
+          estimated_cost_cents: number | null
+          id: string
+          inactivity_triggered: boolean | null
+          inactivity_warnings: number | null
+          language: string | null
+          session_id: string | null
+          started_at: string
+          student_id: string
+          timeout_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activity_id?: string | null
+          created_at?: string | null
+          duration_ms?: number | null
+          ended_at?: string | null
+          estimated_cost_cents?: number | null
+          id?: string
+          inactivity_triggered?: boolean | null
+          inactivity_warnings?: number | null
+          language?: string | null
+          session_id?: string | null
+          started_at?: string
+          student_id: string
+          timeout_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activity_id?: string | null
+          created_at?: string | null
+          duration_ms?: number | null
+          ended_at?: string | null
+          estimated_cost_cents?: number | null
+          id?: string
+          inactivity_triggered?: boolean | null
+          inactivity_warnings?: number | null
+          language?: string | null
+          session_id?: string | null
+          started_at?: string
+          student_id?: string
+          timeout_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_metrics_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "manual_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_metrics_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "voice_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_assessments: {
         Row: {
           assessment_type: string
