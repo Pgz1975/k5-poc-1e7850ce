@@ -50,7 +50,8 @@ export const useStudentProgress = ({
               id,
               title,
               description,
-              estimated_duration_minutes
+              estimated_duration_minutes,
+              language
             )
           `)
           .eq("grade_level", gradeLevel)
@@ -58,25 +59,31 @@ export const useStudentProgress = ({
 
         if (orderingError) throw orderingError;
 
+        // Filter lessons by student's learning languages
+        const filteredOrdering = ordering?.filter(o => {
+          const lesson = o.manual_assessments as any;
+          return lesson && learningLanguages.includes(lesson.language);
+        }) ?? [];
+
         // Get locking status for all lessons
         const lockingMap = getLessonLockingStatus(
-          ordering?.map(o => ({
+          filteredOrdering.map(o => ({
             id: o.id,
             display_order: o.display_order,
             assessment_id: o.assessment_id,
-          })) ?? [],
+          })),
           completedActivities ?? []
         );
 
         // Map lessons with locking status
-        const activitiesWithLocking: ActivityWithLocking[] = ordering?.map(o => ({
+        const activitiesWithLocking: ActivityWithLocking[] = filteredOrdering.map(o => ({
           id: o.assessment_id,
           title: (o.manual_assessments as any)?.title ?? "Untitled",
           description: (o.manual_assessments as any)?.description,
           estimated_duration_minutes: (o.manual_assessments as any)?.estimated_duration_minutes,
           isLocked: lockingMap.get(o.assessment_id) ?? false,
           display_order: o.display_order,
-        })) ?? [];
+        }));
 
         const completedIds = new Set(completedActivities?.map(c => c.activity_id) ?? []);
         const totalActivities = activitiesWithLocking.length;
