@@ -102,16 +102,34 @@ export const useStudentProgress = ({
         };
       }
 
-      // For non-lesson activities, fetch normally without locking
-      const { data: activities, error: activitiesError } = await supabase
-        .from("manual_assessments")
-        .select("id, title, description, estimated_duration_minutes")
-        .eq("status", "published")
-        .eq("type", activityType)
-        .eq("grade_level", gradeLevel)
-        .in("language", learningLanguages as ("es" | "en" | "es-PR")[])
-        .is("parent_lesson_id", null)
-        .order("created_at", { ascending: true });
+      // For non-lesson activities, fetch with special handling for exercises
+      let activities: { id: string; title: string; description: string | null; estimated_duration_minutes: number | null; }[] | null = null;
+      let activitiesError: any = null;
+
+      if (activityType === "exercise") {
+        // Exercises are child activities; access controlled via parent lesson policies
+        const { data, error } = await supabase
+          .from("manual_assessments")
+          .select("id, title, description, estimated_duration_minutes")
+          .eq("type", "exercise")
+          .not("parent_lesson_id", "is", null)
+          .order("created_at", { ascending: true });
+        activities = data;
+        activitiesError = error;
+      } else {
+        // Assessments (non-lesson) remain filtered by grade/language and published status
+        const { data, error } = await supabase
+          .from("manual_assessments")
+          .select("id, title, description, estimated_duration_minutes")
+          .eq("status", "published")
+          .eq("type", activityType)
+          .eq("grade_level", gradeLevel)
+          .in("language", learningLanguages as ("es" | "en" | "es-PR")[])
+          .is("parent_lesson_id", null)
+          .order("created_at", { ascending: true });
+        activities = data;
+        activitiesError = error;
+      }
 
       if (activitiesError) throw activitiesError;
 
