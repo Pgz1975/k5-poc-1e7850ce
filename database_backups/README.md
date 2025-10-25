@@ -1,20 +1,20 @@
-# Database Backup - 2025-10-24T13-34-17
+# Database Backup - 2025-10-25T09-38-31
 
 ## Backup Information
-- **Date**: 10/24/2025, 1:34:17 PM
+- **Date**: 10/25/2025, 9:38:31 AM
 - **Project ID**: meertwtenhlmnlpwxhyz
 - **Project URL**: https://meertwtenhlmnlpwxhyz.supabase.co
 
 ## Files
-- **SQL Backup**: `supabase_backup_2025-10-24T13-34-17.sql` (68.60 KB)
-- **JSON Backup**: `supabase_backup_2025-10-24T13-34-17.json` (139.81 KB)
+- **SQL Backup**: `supabase_backup_2025-10-25T09-38-31.sql` (189.34 KB)
+- **JSON Backup**: `supabase_backup_2025-10-25T09-38-31.json` (382.31 KB)
 
 ## Tables Included
-- **manual_assessments**: 75 records
+- **manual_assessments**: 193 records
 - **profiles**: 1 records
 - **user_roles**: 1 records
 
-**Total Records**: 77
+**Total Records**: 195
 
 ## Tables Excluded
 - voice_sessions (excluded as requested)
@@ -24,7 +24,7 @@
 
 ### From SQL file:
 ```bash
-psql "postgresql://[USER]:[PASSWORD]@db.meertwtenhlmnlpwxhyz.supabase.co:5432/postgres" < supabase_backup_2025-10-24T13-34-17.sql
+psql "postgresql://[USER]:[PASSWORD]@db.meertwtenhlmnlpwxhyz.supabase.co:5432/postgres" < supabase_backup_2025-10-25T09-38-31.sql
 ```
 
 ### From JSON file:
