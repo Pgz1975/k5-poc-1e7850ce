@@ -355,8 +355,9 @@ const Profile = () => {
                     </Label>
                     <Input
                       id="avatar-url"
-                      type="url"
-                      placeholder="https://example.com/avatar.jpg"
+                      type="text"
+                      inputMode="url"
+                      placeholder="https://example.com/avatar.jpg or /avatars/student-2.jpg"
                       value={avatarUrl}
                       onChange={(e) => setAvatarUrl(e.target.value)}
                     />
