@@ -9,22 +9,19 @@ interface WelcomeSpeakerProps {
 export function WelcomeSpeaker({ language, onDone }: WelcomeSpeakerProps) {
   const [sent, setSent] = useState(false);
   const cleanupRef = useRef(false);
-  
+  const lastSoundAtRef = useRef<number>(Date.now());
   // Use special voice guidance to make AI just read the text without adding commentary
-  const { connect, disconnect, sendText, isConnected } = useRealtimeVoice({
+  const { connect, disconnect, sendText, isConnected, isAIPlaying } = useRealtimeVoice({
     studentId: 'welcome-speaker',
     language: language === 'es' ? 'es-PR' : 'en-US',
     voiceGuidance: 'You are a text-to-speech system. Read EXACTLY what the user provides, word for word, with appropriate emotion and Puerto Rican Spanish pronunciation. Do not add any commentary, greetings, or extra words. Just read the text provided.',
     onResponseComplete: () => {
-      // Wait for complete response, then cleanup
-      if (!cleanupRef.current) {
-        console.log('[WelcomeSpeaker] Response complete, cleaning up...');
-        cleanupRef.current = true;
-        setTimeout(() => {
-          disconnect();
-          onDone();
-        }, 500);
-      }
+      // Do NOT disconnect here; wait for 20s of silence instead
+      console.log('[WelcomeSpeaker] Response complete');
+    },
+    onAudioLevel: (db: number) => {
+      // Reset silence timer when any sound (AI or user) is detected above noise floor
+      if (db > -55) lastSoundAtRef.current = Date.now();
     }
   });
 
@@ -32,6 +29,7 @@ export function WelcomeSpeaker({ language, onDone }: WelcomeSpeakerProps) {
   useEffect(() => {
     console.log('[WelcomeSpeaker] Mounting, connecting...');
     connect();
+    lastSoundAtRef.current = Date.now();
     
     return () => {
       console.log('[WelcomeSpeaker] Unmounting, disconnecting...');
@@ -51,6 +49,28 @@ export function WelcomeSpeaker({ language, onDone }: WelcomeSpeakerProps) {
       setSent(true);
     }
   }, [isConnected, sent, language, sendText]);
+
+  // Reset silence timer whenever AI starts speaking
+  useEffect(() => {
+    if (isAIPlaying) {
+      lastSoundAtRef.current = Date.now();
+    }
+  }, [isAIPlaying]);
+
+  // Disconnect only after 20s of continuous silence; otherwise keep alive until unmount
+  useEffect(() => {
+    if (!isConnected) return;
+    const interval = setInterval(() => {
+      const silentFor = Date.now() - lastSoundAtRef.current;
+      if (!isAIPlaying && silentFor >= 20000 && !cleanupRef.current) {
+        console.log('[WelcomeSpeaker] 20s of silence, disconnecting...');
+        cleanupRef.current = true;
+        disconnect();
+        onDone();
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isConnected, isAIPlaying, disconnect, onDone]);
 
   return null;
 }
