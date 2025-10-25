@@ -221,6 +221,7 @@ export function FillBlankEditor({ content, onChange, language }: FillBlankEditor
         <ImagePasteZone
           onImageUploaded={(imageUrl) => onChange({ ...content, imageUrl })}
           currentImage={content.imageUrl}
+          correctAnswer={content.target}
         />
       </div>
     </div>

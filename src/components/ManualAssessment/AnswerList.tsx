@@ -89,6 +89,7 @@ export function AnswerList({ answers, onChange }: AnswerListProps) {
                   updateAnswer(index, 'imageUrl', url);
                   setExpandedImageIndex(null);
                 }}
+                correctAnswer={answer.isCorrect ? answer.text : undefined}
               />
             )}
 

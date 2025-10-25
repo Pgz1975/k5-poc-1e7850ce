@@ -108,6 +108,7 @@ export function TrueFalseEditor({ content, onChange }: TrueFalseEditorProps) {
                   <ImagePasteZone
                     currentImage={answer.imageUrl}
                     onImageUploaded={(url) => handleImageUpdate(index, url)}
+                    correctAnswer={answer.isCorrect ? answer.text : undefined}
                   />
                 </div>
               )}

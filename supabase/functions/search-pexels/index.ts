@@ -17,12 +17,22 @@ serve(async (req) => {
       throw new Error('PEXELS_API_KEY not configured');
     }
 
-    const url = new URL(req.url);
-    const query = url.searchParams.get('q');
-    const perPage = url.searchParams.get('per_page') || '15';
+    let query: string;
+    let perPage = '15';
+
+    // Support both GET and POST
+    if (req.method === 'POST') {
+      const body = await req.json();
+      query = body.query;
+      perPage = body.per_page || perPage;
+    } else {
+      const url = new URL(req.url);
+      query = url.searchParams.get('q') || '';
+      perPage = url.searchParams.get('per_page') || perPage;
+    }
 
     if (!query) {
-      throw new Error('q (query) parameter is required');
+      throw new Error('query parameter is required');
     }
 
     // Add kid-friendly filters to search

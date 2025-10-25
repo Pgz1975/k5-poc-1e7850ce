@@ -60,6 +60,7 @@ export function WriteAnswerEditor({ content, onChange, language }: WriteAnswerEd
         <ImagePasteZone
           onImageUploaded={(imageUrl) => onChange({ ...content, questionImage: imageUrl })}
           currentImage={content.questionImage}
+          correctAnswer={content.correctAnswer}
         />
       </div>
 
