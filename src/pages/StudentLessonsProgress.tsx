@@ -18,6 +18,7 @@ import { DomainGroup } from "@/types/lessonOrdering";
 import { useMemo } from "react";
 import { getLessonLockingStatus } from "@/utils/lessonUnlocking";
 import { DomainHeader } from "@/components/StudentDashboard/DomainHeader";
+import { ActivityActions } from "@/components/ActivityManagement/ActivityActions";
 
 export default function StudentLessonsProgress() {
   const { t, language } = useLanguage();
@@ -224,17 +225,25 @@ export default function StudentLessonsProgress() {
                 const exerciseProgress = exerciseProgressData?.[lesson.id];
                 
                 return (
-                  <LessonCard
-                    key={lesson.id}
-                    id={lesson.id}
-                    title={lesson.title}
-                    description={lesson.description}
-                    estimatedDuration={lesson.estimated_duration_minutes || 5}
-                    isLocked={isLocked}
-                    isCompleted={isCompleted}
-                    completionData={completedMap.get(lesson.id)}
-                    exerciseProgress={exerciseProgress}
-                  />
+                  <div key={lesson.id} className="relative">
+                    <div className="absolute top-2 right-2 z-10">
+                      <ActivityActions 
+                        activity={{ id: lesson.id, title: lesson.title }} 
+                        redirectPath="/student-dashboard/lessons"
+                        size="sm"
+                      />
+                    </div>
+                    <LessonCard
+                      id={lesson.id}
+                      title={lesson.title}
+                      description={lesson.description}
+                      estimatedDuration={lesson.estimated_duration_minutes || 5}
+                      isLocked={isLocked}
+                      isCompleted={isCompleted}
+                      completionData={completedMap.get(lesson.id)}
+                      exerciseProgress={exerciseProgress}
+                    />
+                  </div>
                 );
               })}
             </div>

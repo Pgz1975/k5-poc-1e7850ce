@@ -44,9 +44,19 @@ interface AssessmentData {
 }
 
 
-export default function CreateAssessment() {
+interface CreateAssessmentProps {
+  editId?: string;
+  isModal?: boolean;
+  onSaveSuccess?: () => void;
+}
+
+export default function CreateAssessment({ 
+  editId: propEditId, 
+  isModal = false,
+  onSaveSuccess 
+}: CreateAssessmentProps = {}) {
   const [searchParams] = useSearchParams();
-  const editId = searchParams.get('edit');
+  const editId = propEditId || searchParams.get('edit');
   const [step, setStep] = useState<'type' | 'subtype' | 'content'>('type');
   const [data, setData] = useState<Partial<AssessmentData>>({
     settings: {
@@ -581,7 +591,12 @@ export default function CreateAssessment() {
         });
       }
       
-      navigate(`/view-assessment/${savedAssessment.id}`);
+      // Handle navigation based on modal mode
+      if (onSaveSuccess) {
+        onSaveSuccess(); // Close modal
+      } else if (!isModal) {
+        navigate(`/view-assessment/${savedAssessment.id}`);
+      }
     } catch (error: any) {
       console.error('Save error:', error);
       toast({

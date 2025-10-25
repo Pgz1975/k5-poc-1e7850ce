@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CoquiLessonAssistant } from '@/components/coqui/CoquiLessonAssistant';
+import { ActivityActions } from '@/components/ActivityManagement/ActivityActions';
 
 export default function LessonExerciseFlow() {
   const { lessonId } = useParams<{ lessonId: string }>();
@@ -256,27 +257,37 @@ export default function LessonExerciseFlow() {
           const isLocked = idx > maxUnlocked;
           
           return (
-            <button
-              key={ex.id}
-              onClick={() => !isLocked && setCurrentExerciseId(ex.id)}
-              disabled={isLocked}
-              className={`
-                w-12 h-12 rounded-full flex items-center justify-center font-bold
-                transition-all flex-shrink-0
-                ${isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''}
-                ${isCompleted 
-                  ? 'bg-success text-success-foreground' 
-                  : isCurrent 
-                    ? 'bg-primary text-primary-foreground' 
-                    : isLocked
-                      ? 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
-                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                }
-              `}
-              aria-label={t(`Ejercicio ${idx + 1}`, `Exercise ${idx + 1}`)}
-            >
-              {idx + 1}
-            </button>
+            <div key={ex.id} className="relative flex-shrink-0">
+              <button
+                onClick={() => !isLocked && setCurrentExerciseId(ex.id)}
+                disabled={isLocked}
+                className={`
+                  w-12 h-12 rounded-full flex items-center justify-center font-bold
+                  transition-all
+                  ${isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''}
+                  ${isCompleted 
+                    ? 'bg-success text-success-foreground' 
+                    : isCurrent 
+                      ? 'bg-primary text-primary-foreground' 
+                      : isLocked
+                        ? 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
+                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  }
+                `}
+                aria-label={t(`Ejercicio ${idx + 1}`, `Exercise ${idx + 1}`)}
+              >
+                {idx + 1}
+              </button>
+              {!isLocked && (
+                <div className="absolute -top-1 -right-1">
+                  <ActivityActions 
+                    activity={{ id: ex.id, title: ex.title }} 
+                    redirectPath={`/lesson/${lessonId}`}
+                    size="icon"
+                  />
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
