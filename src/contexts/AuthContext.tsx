@@ -15,6 +15,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   loading: boolean;
+  micPermissionRequested: boolean;
+  setMicPermissionRequested: (value: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +25,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [micPermissionRequested, setMicPermissionRequested] = useState(
+    () => localStorage.getItem('mic-permission-requested') === 'true'
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -115,8 +120,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const handleSetMicPermissionRequested = (value: boolean) => {
+    setMicPermissionRequested(value);
+    localStorage.setItem('mic-permission-requested', value.toString());
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, signUp, signIn, signOut, resetPassword, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      signUp, 
+      signIn, 
+      signOut, 
+      resetPassword, 
+      loading,
+      micPermissionRequested,
+      setMicPermissionRequested: handleSetMicPermissionRequested
+    }}>
       {children}
     </AuthContext.Provider>
   );

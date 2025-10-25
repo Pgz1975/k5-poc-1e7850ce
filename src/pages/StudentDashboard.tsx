@@ -9,9 +9,12 @@ import CoquiMascot from "@/components/CoquiMascot";
 import { useState } from "react";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { ActivityCards } from "@/components/StudentDashboard/ActivityCards";
+import { MicrophonePermissionModal } from "@/components/auth/MicrophonePermissionModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const StudentDashboard = () => {
   const { t } = useLanguage();
+  const { micPermissionRequested, setMicPermissionRequested } = useAuth();
   const [mascotState, setMascotState] = useState("happy");
   const { data: profile, isLoading } = useStudentProfile();
 
@@ -34,6 +37,13 @@ const StudentDashboard = () => {
         <title>{t("Mi Panel - LecturaPR", "My Dashboard - LecturaPR")}</title>
         <meta name="description" content={t("Panel de estudiante", "Student dashboard")} />
       </Helmet>
+
+      {/* Microphone Permission Modal */}
+      <MicrophonePermissionModal
+        isOpen={!micPermissionRequested}
+        onPermissionGranted={() => setMicPermissionRequested(true)}
+        onPermissionDenied={() => setMicPermissionRequested(true)}
+      />
 
       <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-secondary/5 to-background">
         <Header />
