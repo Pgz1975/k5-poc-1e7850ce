@@ -11,10 +11,11 @@ import { useCoquiInactivity } from '@/hooks/useCoquiInactivity';
 
 interface UseCoquiSessionProps {
   activityId?: string;
+  activityType?: 'lesson' | 'exercise';
   voiceGuidance?: string;
 }
 
-export function useCoquiSession({ activityId, voiceGuidance }: UseCoquiSessionProps = {}) {
+export function useCoquiSession({ activityId, activityType, voiceGuidance }: UseCoquiSessionProps = {}) {
   const { user } = useAuth();
   const { language } = useLanguage();
   const [countdown, setCountdown] = useState(10);

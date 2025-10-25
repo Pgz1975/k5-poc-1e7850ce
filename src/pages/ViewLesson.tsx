@@ -6,7 +6,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CoquiMascot } from "@/components/CoquiMascot";
+import { CoquiLessonAssistant } from "@/components/coqui/CoquiLessonAssistant";
 import { CheckCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -17,7 +17,7 @@ import { useStudentProfile } from "@/hooks/useStudentProfile";
 export default function ViewLesson() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const queryClient = useQueryClient();
   const { data: profile } = useStudentProfile();
 
@@ -288,9 +288,15 @@ export default function ViewLesson() {
           </div>
         </div>
         
-        <div className="absolute bottom-6 right-6 z-40 pointer-events-none">
-          <CoquiMascot state="reading" size="small" position="inline" />
-        </div>
+        {/* Interactive Coquí Assistant */}
+        <CoquiLessonAssistant
+          activityId={lesson.id}
+          activityType="lesson"
+          voiceGuidance={`You are helping a K-5 student understand lesson: "${lesson.title}". 
+            ${lesson.description ? `Lesson description: ${lesson.description}` : ''}
+            Explain concepts, answer questions about the content, and provide examples in ${language === 'es' ? 'Spanish' : 'English'}.
+            Keep responses under 30 seconds and age-appropriate for elementary students.`}
+        />
       </main>
 
       <Footer />

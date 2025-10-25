@@ -9,13 +9,13 @@ import { LessonCompletionScreen } from '@/components/LessonCompletion/LessonComp
 import { Progress } from '@/components/ui/progress';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import CoquiMascot from '@/components/CoquiMascot';
+import { CoquiLessonAssistant } from '@/components/coqui/CoquiLessonAssistant';
 
 export default function LessonExerciseFlow() {
   const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const queryClient = useQueryClient();
 
   const hasInitialized = useRef(false);
@@ -288,12 +288,14 @@ export default function LessonExerciseFlow() {
         onExit={handleBack}
       />
 
-      {/* Coquí Mascot */}
-      <CoquiMascot 
-        state="reading" 
-        size="small" 
-        position="inline"
-        className="fixed bottom-4 right-4"
+      {/* Interactive Coquí Assistant */}
+      <CoquiLessonAssistant
+        activityId={currentExercise.id}
+        activityType="exercise"
+        voiceGuidance={`You are helping a K-5 student with exercise: "${currentExercise.title}". 
+          Exercise type: ${currentExercise.subtype}. 
+          Provide hints, encouragement, and explanations in ${language === 'es' ? 'Spanish' : 'English'}, 
+          but don't give direct answers. Keep responses under 30 seconds.`}
       />
     </div>
   );

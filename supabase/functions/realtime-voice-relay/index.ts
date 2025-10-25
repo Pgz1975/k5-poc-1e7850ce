@@ -19,6 +19,8 @@ interface SessionState {
   voiceGuidance: string | null;
   language: string;
   studentId: string;
+  activityId?: string;
+  activityType?: string;
   metrics: {
     connectionStart: number;
     sessionReady: number;
@@ -46,8 +48,17 @@ serve(async (req) => {
     const studentId = url.searchParams.get('student_id') ?? 'unknown';
     const language = url.searchParams.get('language') ?? 'es-PR';
     const model = url.searchParams.get('model') ?? 'gpt-4o-realtime-preview-2024-12-17';
+    const activityId = url.searchParams.get('activity_id');
+    const activityType = url.searchParams.get('activity_type');
 
-    log('Upgrade request', { studentId, language, model, hasGuidance: !!voiceGuidance });
+    log('Upgrade request', { 
+      studentId, 
+      language, 
+      model, 
+      activityId, 
+      activityType,
+      hasGuidance: !!voiceGuidance 
+    });
 
     if (!OPENAI_API_KEY) {
       error('OPENAI_API_KEY not configured');
@@ -64,6 +75,8 @@ serve(async (req) => {
       voiceGuidance,
       language,
       studentId,
+      activityId: activityId ?? undefined,
+      activityType: activityType ?? undefined,
       metrics: {
         connectionStart: performance.now(),
         sessionReady: 0,
@@ -214,12 +227,20 @@ When a student makes a pronunciation error:
 
 function handleSessionCreated(session: SessionState): void {
   const baseInstructions = getBaseInstructions(session.language);
-  const fullInstructions = session.voiceGuidance
-    ? `${baseInstructions}\n\nACTIVITY-SPECIFIC GUIDANCE:\n${session.voiceGuidance}`
-    : baseInstructions;
+  
+  // Build full instructions with activity context
+  let fullInstructions = baseInstructions;
+  
+  if (session.activityId && session.activityType) {
+    fullInstructions += `\n\nCONTEXT: The student is currently working on ${session.activityType} ID: ${session.activityId}.`;
+  }
+  
+  if (session.voiceGuidance) {
+    fullInstructions += `\n\nACTIVITY-SPECIFIC GUIDANCE:\n${session.voiceGuidance}`;
+  }
 
-  const hasGuidance = !!session.voiceGuidance;
-  log(`Sending session.update${hasGuidance ? ' with voice guidance' : ''}`);
+  const hasContext = !!session.voiceGuidance || !!session.activityId;
+  log(`Sending session.update${hasContext ? ' with context' : ''}`);
 
   const sessionConfig = {
     type: 'session.update',
