@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CheckCircle2, XCircle, ArrowLeft } from 'lucide-react';
+import { ActivityActions } from '@/components/ActivityManagement/ActivityActions';
 
 interface Exercise {
   id: string;
@@ -166,7 +167,11 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
           {t('Volver', 'Back')}
         </Button>
         <h2 className="text-2xl font-bold">{exercise.title}</h2>
-        <div className="w-24" /> {/* Spacer for centering */}
+        <ActivityActions 
+          activity={{ id: exercise.id, title: exercise.title }} 
+          redirectPath={window.location.pathname.split('/exercises')[0] || '/student-dashboard'}
+          size="sm"
+        />
       </div>
 
       {/* Question Display */}
