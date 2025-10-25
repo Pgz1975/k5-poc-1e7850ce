@@ -33,7 +33,10 @@ import { z } from "zod";
 
 const profileSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters").max(100),
-  avatar_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  avatar_url: z.string().refine(
+    (val) => !val || val.startsWith('/') || val.startsWith('http://') || val.startsWith('https://'),
+    { message: "Must be a valid URL or path" }
+  ).optional().or(z.literal("")),
 });
 
 const Profile = () => {
