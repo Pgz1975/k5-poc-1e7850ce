@@ -1,0 +1,240 @@
+{
+  "metadata": {
+    "exported_at": "2025-10-25T12:57:55.107Z",
+    "project_id": "meertwtenhlmnlpwxhyz",
+    "project_url": "https://meertwtenhlmnlpwxhyz.supabase.co",
+    "total_tables": 5,
+    "total_records": 0,
+    "tables": [
+      {
+        "name": "manual_assessments",
+        "records": 0,
+        "columns": [
+          "id",
+          "type",
+          "subtype",
+          "title",
+          "description",
+          "content",
+          "grade_level",
+          "language",
+          "subject_area",
+          "curriculum_standards",
+          "enable_voice",
+          "voice_speed",
+          "auto_read_question",
+          "difficulty_level",
+          "estimated_duration_minutes",
+          "status",
+          "published_at",
+          "view_count",
+          "completion_count",
+          "average_score",
+          "created_by",
+          "created_at",
+          "updated_at",
+          "metadata",
+          "voice_guidance",
+          "activity_template",
+          "coqui_dialogue",
+          "pronunciation_words",
+          "max_attempts",
+          "parent_lesson_id",
+          "order_in_lesson",
+          "drag_drop_mode",
+          "passing_score"
+        ]
+      },
+      {
+        "name": "pdf_text_content",
+        "records": 0,
+        "columns": []
+      },
+      {
+        "name": "profiles",
+        "records": 0,
+        "columns": [
+          "id",
+          "full_name",
+          "avatar_url",
+          "created_at",
+          "updated_at",
+          "grade_level",
+          "assigned_region",
+          "school_id",
+          "language_specialization",
+          "learning_languages"
+        ]
+      },
+      {
+        "name": "user_roles",
+        "records": 0,
+        "columns": [
+          "id",
+          "user_id",
+          "role",
+          "created_at"
+        ]
+      },
+      {
+        "name": "voice_sessions",
+        "records": 0,
+        "columns": [
+          "id",
+          "session_id",
+          "student_id",
+          "assessment_id",
+          "language",
+          "grade_level",
+          "metrics",
+          "created_at",
+          "ended_at",
+          "model"
+        ]
+      }
+    ]
+  },
+  "schemas": {
+    "manual_assessments": {
+      "columns": [
+        "id",
+        "type",
+        "subtype",
+        "title",
+        "description",
+        "content",
+        "grade_level",
+        "language",
+        "subject_area",
+        "curriculum_standards",
+        "enable_voice",
+        "voice_speed",
+        "auto_read_question",
+        "difficulty_level",
+        "estimated_duration_minutes",
+        "status",
+        "published_at",
+        "view_count",
+        "completion_count",
+        "average_score",
+        "created_by",
+        "created_at",
+        "updated_at",
+        "metadata",
+        "voice_guidance",
+        "activity_template",
+        "coqui_dialogue",
+        "pronunciation_words",
+        "max_attempts",
+        "parent_lesson_id",
+        "order_in_lesson",
+        "drag_drop_mode",
+        "passing_score"
+      ],
+      "columnTypes": {
+        "id": "UUID",
+        "type": "TEXT",
+        "subtype": "TEXT",
+        "title": "TEXT",
+        "description": "TEXT",
+        "content": "JSONB",
+        "grade_level": "INTEGER",
+        "language": "TEXT",
+        "subject_area": "TEXT",
+        "curriculum_standards": "TEXT",
+        "enable_voice": "BOOLEAN",
+        "voice_speed": "INTEGER",
+        "auto_read_question": "BOOLEAN",
+        "difficulty_level": "TEXT",
+        "estimated_duration_minutes": "INTEGER",
+        "status": "TEXT",
+        "published_at": "TIMESTAMPTZ",
+        "view_count": "INTEGER",
+        "completion_count": "INTEGER",
+        "average_score": "TEXT",
+        "created_by": "UUID",
+        "created_at": "TIMESTAMPTZ",
+        "updated_at": "TIMESTAMPTZ",
+        "metadata": "JSONB",
+        "voice_guidance": "TEXT",
+        "activity_template": "TEXT",
+        "coqui_dialogue": "TEXT",
+        "pronunciation_words": "TEXT",
+        "max_attempts": "INTEGER",
+        "parent_lesson_id": "UUID",
+        "order_in_lesson": "TEXT",
+        "drag_drop_mode": "TEXT",
+        "passing_score": "INTEGER"
+      }
+    },
+    "profiles": {
+      "columns": [
+        "id",
+        "full_name",
+        "avatar_url",
+        "created_at",
+        "updated_at",
+        "grade_level",
+        "assigned_region",
+        "school_id",
+        "language_specialization",
+        "learning_languages"
+      ],
+      "columnTypes": {
+        "id": "UUID",
+        "full_name": "TEXT",
+        "avatar_url": "TEXT",
+        "created_at": "TIMESTAMPTZ",
+        "updated_at": "TIMESTAMPTZ",
+        "grade_level": "TEXT",
+        "assigned_region": "TEXT",
+        "school_id": "TEXT",
+        "language_specialization": "TEXT",
+        "learning_languages": "JSONB"
+      }
+    },
+    "user_roles": {
+      "columns": [
+        "id",
+        "user_id",
+        "role",
+        "created_at"
+      ],
+      "columnTypes": {
+        "id": "UUID",
+        "user_id": "UUID",
+        "role": "TEXT",
+        "created_at": "TIMESTAMPTZ"
+      }
+    },
+    "voice_sessions": {
+      "columns": [
+        "id",
+        "session_id",
+        "student_id",
+        "assessment_id",
+        "language",
+        "grade_level",
+        "metrics",
+        "created_at",
+        "ended_at",
+        "model"
+      ],
+      "columnTypes": {
+        "id": "UUID",
+        "session_id": "TEXT",
+        "student_id": "UUID",
+        "assessment_id": "TEXT",
+        "language": "TEXT",
+        "grade_level": "INTEGER",
+        "metrics": "JSONB",
+        "created_at": "TIMESTAMPTZ",
+        "ended_at": "TEXT",
+        "model": "TEXT"
+      }
+    }
+  },
+  "data": {
+    "pdf_text_content": []
+  }
+}

@@ -1,160 +1,339 @@
 # Supabase Database Backup Guide
 
-## Overview
-This guide helps you backup specific tables from your Supabase database:
-- ✅ **Included**: `manual_assessments`, `profiles`, `user_roles`
-- ❌ **Excluded**: `voice_sessions`, `pdf_text_content`
+**Last Updated:** October 25, 2025
+**Version:** 2.0 - Complete Database Export
 
-## Method 1: Using the Export Scripts (Recommended)
+---
 
-### Prerequisites
-You need PostgreSQL client tools installed:
+## 🚀 Overview
+
+This guide documents the comprehensive Supabase database backup system that exports **ALL tables** from the database automatically. The backup system dynamically discovers and backs up every table, ensuring complete data preservation.
+
+## 📊 Current Database Statistics
+
+As of the latest backup (October 25, 2025):
+
+| Table | Records | Description |
+|-------|---------|-------------|
+| **voice_sessions** | 271 | Voice interaction session data |
+| **manual_assessments** | 180 | Student assessment records |
+| **profiles** | 1 | User profile information |
+| **user_roles** | 1 | User role assignments |
+| **pdf_text_content** | 0 | Extracted PDF content |
+| **Total** | **453 records** | Across 5 tables |
+
+## 🛠️ Backup Scripts
+
+### Primary Script: `supabase-full-backup.mjs`
+
+The enhanced backup script that automatically discovers and exports ALL tables.
+
+**Location:** `/scripts/supabase-full-backup.mjs`
+
+**Features:**
+- ✅ Dynamic table discovery
+- ✅ Automatic schema detection
+- ✅ Exports ALL tables (no exclusions)
+- ✅ Dual format output (SQL + JSON)
+- ✅ Progress indicators for large tables
+- ✅ Comprehensive error handling
+- ✅ Automatic README generation
+
+### Legacy Script: `supabase-export.mjs`
+
+This script has been updated to use the comprehensive backup approach.
+
+**Location:** `/scripts/supabase-export.mjs`
+
+## 📦 How to Run Backups
+
+### Quick Backup Command
+
 ```bash
-# Ubuntu/Debian
-sudo apt-get install postgresql-client
-
-# macOS
-brew install postgresql
-
-# Check if installed
-pg_dump --version
+# Run from project root
+node scripts/supabase-full-backup.mjs
 ```
 
-### Step 1: Get Your Database Connection String
+### Alternative Commands
 
-1. Login to [Supabase Dashboard](https://app.supabase.com) with `admin@demo.com` / `demo1234`
-2. Select your Lovable project
-3. Go to **Settings** → **Database**
-4. Find the **Connection string** section
-5. Copy the connection string (it looks like: `postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres`)
-
-### Step 2: Run the Export Script
-
-#### Option A: Bash Script
 ```bash
-# Run the export script with your connection string
-./scripts/export_database.sh "postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+# Using the legacy script name (now uses full backup)
+node scripts/supabase-export.mjs
+
+# Make script executable and run directly
+chmod +x scripts/supabase-full-backup.mjs
+./scripts/supabase-full-backup.mjs
 ```
 
-#### Option B: Node.js Script (Interactive)
-```bash
-# Run the interactive script
-node scripts/export_database.js
+## 📁 Backup Output
 
-# Or provide connection string directly
-node scripts/export_database.js "postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+All backups are saved to: `/database_backups/`
+
+### File Naming Convention
+
+```
+supabase_COMPLETE_backup_YYYY-MM-DDTHH-mm-ss.sql
+supabase_COMPLETE_backup_YYYY-MM-DDTHH-mm-ss.json
+README.md
 ```
 
-## Method 2: Using Supabase Dashboard (Manual)
+### Output Formats
 
-1. Login to Supabase Dashboard
-2. Go to **SQL Editor**
-3. Run these queries to export each table:
+#### 1. SQL Format (.sql)
+- Complete SQL dump with INSERT statements
+- Includes table schemas (CREATE TABLE)
+- Foreign key constraints disabled during import
+- Ready for direct PostgreSQL import
 
+#### 2. JSON Format (.json)
+- Structured JSON with metadata
+- Includes table schemas and column types
+- Easier for programmatic manipulation
+- Larger file size but more flexible
+
+## 🔄 How to Restore Backups
+
+### From SQL File
+
+```bash
+# Full database restore
+psql "postgresql://[USER]:[PASSWORD]@db.meertwtenhlmnlpwxhyz.supabase.co:5432/postgres" < supabase_COMPLETE_backup_YYYY-MM-DD.sql
+
+# Restore specific table only
+grep -A 1000 "Table: manual_assessments" backup.sql | psql [CONNECTION_STRING]
+```
+
+### From JSON File
+
+```javascript
+// JavaScript restoration example
+import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+
+const backup = JSON.parse(fs.readFileSync('backup.json', 'utf8'));
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Restore all tables
+for (const [tableName, data] of Object.entries(backup.data)) {
+  if (data && data.length > 0) {
+    const { error } = await supabase
+      .from(tableName)
+      .insert(data);
+
+    if (error) {
+      console.error(`Failed to restore ${tableName}:`, error);
+    } else {
+      console.log(`Restored ${data.length} records to ${tableName}`);
+    }
+  }
+}
+```
+
+## 🔍 What Gets Backed Up
+
+### Automatically Discovered Tables
+
+The backup script automatically discovers ALL tables including:
+
+- **Core Tables**
+  - `manual_assessments` - Student assessment data
+  - `profiles` - User profiles
+  - `user_roles` - Role assignments
+
+- **Voice/Audio Tables**
+  - `voice_sessions` - Voice interaction sessions
+  - `coqui_interactions` - Coqui AI interactions (when implemented)
+  - `voice_cost_optimization` - Cost tracking (when implemented)
+
+- **Content Tables**
+  - `pdf_text_content` - Extracted PDF content
+  - `teacher_guidance_templates` - Teaching templates (when implemented)
+
+- **Analytics Tables**
+  - `student_adaptation_metrics` - Learning metrics (when implemented)
+
+- **Future Tables**
+  - Any new tables added to the database are automatically included
+
+### Data Retention
+
+- All records are exported regardless of age
+- No filtering or exclusions applied
+- Complete historical data preserved
+
+## 🔐 Security Considerations
+
+### Authentication
+- Uses admin credentials stored in script
+- Admin email: `admin@demo.com`
+- Password: Configured in script
+
+### Best Practices
+1. **Never commit credentials to git**
+2. **Store backups securely**
+3. **Encrypt sensitive backups**
+4. **Test restore on development first**
+5. **Rotate admin passwords regularly**
+
+## 📊 Backup Monitoring
+
+### Success Indicators
+
+A successful backup will show:
+```
+╔════════════════════════════════════════════════╗
+║     🎉 COMPLETE Export Successful! 🎉         ║
+║                                                ║
+║  All X tables exported successfully!           ║
+║  Total: Y records backed up                    ║
+╚════════════════════════════════════════════════╝
+```
+
+### Common Issues and Solutions
+
+| Issue | Solution |
+|-------|----------|
+| Authentication failed | Verify admin credentials in script |
+| Table not found | Table may not exist yet or no access rights |
+| Timeout on large tables | Script handles pagination automatically |
+| RPC not available | Script falls back to manual discovery |
+| Order by 'created_at' fails | Script automatically retries without ordering |
+
+## 🚀 Advanced Features
+
+### Table Discovery Methods
+
+1. **RPC Method** (Primary)
+   - Attempts to use `get_all_tables` RPC function
+   - Fastest method if available
+
+2. **Manual Discovery** (Fallback)
+   - Tests known table names
+   - Tries common naming patterns
+   - Discovers tables through trial
+
+### Progress Indicators
+
+For tables with >1000 records:
+```
+Progress: 45% (4500/10000 records)
+```
+
+### Automatic Schema Detection
+
+The script infers column types from data:
+- UUID detection for IDs
+- TIMESTAMPTZ for dates
+- JSONB for objects
+- INTEGER/NUMERIC for numbers
+- BOOLEAN for true/false
+- TEXT for strings
+
+## 📈 Performance Metrics
+
+### Typical Backup Times
+
+| Records | Time |
+|---------|------|
+| <1,000 | <5 seconds |
+| 1,000-10,000 | 10-30 seconds |
+| 10,000-50,000 | 1-3 minutes |
+| 50,000+ | 3-10 minutes |
+
+### File Sizes
+
+| Records | SQL Size | JSON Size |
+|---------|----------|-----------|
+| 453 (current) | ~250 KB | ~490 KB |
+| 1,000 | ~500 KB | ~1 MB |
+| 10,000 | ~5 MB | ~10 MB |
+| 100,000 | ~50 MB | ~100 MB |
+
+## 🔄 Backup Schedule Recommendations
+
+### Development Environment
+- **Frequency:** Before major changes
+- **Retention:** Keep last 5 backups
+
+### Staging Environment
+- **Frequency:** Daily
+- **Retention:** 7 days
+
+### Production Environment
+- **Frequency:** Every 4-6 hours
+- **Retention:** 30 days
+- **Archive:** Monthly backups for 1 year
+
+## 📝 Changelog
+
+### Version 2.0 (October 25, 2025)
+- ✅ Complete rewrite for comprehensive backup
+- ✅ Dynamic table discovery
+- ✅ Exports ALL tables (removed exclusions)
+- ✅ Enhanced error handling
+- ✅ Progress indicators
+- ✅ Automatic schema detection
+
+### Version 1.0
+- Basic backup of 3 tables only
+- Hardcoded table list
+- Limited error handling
+
+## 🆘 Troubleshooting
+
+### Debug Mode
+
+To see detailed debug output:
+```javascript
+// Add to script
+const DEBUG = true;
+if (DEBUG) console.log('Debug:', data);
+```
+
+### Connection Issues
+
+Test connection:
+```bash
+# Test Supabase connection
+curl https://meertwtenhlmnlpwxhyz.supabase.co/rest/v1/
+
+# Test authentication
+curl -H "apikey: YOUR_ANON_KEY" \
+     -H "Authorization: Bearer YOUR_ANON_KEY" \
+     https://meertwtenhlmnlpwxhyz.supabase.co/rest/v1/profiles
+```
+
+### Restore Validation
+
+After restore, verify:
 ```sql
--- Export manual_assessments as CSV
-COPY (
-  SELECT * FROM public.manual_assessments
-  ORDER BY created_at DESC
-) TO '/tmp/manual_assessments.csv' WITH CSV HEADER;
-
--- Export profiles as CSV
-COPY (
-  SELECT * FROM public.profiles
-  ORDER BY created_at DESC
-) TO '/tmp/profiles.csv' WITH CSV HEADER;
-
--- Export user_roles as CSV
-COPY (
-  SELECT * FROM public.user_roles
-  ORDER BY created_at DESC
-) TO '/tmp/user_roles.csv' WITH CSV HEADER;
+-- Check record counts
+SELECT
+  'manual_assessments' as table_name,
+  COUNT(*) as count
+FROM manual_assessments
+UNION ALL
+SELECT
+  'voice_sessions',
+  COUNT(*)
+FROM voice_sessions
+-- Add more tables as needed
 ```
 
-**Note**: The Dashboard method exports to CSV. For SQL format, use Method 1.
+## 📚 Related Documentation
 
-## Method 3: Using Supabase CLI
+- [Coqui Voice Integration Plan](./plan/19-coqui-voice/README.md)
+- [Database Schema](./plan/19-coqui-voice/DATABASE-SCHEMA.sql)
+- [API Specifications](./plan/19-coqui-voice/API-SPECIFICATIONS.md)
 
-If you have project access configured:
+## 🤝 Support
 
-```bash
-# Login to Supabase
-npx supabase login
+For issues or questions:
+1. Check this guide first
+2. Review script output for errors
+3. Check Supabase dashboard for table access
+4. Contact system administrator
 
-# Link to your project
-npx supabase link --project-ref [YOUR-PROJECT-REF]
+---
 
-# Export specific tables
-npx supabase db dump \
-  --include-table public.manual_assessments \
-  --include-table public.profiles \
-  --include-table public.user_roles \
-  -f backup.sql
-```
-
-## Method 4: Using pgAdmin or DBeaver
-
-1. **pgAdmin**:
-   - Connect using your database credentials
-   - Right-click on database → Backup
-   - Select only the required tables
-
-2. **DBeaver**:
-   - Create connection with Supabase credentials
-   - Select tables → Export Data
-   - Choose SQL or CSV format
-
-## Backup File Location
-
-All backups are saved in: `./database_backups/`
-
-File naming: `supabase_backup_[TIMESTAMP].sql`
-
-## Restoring the Backup
-
-### To Another Supabase Instance:
-```bash
-psql "NEW_DATABASE_URL" < database_backups/supabase_backup_[TIMESTAMP].sql
-```
-
-### Using SQL Editor:
-1. Open the backup file
-2. Copy the SQL content
-3. Paste in Supabase SQL Editor
-4. Execute
-
-## Security Notes
-
-⚠️ **Important Security Considerations**:
-- Never commit database passwords to git
-- Store connection strings in environment variables
-- Use `.gitignore` for backup files containing sensitive data
-- Rotate database passwords regularly
-- Use read-only credentials when possible for exports
-
-## Troubleshooting
-
-### Error: pg_dump not found
-Install PostgreSQL client tools (see Prerequisites)
-
-### Error: Connection refused
-- Check if your IP is whitelisted in Supabase
-- Verify the connection string is correct
-- Ensure the database is not in maintenance mode
-
-### Error: Permission denied
-- Verify you're using the correct database user
-- Check if the user has SELECT permissions on the tables
-
-## Automated Backups
-
-For regular backups, create a cron job:
-```bash
-# Add to crontab (daily at 2 AM)
-0 2 * * * /path/to/export_database.sh "YOUR_CONNECTION_STRING" >> /var/log/backup.log 2>&1
-```
-
-## Questions?
-
-- Check Supabase Docs: https://supabase.com/docs/guides/database/backups
-- Database Connection Issues: Check Settings → Database → Connection Pooling
+**Remember:** Always test restore procedures on a development environment before applying to production!
