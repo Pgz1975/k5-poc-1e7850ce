@@ -6,45 +6,29 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import { CoquiVoiceChat } from "@/components/StudentDashboard/CoquiVoiceChat";
 import CoquiMascot from "@/components/CoquiMascot";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { ActivityCards } from "@/components/StudentDashboard/ActivityCards";
 import { MicrophonePermissionModal } from "@/components/auth/MicrophonePermissionModal";
+import { WelcomeSpeaker } from "@/components/StudentDashboard/WelcomeSpeaker";
 import { useAuth } from "@/contexts/AuthContext";
 
 const StudentDashboard = () => {
   const { t, language } = useLanguage();
   const { micPermissionRequested, setMicPermissionRequested } = useAuth();
   const [mascotState, setMascotState] = useState("happy");
+  const [showWelcomeSpeaker, setShowWelcomeSpeaker] = useState(false);
+  const prevPermRef = useRef(micPermissionRequested);
   const { data: profile, isLoading } = useStudentProfile();
 
-  // Simple browser TTS for welcome message
-  const speakWelcome = (lang: 'es' | 'en') => {
-    const text = lang === 'es'
-      ? "¡Perfecto! Ya tengo permiso para usar tu micrófono. Cuando quieras hablar conmigo durante tus lecciones, solo haz clic sobre mí y estaré listo para ayudarte."
-      : "Perfect! I now have permission to use your microphone. When you want to talk to me during your lessons, just click on me and I'll be ready to help you.";
-    
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = lang === 'es' ? 'es-PR' : 'en-US';
-
-    const voices = speechSynthesis.getVoices();
-    const preferred = voices.find(v => 
-      (lang === 'es' ? v.lang.toLowerCase().startsWith('es') : v.lang.toLowerCase().startsWith('en'))
-    );
-    if (preferred) utter.voice = preferred;
-
-    if (speechSynthesis.speaking) {
-      speechSynthesis.cancel();
-    }
-    speechSynthesis.speak(utter);
-  };
-
-  // Speak welcome message whenever permission is granted
+  // Trigger welcome speaker when permission is granted
   useEffect(() => {
-    if (micPermissionRequested) {
-      speakWelcome(language === 'es' ? 'es' : 'en');
+    if (!prevPermRef.current && micPermissionRequested) {
+      console.log('[StudentDashboard] Permission granted, triggering welcome speaker');
+      setShowWelcomeSpeaker(true);
     }
-  }, [micPermissionRequested, language]);
+    prevPermRef.current = micPermissionRequested;
+  }, [micPermissionRequested]);
 
   const getGradeLabel = (gradeLevel: number) => {
     if (gradeLevel === 0) return t("Kindergarten", "Kindergarten");
@@ -72,6 +56,17 @@ const StudentDashboard = () => {
         onPermissionGranted={() => setMicPermissionRequested(true)}
         onPermissionDenied={() => setMicPermissionRequested(true)}
       />
+
+      {/* Welcome Speaker - uses OpenAI Realtime with Puerto Rican accent */}
+      {showWelcomeSpeaker && (
+        <WelcomeSpeaker
+          language={language === 'es' ? 'es' : 'en'}
+          onDone={() => {
+            console.log('[StudentDashboard] Welcome speaker done');
+            setShowWelcomeSpeaker(false);
+          }}
+        />
+      )}
 
       <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-secondary/5 to-background">
         <Header />

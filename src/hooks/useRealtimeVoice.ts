@@ -4,15 +4,16 @@ import { RealtimeVoiceClientEnhanced } from '@/utils/realtime/RealtimeVoiceClien
 import { useToast } from '@/hooks/use-toast';
 
 interface UseRealtimeVoiceProps {
-  studentId: string;
-  language: 'es-PR' | 'en-US';
+  studentId?: string;
+  language?: 'es-PR' | 'en-US';
   model?: string;
   voiceGuidance?: string;
   onTranscription?: (text: string, isUser: boolean) => void;
   onAudioLevel?: (dbLevel: number) => void;
+  onResponseComplete?: () => void;
 }
 
-export function useRealtimeVoice({ studentId, language, model, voiceGuidance, onTranscription, onAudioLevel }: UseRealtimeVoiceProps) {
+export function useRealtimeVoice({ studentId, language, model, voiceGuidance, onTranscription, onAudioLevel, onResponseComplete }: UseRealtimeVoiceProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
@@ -67,6 +68,7 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
           setIsAIPlaying(isPlaying);
         },
         onAudioLevel: onAudioLevel,
+        onResponseComplete: onResponseComplete,
         onError: (error) => {
           console.error('[useRealtimeVoice] ❌ Error callback triggered:', error);
           const msg = (error && (error as Error).message) || '';
@@ -112,7 +114,7 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
       console.log('[useRealtimeVoice] 🏁 Connection attempt finished');
       setIsConnecting(false);
     }
-  }, [studentId, language, model, voiceGuidance, isConnecting, isConnected, onTranscription, onAudioLevel, toast]);
+  }, [studentId, language, model, voiceGuidance, isConnecting, isConnected, onTranscription, onAudioLevel, onResponseComplete, toast]);
 
   const disconnect = useCallback(() => {
     console.log('[useRealtimeVoice] Disconnecting...');

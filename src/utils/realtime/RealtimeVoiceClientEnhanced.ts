@@ -19,6 +19,7 @@ export interface RealtimeVoiceConfig {
   onAudioLevel?: (dbLevel: number) => void;
   onError?: (error: Error) => void;
   onConnectionChange?: (connected: boolean) => void;
+  onResponseComplete?: () => void;
 }
 
 export class RealtimeVoiceClientEnhanced {
@@ -271,6 +272,7 @@ export class RealtimeVoiceClientEnhanced {
 
         case 'response.done':
           console.log('[RealtimeVoiceClient] ✅ AI response completed');
+          this.config.onResponseComplete?.();
           break;
 
         case 'response.cancel':
