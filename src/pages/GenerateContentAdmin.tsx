@@ -2,25 +2,34 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { generateGrade1SpanishContent } from "@/scripts/generateGrade1SpanishContent";
+import { generateGrade2SpanishContent } from "@/scripts/generateGrade2SpanishContent";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Loader2, CheckCircle2, AlertCircle, GraduationCap } from "lucide-react";
 
 export default function GenerateContentAdmin() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [selectedGrade, setSelectedGrade] = useState<string>("1");
   const { toast } = useToast();
 
   const handleGenerate = async () => {
     setIsGenerating(true);
     setResult(null);
-    
+
     try {
-      const data = await generateGrade1SpanishContent();
+      // Select the appropriate generation function based on grade
+      const generateFunction = selectedGrade === "1"
+        ? generateGrade1SpanishContent
+        : generateGrade2SpanishContent;
+
+      const data = await generateFunction();
       setResult(data);
-      
+
       toast({
         title: "¡Éxito!",
-        description: `Se crearon ${data.parents.length} lecciones principales y ${data.exercises.length} ejercicios.`,
+        description: `Se crearon ${data.parents.length} lecciones principales y ${data.exercises.length} ejercicios para ${selectedGrade === "1" ? "Primer" : "Segundo"} Grado.`,
       });
     } catch (error: any) {
       console.error("Error generating content:", error);
@@ -38,27 +47,57 @@ export default function GenerateContentAdmin() {
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Generador de Contenido - Grado 1</CardTitle>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <GraduationCap className="h-6 w-6" />
+            Generador de Contenido Educativo
+          </CardTitle>
           <CardDescription>
-            Genera automáticamente lecciones y ejercicios en español para estudiantes de primer grado
+            Genera automáticamente lecciones y ejercicios en español para estudiantes de Puerto Rico
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
-            <div className="rounded-lg bg-muted p-4">
-              <h3 className="font-semibold mb-2">Contenido a Generar:</h3>
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• 4 Lecciones Principales (Parent Lessons)</li>
-                <li>• 24 Ejercicios (6 por lección)</li>
-                <li>• Tipos: Multiple Choice, Drag & Drop (letras e imágenes), Fill Blank, Write Answer, True/False</li>
-                <li>• Temas: Conciencia Fonémica (Letras M y S), El Coquí, Comida Boricua</li>
-                <li>• Imágenes de Pexels integradas</li>
-                <li>• Guía de voz en español puertorriqueño</li>
-              </ul>
+            {/* Grade Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="grade-select">Selecciona el Grado</Label>
+              <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+                <SelectTrigger id="grade-select" className="w-full">
+                  <SelectValue placeholder="Selecciona un grado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Primer Grado (1°)</SelectItem>
+                  <SelectItem value="2">Segundo Grado (2°)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <Button 
-              onClick={handleGenerate} 
+            <div className="rounded-lg bg-muted p-4">
+              <h3 className="font-semibold mb-2">Contenido a Generar:</h3>
+              {selectedGrade === "1" ? (
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>• 4 Lecciones Principales (Fonética básica)</li>
+                  <li>• 24 Ejercicios (6 por lección)</li>
+                  <li>• Tipos: Multiple Choice, Drag & Drop, Fill Blank, Write Answer, True/False</li>
+                  <li>• Temas: Letras M y S, El Coquí, Comida Boricua</li>
+                  <li>• Nivel: Conciencia fonémica básica</li>
+                  <li>• Imágenes de Pexels y guía de voz en español</li>
+                </ul>
+              ) : (
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>• 5 Dominios de Lectura (según estándares DEPR)</li>
+                  <li>• 32 Ejercicios totales (6-8 por dominio)</li>
+                  <li>• Dominio 1: Fonética avanzada (dígrafos CH, LL, RR)</li>
+                  <li>• Dominio 2: Fluidez lectora (80-120 palabras/min)</li>
+                  <li>• Dominio 3: Vocabulario (sinónimos, antónimos, lenguaje figurado)</li>
+                  <li>• Dominio 4: Comprensión literal</li>
+                  <li>• Dominio 5: Comprensión inferencial y pensamiento crítico</li>
+                  <li>• Contenido localizado para Puerto Rico</li>
+                </ul>
+              )}
+            </div>
+
+            <Button
+              onClick={handleGenerate}
               disabled={isGenerating}
               size="lg"
               className="w-full"
@@ -66,10 +105,10 @@ export default function GenerateContentAdmin() {
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generando Contenido...
+                  Generando Contenido para {selectedGrade === "1" ? "Primer" : "Segundo"} Grado...
                 </>
               ) : (
-                "Generar Contenido Ahora"
+                `Generar Contenido de ${selectedGrade === "1" ? "Primer" : "Segundo"} Grado`
               )}
             </Button>
           </div>
@@ -127,7 +166,7 @@ export default function GenerateContentAdmin() {
                   <AlertCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div className="text-sm">
                     <p className="font-semibold mb-1">Próximos Pasos:</p>
-                    <p>Ve al Dashboard de Estudiantes (Grado 1) para ver y probar las nuevas lecciones y ejercicios.</p>
+                    <p>Ve al Dashboard de Estudiantes (Grado {selectedGrade === "1" ? "1" : "2"}) para ver y probar las nuevas lecciones y ejercicios.</p>
                   </div>
                 </div>
               </div>
