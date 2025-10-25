@@ -30,9 +30,12 @@ export const useResetProgress = () => {
         ),
       });
       
-      // Invalidate all relevant queries
+      // Invalidate all relevant queries to refresh UI
       queryClient.invalidateQueries({ queryKey: ["student-progress"] });
       queryClient.invalidateQueries({ queryKey: ["completed-activities"] });
+      queryClient.invalidateQueries({ queryKey: ["completed-exercises"] });
+      queryClient.invalidateQueries({ queryKey: ["lesson-exercise-progress"] });
+      queryClient.invalidateQueries({ queryKey: ["lesson-lock-status"] });
     },
     onError: (error) => {
       console.error("Error resetting progress:", error);
