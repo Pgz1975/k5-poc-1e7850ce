@@ -38,19 +38,34 @@ export default function ViewLesson() {
 
   // Check if lesson is locked
   const { data: lockData, isLoading: lockLoading } = useQuery({
-    queryKey: ["lesson-lock-status", id, profile?.gradeLevel],
+    queryKey: ["lesson-lock-status", id, profile?.gradeLevel, profile?.learningLanguages],
     queryFn: async () => {
       if (!id || !profile?.gradeLevel) return { isLocked: false };
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return { isLocked: false };
 
-      // Get ordering for this grade
+      // Get ordering for this grade, filtered by student's learning languages
       const { data: ordering } = await supabase
         .from("lesson_ordering")
-        .select("id, assessment_id, display_order")
+        .select(`
+          id, 
+          assessment_id, 
+          display_order,
+          manual_assessments!lesson_ordering_assessment_id_fkey (language)
+        `)
         .eq("grade_level", profile.gradeLevel)
         .order("display_order");
+
+      // Filter ordering to only include lessons in student's learning languages
+      const filteredOrdering = ordering?.filter(o => {
+        const lesson = o.manual_assessments as any;
+        return lesson && (profile.learningLanguages ?? ["es", "en"]).includes(lesson.language);
+      }).map(o => ({
+        id: o.id,
+        assessment_id: o.assessment_id,
+        display_order: o.display_order
+      })) ?? [];
 
       // Get completed activities
       const { data: completed } = await supabase
@@ -59,12 +74,12 @@ export default function ViewLesson() {
         .eq("student_id", user.id)
         .eq("activity_type", "lesson");
 
-      if (!ordering || !completed) return { isLocked: false };
+      if (!filteredOrdering || !completed) return { isLocked: false };
 
-      const isLocked = checkLessonLocked(id, ordering, completed);
+      const isLocked = checkLessonLocked(id, filteredOrdering, completed);
       return { isLocked };
     },
-    enabled: !!id && !!profile?.gradeLevel,
+    enabled: !!id && !!profile?.gradeLevel && !!profile?.learningLanguages,
   });
 
   const handleComplete = async () => {
