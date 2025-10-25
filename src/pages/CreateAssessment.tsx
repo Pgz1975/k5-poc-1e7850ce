@@ -558,12 +558,12 @@ export default function CreateAssessment({
       let savedAssessment;
       
       if (editId) {
-        // UPDATE existing assessment
+        // UPDATE existing assessment - DEBUG MODE: No created_by filter
         const { data: updated, error } = await supabase
           .from('manual_assessments')
           .update(payload)
           .eq('id', editId)
-          .eq('created_by', user.id)
+          // DEBUG MODE: No created_by filter - allow updating any activity
           .select()
           .single();
         
