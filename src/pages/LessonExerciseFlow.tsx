@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,7 +17,8 @@ export default function LessonExerciseFlow() {
   const { t } = useLanguage();
   const queryClient = useQueryClient();
 
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+  const hasInitialized = useRef(false);
+  const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [exerciseScores, setExerciseScores] = useState<Map<string, number>>(new Map());
   const [showCelebration, setShowCelebration] = useState(false);
@@ -46,13 +47,21 @@ export default function LessonExerciseFlow() {
         .from('manual_assessments')
         .select('*')
         .eq('parent_lesson_id', lessonId)
-        .order('order_in_lesson');
+        .order('order_in_lesson', { ascending: true })
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
       return data || [];
     },
     enabled: !!lessonId,
   });
+
+  // Derive current exercise index from ID
+  const currentExerciseIndex = useMemo(() => {
+    if (!exercises || !currentExerciseId) return 0;
+    const idx = exercises.findIndex(e => e.id === currentExerciseId);
+    return idx === -1 ? 0 : idx;
+  }, [exercises, currentExerciseId]);
 
   // Fetch completed exercises
   const { data: completedData } = useQuery({
@@ -73,25 +82,28 @@ export default function LessonExerciseFlow() {
     enabled: !!user?.id && !!exercises && exercises.length > 0,
   });
 
-  // Initialize completed exercises and scores
+  // Initialize completed exercises and scores (only once on first load)
   useEffect(() => {
-    if (completedData) {
+    if (completedData && exercises && exercises.length > 0) {
       const completedIds = new Set(completedData.map(c => c.activity_id));
       const scores = new Map(completedData.map(c => [c.activity_id, c.score || 0]));
       
+      // Always update local state from server data
       setCompletedExercises(completedIds);
       setExerciseScores(scores);
 
-      // Find first incomplete exercise
-      if (exercises) {
-        const firstIncomplete = exercises.findIndex(ex => !completedIds.has(ex.id));
+      // Only set the initial exercise position once
+      if (!hasInitialized.current) {
+        const firstIncomplete = exercises.find(ex => !completedIds.has(ex.id));
         
-        if (firstIncomplete === -1) {
+        if (!firstIncomplete) {
           // All exercises completed - show celebration
           setShowCelebration(true);
         } else {
-          setCurrentExerciseIndex(firstIncomplete);
+          // Set the starting exercise by ID
+          setCurrentExerciseId(firstIncomplete.id);
         }
+        hasInitialized.current = true;
       }
     }
   }, [completedData, exercises]);
@@ -123,32 +135,41 @@ export default function LessonExerciseFlow() {
     const exercise = exercises[currentExerciseIndex];
 
     if (passed) {
+      // Optimistically update local state first
+      const newCompletedSet = new Set(completedExercises);
+      newCompletedSet.add(exerciseId);
+      
+      setCompletedExercises(newCompletedSet);
+      setExerciseScores(prev => {
+        const newMap = new Map(prev);
+        const currentBest = newMap.get(exerciseId) || 0;
+        newMap.set(exerciseId, Math.max(currentBest, score));
+        return newMap;
+      });
+
+      // Determine next exercise deterministically
+      const nextIncomplete = exercises.find((ex, idx) => 
+        idx > currentExerciseIndex && !newCompletedSet.has(ex.id)
+      );
+      
+      if (nextIncomplete) {
+        // Found an incomplete exercise ahead - go there
+        toast.success(t('¡Ejercicio completado!', 'Exercise completed!'));
+        setCurrentExerciseId(nextIncomplete.id);
+      } else if (currentExerciseIndex < exercises.length - 1) {
+        // No incomplete ahead, but there are more exercises - go to next sequential
+        toast.success(t('¡Ejercicio completado!', 'Exercise completed!'));
+        setCurrentExerciseId(exercises[currentExerciseIndex + 1].id);
+      } else {
+        // This was the last exercise
+        setShowCelebration(true);
+      }
+
+      // Save to database
       try {
-        // Check if we should update (only if new score is better)
         const existingScore = exerciseScores.get(exerciseId);
-        
         if (!existingScore || score > existingScore) {
           await saveCompletionMutation.mutateAsync({ exerciseId, score });
-        }
-        
-        // ALWAYS update local state when passed (regardless of score comparison)
-        setCompletedExercises(prev => new Set(prev).add(exerciseId));
-        setExerciseScores(prev => {
-          const newMap = new Map(prev);
-          const currentBest = newMap.get(exerciseId) || 0;
-          newMap.set(exerciseId, Math.max(currentBest, score));
-          return newMap;
-        });
-
-        // Move to next exercise or show celebration
-        if (currentExerciseIndex < exercises.length - 1) {
-          toast.success(t('¡Ejercicio completado!', 'Exercise completed!'));
-          // Small delay to show toast before switching
-          setTimeout(() => {
-            setCurrentExerciseIndex(prev => prev + 1);
-          }, 500);
-        } else {
-          setShowCelebration(true);
         }
       } catch (error) {
         console.error('Error saving exercise completion:', error);
@@ -224,28 +245,39 @@ export default function LessonExerciseFlow() {
 
       {/* Exercise Navigation Menu */}
       <div className="flex gap-2 overflow-x-auto mb-6 pb-2">
-        {exercises.map((ex, idx) => (
-          <button
-            key={ex.id}
-            onClick={() => idx <= currentExerciseIndex && setCurrentExerciseIndex(idx)}
-            disabled={idx > currentExerciseIndex}
-            className={`
-              w-12 h-12 rounded-full flex items-center justify-center font-bold
-              transition-all flex-shrink-0
-              ${completedExercises.has(ex.id) 
-                ? 'bg-success text-success-foreground' 
-                : idx === currentExerciseIndex 
-                  ? 'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2' 
-                  : idx > currentExerciseIndex
-                    ? 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-              }
-            `}
-            aria-label={t(`Ejercicio ${idx + 1}`, `Exercise ${idx + 1}`)}
-          >
-            {idx + 1}
-          </button>
-        ))}
+        {exercises.map((ex, idx) => {
+          const isCurrent = ex.id === currentExerciseId;
+          const isCompleted = completedExercises.has(ex.id);
+          const highestCompleted = Math.max(-1, ...Array.from(completedExercises).map(id => 
+            exercises.findIndex(e => e.id === id)
+          ));
+          const maxUnlocked = highestCompleted + 1;
+          const isLocked = idx > maxUnlocked;
+          
+          return (
+            <button
+              key={ex.id}
+              onClick={() => !isLocked && setCurrentExerciseId(ex.id)}
+              disabled={isLocked}
+              className={`
+                w-12 h-12 rounded-full flex items-center justify-center font-bold
+                transition-all flex-shrink-0
+                ${isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''}
+                ${isCompleted 
+                  ? 'bg-success text-success-foreground' 
+                  : isCurrent 
+                    ? 'bg-primary text-primary-foreground' 
+                    : isLocked
+                      ? 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                }
+              `}
+              aria-label={t(`Ejercicio ${idx + 1}`, `Exercise ${idx + 1}`)}
+            >
+              {idx + 1}
+            </button>
+          );
+        })}
       </div>
 
       {/* Current Exercise */}
