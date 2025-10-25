@@ -6,11 +6,17 @@
 
 ---
 
-## 🔌 OpenAI Realtime API Integration
+## 🔌 Realtime Voice Integration
 
-### API Endpoint
+### Architecture Overview
+- Browser connects to `RealtimeVoiceClientEnhanced` (WebSocket + AudioWorklet).
+- Client talks to Supabase Edge relay (`realtime-voice-relay`) instead of hitting OpenAI directly.
+- Relay maintains the upstream OpenAI Realtime WebSocket and streams audio/text back and forth with zero delay.
+- Supabase Edge function `realtime-token-enhanced` still creates sessions/tokens with OpenAI on demand.
+
+### Client Endpoint
 ```
-wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17
+wss://{SUPABASE_PROJECT}.supabase.co/functions/v1/realtime-voice-relay?student_id={id}&language={es-PR|en-US}&model=gpt-realtime-2025-08-28
 ```
 
 ### Authentication
@@ -110,117 +116,31 @@ const sessionConfig: RealtimeSessionConfig = {
 ## 📡 WebRTC Connection Flow
 
 ### 1. Token Generation (Supabase Edge Function)
-```typescript
-// POST /functions/v1/realtime-token-enhanced
-async function generateToken(request: Request) {
-  const { studentId, language, gradeLevel, assessmentId, voiceGuidance } = await request.json();
+- Endpoint: `POST /functions/v1/realtime-token-enhanced`
+- Source of truth: `supabase/functions/realtime-token-enhanced/index.ts`
+- Responsibilities:
+  1. Fetch optional assessment context (`manual_assessments`).
+  2. Build instructions + pick appropriate voice.
+  3. Call `https://api.openai.com/v1/realtime/sessions` with `gpt-realtime-2025-08-28`.
+  4. Persist `voice_sessions` record (session id, student id, model, etc.).
+  5. Return session payload to the caller (Lovable app or relay).
 
-  // Build context-aware instructions
-  const instructions = buildInstructions({
-    language,
-    gradeLevel,
-    voiceGuidance,
-    assessmentContent
-  });
+### 2. WebSocket Relay (Supabase Edge Function)
+- Endpoint: `wss://.../functions/v1/realtime-voice-relay`
+- Source: `supabase/functions/realtime-voice-relay/index.ts`
+- Responsibilities:
+  1. Upgrade client WebSocket, connect upstream to OpenAI Realtime via API key.
+  2. Stream `response.audio.delta` packets immediately down to the browser.
+  3. Forward user input events (audio append, conversation items) upstream.
+  4. Log VAD events (e.g., `input_audio_buffer.speech_started`) for telemetry.
+  5. Close both sockets gracefully on either side disconnect.
 
-  // Create session with OpenAI
-  const response = await fetch("https://api.openai.com/v1/realtime/sessions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${OPENAI_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-realtime-preview-2024-12-17",
-      voice: getVoiceForLanguage(language),
-      instructions,
-      turn_detection: {
-        type: "server_vad",
-        threshold: 0.5,
-        silence_duration_ms: 500
-      }
-    })
-  });
-
-  const sessionData = await response.json();
-
-  // Log session for tracking
-  await supabase.from('voice_sessions').insert({
-    session_id: sessionData.id,
-    student_id: studentId,
-    assessment_id: assessmentId,
-    language,
-    grade_level: gradeLevel
-  });
-
-  return sessionData;
-}
-```
-
-### 2. WebRTC Negotiation
-```typescript
-class CoquiRealtimeConnection {
-  private pc: RTCPeerConnection;
-  private dc: RTCDataChannel;
-
-  async connect(token: string) {
-    // Create peer connection
-    this.pc = new RTCPeerConnection({
-      iceServers: [],
-      bundlePolicy: 'max-bundle',
-      rtcpMuxPolicy: 'require'
-    });
-
-    // Add microphone track
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        sampleRate: 24000, // Required by OpenAI
-        channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      }
-    });
-
-    stream.getTracks().forEach(track => {
-      this.pc.addTrack(track, stream);
-    });
-
-    // Create data channel for events
-    this.dc = this.pc.createDataChannel('oai-events', {
-      ordered: true,
-      maxRetransmits: 3
-    });
-
-    // Create offer
-    const offer = await this.pc.createOffer();
-    await this.pc.setLocalDescription(offer);
-
-    // Exchange SDP with OpenAI
-    const answer = await this.exchangeSDP(offer.sdp!, token);
-    await this.pc.setRemoteDescription({
-      type: 'answer',
-      sdp: answer
-    });
-  }
-
-  private async exchangeSDP(offerSdp: string, token: string): Promise<string> {
-    const response = await fetch(
-      'https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/sdp'
-        },
-        body: offerSdp
-      }
-    );
-
-    return response.text();
-  }
-}
-```
+### 3. Browser Client
+- File: `src/utils/realtime/RealtimeVoiceClientEnhanced.ts`
+- Highlights:
+  - Uses `AudioWorklet` to capture PCM16 at 24 kHz and streams via relay WebSocket.
+  - Maintains jitter buffer, heartbeat, reconnection logic.
+  - Emits callbacks consumed by `useRealtimeVoice` (`onTranscription`, `onAudioPlayback`, `onAudioLevel`, etc.).
 
 ---
 
@@ -228,7 +148,7 @@ class CoquiRealtimeConnection {
 
 ### Client to Server Events
 
-#### 1. Text Message
+#### 1. Text Message (Data Channel Message via Relay)
 ```typescript
 interface TextMessageEvent {
   type: "conversation.item.create";
@@ -256,7 +176,7 @@ this.dc.send(JSON.stringify({
 }));
 ```
 
-#### 2. Audio Control
+#### 2. Audio Control (WebSocket JSON payloads routed through relay)
 ```typescript
 interface AudioControlEvent {
   type: "input_audio_buffer.commit" | "input_audio_buffer.clear";

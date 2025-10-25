@@ -14,9 +14,9 @@ Based on feedback, we've updated the approach to prioritize **natural, uninterru
 
 ### Key Changes in V2:
 - ✅ **No cost-based interruptions** during conversations
-- ✅ **15-second inactivity detection** with friendly warning
-- ✅ **Visual countdown indicator** near Coqui
-- ✅ **Easy session restart** with single click
+- ⬜ **15-second inactivity detection** with friendly warning (planned)
+- ⬜ **Visual countdown indicator** near Coqui (planned)
+- ⬜ **Easy session restart** with single click after timeout (planned)
 - ✅ **Demo-first approach** - prove value before optimizing costs
 
 ---
@@ -163,10 +163,10 @@ src/services/coqui/
 ## 🛠️ Implementation Phases
 
 ### Phase 1: Core Demo Features (Weeks 1-3)
-- ✅ Natural conversation flow
-- ✅ Inactivity detection system
-- ✅ Visual timeout indicator
-- ✅ Session restart capability
+- ✅ Natural conversation flow (baseline ✅ via `useRealtimeVoice`)
+- ⬜ Inactivity detection system (pending hook work)
+- ⬜ Visual timeout indicator (pending UI component)
+- ⬜ Session restart capability (basic connect/disconnect works; needs timeout integration)
 
 ### Phase 2: Intelligence (Weeks 4-5)
 - [ ] Context-aware responses
@@ -255,9 +255,9 @@ A: **No**. It's designed to be friendly and encouraging, not stressful.
 
 ### Demo Launch Requirements
 1. ✅ Natural conversation flow working
-2. ✅ 15-second inactivity detection implemented
-3. ✅ Visual countdown indicator ready
-4. ✅ Session restart capability tested
+2. ⬜ 15-second inactivity detection implemented
+3. ⬜ Visual countdown indicator ready
+4. ⬜ Session restart capability tested (post-timeout)
 5. ⏳ Pilot group identified
 6. ⏳ Metrics collection configured
 
@@ -272,6 +272,6 @@ A: **No**. It's designed to be friendly and encouraging, not stressful.
 
 ---
 
-**Document Status**: ✅ Updated for V2 Implementation
+**Document Status**: ⚠️ Pending implementation of timeout UX (baseline voice ready)
 
 *Last Updated: October 25, 2025*

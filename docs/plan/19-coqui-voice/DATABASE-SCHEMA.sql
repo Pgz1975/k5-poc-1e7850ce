@@ -1,6 +1,8 @@
--- Coqui Voice Integration - Complete Database Schema
+-- Coqui Voice Integration - Database Targets (Not Yet Migrated)
 -- Version: 1.0
 -- Date: October 25, 2025
+-- NOTE: These definitions describe upcoming tables/columns.
+--       Supabase migrations have NOT been generated yet; treat as backlog items.
 
 -- ============================================
 -- CORE TABLES
