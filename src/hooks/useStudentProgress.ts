@@ -114,12 +114,13 @@ export const useStudentProgress = ({
       let activitiesError: any = null;
 
       if (activityType === "exercise") {
-        // Exercises are child activities; access controlled via parent lesson policies
+        // Exercises are child activities; filter by language
         const { data, error } = await supabase
           .from("manual_assessments")
           .select("id, title, description, estimated_duration_minutes")
           .eq("type", "exercise")
           .not("parent_lesson_id", "is", null)
+          .in("language", learningLanguages as ("es" | "en" | "es-PR")[])
           .order("created_at", { ascending: true });
         activities = data;
         activitiesError = error;
