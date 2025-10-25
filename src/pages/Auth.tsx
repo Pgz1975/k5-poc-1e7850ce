@@ -254,6 +254,7 @@ const Auth = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10"
+                        autoComplete="email"
                         required
                       />
                     </div>
@@ -271,6 +272,7 @@ const Auth = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10"
+                        autoComplete="current-password"
                         required
                       />
                     </div>
@@ -370,6 +372,7 @@ const Auth = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10"
+                        autoComplete="email"
                         required
                       />
                     </div>
@@ -387,6 +390,7 @@ const Auth = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10"
+                        autoComplete="new-password"
                         required
                       />
                     </div>
@@ -440,6 +444,7 @@ const Auth = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10"
+                        autoComplete="email"
                         required
                       />
                     </div>
