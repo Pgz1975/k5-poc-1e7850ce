@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LessonOrder, LessonWithOrder } from "@/types/lessonOrdering";
 import { toast } from "@/hooks/use-toast";
 
-export const useLessonOrdering = (gradeLevel: number) => {
+export const useLessonOrdering = (gradeLevel: number, learningLanguages: string[] = ["es", "en"]) => {
   const queryClient = useQueryClient();
 
   // Fetch ordering for a specific grade
@@ -23,9 +23,9 @@ export const useLessonOrdering = (gradeLevel: number) => {
 
   // Fetch all lessons for a grade with their ordering
   const { data: lessonsWithOrder } = useQuery({
-    queryKey: ['lessons-with-order', gradeLevel],
+    queryKey: ['lessons-with-order', gradeLevel, learningLanguages],
     queryFn: async () => {
-      // First get all published parent lessons for this grade
+      // First get all published parent lessons for this grade and languages
       const { data: assessments, error: assessError } = await supabase
         .from('manual_assessments')
         .select('id, title, description, type, grade_level, language, status, parent_lesson_id, order_in_lesson, estimated_duration_minutes, created_at')
@@ -33,6 +33,7 @@ export const useLessonOrdering = (gradeLevel: number) => {
         .eq('status', 'published')
         .eq('type', 'lesson') // Only lessons, not assessments or exercises
         .is('parent_lesson_id', null) // Only parent lessons, not child exercises
+        .in('language', learningLanguages as ("es" | "en" | "es-PR")[])
         .order('created_at');
       
       if (assessError) throw assessError;

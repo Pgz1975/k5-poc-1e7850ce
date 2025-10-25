@@ -30,7 +30,10 @@ export default function StudentLessonsProgress() {
     learningLanguages: profile?.learningLanguages ?? ["es", "en"],
   });
 
-  const { lessonsWithOrder } = useLessonOrdering(profile?.gradeLevel ?? 0);
+  const { lessonsWithOrder } = useLessonOrdering(
+    profile?.gradeLevel ?? 0,
+    profile?.learningLanguages ?? ["es", "en"]
+  );
 
   // Fetch exercise progress for all lessons
   const { data: exerciseProgressData } = useQuery({
@@ -43,8 +46,9 @@ export default function StudentLessonsProgress() {
       // Get all exercises for these lessons
       const { data: allExercises } = await supabase
         .from('manual_assessments')
-        .select('id, parent_lesson_id')
+        .select('id, parent_lesson_id, language')
         .in('parent_lesson_id', lessonIds)
+        .in('language', (profile?.learningLanguages ?? ["es", "en"]) as ("es" | "en" | "es-PR")[])
         .order('order_in_lesson');
 
       // Get completed exercises
