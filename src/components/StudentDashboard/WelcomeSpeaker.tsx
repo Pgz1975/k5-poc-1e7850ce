@@ -8,6 +8,7 @@ interface WelcomeSpeakerProps {
 
 export function WelcomeSpeaker({ language, onDone }: WelcomeSpeakerProps) {
   const [sent, setSent] = useState(false);
+  const [aiStarted, setAiStarted] = useState(false);
   const cleanupRef = useRef(false);
   
   const { connect, disconnect, sendText, isConnected, isAIPlaying } = useRealtimeVoice({
@@ -39,9 +40,17 @@ export function WelcomeSpeaker({ language, onDone }: WelcomeSpeakerProps) {
     }
   }, [isConnected, sent, language, sendText]);
 
-  // Cleanup after playback finishes
+  // Track when AI playback starts
   useEffect(() => {
-    if (sent && isConnected && !isAIPlaying && !cleanupRef.current) {
+    if (sent && isAIPlaying && !aiStarted) {
+      console.log('[WelcomeSpeaker] AI playback started');
+      setAiStarted(true);
+    }
+  }, [sent, isAIPlaying, aiStarted]);
+
+  // Cleanup after playback finishes (only after it has started)
+  useEffect(() => {
+    if (aiStarted && !isAIPlaying && !cleanupRef.current) {
       console.log('[WelcomeSpeaker] Playback finished, cleaning up...');
       cleanupRef.current = true;
       
@@ -52,7 +61,7 @@ export function WelcomeSpeaker({ language, onDone }: WelcomeSpeakerProps) {
       
       return () => clearTimeout(timer);
     }
-  }, [sent, isConnected, isAIPlaying, disconnect, onDone]);
+  }, [aiStarted, isAIPlaying, disconnect, onDone]);
 
   return null;
 }
