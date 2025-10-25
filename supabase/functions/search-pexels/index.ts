@@ -35,8 +35,13 @@ serve(async (req) => {
       throw new Error('query parameter is required');
     }
 
-    // Add kid-friendly filters to search
-    const kidFriendlyQuery = `${query} colorful child-friendly education`;
+    // Add kid-friendly filters to search only when appropriate
+    // For object/item searches, add "toy" prefix instead of generic education terms
+    const needsToyPrefix = !query.toLowerCase().includes('classroom') && 
+                          !query.toLowerCase().includes('school') && 
+                          !query.toLowerCase().includes('teacher');
+    
+    const kidFriendlyQuery = needsToyPrefix ? `toy ${query} colorful` : `${query} colorful child-friendly`;
 
     const pexelsResponse = await fetch(
       `https://api.pexels.com/v1/search?query=${encodeURIComponent(kidFriendlyQuery)}&per_page=${perPage}&orientation=landscape`,
