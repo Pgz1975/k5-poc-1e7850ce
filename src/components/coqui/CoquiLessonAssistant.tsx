@@ -44,6 +44,7 @@ export const CoquiLessonAssistant = ({
     startSession,
     endSession,
     resetTimeout,
+    sendText,
     inactivityStatus
   } = useCoquiSession({
     activityId,
@@ -80,6 +81,37 @@ export const CoquiLessonAssistant = ({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Auto-start voice session for lessons (not exercises)
+  useEffect(() => {
+    if (activityType === 'lesson' && !isConnected && !isConnecting) {
+      const autoStart = async () => {
+        console.log('[CoquiLessonAssistant] 🚀 Auto-starting for lesson');
+        setIsPanelOpen(true);
+        setMascotState('loading');
+        
+        try {
+          await startSession();
+          setMascotState('happy');
+          
+          const greeting = t(
+            "¡Hola! Estoy aquí para ayudarte con esta lección. Puedes hacerme cualquier pregunta.",
+            "Hi! I'm here to help you with this lesson. Feel free to ask me anything."
+          );
+          
+          setTimeout(() => {
+            sendText(greeting);
+          }, 1000);
+        } catch (error) {
+          console.error('[CoquiLessonAssistant] Auto-start failed:', error);
+          setMascotState('neutral');
+          setIsPanelOpen(false);
+        }
+      };
+      
+      autoStart();
+    }
+  }, [activityType, isConnected, isConnecting, startSession, sendText, t]);
 
   const handleMascotClick = async () => {
     if (isConnected) {

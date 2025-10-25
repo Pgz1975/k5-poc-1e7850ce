@@ -117,6 +117,7 @@ export function useCoquiSession({ activityId, activityType, voiceGuidance }: Use
     startSession,
     endSession,
     resetTimeout,
+    sendText,
     inactivityStatus: inactivity.status
   };
 }
