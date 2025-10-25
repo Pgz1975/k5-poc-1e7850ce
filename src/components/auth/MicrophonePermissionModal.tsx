@@ -21,43 +21,42 @@ export const MicrophonePermissionModal = ({
   const { language: contextLanguage } = useLanguage();
   const [language, setLanguage] = useState<'es' | 'en'>(contextLanguage === 'es' ? 'es' : 'en');
   const [isRequesting, setIsRequesting] = useState(false);
-  const [mascotState, setMascotState] = useState<"happy" | "speaking">("happy");
+  const [isPlayingWelcome, setIsPlayingWelcome] = useState(false);
+  const [mascotState, setMascotState] = useState<"happy" | "speaking" | "loading">("happy");
 
   const { connect, disconnect, sendText, isConnected, isAIPlaying } = useRealtimeVoice({
     studentId: 'welcome-modal',
     language: language === 'es' ? 'es-PR' : 'en-US'
   });
 
+  // Update mascot state based on AI playing status
   useEffect(() => {
-    if (isOpen && !isConnected) {
-      // Connect voice and send greeting
-      const initVoice = async () => {
-        try {
-          await connect();
-          const greeting = language === 'es' 
-            ? "¡Hola! Soy tu amigo Coquí. Necesito que me permitas usar tu micrófono para poder ayudarte con tus lecciones de lectura. ¿Me das permiso?"
-            : "Hi! I'm your friend Coquí. I need you to allow me to use your microphone so I can help you with your reading lessons. Will you give me permission?";
-          
-          setTimeout(() => {
-            sendText(greeting);
-          }, 1000);
-        } catch (error) {
-          console.error('[MicPermissionModal] Failed to connect voice:', error);
-        }
-      };
-      initVoice();
+    if (isPlayingWelcome) {
+      setMascotState(isAIPlaying ? "speaking" : "happy");
     }
-    
+  }, [isAIPlaying, isPlayingWelcome]);
+
+  // Close modal after welcome message finishes
+  useEffect(() => {
+    if (isPlayingWelcome && !isAIPlaying && isConnected) {
+      const cleanup = async () => {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        disconnect();
+        setIsPlayingWelcome(false);
+        onPermissionGranted();
+      };
+      cleanup();
+    }
+  }, [isPlayingWelcome, isAIPlaying, isConnected]);
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
       if (isConnected) {
         disconnect();
       }
     };
-  }, [isOpen]);
-
-  useEffect(() => {
-    setMascotState(isAIPlaying ? "speaking" : "happy");
-  }, [isAIPlaying]);
+  }, [isConnected]);
 
   const content = {
     es: {
@@ -101,6 +100,7 @@ export const MicrophonePermissionModal = ({
   const requestMicrophonePermission = async () => {
     setIsRequesting(true);
     try {
+      // Request browser permission
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       // Stop the tracks immediately - we just needed permission
       stream.getTracks().forEach(track => track.stop());
@@ -108,8 +108,20 @@ export const MicrophonePermissionModal = ({
       toast.success(t.success, {
         icon: '🐸'
       });
+
+      // Now connect to voice service and send welcome message
+      setMascotState("loading");
+      await connect();
       
-      onPermissionGranted();
+      const welcomeMessage = language === 'es'
+        ? "¡Perfecto! Ya tengo permiso para usar tu micrófono. Cuando quieras hablar conmigo durante tus lecciones, solo haz clic sobre mí y estaré listo para ayudarte."
+        : "Perfect! I now have permission to use your microphone. When you want to talk to me during your lessons, just click on me and I'll be ready to help you.";
+      
+      setIsPlayingWelcome(true);
+      setTimeout(() => {
+        sendText(welcomeMessage);
+      }, 500);
+      
     } catch (error) {
       console.error('Microphone permission error:', error);
       toast.error(t.error, {
