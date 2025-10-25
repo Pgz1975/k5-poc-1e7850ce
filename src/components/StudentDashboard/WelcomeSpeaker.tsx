@@ -10,7 +10,11 @@ export function WelcomeSpeaker({ language, onDone }: WelcomeSpeakerProps) {
   const [sent, setSent] = useState(false);
   const cleanupRef = useRef(false);
   
+  // Use special voice guidance to make AI just read the text without adding commentary
   const { connect, disconnect, sendText, isConnected } = useRealtimeVoice({
+    studentId: 'welcome-speaker',
+    language: language === 'es' ? 'es-PR' : 'en-US',
+    voiceGuidance: 'You are a text-to-speech system. Read EXACTLY what the user provides, word for word, with appropriate emotion and Puerto Rican Spanish pronunciation. Do not add any commentary, greetings, or extra words. Just read the text provided.',
     onResponseComplete: () => {
       // Wait for complete response, then cleanup
       if (!cleanupRef.current) {
