@@ -262,7 +262,7 @@ function handleSessionCreated(session: SessionState): void {
         model: 'whisper-1'
       },
       temperature: 0.8,
-      max_response_output_tokens: 16384
+      max_response_output_tokens: 4096
     },
   };
 
