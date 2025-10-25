@@ -94,8 +94,9 @@ export function ImagePasteZone({ onImageUploaded, currentImage, correctAnswer }:
     try {
       console.log('Fetching Pexels image for:', query);
       
+      // Request multiple images and pick a random one to avoid caching
       const { data, error } = await supabase.functions.invoke('search-pexels', {
-        body: { query: query.trim(), per_page: 1 }
+        body: { query: query.trim(), per_page: 15 }
       });
 
       console.log('Pexels response:', { data, error });
@@ -107,23 +108,28 @@ export function ImagePasteZone({ onImageUploaded, currentImage, correctAnswer }:
 
       // Handle the new response structure with images array
       if (data?.images && data.images.length > 0) {
-        const imageUrl = data.images[0].url;
+        // Pick a random image from results
+        const randomIndex = Math.floor(Math.random() * data.images.length);
+        const selectedImage = data.images[randomIndex];
+        const imageUrl = selectedImage.url;
         setPreviewUrl(imageUrl);
         onImageUploaded(imageUrl);
         
         toast({
           title: t("¡Imagen encontrada!", "Image found!"),
-          description: t(`Imagen de ${data.images[0].photographer}`, `Image by ${data.images[0].photographer}`)
+          description: t(`Imagen de ${selectedImage.photographer}`, `Image by ${selectedImage.photographer}`)
         });
       } else if (data?.photos && data.photos.length > 0) {
-        // Fallback for old response format
-        const imageUrl = data.photos[0].src.large;
+        // Fallback for old response format - pick random
+        const randomIndex = Math.floor(Math.random() * data.photos.length);
+        const selectedPhoto = data.photos[randomIndex];
+        const imageUrl = selectedPhoto.src.large;
         setPreviewUrl(imageUrl);
         onImageUploaded(imageUrl);
         
         toast({
           title: t("¡Imagen encontrada!", "Image found!"),
-          description: t(`Imagen de ${data.photos[0].photographer}`, `Image by ${data.photos[0].photographer}`)
+          description: t(`Imagen de ${selectedPhoto.photographer}`, `Image by ${selectedPhoto.photographer}`)
         });
       } else {
         toast({
