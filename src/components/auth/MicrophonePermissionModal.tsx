@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import CoquiMascot from "@/components/CoquiMascot";
 import { Mic, Globe } from "lucide-react";
 import { toast } from "sonner";
+import { useRealtimeVoice } from "@/hooks/useRealtimeVoice";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MicrophonePermissionModalProps {
   isOpen: boolean;
@@ -16,8 +18,46 @@ export const MicrophonePermissionModal = ({
   onPermissionGranted,
   onPermissionDenied,
 }: MicrophonePermissionModalProps) => {
-  const [language, setLanguage] = useState<'es' | 'en'>('es');
+  const { language: contextLanguage } = useLanguage();
+  const [language, setLanguage] = useState<'es' | 'en'>(contextLanguage === 'es' ? 'es' : 'en');
   const [isRequesting, setIsRequesting] = useState(false);
+  const [mascotState, setMascotState] = useState<"happy" | "speaking">("happy");
+
+  const { connect, disconnect, sendText, isConnected, isAIPlaying } = useRealtimeVoice({
+    studentId: 'welcome-modal',
+    language: language === 'es' ? 'es-PR' : 'en-US'
+  });
+
+  useEffect(() => {
+    if (isOpen && !isConnected) {
+      // Connect voice and send greeting
+      const initVoice = async () => {
+        try {
+          await connect();
+          const greeting = language === 'es' 
+            ? "¡Hola! Soy tu amigo Coquí. Necesito que me permitas usar tu micrófono para poder ayudarte con tus lecciones de lectura. ¿Me das permiso?"
+            : "Hi! I'm your friend Coquí. I need you to allow me to use your microphone so I can help you with your reading lessons. Will you give me permission?";
+          
+          setTimeout(() => {
+            sendText(greeting);
+          }, 1000);
+        } catch (error) {
+          console.error('[MicPermissionModal] Failed to connect voice:', error);
+        }
+      };
+      initVoice();
+    }
+    
+    return () => {
+      if (isConnected) {
+        disconnect();
+      }
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    setMascotState(isAIPlaying ? "speaking" : "happy");
+  }, [isAIPlaying]);
 
   const content = {
     es: {
@@ -84,6 +124,8 @@ export const MicrophonePermissionModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onPermissionDenied()}>
       <DialogContent className="sm:max-w-md">
+        <DialogTitle className="sr-only">{t.title}</DialogTitle>
+        <DialogDescription className="sr-only">{t.message}</DialogDescription>
         <div className="flex flex-col items-center space-y-4 py-4">
           {/* Language Toggle */}
           <Button
@@ -99,7 +141,7 @@ export const MicrophonePermissionModal = ({
           {/* Coquí Mascot */}
           <div className="relative">
             <CoquiMascot 
-              state="happy"
+              state={mascotState}
               size="medium"
               position="inline"
               className="animate-bounce-gentle"
