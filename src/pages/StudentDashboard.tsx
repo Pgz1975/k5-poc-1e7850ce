@@ -6,29 +6,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import { CoquiVoiceChat } from "@/components/StudentDashboard/CoquiVoiceChat";
 import CoquiMascot from "@/components/CoquiMascot";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { ActivityCards } from "@/components/StudentDashboard/ActivityCards";
-import { MicrophonePermissionModal } from "@/components/auth/MicrophonePermissionModal";
-import { WelcomeSpeaker } from "@/components/StudentDashboard/WelcomeSpeaker";
-import { useAuth } from "@/contexts/AuthContext";
 
 const StudentDashboard = () => {
-  const { t, language } = useLanguage();
-  const { micPermissionRequested, setMicPermissionRequested } = useAuth();
+  const { t } = useLanguage();
   const [mascotState, setMascotState] = useState("happy");
-  const [showWelcomeSpeaker, setShowWelcomeSpeaker] = useState(false);
-  const prevPermRef = useRef(micPermissionRequested);
   const { data: profile, isLoading } = useStudentProfile();
-
-  // Trigger welcome speaker when permission is granted
-  useEffect(() => {
-    if (!prevPermRef.current && micPermissionRequested) {
-      console.log('[StudentDashboard] Permission granted, triggering welcome speaker');
-      setShowWelcomeSpeaker(true);
-    }
-    prevPermRef.current = micPermissionRequested;
-  }, [micPermissionRequested]);
 
   const getGradeLabel = (gradeLevel: number) => {
     if (gradeLevel === 0) return t("Kindergarten", "Kindergarten");
@@ -49,24 +34,6 @@ const StudentDashboard = () => {
         <title>{t("Mi Panel - LecturaPR", "My Dashboard - LecturaPR")}</title>
         <meta name="description" content={t("Panel de estudiante", "Student dashboard")} />
       </Helmet>
-
-      {/* Microphone Permission Modal */}
-      <MicrophonePermissionModal
-        isOpen={!micPermissionRequested}
-        onPermissionGranted={() => setMicPermissionRequested(true)}
-        onPermissionDenied={() => setMicPermissionRequested(true)}
-      />
-
-      {/* Welcome Speaker - uses OpenAI Realtime with Puerto Rican accent */}
-      {showWelcomeSpeaker && (
-        <WelcomeSpeaker
-          language={language === 'es' ? 'es' : 'en'}
-          onDone={() => {
-            console.log('[StudentDashboard] Welcome speaker done');
-            setShowWelcomeSpeaker(false);
-          }}
-        />
-      )}
 
       <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-secondary/5 to-background">
         <Header />
