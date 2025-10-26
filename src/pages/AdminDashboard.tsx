@@ -320,6 +320,7 @@ const AdminDashboard = () => {
     { title: "Create Content", icon: PlusCircle, path: "/create-assessment" },
     { title: "Upload PDF", icon: Upload, path: "/pdf-demo" },
     { title: "Create Demo Users", icon: Settings, path: "/create-demo-users" },
+    { title: "Test G1 Reset", icon: Settings, path: "/admin/test-g1-reset" },
   ];
 
   return (
