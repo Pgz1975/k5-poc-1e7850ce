@@ -869,9 +869,21 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
     }
   }
 
-  // Create lesson_ordering records
+  // Create lesson_ordering records (auto-increment from existing max)
   const orderingRecords: any[] = [];
   console.log("📋 Creating lesson ordering records...");
+
+  // Find the current max display_order for grade 2
+  const { data: maxOrderData } = await supabase
+    .from('lesson_ordering')
+    .select('display_order')
+    .eq('grade_level', 2)
+    .order('display_order', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const startingDisplayOrder = (maxOrderData?.display_order || 0) + 1;
+  console.log(`📍 Starting display_order at: ${startingDisplayOrder}`);
 
   for (let i = 0; i < insertedParents.length; i++) {
     const parent = insertedParents[i];
@@ -880,7 +892,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
       .insert({
         grade_level: 2,
         assessment_id: parent.id,
-        display_order: i + 1,
+        display_order: startingDisplayOrder + i,
         parent_lesson_id: null,
         domain_name: parent.domainName,
         domain_order: parent.domainOrder
@@ -894,6 +906,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
     }
 
     orderingRecords.push(orderData);
+    console.log(`  ✅ Ordering record ${i + 1}/5 created (display_order: ${startingDisplayOrder + i})`);
   }
 
   console.log("✅ Grade 2 Spanish Content V2 generation complete!");
