@@ -24,7 +24,7 @@
  “Vamos a leer juntos. Repite después de mí.”  
  “Muy bien, lograste un nuevo nivel de lectura. ¡Sigue practicando\!”
 
-**Integración de imágenes y audios: Mostrar íconos o ilustraciones  para mantener la atención y reforzar el contexto académico.**
+**Integración de imágenes: Mostrar íconos o ilustraciones  para mantener la atención y reforzar el contexto académico.**
 
 **MÓDULO DE LECTURA ESPAÑOL INTERACTIVA – SEGUNDO GRADO (IA Adaptativa)**
 

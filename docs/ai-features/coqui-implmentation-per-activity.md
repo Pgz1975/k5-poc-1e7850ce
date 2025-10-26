@@ -1,13 +1,3 @@
-I'll investigate the different Coqui implementations across activity types by examining the relevant files.
-
-Now let me search for the voice context configuration patterns:
-
-Let me also check the voice guidance defaults:
-
-Perfect! Now I have a comprehensive understanding. Let me compile the information about Coquí implementations across different activity types.
-
----
-
 ## Coquí Implementation Adaptations by Activity Type
 
 Based on my analysis of the codebase, here are the **different adaptations of the Coquí implementation according to activity types**:
