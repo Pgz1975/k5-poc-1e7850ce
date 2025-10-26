@@ -48,7 +48,8 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
     isConnecting,
     isAIPlaying,
     sendText,
-    transcript
+    transcript,
+    client
   } = useRealtimeVoice({
     studentId: user?.id,
     language: targetLanguage,
@@ -95,6 +96,7 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
     transcript,
     startSession,
     endSession,
-    sendText
+    sendText,
+    client
   };
 }

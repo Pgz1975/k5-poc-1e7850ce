@@ -45,6 +45,7 @@ export class RealtimeVoiceClientEnhanced {
   private serverVADEnabled = true; // rely on server VAD; skip manual commits when true
   private appendedSamplesSinceLastCommit = 0;
   private minCommitSamples = 2400; // 100ms at 24kHz
+  private isResponseInProgress = false; // track if AI is generating a response
 
   constructor(config: RealtimeVoiceConfig = {}) {
     this.config = config;
@@ -287,10 +288,12 @@ export class RealtimeVoiceClientEnhanced {
 
         case 'response.created':
           console.log('[RealtimeVoiceClient] 🎬 AI response started');
+          this.isResponseInProgress = true;
           break;
 
         case 'response.done':
           console.log('[RealtimeVoiceClient] ✅ AI response completed');
+          this.isResponseInProgress = false;
           this.config.onResponseComplete?.();
           break;
 
@@ -426,6 +429,12 @@ export class RealtimeVoiceClientEnhanced {
       }
     }));
 
+    // Only trigger response.create if no response is currently in progress
+    if (this.isResponseInProgress) {
+      console.warn('[RealtimeVoiceClient] ⏭️ Response already in progress, skipping response.create');
+      return;
+    }
+
     this.ws.send(JSON.stringify({ type: 'response.create' }));
   }
 
@@ -451,7 +460,22 @@ export class RealtimeVoiceClientEnhanced {
     
     this.audioWorklet?.disconnect();
     this.mediaStream?.getTracks().forEach(track => track.stop());
-    this.audioContext?.close();
+    
+    // Close AudioContext safely
+    if (this.audioContext) {
+      try {
+        this.audioContext.close();
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Cannot close a closed AudioContext')) {
+          console.log('[RealtimeVoiceClient] ⚠️ AudioContext already closed, ignoring error');
+        } else {
+          throw error;
+        }
+      } finally {
+        this.audioContext = null;
+      }
+    }
+    
     this.ws?.close();
     this.jitterBuffer?.clear();
     
@@ -467,6 +491,10 @@ export class RealtimeVoiceClientEnhanced {
 
   isConnected(): boolean {
     return this.stateMachine.isConnected();
+  }
+
+  isResponseActive(): boolean {
+    return this.isResponseInProgress;
   }
 
   getPerformanceMetrics() {

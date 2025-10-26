@@ -38,7 +38,8 @@ export const CoquiLessonAssistant = ({
     isAIPlaying,
     startSession,
     endSession,
-    sendText
+    sendText,
+    client
   } = useCoquiSession({
     activityId,
     activityType,
@@ -104,10 +105,11 @@ export const CoquiLessonAssistant = ({
     }
   }, [isConnected, voiceContext, sendText, t]);
 
-  // Reset greeting flag when disconnecting
+  // Reset greeting flag and prompt key when disconnecting
   useEffect(() => {
     if (!isConnected && hasGreeted.current) {
       hasGreeted.current = false;
+      lastPromptKey.current = '';
     }
   }, [isConnected]);
 
@@ -122,9 +124,13 @@ export const CoquiLessonAssistant = ({
     // Only send if connected, prompt changed, and we've already greeted
     if (isConnected && hasGreeted.current && currentPromptKey !== lastPromptKey.current && sendText) {
       const sendActivityPrompt = () => {
-        if (isAIPlaying) {
-          // AI still speaking - retry in 300ms
-          console.log('[CoquiLessonAssistant] ⏳ AI still speaking, retrying activity prompt...');
+        // Wait for BOTH audio playback AND response generation to finish
+        if (isAIPlaying || client?.isResponseActive()) {
+          // AI still speaking or generating - retry in 300ms
+          console.log('[CoquiLessonAssistant] ⏳ AI still active, retrying activity prompt...', {
+            isAIPlaying,
+            isResponseActive: client?.isResponseActive()
+          });
           retryTimerRef.current = setTimeout(sendActivityPrompt, 300);
         } else {
           // AI finished - send the new activity's guidance
