@@ -145,6 +145,7 @@ export default function StudentLessonsProgress() {
       id: lesson.id,
       display_order: lesson.display_order ?? 999,
       assessment_id: lesson.id,
+      domain_name: lesson.domain_name,
     }));
 
     return getLessonLockingStatus(orderedLessons, progress.completedActivities);

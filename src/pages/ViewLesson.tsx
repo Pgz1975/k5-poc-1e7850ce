@@ -52,6 +52,7 @@ export default function ViewLesson() {
           id, 
           assessment_id, 
           display_order,
+          domain_name,
           manual_assessments!lesson_ordering_assessment_id_fkey (language)
         `)
         .eq("grade_level", profile.gradeLevel)
@@ -64,7 +65,8 @@ export default function ViewLesson() {
       }).map(o => ({
         id: o.id,
         assessment_id: o.assessment_id,
-        display_order: o.display_order
+        display_order: o.display_order,
+        domain_name: o.domain_name
       })) ?? [];
 
       // Get completed activities

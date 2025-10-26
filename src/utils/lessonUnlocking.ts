@@ -20,13 +20,21 @@ interface CompletedActivity {
  * Determines if a lesson is locked based on sequential unlocking logic
  * A lesson is locked if the previous lesson in the sequence has not been completed
  * 
- * Special case: TEST_G1_FIXTURES lessons are always unlocked for QA testing
+ * Special cases:
+ * - QA Mode: When VITE_QA_UNLOCK_ALL_LESSONS is true, all lessons are unlocked
+ * - TEST_G1_FIXTURES lessons are always unlocked for QA testing
  */
 export const isLessonLocked = (
   lessonIndex: number,
   orderedLessons: LessonWithOrdering[],
   completedActivities: CompletedActivity[]
 ): boolean => {
+  // QA override: unlock all lessons for testing
+  const qaUnlockAll = import.meta.env.VITE_QA_UNLOCK_ALL_LESSONS === 'true';
+  if (qaUnlockAll) {
+    return false;
+  }
+
   const currentLesson = orderedLessons[lessonIndex];
   
   // TEST G1 fixtures are always unlocked for QA testing
