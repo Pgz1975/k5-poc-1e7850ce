@@ -81,9 +81,10 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
   const endSession = useCallback(async () => {
     console.log('[useCoquiSession] 🛑 Ending session');
     hasAttemptedConnection.current = false; // Reset flag on disconnect
+    
     await disconnect();
     
-    // Add extra delay to ensure cleanup completes
+    // Add extra delay to ensure cleanup completes before next mount
     await new Promise(resolve => setTimeout(resolve, 200));
   }, [disconnect]);
 

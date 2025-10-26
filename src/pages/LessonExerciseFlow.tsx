@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CoquiLessonAssistantGuard } from '@/components/coqui/CoquiLessonAssistantGuard';
+import { CoquiVoiceBridge } from '@/components/coqui/CoquiVoiceBridge';
 import { ActivityActions } from '@/components/ActivityManagement/ActivityActions';
 
 export default function LessonExerciseFlow() {
@@ -24,6 +25,9 @@ export default function LessonExerciseFlow() {
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [exerciseScores, setExerciseScores] = useState<Map<string, number>>(new Map());
   const [showCelebration, setShowCelebration] = useState(false);
+  
+  // Voice session management for navigation guard
+  const endSessionRef = useRef<(() => Promise<void>) | null>(null);
 
   // Fetch lesson details
   const { data: lesson, isLoading: lessonLoading } = useQuery({
@@ -185,11 +189,21 @@ export default function LessonExerciseFlow() {
     }
   };
 
-  const handleBack = () => {
+  const handleBack = async () => {
+    console.log('[LessonExerciseFlow] 🚦 Back button - cleaning up voice...');
+    if (endSessionRef.current) {
+      await endSessionRef.current();
+    }
+    await new Promise(resolve => setTimeout(resolve, 200));
     navigate('/student-dashboard/lessons');
   };
 
-  const handleReturnToDashboard = () => {
+  const handleReturnToDashboard = async () => {
+    console.log('[LessonExerciseFlow] 🚦 Return to dashboard - cleaning up voice...');
+    if (endSessionRef.current) {
+      await endSessionRef.current();
+    }
+    await new Promise(resolve => setTimeout(resolve, 200));
     navigate('/student-dashboard/lessons');
   };
 
@@ -318,6 +332,14 @@ export default function LessonExerciseFlow() {
         activityType="exercise"
         voiceContext={exerciseVoiceContext}
         autoConnect={true}
+      />
+      
+      {/* Voice session bridge for navigation guard */}
+      <CoquiVoiceBridge
+        activityId={currentExercise.id}
+        activityType="exercise"
+        voiceContext={exerciseVoiceContext}
+        endSessionRef={endSessionRef}
       />
     </div>
   );

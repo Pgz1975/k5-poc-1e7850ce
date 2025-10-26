@@ -111,6 +111,54 @@ export const CoquiLessonAssistant = ({
     }
   }, [isConnected]);
 
+  // Per-activity greeting: send guidance when activityId changes while connected
+  const lastPromptKey = useRef<string>('');
+  const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Build unique prompt key from activityId + guidance content
+    const currentPromptKey = `${activityId}_${voiceContext?.voiceGuidance || voiceContext?.coquiDialogue || ''}`;
+    
+    // Only send if connected, prompt changed, and we've already greeted
+    if (isConnected && hasGreeted.current && currentPromptKey !== lastPromptKey.current && sendText) {
+      const sendActivityPrompt = () => {
+        if (isAIPlaying) {
+          // AI still speaking - retry in 300ms
+          console.log('[CoquiLessonAssistant] ⏳ AI still speaking, retrying activity prompt...');
+          retryTimerRef.current = setTimeout(sendActivityPrompt, 300);
+        } else {
+          // AI finished - send the new activity's guidance
+          const guidance = voiceContext?.coquiDialogue 
+            || voiceContext?.voiceGuidance 
+            || t(
+                `Ahora vamos a trabajar en una nueva actividad.`,
+                `Now let's work on a new activity.`
+              );
+          
+          console.log('[CoquiLessonAssistant] 🔄 Activity changed, sending new guidance');
+          sendText(guidance);
+          lastPromptKey.current = currentPromptKey;
+          
+          // Clear retry timer
+          if (retryTimerRef.current) {
+            clearTimeout(retryTimerRef.current);
+            retryTimerRef.current = null;
+          }
+        }
+      };
+
+      sendActivityPrompt();
+    }
+
+    // Cleanup retry timer
+    return () => {
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+    };
+  }, [isConnected, hasGreeted, activityId, voiceContext, isAIPlaying, sendText, t]);
+
   // Store endSession in a ref to prevent dependency issues
   const endSessionRef = useRef(endSession);
   const hasDisconnected = useRef(false);
@@ -118,6 +166,13 @@ export const CoquiLessonAssistant = ({
   useEffect(() => {
     endSessionRef.current = endSession;
   }, [endSession]);
+
+  // Reset hasDisconnected when reconnecting
+  useEffect(() => {
+    if (isConnecting) {
+      hasDisconnected.current = false;
+    }
+  }, [isConnecting]);
 
   // Cleanup: ONLY on actual unmount, and only once
   useEffect(() => {

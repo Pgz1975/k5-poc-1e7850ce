@@ -25,6 +25,8 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
   const [client, setClient] = useState<RealtimeVoiceClientEnhanced | null>(null);
   const clientRef = useRef<RealtimeVoiceClientEnhanced | null>(null);
   const sessionIdRef = useRef<string>(crypto.randomUUID());
+  const isDisconnecting = useRef(false);
+  const isDisconnected = useRef(false);
   const { toast } = useToast();
 
   const connect = useCallback(async () => {
@@ -35,6 +37,10 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
       console.log('[useRealtimeVoice] ⚠️ Already connecting or connected, aborting');
       return;
     }
+
+    // Reset disconnect flags when starting fresh connection
+    isDisconnected.current = false;
+    isDisconnecting.current = false;
 
     setIsConnecting(true);
     console.log('[useRealtimeVoice] 🚀 Starting connection process...');
@@ -135,19 +141,38 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
   }, [studentId, language, model, voiceGuidance, activityId, activityType, contextPayload, isConnecting, isConnected, onTranscription, onAudioLevel, onResponseComplete, toast]);
 
   const disconnect = useCallback(async () => {
-    console.log('[useRealtimeVoice] 🛑 Disconnecting...');
-    
-    if (clientRef.current) {
-      await clientRef.current.disconnect();
-      clientRef.current = null;
+    // Idempotent guard: prevent double disconnect
+    if (isDisconnecting.current || isDisconnected.current) {
+      console.log('[useRealtimeVoice] ⏭️ Already disconnecting/disconnected, skipping');
+      return;
     }
+
+    console.log('[useRealtimeVoice] 🛑 Disconnecting...');
+    isDisconnecting.current = true;
     
-    setIsConnected(false);
-    setIsConnecting(false);
-    setIsAIPlaying(false);
-    setTranscript([]);
-    
-    console.log('[useRealtimeVoice] ✅ Disconnected successfully');
+    try {
+      if (clientRef.current) {
+        await clientRef.current.disconnect();
+        clientRef.current = null;
+      }
+      
+      setIsConnected(false);
+      setIsConnecting(false);
+      setIsAIPlaying(false);
+      setTranscript([]);
+      
+      console.log('[useRealtimeVoice] ✅ Disconnected successfully');
+    } catch (error) {
+      // Ignore InvalidStateError from AudioContext double-close
+      if (error instanceof Error && error.message.includes('Cannot close a closed AudioContext')) {
+        console.log('[useRealtimeVoice] ⚠️ AudioContext already closed, ignoring error');
+      } else {
+        console.error('[useRealtimeVoice] ❌ Error during disconnect:', error);
+      }
+    } finally {
+      isDisconnected.current = true;
+      isDisconnecting.current = false;
+    }
   }, []);
 
   const sendText = useCallback((text: string) => {

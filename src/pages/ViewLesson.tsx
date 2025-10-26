@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CoquiLessonAssistantGuard } from "@/components/coqui/CoquiLessonAssistantGuard";
+import { CoquiVoiceBridge } from "@/components/coqui/CoquiVoiceBridge";
 import { CheckCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -21,6 +22,9 @@ export default function ViewLesson() {
   const { t, language } = useLanguage();
   const queryClient = useQueryClient();
   const { data: profile } = useStudentProfile();
+  
+  // Voice session management for navigation guard
+  const endSessionRef = useRef<(() => Promise<void>) | null>(null);
 
   // Track viewport for responsive assistant (single instance)
   const [isDesktop, setIsDesktop] = useState(() => {
@@ -134,11 +138,23 @@ export default function ViewLesson() {
         .order("order_in_lesson");
 
       if (exercises && exercises.length > 0) {
-        // Has exercises - navigate to exercise flow
+        // Has exercises - navigate with voice cleanup guard
+        console.log('[ViewLesson] 🚦 Navigating to exercises, cleaning up voice...');
+        if (endSessionRef.current) {
+          await endSessionRef.current();
+        }
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
         toast.success(t("¡Lección completada! Ahora los ejercicios.", "Lesson completed! Now the exercises."));
         navigate(`/lesson/${id}/exercises`);
       } else {
         // No exercises - show confetti and return to dashboard
+        console.log('[ViewLesson] 🚦 Returning to dashboard, cleaning up voice...');
+        if (endSessionRef.current) {
+          await endSessionRef.current();
+        }
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
         confetti({
           particleCount: 100,
           spread: 70,
@@ -304,16 +320,26 @@ export default function ViewLesson() {
 
           {/* Interactive Coquí Assistant - Single Instance */}
           {lesson && (
-            <div className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}>
-            <CoquiLessonAssistantGuard
-              activityId={lesson.id}
-              activityType="lesson"
-              position={isDesktop ? "inline" : "fixed"}
-              voiceContext={lessonVoiceContext}
-              className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}
-              autoConnect={true}
+            <>
+              <div className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}>
+                <CoquiLessonAssistantGuard
+                  activityId={lesson.id}
+                  activityType="lesson"
+                  position={isDesktop ? "inline" : "fixed"}
+                  voiceContext={lessonVoiceContext}
+                  className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}
+                  autoConnect={true}
+                />
+              </div>
+              
+              {/* Voice session bridge for navigation guard */}
+              <CoquiVoiceBridge
+                activityId={lesson.id}
+                activityType="lesson"
+                voiceContext={lessonVoiceContext}
+                endSessionRef={endSessionRef}
               />
-            </div>
+            </>
           )}
         </div>
 
@@ -322,7 +348,14 @@ export default function ViewLesson() {
             <Button
               variant="outline"
               size="lg"
-              onClick={() => navigate("/student-dashboard/lessons")}
+              onClick={async () => {
+                console.log('[ViewLesson] 🚦 Back button - cleaning up voice...');
+                if (endSessionRef.current) {
+                  await endSessionRef.current();
+                }
+                await new Promise(resolve => setTimeout(resolve, 200));
+                navigate("/student-dashboard/lessons");
+              }}
             >
               {t("Volver", "Back")}
             </Button>
