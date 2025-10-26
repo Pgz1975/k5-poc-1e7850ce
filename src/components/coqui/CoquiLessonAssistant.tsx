@@ -64,8 +64,11 @@ export const CoquiLessonAssistant = ({
   }, [autoConnect, isConnected, isConnecting, startSession]);
 
   // Update mascot state based on connection and AI state
+  // Use parent's isConnecting prop OR internal isConnecting state
+  const effectiveConnecting = isConnectingProp || isConnecting;
+  
   useEffect(() => {
-    if (isConnecting) {
+    if (effectiveConnecting) {
       setMascotState('loading');
     } else if (isAIPlaying) {
       setMascotState('speaking');
@@ -74,7 +77,7 @@ export const CoquiLessonAssistant = ({
     } else {
       setMascotState('idle');
     }
-  }, [isConnecting, isAIPlaying, isConnected]);
+  }, [effectiveConnecting, isAIPlaying, isConnected]);
 
   // Store endSession in a ref to prevent dependency issues
   const endSessionRef = useRef(endSession);

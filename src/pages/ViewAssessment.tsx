@@ -101,35 +101,7 @@ export default function ViewAssessment() {
   };
 
 
-  // Show loading screen while pre-connecting
-  if (isPreConnecting || !showExercise) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 via-green-50 to-blue-50">
-        <div className="text-center space-y-6">
-          <CoquiMascot 
-            state={isPreConnecting ? "loading" : "thinking"} 
-            size="large" 
-          />
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-foreground">
-              {t("Preparando tu ejercicio...", "Preparing your exercise...")}
-            </h2>
-            <p className="text-muted-foreground">
-              {isPreConnecting 
-                ? t("Conectando con Coquí...", "Connecting with Coquí...")
-                : t("Cargando contenido...", "Loading content...")}
-            </p>
-          </div>
-          <div className="flex gap-2 justify-center">
-            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // Early return only if assessment hasn't loaded yet
   if (!assessment) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-accent/20 to-background">
@@ -141,11 +113,14 @@ export default function ViewAssessment() {
     );
   }
 
+  // Once assessment is loaded, show overlay instead of early return
+  const showOverlay = isPreConnecting || !showExercise;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-background">
+    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-background relative">
       <Header />
 
-      <main className="container mx-auto px-6 py-8 max-w-4xl">
+      <main className="container mx-auto px-6 py-8 max-w-4xl relative">
         {/* Activity Title */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -234,23 +209,21 @@ export default function ViewAssessment() {
           />
         )}
 
-        {/* Coquí Assistant - Single voice stack */}
-        {assessment && (
-          <CoquiLessonAssistant
-            activityId={assessment.id}
-            activityType="exercise"
-            voiceContext={{
-              title: assessment.title,
-              subtype: assessment.assessment_type,
-              language: assessment.language,
-              voiceGuidance: assessment.voice_guidance,
-              content: assessment.content
-            }}
-            autoConnect={true}
-            isConnecting={isPreConnecting}
-            position="fixed"
-          />
-        )}
+        {/* Coquí Assistant - Single voice stack, stays mounted */}
+        <CoquiLessonAssistant
+          activityId={assessment.id}
+          activityType="exercise"
+          voiceContext={{
+            title: assessment.title,
+            subtype: assessment.assessment_type,
+            language: assessment.language,
+            voiceGuidance: assessment.voice_guidance,
+            content: assessment.content
+          }}
+          autoConnect={true}
+          isConnecting={isPreConnecting}
+          position="fixed"
+        />
 
         {/* Feedback */}
         {showFeedback && (
@@ -261,6 +234,28 @@ export default function ViewAssessment() {
                 : t("Intenta de nuevo", "Try again")}
             </p>
           </Card>
+        )}
+
+        {/* Loading Overlay - covers content but doesn't unmount components */}
+        {showOverlay && (
+          <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50/95 via-green-50/95 to-blue-50/95 dark:from-yellow-900/95 dark:via-green-900/95 dark:to-blue-900/95">
+            <div className="text-center space-y-6">
+              <CoquiMascot state="loading" size="large" />
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-foreground">
+                  {t("Preparando tu ejercicio...", "Preparing your exercise...")}
+                </h2>
+                <p className="text-muted-foreground">
+                  {t("Conectando con Coquí...", "Connecting with Coquí...")}
+                </p>
+              </div>
+              <div className="flex gap-2 justify-center">
+                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          </div>
         )}
       </main>
     </div>
