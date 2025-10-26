@@ -37,7 +37,8 @@ export const CoquiLessonAssistant = ({
     isConnecting,
     isAIPlaying,
     startSession,
-    endSession
+    endSession,
+    sendText
   } = useCoquiSession({
     activityId,
     activityType,
@@ -84,17 +85,48 @@ export const CoquiLessonAssistant = ({
     }
   }, [effectiveConnecting, isAIPlaying, isConnected]);
 
+  // Send post-connect greeting exactly once when connection is established
+  const hasGreeted = useRef(false);
+  
+  useEffect(() => {
+    if (isConnected && !hasGreeted.current && sendText) {
+      hasGreeted.current = true;
+      
+      const greeting = voiceContext?.coquiDialogue 
+        || voiceContext?.voiceGuidance 
+        || t(
+            "¡Hola! Soy Coquí, tu asistente de lectura. ¿Cómo te puedo ayudar hoy?",
+            "Hi! I'm Coquí, your reading assistant. How can I help you today?"
+          );
+      
+      console.log('[CoquiLessonAssistant] 👋 Sending post-connect greeting');
+      sendText(greeting);
+    }
+  }, [isConnected, voiceContext, sendText, t]);
+
+  // Reset greeting flag when disconnecting
+  useEffect(() => {
+    if (!isConnected && hasGreeted.current) {
+      hasGreeted.current = false;
+    }
+  }, [isConnected]);
+
   // Store endSession in a ref to prevent dependency issues
   const endSessionRef = useRef(endSession);
+  const hasDisconnected = useRef(false);
+  
   useEffect(() => {
     endSessionRef.current = endSession;
   }, [endSession]);
 
-  // Cleanup: ONLY on actual unmount
+  // Cleanup: ONLY on actual unmount, and only once
   useEffect(() => {
     return () => {
-      console.log('[CoquiLessonAssistant] 🛑 Component unmounting - cleanup');
-      endSessionRef.current();
+      if (!hasDisconnected.current) {
+        console.log('[CoquiLessonAssistant] 🛑 Component unmounting - cleanup');
+        hasDisconnected.current = true;
+        endSessionRef.current();
+      }
     };
   }, []); // Empty array = only runs on actual unmount
 
