@@ -28,6 +28,10 @@ export const CoquiLessonAssistant = ({
   const [audioLevel, setAudioLevel] = useState(-100);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
 
+  useEffect(() => {
+    console.log('[CoquiLessonAssistant] 🧩 Mounted', { autoConnect });
+  }, []);
+
   const {
     isConnected,
     isConnecting,
@@ -57,6 +61,7 @@ export const CoquiLessonAssistant = ({
 
   // Auto-connect if prop is true
   useEffect(() => {
+    console.log('[CoquiLessonAssistant] 🔄 AutoConnect check', { autoConnect, isConnected, isConnecting });
     if (autoConnect && !isConnected && !isConnecting) {
       console.log('[CoquiLessonAssistant] 🚀 Auto-connecting...');
       startSession();
@@ -94,6 +99,11 @@ export const CoquiLessonAssistant = ({
   }, []); // Empty array = only runs on actual unmount
 
   const handleMascotClick = () => {
+    if (!isConnected && !isConnecting) {
+      console.log('[CoquiLessonAssistant] 🖱️ Manual start via mascot click');
+      startSession();
+      return;
+    }
     toast.info(t("Estoy escuchando. Habla conmigo.", "I'm listening. Talk to me."));
   };
 
