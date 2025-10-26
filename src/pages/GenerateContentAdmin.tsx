@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { generateGrade1SpanishContent } from "@/scripts/generateGrade1SpanishContent";
 import { generateGrade2SpanishContent } from "@/scripts/generateGrade2SpanishContent";
+import { generateGrade2SpanishContentV2 } from "@/scripts/generateGrade2SpanishContentV2";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -20,16 +21,24 @@ export default function GenerateContentAdmin() {
 
     try {
       // Select the appropriate generation function based on grade
-      const generateFunction = selectedGrade === "1"
-        ? generateGrade1SpanishContent
-        : generateGrade2SpanishContent;
+      let generateFunction;
+      if (selectedGrade === "1") {
+        generateFunction = generateGrade1SpanishContent;
+      } else if (selectedGrade === "2") {
+        generateFunction = generateGrade2SpanishContent;
+      } else if (selectedGrade === "2-v2") {
+        generateFunction = generateGrade2SpanishContentV2;
+      } else {
+        throw new Error("Grado no válido seleccionado");
+      }
 
       const data = await generateFunction();
       setResult(data);
 
+      const gradeName = selectedGrade === "1" ? "Primer" : selectedGrade === "2-v2" ? "Segundo (V2)" : "Segundo";
       toast({
         title: "¡Éxito!",
-        description: `Se crearon ${data.parents.length} lecciones principales y ${data.exercises.length} ejercicios para ${selectedGrade === "1" ? "Primer" : "Segundo"} Grado.`,
+        description: `Se crearon ${data.parents.length} lecciones principales y ${data.exercises.length} ejercicios para ${gradeName} Grado.`,
       });
     } catch (error: any) {
       console.error("Error generating content:", error);
@@ -66,7 +75,8 @@ export default function GenerateContentAdmin() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1">Primer Grado (1°)</SelectItem>
-                  <SelectItem value="2">Segundo Grado (2°)</SelectItem>
+                  <SelectItem value="2">Segundo Grado (2°) - Original</SelectItem>
+                  <SelectItem value="2-v2">Segundo Grado (2°) - V2 ✨</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -82,7 +92,7 @@ export default function GenerateContentAdmin() {
                   <li>• Nivel: Conciencia fonémica básica</li>
                   <li>• Imágenes de Pexels y guía de voz en español</li>
                 </ul>
-              ) : (
+              ) : selectedGrade === "2" ? (
                 <ul className="space-y-1 text-sm text-muted-foreground">
                   <li>• 5 Dominios de Lectura (según estándares DEPR)</li>
                   <li>• 32 Ejercicios totales (6-8 por dominio)</li>
@@ -92,6 +102,20 @@ export default function GenerateContentAdmin() {
                   <li>• Dominio 4: Comprensión literal</li>
                   <li>• Dominio 5: Comprensión inferencial y pensamiento crítico</li>
                   <li>• Contenido localizado para Puerto Rico</li>
+                </ul>
+              ) : (
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>• <strong>5 Lecciones</strong> - Una por dominio según Ani-segundo-grado-forAItest02.md</li>
+                  <li>• <strong>30 Ejercicios totales</strong> (6 por lección)</li>
+                  <li>• <strong>Dominio 1:</strong> Fonética (dígrafos CH, LL, RR, grupos consonánticos)</li>
+                  <li>• <strong>Dominio 2:</strong> Fluidez lectora (signos de puntuación, palabras frecuentes)</li>
+                  <li>• <strong>Dominio 3:</strong> Vocabulario (sinónimos, antónimos, lenguaje figurado)</li>
+                  <li>• <strong>Dominio 4:</strong> Comprensión literal (quién, qué, dónde, cuándo, por qué)</li>
+                  <li>• <strong>Dominio 5:</strong> Comprensión inferencial (predicciones, causa-efecto, propósito)</li>
+                  <li>• Imágenes genéricas educativas vía Pexels</li>
+                  <li>• Guía de voz Coquí completa para cada actividad</li>
+                  <li>• Algunos ejercicios son solo texto (sin imágenes)</li>
+                  <li>• Longitud de contenido basada en análisis de lecciones existentes (~320-426 caracteres)</li>
                 </ul>
               )}
             </div>
@@ -105,10 +129,10 @@ export default function GenerateContentAdmin() {
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generando Contenido para {selectedGrade === "1" ? "Primer" : "Segundo"} Grado...
+                  Generando Contenido para {selectedGrade === "1" ? "Primer" : selectedGrade === "2-v2" ? "Segundo (V2)" : "Segundo"} Grado...
                 </>
               ) : (
-                `Generar Contenido de ${selectedGrade === "1" ? "Primer" : "Segundo"} Grado`
+                `Generar Contenido de ${selectedGrade === "1" ? "Primer" : selectedGrade === "2-v2" ? "Segundo (V2)" : "Segundo"} Grado`
               )}
             </Button>
           </div>
