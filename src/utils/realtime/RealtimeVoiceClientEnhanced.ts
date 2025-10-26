@@ -87,7 +87,7 @@ export class RealtimeVoiceClientEnhanced {
           }
         }),
         new Promise<void>((_, reject) => 
-          setTimeout(() => reject(new Error('AudioContext initialization timeout')), 10000)
+          setTimeout(() => reject(new Error('AudioContext initialization timeout')), 5000)
         )
       ]);
       
@@ -136,33 +136,29 @@ export class RealtimeVoiceClientEnhanced {
       URL.revokeObjectURL(processorUrl);
       console.log('[RealtimeVoiceClient] 🎛️ AudioWorklet loaded (inline)');
 
-      // Setup microphone (best-effort). If blocked, continue without mic so AI can still speak.
-      try {
-        this.mediaStream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            sampleRate: 24000,
-            channelCount: 1,
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          }
-        });
-        console.log('[RealtimeVoiceClient] 🎤 Microphone access granted');
+      // Setup microphone
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          sampleRate: 24000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+      console.log('[RealtimeVoiceClient] 🎤 Microphone access granted');
 
-        // Create audio worklet for capturing mic audio
-        this.audioWorklet = new AudioWorkletNode(this.audioContext, 'pcm16-capture-processor');
-        const source = this.audioContext.createMediaStreamSource(this.mediaStream);
-        source.connect(this.audioWorklet);
+      // Create audio worklet
+      this.audioWorklet = new AudioWorkletNode(this.audioContext, 'pcm16-capture-processor');
+      const source = this.audioContext.createMediaStreamSource(this.mediaStream);
+      source.connect(this.audioWorklet);
 
-        this.audioWorklet.port.onmessage = (event) => {
-          if (event.data.type === 'audio') {
-            const dbLevel = this.monitorAudioLevel(event.data.data);
-            this.handleAudioGating(event.data.data, dbLevel);
-          }
-        };
-      } catch (micError) {
-        console.warn('[RealtimeVoiceClient] 🎙️ Microphone unavailable or blocked; continuing without capture', micError);
-      }
+      this.audioWorklet.port.onmessage = (event) => {
+        if (event.data.type === 'audio') {
+          const dbLevel = this.monitorAudioLevel(event.data.data);
+          this.handleAudioGating(event.data.data, dbLevel);
+        }
+      };
 
       // Connect WebSocket
       await this.connectWebSocket();
