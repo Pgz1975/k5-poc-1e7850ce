@@ -304,13 +304,15 @@ export default function ViewLesson() {
 
           {/* Interactive Coquí Assistant - Single Instance */}
           {lesson && (
+            <div className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}>
             <CoquiLessonAssistantGuard
               activityId={lesson.id}
               activityType="lesson"
               position={isDesktop ? "inline" : "fixed"}
               voiceContext={lessonVoiceContext}
               className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}
-            />
+              />
+            </div>
           )}
         </div>
 
