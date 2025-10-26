@@ -9,17 +9,38 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useRealtimeVoice } from '@/hooks/useRealtimeVoice';
 import { useCoquiInactivity } from '@/hooks/useCoquiInactivity';
 
-interface UseCoquiSessionProps {
-  activityId?: string;
-  activityType?: 'lesson' | 'exercise';
-  voiceGuidance?: string;
+export interface VoiceContextConfig {
+  title?: string;
+  subtype?: string | null;
+  language?: string | null;
+  voiceGuidance?: string | null;
+  coquiDialogue?: string | null;
+  pronunciationWords?: string[] | null;
+  content?: Record<string, unknown> | null;
 }
 
-export function useCoquiSession({ activityId, activityType, voiceGuidance }: UseCoquiSessionProps = {}) {
+interface UseCoquiSessionProps {
+  activityId?: string;
+  activityType?: 'lesson' | 'exercise' | 'system';
+  voiceContext?: VoiceContextConfig;
+}
+
+export function useCoquiSession({ activityId, activityType, voiceContext }: UseCoquiSessionProps = {}) {
   const { user } = useAuth();
   const { language } = useLanguage();
   const [countdown, setCountdown] = useState(10);
   const goodbyeSentRef = useRef(false);
+
+  const targetLanguage = language === 'es' ? 'es-PR' : 'en-US';
+  const serializedVoiceContext = {
+    activity_title: voiceContext?.title,
+    activity_subtype: voiceContext?.subtype,
+    language: voiceContext?.language ?? targetLanguage,
+    voice_guidance: voiceContext?.voiceGuidance,
+    coqui_dialogue: voiceContext?.coquiDialogue,
+    pronunciation_words: voiceContext?.pronunciationWords,
+    content: voiceContext?.content ?? { note: 'No explicit content provided.' }
+  };
 
   const inactivity = useCoquiInactivity({
     onWarning: () => {
@@ -43,8 +64,11 @@ export function useCoquiSession({ activityId, activityType, voiceGuidance }: Use
     transcript
   } = useRealtimeVoice({
     studentId: user?.id ?? 'demo-student',
-    language: language === 'es' ? 'es-PR' : 'en-US',
-    voiceGuidance,
+    language: targetLanguage,
+    activityId,
+    activityType,
+    voiceGuidance: voiceContext?.voiceGuidance ?? undefined,
+    contextPayload: serializedVoiceContext,
     onTranscription: (text, isUser) => {
       console.log('[useCoquiSession] 📝 Transcription:', isUser ? 'User' : 'AI', text.slice(0, 50));
       if (isUser) {

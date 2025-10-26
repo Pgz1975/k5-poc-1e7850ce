@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCoquiSession } from "@/hooks/useCoquiSession";
+import { useCoquiSession, VoiceContextConfig } from "@/hooks/useCoquiSession";
 import CoquiMascot from "@/components/CoquiMascot";
 import { CoquiVoicePanel } from "./CoquiVoicePanel";
 import { CoquiTimeoutIndicator } from "./CoquiTimeoutIndicator";
@@ -19,14 +19,14 @@ interface Message {
 interface CoquiLessonAssistantProps {
   activityId: string;
   activityType: 'lesson' | 'exercise';
-  voiceGuidance: string;
+  voiceContext?: VoiceContextConfig;
   position?: 'fixed' | 'inline';
 }
 
 export const CoquiLessonAssistant = ({ 
   activityId, 
   activityType, 
-  voiceGuidance,
+  voiceContext,
   position = 'fixed'
 }: CoquiLessonAssistantProps) => {
   const { t } = useLanguage();
@@ -49,7 +49,7 @@ export const CoquiLessonAssistant = ({
   } = useCoquiSession({
     activityId,
     activityType,
-    voiceGuidance
+    voiceContext
   });
 
   // Convert transcript to messages

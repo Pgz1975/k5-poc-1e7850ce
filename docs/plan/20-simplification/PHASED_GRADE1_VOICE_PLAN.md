@@ -59,13 +59,13 @@ This plan breaks the work into four phases so Lovable (or any dev) can implement
 ## Phase 2 – Voice Guidance Plumbing (4–5 days)
 **Goal:** Feed authored prompts + activity context into the realtime API and limit voice to the curated Grade‑1 path.
 
-1. **Surface `voice_guidance` & `coqui_dialogue`**
-   - Extend lesson/exercise fetch queries to return these fields.
-   - In `CoquiLessonAssistant`, default to Supabase-provided guidance; fallback to the generic string only if null.
+1. **Surface `voice_guidance`, `coqui_dialogue`, `pronunciation_words`, and `content`**
+   - Extend lesson/exercise fetch queries to return all four fields so we always know the author’s script plus pronunciation targets.
+   - In `CoquiLessonAssistant`, default to the Supabase-provided guidance/JSON payload; fallback to the generic string only if everything is null.
 
 2. **Pass activity context**
-   - Update `useCoquiSession`/`useRealtimeVoice` to include `activity_id` + `activity_type` in the relay URL.
-   - Update `supabase/functions/realtime-voice-relay/index.ts` to append that context when building instructions (without overriding the author prompt).
+   - Update `useCoquiSession`/`useRealtimeVoice` to include `activity_id`, `activity_type`, and a Base64 JSON payload that wraps `voice_guidance`, `coqui_dialogue`, `pronunciation_words`, and the raw `content`.
+   - Update `supabase/functions/realtime-voice-relay/index.ts` to append that context when building instructions (without overriding the author prompt) so OpenAI can reason about whether it should read text aloud, wait for a spoken answer, or guide toward the correct response.
 
 3. **Selective enablement**
    - Only render `CoquiLessonAssistant` on the curated Grade‑1 lesson/exercise pages (others show “Voice helper coming soon”).

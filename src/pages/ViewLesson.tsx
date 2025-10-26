@@ -158,6 +158,18 @@ export default function ViewLesson() {
     );
   }
 
+  const defaultLessonGuidance = `Start by greeting the Grade 1 student and summarizing the lesson "${lesson.title}". Read aloud or paraphrase any key instructions from the content, then guide them through the concept using questions and examples. Stay within this lesson and use a Socratic approach—offer hints and prompts before revealing answers.`;
+
+  const lessonVoiceContext = {
+    title: lesson.title,
+    subtype: lesson.subtype,
+    language: lesson.language,
+    voiceGuidance: lesson.voice_guidance ?? defaultLessonGuidance,
+    coquiDialogue: lesson.coqui_dialogue,
+    pronunciationWords: lesson.pronunciation_words,
+    content: lesson.content as Record<string, unknown> | null
+  };
+
   // Show locked message if lesson is locked
   if (lockData?.isLocked) {
     return (
@@ -275,10 +287,7 @@ export default function ViewLesson() {
                 activityId={lesson.id}
                 activityType="lesson"
                 position="inline"
-                voiceGuidance={`You are helping a K-5 student understand lesson: "${lesson.title}". 
-                  ${lesson.description ? `Lesson description: ${lesson.description}` : ''}
-                  Explain concepts, answer questions about the content, and provide examples in ${language === 'es' ? 'Spanish' : 'English'}.
-                  Keep responses under 30 seconds and age-appropriate for elementary students.`}
+                voiceContext={lessonVoiceContext}
               />
             </div>
           </div>
@@ -289,10 +298,7 @@ export default function ViewLesson() {
               activityId={lesson.id}
               activityType="lesson"
               position="fixed"
-              voiceGuidance={`You are helping a K-5 student understand lesson: "${lesson.title}". 
-                ${lesson.description ? `Lesson description: ${lesson.description}` : ''}
-                Explain concepts, answer questions about the content, and provide examples in ${language === 'es' ? 'Spanish' : 'English'}.
-                Keep responses under 30 seconds and age-appropriate for elementary students.`}
+              voiceContext={lessonVoiceContext}
             />
           </div>
 

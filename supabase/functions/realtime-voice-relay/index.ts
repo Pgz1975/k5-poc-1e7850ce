@@ -11,6 +11,16 @@ const log = (...args: any[]) => console.log('[Realtime-Relay]', ...args);
 const warn = (...args: any[]) => console.warn('[Realtime-Relay]', ...args);
 const error = (...args: any[]) => console.error('[Realtime-Relay]', ...args);
 
+interface ActivityContextPayload {
+  activity_title?: string;
+  activity_subtype?: string;
+  language?: string;
+  voice_guidance?: string;
+  coqui_dialogue?: string;
+  pronunciation_words?: string[];
+  content?: unknown;
+}
+
 interface SessionState {
   openaiWS: WebSocket | null;
   clientWS: WebSocket;
@@ -21,6 +31,7 @@ interface SessionState {
   studentId: string;
   activityId?: string;
   activityType?: string;
+  contextPayload?: ActivityContextPayload | null;
   metrics: {
     connectionStart: number;
     sessionReady: number;
@@ -50,6 +61,8 @@ serve(async (req) => {
     const model = url.searchParams.get('model') ?? 'gpt-4o-realtime-preview-2024-12-17';
     const activityId = url.searchParams.get('activity_id');
     const activityType = url.searchParams.get('activity_type');
+    const rawContextPayload = url.searchParams.get('context_payload');
+    const contextPayload = rawContextPayload ? decodeContextPayload(rawContextPayload) : null;
 
     log('Upgrade request', { 
       studentId, 
@@ -57,7 +70,9 @@ serve(async (req) => {
       model, 
       activityId, 
       activityType,
-      hasGuidance: !!voiceGuidance 
+      hasGuidance: !!voiceGuidance,
+      hasContextPayload: !!contextPayload,
+      contextBytes: rawContextPayload ? rawContextPayload.length : 0
     });
 
     if (!OPENAI_API_KEY) {
@@ -77,6 +92,7 @@ serve(async (req) => {
       studentId,
       activityId: activityId ?? undefined,
       activityType: activityType ?? undefined,
+      contextPayload,
       metrics: {
         connectionStart: performance.now(),
         sessionReady: 0,
@@ -227,20 +243,10 @@ When a student makes a pronunciation error:
 
 function handleSessionCreated(session: SessionState): void {
   const baseInstructions = getBaseInstructions(session.language);
-  
-  // Build full instructions with activity context
-  let fullInstructions = baseInstructions;
-  
-  if (session.activityId && session.activityType) {
-    fullInstructions += `\n\nCONTEXT: The student is currently working on ${session.activityType} ID: ${session.activityId}.`;
-  }
-  
-  if (session.voiceGuidance) {
-    // Override ALL base instructions if voice guidance is provided
-    fullInstructions = session.voiceGuidance;
-  }
+  const contextInstructions = buildContextInstructions(session);
+  const fullInstructions = `${baseInstructions}${contextInstructions}`;
 
-  const hasContext = !!session.voiceGuidance || !!session.activityId;
+  const hasContext = !!contextInstructions;
   log(`Sending session.update${hasContext ? ' with context' : ''}`);
 
   const isWelcomeSpeaker = session.studentId === 'welcome-speaker';
@@ -305,6 +311,83 @@ function handleClientMessage(session: SessionState, event: MessageEvent): void {
     }
   } catch (e) {
     error('Error parsing client message:', e);
+  }
+}
+
+function decodeContextPayload(raw: string): ActivityContextPayload | null {
+  try {
+    const binary = atob(raw);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    const decoded = new TextDecoder().decode(bytes);
+    return JSON.parse(decoded);
+  } catch (err) {
+    warn('Failed to decode context payload', err);
+    return null;
+  }
+}
+
+function buildContextInstructions(session: SessionState): string {
+  const sections: string[] = [];
+  const context = session.contextPayload;
+
+  if (session.activityType || session.activityId) {
+    sections.push(
+      `Activity metadata:\n- Type: ${session.activityType ?? 'unknown'}\n- ID: ${session.activityId ?? 'unknown'}`
+    );
+  }
+
+  if (context?.activity_title || context?.activity_subtype) {
+    sections.push(
+      `Activity title: ${context.activity_title ?? 'Not provided'}\nSubtype: ${context.activity_subtype ?? 'unspecified'}`
+    );
+  }
+
+  if (context?.voice_guidance) {
+    sections.push(`AUTHOR VOICE GUIDANCE:\n${context.voice_guidance}`);
+  }
+
+  if (context?.coqui_dialogue) {
+    sections.push(`COQUÍ DIALOGUE SCRIPT:\n${context.coqui_dialogue}`);
+  }
+
+  if (context?.pronunciation_words && context.pronunciation_words.length > 0) {
+    sections.push(
+      `PRONUNCIATION TARGETS:\n${context.pronunciation_words.join(', ')}\nRead each word slowly, ask the student to repeat it, and celebrate small improvements.`
+    );
+  }
+
+  if (context?.content) {
+    sections.push(
+      `CONTENT JSON (analyze to infer expected behavior):\n${stringifyContentSnippet(context.content)}`
+    );
+  }
+
+  if (session.voiceGuidance && !context?.voice_guidance) {
+    sections.push(`LEGACY GUIDANCE:\n${session.voiceGuidance}`);
+  }
+
+  if (sections.length === 0) {
+    return '';
+  }
+
+  sections.push(
+    `INTERACTION CONTRACT:\n- Study the context above to decide whether to read text aloud, listen for a response, guide the student toward the correct answer, or model pronunciation.\n- When any field includes the 🔊 marker, read or paraphrase that line before prompting the student.\n- Always wait a few seconds for the student to respond, then choose between praise, hints, scaffolds, or revealing the answer based on the data.\n- Keep the conversation tied to the provided lesson/exercise only.`
+  );
+
+  return `\n\n## Activity Context From Supabase\n${sections.join('\n\n')}`;
+}
+
+function stringifyContentSnippet(content: unknown): string {
+  try {
+    const serialized = typeof content === 'string' ? content : JSON.stringify(content);
+    if (!serialized) return 'No content payload provided.';
+    if (serialized.length > 4000) {
+      return `${serialized.slice(0, 4000)}\n...[truncated, full JSON available in Supabase]`;
+    }
+    return serialized;
+  } catch (err) {
+    warn('Failed to stringify content payload', err);
+    return 'Unable to stringify content payload.';
   }
 }
 

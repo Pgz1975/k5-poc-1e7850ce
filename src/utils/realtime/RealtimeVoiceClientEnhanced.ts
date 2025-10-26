@@ -14,6 +14,9 @@ export interface RealtimeVoiceConfig {
   language?: string;
   model?: string;
   voiceGuidance?: string;
+  activityId?: string;
+  activityType?: string;
+  contextPayload?: Record<string, unknown>;
   onTranscription?: (text: string, isUser: boolean) => void;
   onAudioPlayback?: (isPlaying: boolean) => void;
   onAudioLevel?: (dbLevel: number) => void;
@@ -33,6 +36,7 @@ export class RealtimeVoiceClientEnhanced {
   private heartbeatManager: HeartbeatManager;
   private performanceMonitor: PerformanceMonitor;
   private config: RealtimeVoiceConfig;
+  private encoder = new TextEncoder();
   private currentTranscript = { user: '', ai: '' };
   private silenceStartTime: number | null = null;
   private isUserSpeaking = false;
@@ -175,6 +179,22 @@ export class RealtimeVoiceClientEnhanced {
     if (this.config.voiceGuidance) {
       params.set('voice_guidance', this.config.voiceGuidance);
       console.log('[RealtimeVoiceClient] 📝 Voice guidance included');
+    }
+
+    if (this.config.activityId) {
+      params.set('activity_id', this.config.activityId);
+    }
+
+    if (this.config.activityType) {
+      params.set('activity_type', this.config.activityType);
+    }
+
+    if (this.config.contextPayload) {
+      const encoded = this.encodeContextPayload(this.config.contextPayload);
+      if (encoded) {
+        params.set('context_payload', encoded);
+        console.log('[RealtimeVoiceClient] 🧠 Context payload attached', { bytes: encoded.length });
+      }
     }
 
     const wsUrl = `${baseUrl}?${params.toString()}`;
@@ -456,5 +476,23 @@ export class RealtimeVoiceClientEnhanced {
 
   getPerformanceMetrics() {
     return this.performanceMonitor.getMetricsSummary();
+  }
+
+  private encodeContextPayload(payload: Record<string, unknown>): string | null {
+    try {
+      const json = JSON.stringify(payload, (_, value) => (value === undefined ? undefined : value));
+      if (!json || json === '{}') {
+        return null;
+      }
+      const bytes = this.encoder.encode(json);
+      let binary = '';
+      bytes.forEach((byte) => {
+        binary += String.fromCharCode(byte);
+      });
+      return btoa(binary);
+    } catch (error) {
+      console.error('[RealtimeVoiceClient] ❌ Failed to encode context payload', error);
+      return null;
+    }
   }
 }

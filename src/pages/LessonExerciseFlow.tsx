@@ -230,6 +230,19 @@ export default function LessonExerciseFlow() {
       </div>
     );
   }
+
+  const defaultExerciseGuidance = `Start by greeting the Grade 1 student and summarizing the exercise "${currentExercise.title}" (${currentExercise.subtype}). Read or paraphrase any instructions or prompts from the activity content, then invite the student to try. Use a Socratic approach: offer hints instead of direct answers, model pronunciation when needed, and avoid revealing the solution unless the student is stuck.`;
+
+  const exerciseVoiceContext = {
+    title: currentExercise.title,
+    subtype: currentExercise.subtype,
+    language: currentExercise.language,
+    voiceGuidance: currentExercise.voice_guidance ?? defaultExerciseGuidance,
+    coquiDialogue: currentExercise.coqui_dialogue,
+    pronunciationWords: currentExercise.pronunciation_words,
+    content: currentExercise.content as Record<string, unknown> | null
+  };
+
   const progressPercent = (completedExercises.size / exercises.length) * 100;
 
   return (
@@ -303,10 +316,7 @@ export default function LessonExerciseFlow() {
       <CoquiLessonAssistant
         activityId={currentExercise.id}
         activityType="exercise"
-        voiceGuidance={`You are helping a K-5 student with exercise: "${currentExercise.title}". 
-          Exercise type: ${currentExercise.subtype}. 
-          Provide hints, encouragement, and explanations in ${language === 'es' ? 'Spanish' : 'English'}, 
-          but don't give direct answers. Keep responses under 30 seconds.`}
+        voiceContext={exerciseVoiceContext}
       />
     </div>
   );

@@ -8,12 +8,15 @@ interface UseRealtimeVoiceProps {
   language?: 'es-PR' | 'en-US';
   model?: string;
   voiceGuidance?: string;
+  activityId?: string;
+  activityType?: 'lesson' | 'exercise' | 'system';
+  contextPayload?: Record<string, unknown>;
   onTranscription?: (text: string, isUser: boolean) => void;
   onAudioLevel?: (dbLevel: number) => void;
   onResponseComplete?: () => void;
 }
 
-export function useRealtimeVoice({ studentId, language, model, voiceGuidance, onTranscription, onAudioLevel, onResponseComplete }: UseRealtimeVoiceProps) {
+export function useRealtimeVoice({ studentId, language, model, voiceGuidance, activityId, activityType, contextPayload, onTranscription, onAudioLevel, onResponseComplete }: UseRealtimeVoiceProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
@@ -58,6 +61,9 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
         language,
         model,
         voiceGuidance,
+        activityId,
+        activityType,
+        contextPayload,
         onTranscription: (text, isUser) => {
           console.log(`[useRealtimeVoice] ${isUser ? '🎤 User' : '🔊 AI'}:`, text);
           setTranscript(prev => [...prev, { text, isUser }]);
@@ -114,7 +120,7 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, on
       console.log('[useRealtimeVoice] 🏁 Connection attempt finished');
       setIsConnecting(false);
     }
-  }, [studentId, language, model, voiceGuidance, isConnecting, isConnected, onTranscription, onAudioLevel, onResponseComplete, toast]);
+  }, [studentId, language, model, voiceGuidance, activityId, activityType, contextPayload, isConnecting, isConnected, onTranscription, onAudioLevel, onResponseComplete, toast]);
 
   const disconnect = useCallback(() => {
     console.log('[useRealtimeVoice] Disconnecting...');
