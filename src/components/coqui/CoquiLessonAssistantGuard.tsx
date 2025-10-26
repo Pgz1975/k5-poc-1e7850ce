@@ -8,6 +8,8 @@ interface GuardProps {
   voiceContext?: VoiceContextConfig;
   position?: "fixed" | "inline";
   className?: string;
+  autoConnect?: boolean;
+  isConnecting?: boolean;
 }
 
 export const CoquiLessonAssistantGuard = (props: GuardProps) => {
@@ -16,5 +18,10 @@ export const CoquiLessonAssistantGuard = (props: GuardProps) => {
   // Never render the assistant until auth resolves AND a user exists
   if (loading || !user) return null;
   
-  return <CoquiLessonAssistant {...props} />;
+  return (
+    <CoquiLessonAssistant
+      {...props}
+      autoConnect={props.autoConnect ?? true}
+    />
+  );
 };

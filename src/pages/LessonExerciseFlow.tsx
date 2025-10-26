@@ -317,6 +317,7 @@ export default function LessonExerciseFlow() {
         activityId={currentExercise.id}
         activityType="exercise"
         voiceContext={exerciseVoiceContext}
+        autoConnect={true}
       />
     </div>
   );

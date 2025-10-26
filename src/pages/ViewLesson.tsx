@@ -311,6 +311,7 @@ export default function ViewLesson() {
               position={isDesktop ? "inline" : "fixed"}
               voiceContext={lessonVoiceContext}
               className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}
+              autoConnect={true}
               />
             </div>
           )}
