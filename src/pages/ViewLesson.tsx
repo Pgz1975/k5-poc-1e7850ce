@@ -299,9 +299,10 @@ export default function ViewLesson() {
                   </p>
                 )}
               </CardContent>
-            </Card>
+          </Card>
 
-            {/* Interactive Coquí Assistant - Single Instance */}
+          {/* Interactive Coquí Assistant - Single Instance */}
+          {!isLoading && !lockLoading && lesson && (
             <CoquiLessonAssistant
               activityId={lesson.id}
               activityType="lesson"
@@ -309,7 +310,8 @@ export default function ViewLesson() {
               voiceContext={lessonVoiceContext}
               className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}
             />
-          </div>
+          )}
+        </div>
 
           {/* Complete Button */}
           <div className="flex justify-center gap-4">

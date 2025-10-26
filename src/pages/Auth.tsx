@@ -31,19 +31,6 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [demoUsersCreated, setDemoUsersCreated] = useState(false);
 
-  // Create demo users on component mount
-  useEffect(() => {
-    const initDemoUsers = async () => {
-      const created = localStorage.getItem("demoUsersCreated");
-      if (!created) {
-        await createDemoUsers();
-        localStorage.setItem("demoUsersCreated", "true");
-        setDemoUsersCreated(true);
-      }
-    };
-    initDemoUsers();
-  }, []);
-
   useEffect(() => {
     if (user && !loading) {
       // Redirect based on role
