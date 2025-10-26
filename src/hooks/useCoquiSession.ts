@@ -3,7 +3,7 @@
  * Simplified voice connection wrapper
  */
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useRealtimeVoice } from '@/hooks/useRealtimeVoice';
@@ -28,6 +28,7 @@ interface UseCoquiSessionProps {
 export function useCoquiSession({ activityId, activityType, voiceContext, onAudioLevel }: UseCoquiSessionProps = {}) {
   const { user } = useAuth();
   const { language } = useLanguage();
+  const hasAttemptedConnection = useRef(false);
 
   const targetLanguage = language === 'es' ? 'es-PR' : 'en-US';
   const serializedVoiceContext = {
@@ -59,16 +60,27 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
   });
 
   const startSession = useCallback(async () => {
-    console.log('[useCoquiSession] 🚀 Starting session');
-    if (!user) {
-      console.warn('[useCoquiSession] ⚠️ No user - cannot start session');
+    // Guard: prevent duplicate connection attempts
+    if (hasAttemptedConnection.current || isConnected || isConnecting) {
+      console.log('[useCoquiSession] ⏭️ Skipping - already attempted/connected/connecting');
       return;
     }
+    
+    hasAttemptedConnection.current = true; // Set flag before async work
+    console.log('[useCoquiSession] 🚀 Starting session');
+    
+    if (!user) {
+      console.warn('[useCoquiSession] ⚠️ No user - cannot start session');
+      hasAttemptedConnection.current = false; // Reset on failure
+      return;
+    }
+    
     await connect();
-  }, [connect, user]);
+  }, [connect, user, isConnected, isConnecting]);
 
   const endSession = useCallback(async () => {
     console.log('[useCoquiSession] 🛑 Ending session');
+    hasAttemptedConnection.current = false; // Reset flag on disconnect
     await disconnect();
     
     // Add extra delay to ensure cleanup completes

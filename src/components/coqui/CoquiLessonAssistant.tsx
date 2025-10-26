@@ -68,17 +68,6 @@ export const CoquiLessonAssistant = ({
     }
   }, [autoConnect, isConnected, isConnecting, startSession]);
 
-  // One-time fallback after mount
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (autoConnect && !isConnected && !isConnecting) {
-        console.log('[CoquiLessonAssistant] ⏱️ Fallback auto-connect');
-        startSession();
-      }
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [autoConnect, isConnected, isConnecting, startSession]);
-
   // Update mascot state based on connection and AI state
   // Use parent's isConnecting prop OR internal isConnecting state
   const effectiveConnecting = isConnectingProp || isConnecting;
