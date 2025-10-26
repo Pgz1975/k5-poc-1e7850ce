@@ -247,6 +247,11 @@ function handleSessionCreated(session: SessionState): void {
   const fullInstructions = `${baseInstructions}${contextInstructions}`;
 
   const hasContext = !!contextInstructions;
+  const contextHasSpeakerMarker = session.contextPayload ? hasSpeakerMarker(session.contextPayload) : false;
+  const pronunciationTargetCount = session.contextPayload?.pronunciation_words?.length ?? 0;
+  log('[Instruction] 🔊 markers present:', contextHasSpeakerMarker);
+  log('[Instruction] 🎯 pronunciation targets:', pronunciationTargetCount);
+  log('[Instruction] 📏 length:', fullInstructions.length, 'chars');
   log(`Sending session.update${hasContext ? ' with context' : ''}`);
 
   const isWelcomeSpeaker = session.studentId === 'welcome-speaker';
@@ -371,7 +376,7 @@ function buildContextInstructions(session: SessionState): string {
   }
 
   sections.push(
-    `INTERACTION CONTRACT:\n- Study the context above to decide whether to read text aloud, listen for a response, guide the student toward the correct answer, or model pronunciation.\n- When any field includes the 🔊 marker, read or paraphrase that line before prompting the student.\n- Always wait a few seconds for the student to respond, then choose between praise, hints, scaffolds, or revealing the answer based on the data.\n- Keep the conversation tied to the provided lesson/exercise only.`
+    `INTERACTION CONTRACT:\n1. ALWAYS greet the student first, then summarize the activity before asking anything of them.\n2. When you see the 🔊 marker in any field, read or paraphrase that line aloud before prompting the student.\n3. Follow a Socratic sequence: offer praise → give a hint → model pronunciation (use pronunciation_words) → scaffold → only reveal the answer if the student stays stuck after guidance.\n4. Use the pronunciation_words array as explicit coaching targets—say them slowly, ask the student to repeat, and celebrate effort more than correctness.\n5. Stay strictly within the provided lesson/exercise context; do not introduce unrelated topics.\n6. After you speak, pause a few seconds to let the student respond before continuing.`
   );
 
   return `\n\n## Activity Context From Supabase\n${sections.join('\n\n')}`;
@@ -388,6 +393,15 @@ function stringifyContentSnippet(content: unknown): string {
   } catch (err) {
     warn('Failed to stringify content payload', err);
     return 'Unable to stringify content payload.';
+  }
+}
+
+function hasSpeakerMarker(context: ActivityContextPayload): boolean {
+  try {
+    const serialized = JSON.stringify(context);
+    return serialized?.includes('🔊') ?? false;
+  } catch (_err) {
+    return false;
   }
 }
 
