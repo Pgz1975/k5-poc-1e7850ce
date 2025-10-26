@@ -30,6 +30,8 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
   const { language } = useLanguage();
   const hasAttemptedConnection = useRef(false);
   const previousActivityId = useRef<string | undefined>(activityId);
+  const connectionAttempts = useRef(0);
+  const MAX_CONNECTION_ATTEMPTS = 3;
 
   const targetLanguage = language === 'es' ? 'es-PR' : 'en-US';
   const serializedVoiceContext = {
@@ -61,6 +63,23 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
     onAudioLevel: onAudioLevel
   });
 
+  // Store connect/disconnect in refs to avoid infinite loop
+  const connectRef = useRef(connect);
+  const disconnectRef = useRef(disconnect);
+
+  // Update refs when functions change
+  useEffect(() => {
+    connectRef.current = connect;
+    disconnectRef.current = disconnect;
+  }, [connect, disconnect]);
+
+  // Reset connection attempts on successful connection
+  useEffect(() => {
+    if (isConnected) {
+      connectionAttempts.current = 0;
+    }
+  }, [isConnected]);
+
   // Reconnect when activityId changes (ensures correct context per exercise)
   useEffect(() => {
     if (activityId !== previousActivityId.current && isConnected) {
@@ -73,16 +92,16 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
       
       // Fast reconnect: disconnect then reconnect
       (async () => {
-        await disconnect();
+        await disconnectRef.current();
         // Small delay to ensure cleanup
         await new Promise(resolve => setTimeout(resolve, 300));
         hasAttemptedConnection.current = false; // Reset flag to allow reconnection
-        await connect();
+        await connectRef.current();
       })();
     } else if (activityId !== previousActivityId.current) {
       previousActivityId.current = activityId;
     }
-  }, [activityId, isConnected, disconnect, connect]);
+  }, [activityId, isConnected]); // Removed connect and disconnect from deps to prevent infinite loop
 
   const startSession = useCallback(async () => {
     // Guard: prevent duplicate connection attempts
@@ -90,9 +109,16 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
       console.log('[useCoquiSession] ⏭️ Skipping - already attempted/connected/connecting');
       return;
     }
+
+    // Guard: prevent too many connection attempts
+    if (connectionAttempts.current >= MAX_CONNECTION_ATTEMPTS) {
+      console.error('[useCoquiSession] ❌ Max connection attempts reached');
+      return;
+    }
     
     hasAttemptedConnection.current = true; // Set flag before async work
-    console.log('[useCoquiSession] 🚀 Starting session');
+    connectionAttempts.current++;
+    console.log('[useCoquiSession] 🚀 Starting session (attempt', connectionAttempts.current, ')');
     
     if (!user) {
       console.warn('[useCoquiSession] ⚠️ No user - cannot start session');

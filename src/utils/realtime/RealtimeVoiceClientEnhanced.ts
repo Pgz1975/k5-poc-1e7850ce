@@ -75,9 +75,21 @@ export class RealtimeVoiceClientEnhanced {
     }
 
     try {
-      // Initialize audio context
-      this.audioContext = new AudioContext({ sampleRate: 24000 });
-      console.log('[RealtimeVoiceClient] 🎵 AudioContext created');
+      // Initialize audio context with timeout to prevent hanging
+      await Promise.race([
+        new Promise<void>((resolve, reject) => {
+          try {
+            this.audioContext = new AudioContext({ sampleRate: 24000 });
+            console.log('[RealtimeVoiceClient] 🎵 AudioContext created');
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        }),
+        new Promise<void>((_, reject) => 
+          setTimeout(() => reject(new Error('AudioContext initialization timeout')), 5000)
+        )
+      ]);
       
       this.jitterBuffer = new AdaptiveJitterBuffer(this.audioContext);
       this.jitterBuffer.onUnderrun(() => {
