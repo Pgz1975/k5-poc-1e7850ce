@@ -1,44 +1,35 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Volume2, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import CoquiMascot from '@/components/CoquiMascot';
+import { CoquiLessonAssistant } from '@/components/coqui/CoquiLessonAssistant';
 import { MultipleChoicePlayer } from '@/components/ManualAssessment/players/MultipleChoicePlayer';
 import { TrueFalsePlayer } from '@/components/ManualAssessment/players/TrueFalsePlayer';
 import { FillBlankPlayer } from '@/components/ManualAssessment/players/FillBlankPlayer';
 import { WriteAnswerPlayer } from '@/components/ManualAssessment/players/WriteAnswerPlayer';
 import { DragDropPlayer } from '@/components/ManualAssessment/players/DragDropPlayer';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { EnhancedRealtimeClient } from '@/utils/EnhancedRealtimeClient';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ViewAssessment() {
   const { id } = useParams();
-  const { user } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
   const [assessment, setAssessment] = useState<any>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAIPlaying, setIsAIPlaying] = useState(false);
-  const [permissionDenied, setPermissionDenied] = useState(false);
-  const [transcript, setTranscript] = useState<string[]>([]);
-  const [metrics, setMetrics] = useState<any>({});
   const [isPreConnecting, setIsPreConnecting] = useState(false);
   const [showExercise, setShowExercise] = useState(false);
-  const clientRef = useRef<EnhancedRealtimeClient | null>(null);
 
   useEffect(() => {
-    const fetchAndConnect = async () => {
-      // Step 1: Fetch assessment data
+    const fetchAssessment = async () => {
+      setIsPreConnecting(true);
+      
       const { data, error } = await supabase
         .from('manual_assessments')
         .select('*')
@@ -57,139 +48,27 @@ export default function ViewAssessment() {
 
       setAssessment(data);
       
-      // Step 2: Pre-connect voice in background
-      setIsPreConnecting(true);
-      try {
-        await startVoiceSession();
-        
-        // Small delay to ensure connection is stable
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Now show the exercise
-        setShowExercise(true);
-      } catch (error) {
-        console.error('[ViewAssessment] Pre-connection failed:', error);
-        // Show exercise anyway (voice optional)
-        setShowExercise(true);
-      } finally {
-        setIsPreConnecting(false);
-      }
+      // Small delay to let CoquiLessonAssistant mount and auto-connect
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setShowExercise(true);
+      setIsPreConnecting(false);
     };
 
-    if (id) fetchAndConnect();
-  }, [id]);
-
-  const startVoiceSession = async () => {
-    if (isConnected || isLoading || !assessment) return;
-
-    setIsLoading(true);
-    setPermissionDenied(false);
-    try {
-      const client = new EnhancedRealtimeClient({
-        studentId: user?.id || 'demo',
-        language: assessment?.language === 'es' ? 'es-PR' : 'en',
-        gradeLevel: 0,
-        assessmentId: id,
-        voiceGuidance: assessment?.voice_guidance,
-        onTranscription: (text, isUser) => {
-          setTranscript(prev => [...prev, `${isUser ? '👦' : '🤖'} ${text}`]);
-        },
-        onEvent: (event) => {
-          if (event.type === 'response.audio.delta') setIsAIPlaying(true);
-          if (event.type === 'response.done') setIsAIPlaying(false);
-        },
-        onMetrics: setMetrics
-      });
-
-      await client.connect();
-      clientRef.current = client;
-      setIsConnected(true);
-
-      setTimeout(() => {
-        if (assessment?.content?.question) {
-          client.sendText(assessment.content.question);
-        }
-      }, 1000);
-    } catch (error) {
-      console.error('Voice connection failed:', error);
-      
-      // Check if it's a permission error
-      if (error instanceof Error && 
-          (error.name === 'NotAllowedError' || error.message.includes('Permission denied'))) {
-        setPermissionDenied(true);
-        toast({
-          title: t("Permiso de Micrófono Requerido", "Microphone Permission Required"),
-          description: t(
-            "Necesitas permitir el acceso al micrófono para usar la voz interactiva. El ejercicio funciona sin voz.",
-            "You need to allow microphone access to use interactive voice. The exercise works without voice."
-          ),
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: t("Error", "Error"),
-          description: t("No se pudo conectar la voz", "Could not connect voice"),
-          variant: "destructive"
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Cleanup on unmount - FORCE disconnect
-  useEffect(() => {
-    return () => {
-      console.log('[ViewAssessment] 🧹 Unmounting - forcing disconnect');
-      
-      // Force immediate disconnect without awaiting (unmount can't be async)
-      if (clientRef.current) {
-        clientRef.current.disconnect();
-        clientRef.current = null;
-      }
-      
-      // Also stop any playing audio
-      setIsAIPlaying(false);
-    };
-  }, []);
+    if (id) fetchAssessment();
+  }, [id, toast, t]);
 
   const handleAnswer = (index: number) => {
     setSelectedAnswer(index);
     const correct = assessment.content.answers[index].isCorrect;
     setIsCorrect(correct);
     setShowFeedback(true);
-
-    const language = assessment.language;
-    if (clientRef.current) {
-      if (correct) {
-        clientRef.current.sendText(
-          language === 'es'
-            ? '¡Excelente! Respuesta correcta. ¡Wepa!'
-            : 'Excellent! Correct answer!'
-        );
-      } else {
-        clientRef.current.sendText(
-          language === 'es'
-            ? 'Casi lo tienes, vamos a intentarlo otra vez.'
-            : 'Almost there! Let\'s try again.'
-        );
-      }
-    }
   };
 
   const handleTryAgain = () => {
     setSelectedAnswer(null);
     setShowFeedback(false);
     setIsCorrect(false);
-    
-    if (clientRef.current) {
-      const language = assessment.language;
-      clientRef.current.sendText(
-        language === 'es'
-          ? 'Vamos a intentarlo de nuevo. ¡Tú puedes!'
-          : 'Let\'s try again. You can do it!'
-      );
-    }
   };
 
   // Normalize fill_blank content for backward compatibility
@@ -221,13 +100,6 @@ export default function ViewAssessment() {
     };
   };
 
-  const getCoquiState = () => {
-    if (isAIPlaying) return 'speaking';
-    if (showFeedback) {
-      return isCorrect ? 'celebration' : 'neutral';
-    }
-    return 'thinking';
-  };
 
   // Show loading screen while pre-connecting
   if (isPreConnecting || !showExercise) {
@@ -288,79 +160,6 @@ export default function ViewAssessment() {
           )}
         </div>
 
-        {/* Voice Status & Connection */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-3 items-center">
-            {!isConnected && !permissionDenied && (
-              <Button
-                onClick={startVoiceSession}
-                disabled={isLoading}
-                variant="outline"
-                size="sm"
-                className="gap-2"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {t("Conectando...", "Connecting...")}
-                  </>
-                ) : (
-                  <>
-                    🔊 {t("Activar Voz", "Activate Voice")}
-                  </>
-                )}
-              </Button>
-            )}
-            
-            {isConnected && (
-              <Badge variant="default">
-                🔊 {t("Voz Activa", "Voice Active")}
-              </Badge>
-            )}
-
-            {permissionDenied && (
-              <Badge variant="destructive" className="gap-1">
-                🔇 {t("Sin Micrófono", "No Microphone")}
-              </Badge>
-            )}
-          </div>
-
-          {isAIPlaying && (
-            <div className="flex items-center gap-2 text-primary animate-pulse">
-              <Volume2 className="h-5 w-5" />
-              <span className="font-medium">
-                {t("Coquí está hablando...", "Coquí is speaking...")}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Quick Action Buttons */}
-        {isConnected && (
-          <div className="flex gap-2 mb-4">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => clientRef.current?.sendText('Necesito ayuda')}
-            >
-              🆘 {t("Ayuda", "Help")}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => clientRef.current?.sendText('Repite por favor')}
-            >
-              🔁 {t("Repetir", "Repeat")}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => clientRef.current?.sendText('Más despacio')}
-            >
-              🐢 {t("Más Lento", "Slower")}
-            </Button>
-          </div>
-        )}
 
         {/* Question - Only for multiple choice and true/false */}
         {assessment.subtype !== 'fill_blank' && 
@@ -408,15 +207,8 @@ export default function ViewAssessment() {
             onAnswer={(answer, correct) => {
               setIsCorrect(correct);
               setShowFeedback(true);
-              if (clientRef.current) {
-                if (correct) {
-                  clientRef.current.sendText(t("¡Excelente! Formaste la palabra correctamente.", "Excellent! You formed the word correctly."));
-                } else {
-                  clientRef.current.sendText(t("Intenta de nuevo. Revisa las letras.", "Try again. Check the letters."));
-                }
-              }
             }}
-            voiceClient={clientRef.current}
+            voiceClient={null}
           />
         )}
 
@@ -427,7 +219,7 @@ export default function ViewAssessment() {
               setIsCorrect(correct);
               setShowFeedback(true);
             }}
-            voiceClient={clientRef.current}
+            voiceClient={null}
           />
         )}
 
@@ -437,45 +229,28 @@ export default function ViewAssessment() {
             onAnswer={(answer, correct) => {
               setIsCorrect(correct);
               setShowFeedback(true);
-              if (clientRef.current) {
-                if (correct) {
-                  clientRef.current.sendText(t("¡Excelente! Formaste la palabra correctamente.", "Excellent! You formed the word correctly."));
-                } else {
-                  clientRef.current.sendText(t("Intenta de nuevo. Reorganiza las letras.", "Try again. Rearrange the letters."));
-                }
-              }
             }}
-            voiceClient={clientRef.current}
+            voiceClient={null}
           />
         )}
 
-        {/* Coquí Mascot */}
-        <div className="flex justify-center">
-          <CoquiMascot state={getCoquiState()} size="large" />
-        </div>
-
-        {/* Transcript Section */}
-        <Card className="mb-6 p-6 max-h-64 overflow-y-auto">
-          <h3 className="font-semibold mb-4">{t("Conversación", "Conversation")}</h3>
-          {transcript.length === 0 ? (
-            <p className="text-gray-500 italic">
-              {t("La conversación aparecerá aquí...", "The conversation will appear here...")}
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {transcript.map((line, idx) => (
-                <div
-                  key={idx}
-                  className={`p-2 rounded ${
-                    line.startsWith('👦') ? 'bg-blue-100' : 'bg-green-100'
-                  }`}
-                >
-                  {line}
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
+        {/* Coquí Assistant - Single voice stack */}
+        {assessment && (
+          <CoquiLessonAssistant
+            activityId={assessment.id}
+            activityType="exercise"
+            voiceContext={{
+              title: assessment.title,
+              subtype: assessment.assessment_type,
+              language: assessment.language,
+              voiceGuidance: assessment.voice_guidance,
+              content: assessment.content
+            }}
+            autoConnect={true}
+            isConnecting={isPreConnecting}
+            position="fixed"
+          />
+        )}
 
         {/* Feedback */}
         {showFeedback && (
@@ -485,45 +260,6 @@ export default function ViewAssessment() {
                 ? t("¡Correcto! ¡Excelente trabajo!", "Correct! Excellent work!")
                 : t("Intenta de nuevo", "Try again")}
             </p>
-            {!isCorrect && (
-              <div className="flex justify-center">
-                <Button 
-                  onClick={handleTryAgain}
-                  variant="outline"
-                  size="lg"
-                  className="text-lg"
-                >
-                  {t("Volver a intentar", "Try again")}
-                </Button>
-              </div>
-            )}
-          </Card>
-        )}
-
-        {/* Performance Metrics */}
-        {isConnected && metrics.avgLatency !== undefined && (
-          <Card className="p-4 mt-6">
-            <h3 className="font-semibold mb-4">{t("Métricas de Rendimiento", "Performance Metrics")}</h3>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-green-600">
-                  {Math.round(metrics.avgLatency)}ms
-                </div>
-                <div className="text-sm text-gray-600">{t("Latencia", "Latency")}</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-blue-600">
-                  {metrics.interactions || 0}
-                </div>
-                <div className="text-sm text-gray-600">{t("Interacciones", "Interactions")}</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-purple-600">
-                  {Math.round(metrics.uptime / 1000)}s
-                </div>
-                <div className="text-sm text-gray-600">{t("Duración", "Duration")}</div>
-              </div>
-            </div>
           </Card>
         )}
       </main>

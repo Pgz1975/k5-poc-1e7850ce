@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCoquiSession, VoiceContextConfig } from "@/hooks/useCoquiSession";
 import CoquiMascot from "@/components/CoquiMascot";
@@ -10,6 +10,8 @@ interface CoquiLessonAssistantProps {
   voiceContext?: VoiceContextConfig;
   position?: 'fixed' | 'inline';
   className?: string;
+  autoConnect?: boolean;
+  isConnecting?: boolean;
 }
 
 export const CoquiLessonAssistant = ({ 
@@ -17,7 +19,9 @@ export const CoquiLessonAssistant = ({
   activityType, 
   voiceContext,
   position = 'fixed',
-  className = ''
+  className = '',
+  autoConnect = false,
+  isConnecting: isConnectingProp = false
 }: CoquiLessonAssistantProps) => {
   const { t } = useLanguage();
   const [mascotState, setMascotState] = useState("idle");
@@ -51,7 +55,13 @@ export const CoquiLessonAssistant = ({
     }
   });
 
-  // Removed auto-start - parent component handles connection
+  // Auto-connect if prop is true
+  useEffect(() => {
+    if (autoConnect && !isConnected && !isConnecting) {
+      console.log('[CoquiLessonAssistant] 🚀 Auto-connecting...');
+      startSession();
+    }
+  }, [autoConnect, isConnected, isConnecting, startSession]);
 
   // Update mascot state based on connection and AI state
   useEffect(() => {
@@ -66,13 +76,19 @@ export const CoquiLessonAssistant = ({
     }
   }, [isConnecting, isAIPlaying, isConnected]);
 
-  // Cleanup: IMMEDIATE session termination on unmount
+  // Store endSession in a ref to prevent dependency issues
+  const endSessionRef = useRef(endSession);
+  useEffect(() => {
+    endSessionRef.current = endSession;
+  }, [endSession]);
+
+  // Cleanup: ONLY on actual unmount
   useEffect(() => {
     return () => {
-      console.log('[CoquiLessonAssistant] 🛑 IMMEDIATE CLEANUP');
-      endSession(); // Don't await - force immediate termination
+      console.log('[CoquiLessonAssistant] 🛑 Component unmounting - cleanup');
+      endSessionRef.current();
     };
-  }, [endSession]);
+  }, []); // Empty array = only runs on actual unmount
 
   const handleMascotClick = () => {
     toast.info(t("Estoy escuchando. Habla conmigo.", "I'm listening. Talk to me."));
