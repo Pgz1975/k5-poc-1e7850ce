@@ -90,7 +90,8 @@ export const CoquiLessonAssistant = ({
         endSession();
       }
     };
-  }, [isConnected, endSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleMascotClick = async () => {
     if (isConnected) {
