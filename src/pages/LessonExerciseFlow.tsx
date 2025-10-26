@@ -9,7 +9,7 @@ import { LessonCompletionScreen } from '@/components/LessonCompletion/LessonComp
 import { Progress } from '@/components/ui/progress';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { CoquiLessonAssistant } from '@/components/coqui/CoquiLessonAssistant';
+import { CoquiLessonAssistantGuard } from '@/components/coqui/CoquiLessonAssistantGuard';
 import { ActivityActions } from '@/components/ActivityManagement/ActivityActions';
 
 export default function LessonExerciseFlow() {
@@ -313,7 +313,7 @@ export default function LessonExerciseFlow() {
       />
 
       {/* Interactive Coquí Assistant */}
-      <CoquiLessonAssistant
+      <CoquiLessonAssistantGuard
         activityId={currentExercise.id}
         activityType="exercise"
         voiceContext={exerciseVoiceContext}

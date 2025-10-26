@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CoquiLessonAssistant } from "@/components/coqui/CoquiLessonAssistant";
+import { CoquiLessonAssistantGuard } from "@/components/coqui/CoquiLessonAssistantGuard";
 import { CheckCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -302,8 +302,8 @@ export default function ViewLesson() {
           </Card>
 
           {/* Interactive Coquí Assistant - Single Instance */}
-          {!isLoading && !lockLoading && lesson && (
-            <CoquiLessonAssistant
+          {lesson && (
+            <CoquiLessonAssistantGuard
               activityId={lesson.id}
               activityType="lesson"
               position={isDesktop ? "inline" : "fixed"}

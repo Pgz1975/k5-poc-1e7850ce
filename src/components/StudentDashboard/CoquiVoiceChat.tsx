@@ -7,8 +7,6 @@ import CoquiMascot from "@/components/CoquiMascot";
 import { useCoquiSession } from "@/hooks/useCoquiSession";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CoquiClickHint } from "./CoquiClickHint";
-import { CoquiTimeoutIndicator } from "@/components/coqui/CoquiTimeoutIndicator";
-import { CoquiSessionBadge } from "@/components/coqui/CoquiSessionBadge";
 
 interface Message {
   text: string;
@@ -23,17 +21,14 @@ export const CoquiVoiceChat = () => {
   const [isMuted, setIsMuted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Use new session hook with inactivity management
+  // Use simplified session hook
   const {
-    countdown,
     isConnected,
     isConnecting,
     isAIPlaying,
     transcript,
     startSession,
-    endSession,
-    resetTimeout,
-    inactivityStatus
+    endSession
   } = useCoquiSession();
 
   // Convert transcript array to messages
@@ -100,24 +95,6 @@ export const CoquiVoiceChat = () => {
               position="inline"
               className={isConnected ? "animate-breathe" : "cursor-pointer"}
             />
-            
-            {/* Timeout Warning Indicator */}
-            <CoquiTimeoutIndicator
-              countdownSeconds={countdown}
-              isVisible={countdown < 10 && countdown > 0 && isConnected}
-              position="above"
-              onReactivate={resetTimeout}
-            />
-            
-            {/* Session Status Badge */}
-            {isConnected && (
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-                <CoquiSessionBadge
-                  isConnected={isConnected}
-                  inactivityStatus={inactivityStatus}
-                />
-              </div>
-            )}
             
             {!isConnected && <CoquiClickHint />}
           </div>

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCoquiSession, VoiceContextConfig } from "@/hooks/useCoquiSession";
 import CoquiMascot from "@/components/CoquiMascot";
-import { CoquiTimeoutIndicator } from "./CoquiTimeoutIndicator";
 import { toast } from "sonner";
 
 interface CoquiLessonAssistantProps {
@@ -24,14 +23,11 @@ export const CoquiLessonAssistant = ({
   const [mascotState, setMascotState] = useState("idle");
 
   const {
-    countdown,
     isConnected,
     isConnecting,
     isAIPlaying,
     startSession,
-    endSession,
-    resetTimeout,
-    inactivityStatus
+    endSession
   } = useCoquiSession({
     activityId,
     activityType,
@@ -77,30 +73,7 @@ export const CoquiLessonAssistant = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleMascotClick = async () => {
-    // If timed out, restart session
-    if (inactivityStatus === 'timedOut') {
-      console.log('[CoquiLessonAssistant] Restarting session after timeout');
-      resetTimeout();
-      try {
-        await startSession();
-        toast.success(t("¡Coquí está de vuelta!", "Coquí is back!"));
-      } catch (error) {
-        console.error('[CoquiLessonAssistant] Failed to restart:', error);
-        toast.error(t("No se pudo reconectar", "Could not reconnect"));
-      }
-      return;
-    }
-
-    // If warning, reset the timeout
-    if (inactivityStatus === 'warning') {
-      console.log('[CoquiLessonAssistant] User clicked - resetting timeout');
-      resetTimeout();
-      toast.info(t("¡Continúo escuchando!", "Still listening!"));
-      return;
-    }
-
-    // Otherwise, just provide feedback
+  const handleMascotClick = () => {
     toast.info(t("Estoy escuchando. Habla conmigo.", "I'm listening. Talk to me."));
   };
 
@@ -121,16 +94,6 @@ export const CoquiLessonAssistant = ({
           size={mascotSize}
           position={mascotPosition}
         />
-
-        {/* Timeout Warning Indicator */}
-        {inactivityStatus === 'warning' && (
-          <CoquiTimeoutIndicator
-            countdownSeconds={countdown}
-            isVisible={true}
-            position={position === 'inline' ? 'beside' : 'above'}
-            onReactivate={resetTimeout}
-          />
-        )}
       </div>
     </div>
   );
