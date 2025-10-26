@@ -371,7 +371,7 @@ function buildContextInstructions(session: SessionState): string {
 
   // Detect exercise interface type
   const visualExercises = ['multiple_choice', 'drag_drop', 'true_false', 'fill_blank'];
-  const spokenExercises = ['lesson', 'short_answer'];
+  const spokenExercises = ['short_answer']; // Removed 'lesson' - handled separately
 
   const isVisualSelection = visualExercises.includes(context?.activity_subtype ?? '');
   const isSpokenResponse = spokenExercises.includes(context?.activity_subtype ?? '');
@@ -388,6 +388,16 @@ function buildContextInstructions(session: SessionState): string {
     );
   }
 
+  // Detect if this is a parent lesson (not an exercise)
+  const isParentLesson = context?.activity_subtype === 'lesson' || 
+                         session.activityType === 'lesson';
+
+  if (isParentLesson) {
+    sections.push(
+      `LESSON MODE: This is an instructional lesson, not a quick exercise. Be exploratory and conversational.\n   - If the voice_guidance or coqui_dialogue instructs you to "Lee el texto" (read the text) or "Read the following", you MUST read the content from the content.question or content.text field verbatim.\n   - Use a natural, storytelling pace. Pause for comprehension.\n   - After reading, invite the student to discuss or ask questions about what they heard.\n   - Spanish: "¿Qué piensas?" "¿Te gustó?" "¿Qué aprendiste?"\n   - English: "What do you think?" "Did you like it?" "What did you learn?"`
+    );
+  }
+
   // Detect if this is a continuation session (within last 2 minutes)
   if (context?.is_continuation || (context as any)?.skip_greeting) {
     sections.push(
@@ -397,6 +407,27 @@ function buildContextInstructions(session: SessionState): string {
 
   if (context?.voice_guidance) {
     sections.push(`AUTHOR VOICE GUIDANCE:\n${context.voice_guidance}`);
+  }
+
+  // Check if voice_guidance instructs reading content verbatim
+  if (context?.voice_guidance && isParentLesson) {
+    const readInstructions = [
+      'lee el texto',
+      'lee con expresión',
+      'read the following',
+      'read the text',
+      'read aloud'
+    ];
+    
+    const shouldReadVerbatim = readInstructions.some(phrase => 
+      context.voice_guidance?.toLowerCase().includes(phrase)
+    );
+    
+    if (shouldReadVerbatim) {
+      sections.push(
+        `VERBATIM READING INSTRUCTION DETECTED: The voice_guidance says to read the text. You MUST read the content from content.question or content.text field word-for-word, with expression and natural pauses. Do not paraphrase or summarize.`
+      );
+    }
   }
 
   if (context?.coqui_dialogue) {
