@@ -7,6 +7,7 @@ interface LessonWithOrdering {
   id: string;
   display_order: number;
   assessment_id: string;
+  domain_name?: string;
 }
 
 interface CompletedActivity {
@@ -18,12 +19,21 @@ interface CompletedActivity {
 /**
  * Determines if a lesson is locked based on sequential unlocking logic
  * A lesson is locked if the previous lesson in the sequence has not been completed
+ * 
+ * Special case: TEST_G1_FIXTURES lessons are always unlocked for QA testing
  */
 export const isLessonLocked = (
   lessonIndex: number,
   orderedLessons: LessonWithOrdering[],
   completedActivities: CompletedActivity[]
 ): boolean => {
+  const currentLesson = orderedLessons[lessonIndex];
+  
+  // TEST G1 fixtures are always unlocked for QA testing
+  if (currentLesson?.domain_name === 'TEST_G1_FIXTURES') {
+    return false;
+  }
+
   // First lesson is always unlocked
   if (lessonIndex === 0) return false;
 
