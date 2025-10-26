@@ -160,6 +160,30 @@ serve(async (req) => {
           log('🤐 VAD: User stopped speaking');
         } else if (msg.type === 'conversation.item.input_audio_transcription.completed') {
           log('📝 User said:', msg.transcript);
+          
+          // Log user transcript to database for diagnostics (async background task)
+          if (msg.transcript && session.activityId) {
+            (async () => {
+              try {
+                const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.75.0');
+                const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+                const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+                const supabase = createClient(supabaseUrl, supabaseKey);
+                
+                await supabase.from('voice_interactions').insert({
+                  student_id: session.studentId,
+                  assessment_id: session.activityId,
+                  interaction_text: msg.transcript,
+                  is_user: true,
+                  audio_duration_ms: 0 // not available from transcript event
+                });
+                
+                log('✅ Logged user transcript to database');
+              } catch (dbError) {
+                error('Failed to log user transcript:', dbError);
+              }
+            })();
+          }
         } else if (msg.type === 'response.created') {
           log('🎬 AI response started');
         } else if (msg.type === 'response.done') {

@@ -287,7 +287,7 @@ export class RealtimeVoiceClientEnhanced {
           break;
 
         case 'response.created':
-          console.log('[RealtimeVoiceClient] 🎬 AI response started');
+          console.log('[RealtimeVoiceClient] 🎬 AI response started - pausing user audio');
           this.isResponseInProgress = true;
           
           // Clear audio buffer to prevent VAD from triggering another response
@@ -298,7 +298,7 @@ export class RealtimeVoiceClientEnhanced {
           break;
 
         case 'response.done':
-          console.log('[RealtimeVoiceClient] ✅ AI response completed');
+          console.log('[RealtimeVoiceClient] ✅ AI response completed - resuming user audio');
           this.isResponseInProgress = false;
           this.config.onResponseComplete?.();
           break;
@@ -383,6 +383,16 @@ export class RealtimeVoiceClientEnhanced {
 
   private handleAudioGating(pcm16Data: Int16Array, dbLevel: number): void {
     const now = performance.now();
+
+    // CRITICAL: If AI is speaking (response in progress), pause sending user audio
+    // This prevents VAD from triggering new responses during AI speech
+    if (this.isResponseInProgress) {
+      if (dbLevel > this.audioGateThreshold) {
+        console.log('[RealtimeVoiceClient] 🔇 Pausing user audio - AI response in progress');
+      }
+      // Drop or silently buffer - do not send to server
+      return;
+    }
 
     // If above threshold, send immediately
     if (dbLevel > this.audioGateThreshold) {

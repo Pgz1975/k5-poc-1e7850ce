@@ -3,7 +3,7 @@
  * Simplified voice connection wrapper
  */
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useRealtimeVoice } from '@/hooks/useRealtimeVoice';
@@ -29,6 +29,7 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
   const { user } = useAuth();
   const { language } = useLanguage();
   const hasAttemptedConnection = useRef(false);
+  const previousActivityId = useRef<string | undefined>(activityId);
 
   const targetLanguage = language === 'es' ? 'es-PR' : 'en-US';
   const serializedVoiceContext = {
@@ -59,6 +60,29 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
     contextPayload: serializedVoiceContext,
     onAudioLevel: onAudioLevel
   });
+
+  // Reconnect when activityId changes (ensures correct context per exercise)
+  useEffect(() => {
+    if (activityId !== previousActivityId.current && isConnected) {
+      console.log('[useCoquiSession] 🔄 Activity changed - reconnecting with new context', {
+        from: previousActivityId.current,
+        to: activityId
+      });
+      
+      previousActivityId.current = activityId;
+      
+      // Fast reconnect: disconnect then reconnect
+      (async () => {
+        await disconnect();
+        // Small delay to ensure cleanup
+        await new Promise(resolve => setTimeout(resolve, 300));
+        hasAttemptedConnection.current = false; // Reset flag to allow reconnection
+        await connect();
+      })();
+    } else if (activityId !== previousActivityId.current) {
+      previousActivityId.current = activityId;
+    }
+  }, [activityId, isConnected, disconnect, connect]);
 
   const startSession = useCallback(async () => {
     // Guard: prevent duplicate connection attempts

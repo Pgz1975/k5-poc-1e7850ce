@@ -86,31 +86,35 @@ export const CoquiLessonAssistant = ({
     }
   }, [effectiveConnecting, isAIPlaying, isConnected]);
 
-  // Send post-connect greeting exactly once when connection is established
+  // Track greeting status and initial cooldown
   const hasGreeted = useRef(false);
+  const initialCooldownRef = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
     if (isConnected && !hasGreeted.current && sendText) {
+      // Use activity guidance as the "greeting" to avoid double sending
+      // Mark as greeted but don't send a separate greeting
       hasGreeted.current = true;
       
-      const greeting = voiceContext?.coquiDialogue 
-        || voiceContext?.voiceGuidance 
-        || t(
-            "¡Hola! Soy Coquí, tu asistente de lectura. ¿Cómo te puedo ayudar hoy?",
-            "Hi! I'm Coquí, your reading assistant. How can I help you today?"
-          );
+      // Set a cooldown timer (1200ms) before allowing activity prompts
+      initialCooldownRef.current = setTimeout(() => {
+        console.log('[CoquiLessonAssistant] ⏰ Initial cooldown complete');
+      }, 1200);
       
-      console.log('[CoquiLessonAssistant] 👋 Sending post-connect greeting');
-      sendText(greeting);
+      console.log('[CoquiLessonAssistant] 👋 Connected - will use activity guidance as greeting');
     }
-  }, [isConnected, voiceContext, sendText, t]);
+  }, [isConnected, sendText]);
 
-  // Reset greeting flag, prompt key, and retry count when disconnecting
+  // Reset greeting flag, prompt key, retry count, and cooldown when disconnecting
   useEffect(() => {
     if (!isConnected && hasGreeted.current) {
       hasGreeted.current = false;
       lastPromptKey.current = '';
       retryCount.current = 0;
+      if (initialCooldownRef.current) {
+        clearTimeout(initialCooldownRef.current);
+        initialCooldownRef.current = null;
+      }
     }
   }, [isConnected]);
 
@@ -123,11 +127,40 @@ export const CoquiLessonAssistant = ({
     // Build unique prompt key from activityId + guidance content
     const currentPromptKey = `${activityId}_${voiceContext?.voiceGuidance || voiceContext?.coquiDialogue || ''}`;
     
-    // Only send if connected, prompt changed, and we've already greeted
+    // Only send if connected, prompt changed, and we've greeted
     if (isConnected && hasGreeted.current && currentPromptKey !== lastPromptKey.current && sendText) {
       retryCount.current = 0; // Reset retry count for new prompt
       
       const sendActivityPrompt = () => {
+        // Check if we're still in initial cooldown
+        if (initialCooldownRef.current !== null) {
+          retryCount.current++;
+          const maxRetries = 10;
+          
+          if (retryCount.current >= maxRetries) {
+            console.warn('[CoquiLessonAssistant] ⚠️ Max retries reached, sending prompt anyway');
+            const guidance = voiceContext?.coquiDialogue 
+              || voiceContext?.voiceGuidance 
+              || t(
+                  `Ahora vamos a trabajar en una nueva actividad.`,
+                  `Now let's work on a new activity.`
+                );
+            sendText(guidance);
+            lastPromptKey.current = currentPromptKey;
+            retryCount.current = 0;
+            return;
+          }
+          
+          // Wait for cooldown with random interval 500-800ms
+          const retryInterval = 500 + Math.random() * 300;
+          console.log('[CoquiLessonAssistant] ⏳ Waiting for initial cooldown...', {
+            retryCount: retryCount.current,
+            nextRetryMs: Math.round(retryInterval)
+          });
+          retryTimerRef.current = setTimeout(sendActivityPrompt, retryInterval);
+          return;
+        }
+        
         // Wait for BOTH audio playback AND response generation to finish
         if (isAIPlaying || client?.isResponseActive()) {
           retryCount.current++;
@@ -178,7 +211,10 @@ export const CoquiLessonAssistant = ({
         }
       };
 
-      sendActivityPrompt();
+      // Add initial debounce (600-800ms) before first check
+      const initialDebounce = 600 + Math.random() * 200;
+      console.log('[CoquiLessonAssistant] ⏲️ Starting activity prompt with initial debounce:', Math.round(initialDebounce), 'ms');
+      retryTimerRef.current = setTimeout(sendActivityPrompt, initialDebounce);
     }
 
     // Cleanup retry timer
@@ -188,7 +224,7 @@ export const CoquiLessonAssistant = ({
         retryTimerRef.current = null;
       }
     };
-  }, [isConnected, hasGreeted, activityId, voiceContext, isAIPlaying, sendText, t]);
+  }, [isConnected, hasGreeted, activityId, voiceContext, isAIPlaying, sendText, t, client]);
 
   // Store endSession in a ref to prevent dependency issues
   const endSessionRef = useRef(endSession);
