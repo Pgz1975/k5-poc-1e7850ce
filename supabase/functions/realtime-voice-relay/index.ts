@@ -353,6 +353,128 @@ function decodeContextPayload(raw: string): ActivityContextPayload | null {
   }
 }
 
+function detectSpokenInteraction(context: any): boolean {
+  if (!context) return false;
+  
+  const textToCheck = [
+    context.voice_guidance || '',
+    context.coqui_dialogue || '',
+    context.content?.question || ''
+  ].join(' ').toLowerCase();
+  
+  const spokenCues = [
+    // Spanish - Reading
+    'lee',
+    'lee el texto',
+    'lee en voz alta',
+    'leer',
+    'lea',
+    'leen',
+    
+    // Spanish - Repetition
+    'repite',
+    'repetir',
+    'repiten',
+    'pídele que repita',
+    'pídeles',
+    
+    // Spanish - Pronunciation
+    'pronuncia',
+    'pronunciar',
+    'modela',
+    'enfatizando',
+    
+    // Spanish - Listening
+    'escucha',
+    'escucha lo que dice',
+    'escuchas',
+    'escuchará',
+    
+    // Spanish - Speaking
+    'di',
+    'dile',
+    'dices',
+    'dirá',
+    'deletreen',
+    'deletrea',
+    'oralmente',
+    
+    // Spanish - Questioning
+    'pregunta',
+    'preguntar',
+    
+    // Spanish - Waiting for response
+    'espera la respuesta',
+    'espera',
+    'respondan',
+    
+    // Spanish - Completing words
+    'completa la palabra',
+    'completar',
+    
+    // Spanish - Confirmation
+    'confirma repitiendo',
+    'confirmar',
+    
+    // English - Reading
+    'read aloud',
+    'read',
+    
+    // English - Repetition
+    'repeat',
+    
+    // English - Pronunciation
+    'pronounce',
+    
+    // English - Listening
+    'listen',
+    'listen to what',
+    
+    // English - Speaking
+    'ask',
+    'say',
+    'tell',
+    'speak',
+    
+    // English - Waiting
+    'wait for response',
+    
+    // Universal
+    '🔊'
+  ];
+  
+  return spokenCues.some(cue => textToCheck.includes(cue));
+}
+
+function detectVisualInteraction(context: any): boolean {
+  if (!context) return false;
+  
+  const textToCheck = [
+    context.voice_guidance || '',
+    context.coqui_dialogue || '',
+    context.content?.question || ''
+  ].join(' ').toLowerCase();
+  
+  const visualCues = [
+    'arrastra',
+    'drag',
+    'selecciona',
+    'select',
+    'elige',
+    'choose',
+    'toca',
+    'tap'
+  ];
+  
+  const hasVisualStructure = !!(
+    context.content?.answers ||
+    context.content?.availableLetters ||
+    context.content?.letters
+  );
+  
+  return hasVisualStructure || visualCues.some(cue => textToCheck.includes(cue));
+}
+
 function buildContextInstructions(session: SessionState): string {
   const sections: string[] = [];
   const context = session.contextPayload;
@@ -369,22 +491,42 @@ function buildContextInstructions(session: SessionState): string {
     );
   }
 
-  // Detect exercise interface type
-  const visualExercises = ['multiple_choice', 'drag_drop', 'true_false', 'fill_blank'];
-  const spokenExercises = ['short_answer']; // Removed 'lesson' - handled separately
+  // Detect interaction mode from content analysis
+  const hasSpokenComponent = detectSpokenInteraction(context);
+  const hasVisualComponent = detectVisualInteraction(context);
 
-  const isVisualSelection = visualExercises.includes(context?.activity_subtype ?? '');
-  const isSpokenResponse = spokenExercises.includes(context?.activity_subtype ?? '');
-
-  if (isVisualSelection) {
+  if (hasVisualComponent && hasSpokenComponent) {
+    // HYBRID: Both visual AND spoken interaction expected
     sections.push(
-      `INTERFACE NOTE: This is a visual selection exercise. The student can SEE the answer options on their screen. Use action verbs:\n   - Spanish: "elige" (choose), "toca" (tap), "selecciona" (select), "arrastra" (drag)\n   - English: "choose," "tap," "select," "drag"\n   DO NOT use "dime" (tell me) or "qué piensas" (what do you think). The student will interact by tapping or dragging, not speaking.`
+      `INTERACTION MODE: This is a HYBRID exercise combining visual interaction with spoken practice.
+    
+    VISUAL COMPONENT: The student can see options/letters on screen and will interact by tapping, dragging, or selecting.
+    - Use action verbs: "elige" (choose), "arrastra" (drag), "selecciona" (select)
+    - Example: "Ahora te voy a dar una palabra, y tú la vas a escribir con las letras que ves."
+    
+    SPOKEN COMPONENT: The student is ALSO expected to practice pronunciation or respond verbally.
+    - Read the question/prompt aloud: "${(context?.content as any)?.question || 'the prompt'}"
+    - Ask follow-up questions: "¿Qué letra falta?" "¿Puedes repetir la palabra completa?"
+    - Listen and validate: "Escucha lo que dice el estudiante" means WAIT for them to speak before commenting
+    - Celebrate verbal attempts: "¡Muy bien dicho!" "¡Excelente pronunciación!"
+    
+    SEQUENCING: Typically, you'll (1) introduce the task, (2) read aloud what's on screen, (3) ask a question, (4) wait for visual OR spoken response, (5) validate and celebrate.`
     );
-  }
-
-  if (isSpokenResponse) {
+  } else if (hasVisualComponent) {
+    // Pure visual interaction
     sections.push(
-      `INTERFACE NOTE: This is a spoken response exercise. Encourage the student to speak aloud, repeat words, or practice pronunciation. Use phrases like "repite" (repeat), "di en voz alta" (say aloud), "pronuncia" (pronounce).`
+      `INTERACTION MODE: This is a VISUAL exercise. The student will interact by tapping, dragging, or selecting on screen.
+    - Use action verbs: "elige" (choose), "arrastra" (drag), "selecciona" (select), "toca" (tap)
+    - Avoid "dime" (tell me) or "qué piensas" (what do you think) unless the voice_guidance explicitly instructs otherwise.
+    - After they make a selection, react to the UI feedback (correct/incorrect) and explain why.`
+    );
+  } else if (hasSpokenComponent) {
+    // Pure spoken interaction
+    sections.push(
+      `INTERACTION MODE: This is a SPOKEN exercise. The student should practice pronunciation and respond verbally.
+    - Encourage them to speak: "repite" (repeat), "di en voz alta" (say aloud), "pronuncia" (pronounce)
+    - Wait for their spoken response before commenting.
+    - Model correct pronunciation if they struggle.`
     );
   }
 

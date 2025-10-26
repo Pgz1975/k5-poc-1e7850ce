@@ -289,6 +289,12 @@ export class RealtimeVoiceClientEnhanced {
         case 'response.created':
           console.log('[RealtimeVoiceClient] 🎬 AI response started');
           this.isResponseInProgress = true;
+          
+          // Clear audio buffer to prevent VAD from triggering another response
+          if (this.ws?.readyState === WebSocket.OPEN) {
+            this.ws.send(JSON.stringify({ type: 'input_audio_buffer.clear' }));
+            console.log('[RealtimeVoiceClient] 🧹 Cleared audio buffer during response');
+          }
           break;
 
         case 'response.done':

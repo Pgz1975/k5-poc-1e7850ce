@@ -105,17 +105,19 @@ export const CoquiLessonAssistant = ({
     }
   }, [isConnected, voiceContext, sendText, t]);
 
-  // Reset greeting flag and prompt key when disconnecting
+  // Reset greeting flag, prompt key, and retry count when disconnecting
   useEffect(() => {
     if (!isConnected && hasGreeted.current) {
       hasGreeted.current = false;
       lastPromptKey.current = '';
+      retryCount.current = 0;
     }
   }, [isConnected]);
 
   // Per-activity greeting: send guidance when activityId changes while connected
   const lastPromptKey = useRef<string>('');
   const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const retryCount = useRef(0);
 
   useEffect(() => {
     // Build unique prompt key from activityId + guidance content
@@ -123,15 +125,37 @@ export const CoquiLessonAssistant = ({
     
     // Only send if connected, prompt changed, and we've already greeted
     if (isConnected && hasGreeted.current && currentPromptKey !== lastPromptKey.current && sendText) {
+      retryCount.current = 0; // Reset retry count for new prompt
+      
       const sendActivityPrompt = () => {
         // Wait for BOTH audio playback AND response generation to finish
         if (isAIPlaying || client?.isResponseActive()) {
-          // AI still speaking or generating - retry in 300ms
+          retryCount.current++;
+          const maxRetries = 10;
+          
+          if (retryCount.current >= maxRetries) {
+            console.warn('[CoquiLessonAssistant] ⚠️ Max retries reached, sending prompt anyway');
+            const guidance = voiceContext?.coquiDialogue 
+              || voiceContext?.voiceGuidance 
+              || t(
+                  `Ahora vamos a trabajar en una nueva actividad.`,
+                  `Now let's work on a new activity.`
+                );
+            sendText(guidance);
+            lastPromptKey.current = currentPromptKey;
+            retryCount.current = 0;
+            return;
+          }
+          
+          // Random interval between 500-800ms for better collision avoidance
+          const retryInterval = 500 + Math.random() * 300;
           console.log('[CoquiLessonAssistant] ⏳ AI still active, retrying activity prompt...', {
             isAIPlaying,
-            isResponseActive: client?.isResponseActive()
+            isResponseActive: client?.isResponseActive(),
+            retryCount: retryCount.current,
+            nextRetryMs: Math.round(retryInterval)
           });
-          retryTimerRef.current = setTimeout(sendActivityPrompt, 300);
+          retryTimerRef.current = setTimeout(sendActivityPrompt, retryInterval);
         } else {
           // AI finished - send the new activity's guidance
           const guidance = voiceContext?.coquiDialogue 
@@ -144,6 +168,7 @@ export const CoquiLessonAssistant = ({
           console.log('[CoquiLessonAssistant] 🔄 Activity changed, sending new guidance');
           sendText(guidance);
           lastPromptKey.current = currentPromptKey;
+          retryCount.current = 0;
           
           // Clear retry timer
           if (retryTimerRef.current) {
