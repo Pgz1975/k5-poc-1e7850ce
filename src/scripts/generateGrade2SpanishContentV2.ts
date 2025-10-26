@@ -298,7 +298,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Identifica el número de sílabas en palabras",
         subtype: "multiple_choice",
         voiceGuidance: "Escucha la palabra y cuenta cuántas sílabas tiene. Recuerda que cada sílaba tiene al menos una vocal. Di la palabra en voz alta separando las partes.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["colorful butterfly", "butterfly wings"],
         pronunciationWords: ["mariposa"],
         contentBuilder: () => ({
           question: "¿Cuántas sílabas tiene 'mariposa'?",
@@ -316,7 +316,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Arrastra palabras según tengan o no el dígrafo RR",
         subtype: "drag_drop",
         voiceGuidance: "Arrastra cada palabra a su zona correcta. Escucha el sonido fuerte de RR en palabras como 'perro' y 'carro'. Las otras palabras no tienen este sonido.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["dog sitting", "car vehicle", "house exterior", "table furniture"],
         pronunciationWords: ["perro", "carro", "casa", "mesa"],
         contentBuilder: () => ({
           mode: "match",
@@ -339,7 +339,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Verifica tu conocimiento de dígrafos",
         subtype: "true_false",
         voiceGuidance: "Lee la oración con atención. Piensa en el sonido del dígrafo LL. ¿Es verdadera o falsa la afirmación? Usa lo que aprendiste sobre dígrafos.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["rain drops", "rainy weather"],
         pronunciationWords: ["lluvia"],
         contentBuilder: () => ({
           question: "La palabra 'lluvia' tiene el dígrafo LL",
@@ -358,7 +358,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Reconoce el uso correcto de signos de puntuación",
         subtype: "multiple_choice",
         voiceGuidance: "Lee cada oración y piensa qué signo de puntuación debe ir al final. Si es una pregunta, necesita ¿?. Si expresa emoción, necesita ¡!. Si es una afirmación, necesita punto.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["question mark symbol", "exclamation mark symbol", "period punctuation"],
         pronunciationWords: ["pregunta", "exclamación", "punto"],
         contentBuilder: () => ({
           question: "¿Qué signo va al final?: 'Cómo te llamas'",
@@ -376,7 +376,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Arrastra palabras para formar una oración fluida",
         subtype: "drag_drop",
         voiceGuidance: "Arrastra las palabras en el orden correcto para formar una oración que tenga sentido. Lee en voz alta para verificar que suene bien.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["children playing park", "kids playground"],
         pronunciationWords: ["niños", "juegan", "parque"],
         contentBuilder: () => ({
           mode: "sequence",
@@ -398,13 +398,13 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Usa palabras de alta frecuencia",
         subtype: "fill_blank",
         voiceGuidance: "Completa la oración usando las letras disponibles. Piensa en las palabras que usamos frecuentemente como 'el', 'la', 'un', 'una'.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["bright sun shining", "sunny day"],
+        contentBuilder: (images) => ({
           mode: "single_word",
           prompt: "Completa: ___ sol brilla",
           target: "el",
           letters: ["e", "l", "a", "o"],
-          imageUrl: null,
+          imageUrl: images[0],
           autoShuffle: true
         })
       },
@@ -413,7 +413,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Identifica la entonación correcta",
         subtype: "multiple_choice",
         voiceGuidance: "Mira la oración y sus signos de puntuación. ¿Cómo debes leerla? Los signos te dan pistas sobre la emoción y la entonación.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["happy child smiling", "beautiful sunny day"],
         pronunciationWords: ["qué", "lindo", "día"],
         contentBuilder: () => ({
           question: "¿Cómo debes leer: '¡Qué lindo día!'?",
@@ -431,8 +431,8 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Identifica dónde hacer pausas al leer",
         subtype: "drag_drop",
         voiceGuidance: "Arrastra las palabras 'PAUSA' donde veas una coma en la oración. Las comas te dicen dónde hacer una pausa corta al leer.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["school building", "classroom learning"],
+        contentBuilder: (images) => ({
           mode: "match",
           question: "Marca dónde hay pausas: 'En la escuela, aprendo matemáticas, español, y ciencias.'",
           dropZones: [
@@ -453,10 +453,10 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Verifica tu conocimiento de signos",
         subtype: "true_false",
         voiceGuidance: "Lee la afirmación y decide si es verdadera o falsa. Piensa en lo que aprendiste sobre los signos de puntuación.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["punctuation marks", "period symbol"],
+        contentBuilder: (images) => ({
           question: "El punto (.) indica una pausa larga al final de una oración",
-          questionImage: null,
+          questionImage: images[0],
           answers: [
             { text: "Verdadero", imageUrl: null, isCorrect: true },
             { text: "Falso", imageUrl: null, isCorrect: false }
@@ -489,7 +489,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Une palabras con significados opuestos",
         subtype: "drag_drop",
         voiceGuidance: "Arrastra cada palabra a su antónimo, la palabra que significa lo contrario. Por ejemplo, 'día' es lo opuesto de 'noche'.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["sun daytime", "moon nighttime", "hot temperature", "cold temperature"],
         pronunciationWords: ["día", "noche", "caliente", "frío"],
         contentBuilder: () => ({
           mode: "match",
@@ -512,13 +512,13 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Escribe una palabra con significado similar",
         subtype: "fill_blank",
         voiceGuidance: "Completa la palabra que es sinónimo de 'grande'. Piensa en palabras que significan algo muy grande.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["huge elephant", "giant building"],
+        contentBuilder: (images) => ({
           mode: "single_word",
           prompt: "Escribe un sinónimo de 'grande': _____",
           target: "enorme",
           letters: ["e", "n", "o", "r", "m", "e"],
-          imageUrl: null,
+          imageUrl: images[0],
           autoShuffle: true
         })
       },
@@ -527,7 +527,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Interpreta comparaciones y expresiones",
         subtype: "multiple_choice",
         voiceGuidance: "Lee la expresión figurada y piensa qué significa realmente. No es literal, es una comparación para describir algo.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["fast running person", "wind blowing"],
         pronunciationWords: ["rápido", "viento"],
         contentBuilder: () => ({
           question: "¿Qué significa 'rápido como el viento'?",
@@ -545,8 +545,8 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Identifica si las palabras son similares u opuestas",
         subtype: "drag_drop",
         voiceGuidance: "Arrastra cada par de palabras a la categoría correcta. ¿Son sinónimos (similares) o antónimos (opuestos)?",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["vocabulary words", "word pairs"],
+        contentBuilder: (images) => ({
           mode: "match",
           question: "Clasifica cada par de palabras:",
           dropZones: [
@@ -567,10 +567,10 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Verifica tu conocimiento de sinónimos",
         subtype: "true_false",
         voiceGuidance: "Lee la afirmación sobre sinónimos. Usa lo que aprendiste para decidir si es verdadera o falsa.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["small mouse", "tiny object"],
+        contentBuilder: (images) => ({
           question: "Las palabras 'pequeño' y 'diminuto' son sinónimos",
-          questionImage: null,
+          questionImage: images[0],
           answers: [
             { text: "Verdadero", imageUrl: null, isCorrect: true },
             { text: "Falso", imageUrl: null, isCorrect: false }
@@ -585,7 +585,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Identifica los personajes en una historia",
         subtype: "multiple_choice",
         voiceGuidance: "Lee el texto con atención y responde: ¿Quién? Esta pregunta busca identificar los personajes o personas en la historia.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["girl reading library", "library books"],
         pronunciationWords: ["María", "biblioteca"],
         contentBuilder: () => ({
           question: "Lee: 'María fue a la biblioteca y pidió un libro.' ¿Quién fue a la biblioteca?",
@@ -603,7 +603,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Pon los eventos en secuencia correcta",
         subtype: "drag_drop",
         voiceGuidance: "Arrastra los eventos en el orden en que sucedieron. Busca palabras como 'primero', 'luego', 'después' y 'finalmente' que te dan pistas.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["morning routine", "child getting ready school"],
         pronunciationWords: ["primero", "luego", "después", "finalmente"],
         contentBuilder: () => ({
           mode: "sequence",
@@ -623,13 +623,13 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Identifica el lugar de los eventos",
         subtype: "fill_blank",
         voiceGuidance: "Completa la respuesta a la pregunta ¿Dónde? Busca en el texto el lugar donde sucede la acción.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["children park playground", "park with trees"],
+        contentBuilder: (images) => ({
           mode: "single_word",
           prompt: "Lee: 'Los niños juegan en el parque.' ¿Dónde juegan? En el _____",
           target: "parque",
           letters: ["p", "a", "r", "q", "u", "e"],
-          imageUrl: null,
+          imageUrl: images[0],
           autoShuffle: true
         })
       },
@@ -638,7 +638,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Identifica de qué trata el texto",
         subtype: "multiple_choice",
         voiceGuidance: "Lee el texto completo y piensa: ¿De qué trata principalmente? La idea principal es el tema más importante del texto.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["friendly dog", "loyal pet dog"],
         pronunciationWords: ["perros", "mascotas", "leales"],
         contentBuilder: () => ({
           question: "Lee: 'Los perros son mascotas leales. Les gusta jugar y correr. Son buenos amigos de las personas.' ¿Cuál es la idea principal?",
@@ -656,8 +656,8 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Une cada pregunta con su respuesta del texto",
         subtype: "drag_drop",
         voiceGuidance: "Lee el texto: 'Pedro comió pizza ayer en el restaurante porque tenía hambre.' Arrastra cada respuesta a su pregunta correcta.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["pizza slice", "restaurant dining"],
+        contentBuilder: (images) => ({
           mode: "match",
           question: "Empareja cada pregunta con su respuesta:",
           dropZones: [
@@ -680,10 +680,10 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Verifica si entendiste el texto",
         subtype: "true_false",
         voiceGuidance: "Lee el texto y la afirmación. Decide si es verdadera o falsa basándote en lo que dice el texto.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["cat climbing tree", "cat in tree"],
+        contentBuilder: (images) => ({
           question: "Lee: 'El gato subió al árbol.' ¿Verdadero o falso? 'El perro subió al árbol.'",
-          questionImage: null,
+          questionImage: images[0],
           answers: [
             { text: "Verdadero", imageUrl: null, isCorrect: false },
             { text: "Falso", imageUrl: null, isCorrect: true }
@@ -698,7 +698,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Usa pistas para descubrir información no escrita",
         subtype: "multiple_choice",
         voiceGuidance: "Lee el texto y usa las pistas para inferir información que no está escrita directamente. Piensa en lo que ya sabes y combínalo con las pistas del texto.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["person with umbrella rain", "wet umbrella"],
         pronunciationWords: ["inferir", "pistas", "empapada", "paraguas"],
         contentBuilder: () => ({
           question: "Lee: 'Ana entró empapada a la casa y cerró su paraguas.' ¿Qué puedes inferir?",
@@ -716,7 +716,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Conecta las causas con sus efectos",
         subtype: "drag_drop",
         voiceGuidance: "Arrastra cada causa a su efecto correcto. La causa es lo que hace que algo suceda, y el efecto es lo que sucede como resultado.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["student studying", "child eating breakfast", "person exercising"],
         pronunciationWords: ["causa", "efecto"],
         contentBuilder: () => ({
           mode: "match",
@@ -739,7 +739,7 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Usa pistas para hacer una predicción",
         subtype: "multiple_choice",
         voiceGuidance: "Lee el texto y las pistas. Usa lo que sabes para predecir qué sucederá después. Las predicciones son como adivinanzas inteligentes basadas en evidencia.",
-        imageSearchTerms: [],
+        imageSearchTerms: ["dark storm clouds", "stormy weather"],
         pronunciationWords: ["predicción", "nubes", "oscuras"],
         contentBuilder: () => ({
           question: "Lee: 'El cielo está lleno de nubes oscuras. Hace mucho viento y truena.' ¿Qué sucederá probablemente?",
@@ -757,13 +757,13 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Identifica por qué el autor escribió el texto",
         subtype: "fill_blank",
         voiceGuidance: "Piensa: ¿Por qué escribió esto el autor? Puede ser para informar (enseñar), entretener (divertir) o persuadir (convencer).",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["dinosaur illustration", "prehistoric dinosaurs"],
+        contentBuilder: (images) => ({
           mode: "single_word",
           prompt: "Lee: 'Los dinosaurios vivieron hace millones de años. Había muchos tipos diferentes.' El propósito es _____",
           target: "informar",
           letters: ["i", "n", "f", "o", "r", "m", "a", "r"],
-          imageUrl: null,
+          imageUrl: images[0],
           autoShuffle: true
         })
       },
@@ -772,8 +772,8 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Organiza los pasos para hacer una buena inferencia",
         subtype: "drag_drop",
         voiceGuidance: "Arrastra los pasos en el orden correcto. Para hacer una buena inferencia, primero lees, luego buscas pistas, usas lo que sabes y finalmente haces tu inferencia.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["child reading book", "thinking process"],
+        contentBuilder: (images) => ({
           mode: "sequence",
           question: "Ordena los pasos para hacer una inferencia:",
           targetSequence: [
@@ -796,8 +796,8 @@ Recuerda: Siempre busca evidencia en el texto para apoyar tus inferencias.`
         description: "Verifica tu conocimiento sobre inferencias",
         subtype: "true_false",
         voiceGuidance: "Lee la afirmación sobre inferencias. Piensa en lo que aprendiste para decidir si es verdadera o falsa.",
-        imageSearchTerms: [],
-        contentBuilder: () => ({
+        imageSearchTerms: ["detective magnifying glass", "clue searching"],
+        contentBuilder: (images) => ({
           question: "Para hacer una inferencia, solo necesitas leer el texto, no necesitas usar lo que ya sabes",
           questionImage: null,
           answers: [
