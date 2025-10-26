@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -170,6 +171,23 @@ export default function ViewLesson() {
     content: lesson.content as Record<string, unknown> | null
   };
 
+  // Track viewport for responsive assistant (single instance)
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth >= 1024;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window === "undefined") return;
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Show locked message if lesson is locked
   if (lockData?.isLocked) {
     return (
@@ -281,25 +299,26 @@ export default function ViewLesson() {
               </CardContent>
             </Card>
 
-            {/* Interactive Coquí Assistant - Positioned next to content */}
-            <div className="hidden lg:block flex-shrink-0">
-              <CoquiLessonAssistant
-                activityId={lesson.id}
-                activityType="lesson"
-                position="inline"
-                voiceContext={lessonVoiceContext}
-              />
-            </div>
-          </div>
-
-          {/* Mobile - Fixed Bottom Right */}
-          <div className="lg:hidden">
-            <CoquiLessonAssistant
-              activityId={lesson.id}
-              activityType="lesson"
-              position="fixed"
-              voiceContext={lessonVoiceContext}
-            />
+            {/* Interactive Coquí Assistant */}
+            {isDesktop ? (
+              <div className="hidden lg:block flex-shrink-0">
+                <CoquiLessonAssistant
+                  activityId={lesson.id}
+                  activityType="lesson"
+                  position="inline"
+                  voiceContext={lessonVoiceContext}
+                />
+              </div>
+            ) : (
+              <div className="lg:hidden">
+                <CoquiLessonAssistant
+                  activityId={lesson.id}
+                  activityType="lesson"
+                  position="fixed"
+                  voiceContext={lessonVoiceContext}
+                />
+              </div>
+            )}
           </div>
 
           {/* Complete Button */}
