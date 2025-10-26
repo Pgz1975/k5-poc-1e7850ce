@@ -142,7 +142,6 @@ export class RealtimeVoiceClientEnhanced {
 
       this.audioWorklet.port.onmessage = (event) => {
         if (event.data.type === 'audio') {
-          console.log('[AudioWorklet] 📊 Captured chunk:', event.data.data.length, 'samples');
           const dbLevel = this.monitorAudioLevel(event.data.data);
           this.handleAudioGating(event.data.data, dbLevel);
         }
