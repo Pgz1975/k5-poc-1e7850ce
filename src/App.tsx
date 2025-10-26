@@ -34,6 +34,7 @@ import ViewLesson from "./pages/ViewLesson";
 import LessonExerciseFlow from "./pages/LessonExerciseFlow";
 import GenerateContent from "./pages/GenerateContent";
 import GenerateContentAdmin from "./pages/GenerateContentAdmin";
+import TestG1Reset from "./pages/admin/TestG1Reset";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const App = () => (
               <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               <Route path="/generate-content" element={<ProtectedRoute><GenerateContent /></ProtectedRoute>} />
               <Route path="/generate-content-admin" element={<ProtectedRoute><GenerateContentAdmin /></ProtectedRoute>} />
+              <Route path="/admin/test-g1-reset" element={<ProtectedRoute allowedRoles={["teacher_english", "teacher_spanish", "school_director", "regional_director", "depr_executive"]}><TestG1Reset /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
