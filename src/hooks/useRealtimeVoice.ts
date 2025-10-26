@@ -83,7 +83,6 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
           }
         },
         onAudioPlayback: (isPlaying) => {
-          console.log('[useRealtimeVoice] 🔊 Audio playback:', isPlaying);
           setIsAIPlaying(isPlaying);
         },
         onAudioLevel: onAudioLevel,

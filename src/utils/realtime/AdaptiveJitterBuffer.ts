@@ -107,8 +107,6 @@ export class AdaptiveJitterBuffer {
 
     // Clear accumulated chunks
     this.accumulatedPCM = [];
-    
-    console.log('[JitterBuffer] Playing combined chunk:', (combinedPCM.length / 24000 * 1000).toFixed(0), 'ms');
 
     const audioBuffer = this.audioContext.createBuffer(1, combinedPCM.length, 24000);
     const channelData = audioBuffer.getChannelData(0);

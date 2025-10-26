@@ -342,7 +342,7 @@ export class RealtimeVoiceClientEnhanced {
       return;
     }
 
-    console.log('[RealtimeVoiceClient] 🎤 Sending audio chunk:', pcm16Data.length, 'samples');
+    
     this.appendedSamplesSinceLastCommit += pcm16Data.length;
 
     // Encode to base64
@@ -367,10 +367,6 @@ export class RealtimeVoiceClientEnhanced {
     }
     const rms = Math.sqrt(sum / pcm16Data.length);
     const dbLevel = 20 * Math.log10(rms / 32768);
-    
-    if (dbLevel > -40) {  // Above silence threshold
-      console.log('[AudioWorklet] 🔊 Audio level:', dbLevel.toFixed(1), 'dB');
-    }
     
     this.config.onAudioLevel?.(dbLevel);
     return dbLevel;

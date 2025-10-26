@@ -53,8 +53,7 @@ export class OpenAIRealtimeAdapter implements ISpeechRecognizer {
       onConnectionChange: config.onConnectionChange,
       onAudioLevel: config.onAudioLevel,
       onAudioPlayback: (isPlaying) => {
-        // Could add callback to config if needed
-        console.log(`[OpenAIRealtimeAdapter] Audio playback: ${isPlaying}`);
+        // Audio playback state change (logging removed to reduce console noise)
       }
     });
 
