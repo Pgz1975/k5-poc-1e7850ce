@@ -22,6 +22,24 @@ export default function ViewLesson() {
   const queryClient = useQueryClient();
   const { data: profile } = useStudentProfile();
 
+  // Track viewport for responsive assistant (single instance)
+  const [isDesktop, setIsDesktop] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth >= 1024;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window === "undefined") return;
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+
   const { data: lesson, isLoading } = useQuery({
     queryKey: ["lesson", id],
     queryFn: async () => {
@@ -172,23 +190,6 @@ export default function ViewLesson() {
     pronunciationWords: lesson.pronunciation_words,
     content: lesson.content as Record<string, unknown> | null
   };
-
-  // Track viewport for responsive assistant (single instance)
-  const [isDesktop, setIsDesktop] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.innerWidth >= 1024;
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (typeof window === "undefined") return;
-      setIsDesktop(window.innerWidth >= 1024);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   // Show locked message if lesson is locked
   if (lockData?.isLocked) {
