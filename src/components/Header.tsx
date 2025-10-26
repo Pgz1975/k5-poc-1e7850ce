@@ -207,7 +207,7 @@ export const Header = () => {
                   </>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
+                <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
                   {t("Salir", "Sign Out")}
                 </DropdownMenuItem>
@@ -272,7 +272,10 @@ export const Header = () => {
               </a>
             )}
             {user ? (
-              <Button size="sm" className="w-full mt-2 gap-2" onClick={signOut} variant="outline">
+              <Button size="sm" className="w-full mt-2 gap-2" onClick={() => {
+                signOut();
+                setMobileMenuOpen(false);
+              }} variant="outline">
                 <LogOut className="h-4 w-4" />
                 {t("Salir", "Sign Out")}
               </Button>

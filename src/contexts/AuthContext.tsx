@@ -109,7 +109,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error: any) {
+      // If session doesn't exist on server, clear local state anyway
+      console.log('[Auth] Logout error, clearing local session:', error.message);
+      
+      // Force clear Supabase's localStorage keys
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith('sb-')) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      // Manually trigger auth state change
+      setSession(null);
+      setUser(null);
+    }
+    
+    // Always navigate to auth page regardless of API result
     navigate("/auth");
   };
 
