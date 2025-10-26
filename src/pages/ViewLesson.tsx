@@ -301,26 +301,14 @@ export default function ViewLesson() {
               </CardContent>
             </Card>
 
-            {/* Interactive Coquí Assistant */}
-            {isDesktop ? (
-              <div className="hidden lg:block flex-shrink-0">
-                <CoquiLessonAssistant
-                  activityId={lesson.id}
-                  activityType="lesson"
-                  position="inline"
-                  voiceContext={lessonVoiceContext}
-                />
-              </div>
-            ) : (
-              <div className="lg:hidden">
-                <CoquiLessonAssistant
-                  activityId={lesson.id}
-                  activityType="lesson"
-                  position="fixed"
-                  voiceContext={lessonVoiceContext}
-                />
-              </div>
-            )}
+            {/* Interactive Coquí Assistant - Single Instance */}
+            <CoquiLessonAssistant
+              activityId={lesson.id}
+              activityType="lesson"
+              position={isDesktop ? "inline" : "fixed"}
+              voiceContext={lessonVoiceContext}
+              className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}
+            />
           </div>
 
           {/* Complete Button */}
