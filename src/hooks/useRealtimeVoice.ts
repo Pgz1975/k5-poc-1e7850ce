@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeVoiceClientEnhanced } from '@/utils/realtime/RealtimeVoiceClientEnhanced';
 import { useToast } from '@/hooks/use-toast';
+import { logAIResponse } from '@/lib/speech/VoiceLogger';
 
 interface UseRealtimeVoiceProps {
   studentId?: string;
@@ -23,6 +24,7 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
   const [transcript, setTranscript] = useState<Array<{ text: string; isUser: boolean }>>([]);
   const [client, setClient] = useState<RealtimeVoiceClientEnhanced | null>(null);
   const clientRef = useRef<RealtimeVoiceClientEnhanced | null>(null);
+  const sessionIdRef = useRef<string>(crypto.randomUUID());
   const { toast } = useToast();
 
   const connect = useCallback(async () => {
@@ -68,6 +70,17 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
           console.log(`[useRealtimeVoice] ${isUser ? '🎤 User' : '🔊 AI'}:`, text);
           setTranscript(prev => [...prev, { text, isUser }]);
           onTranscription?.(text, isUser);
+          
+          // Log AI responses to database
+          if (!isUser && studentId) {
+            logAIResponse({
+              sessionId: sessionIdRef.current,
+              studentId,
+              text,
+              activityId,
+              language: language || 'es-PR'
+            });
+          }
         },
         onAudioPlayback: (isPlaying) => {
           console.log('[useRealtimeVoice] 🔊 Audio playback:', isPlaying);
