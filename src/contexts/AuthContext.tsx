@@ -110,28 +110,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      // Attempt server-side sign out (may return error without throwing)
+      const { error } = await supabase.auth.signOut({ scope: 'global' as any });
+      if (error) {
+        console.warn('[Auth] signOut error (non-fatal):', error.message);
+      }
     } catch (error: any) {
-      // If session doesn't exist on server, clear local state anyway
-      console.log('[Auth] Logout error, clearing local session:', error.message);
-      
-      // Force clear Supabase's localStorage keys
-      const keysToRemove = [];
+      console.warn('[Auth] signOut threw error (non-fatal):', error?.message || error);
+    } finally {
+      // Always clear local session to avoid being stuck
+      const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key?.startsWith('sb-')) {
+        if (key && (key.startsWith('sb-') || key === 'supabase.auth.token')) {
           keysToRemove.push(key);
         }
       }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-      
-      // Manually trigger auth state change
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+
+      // Reset state and navigate
       setSession(null);
       setUser(null);
+      navigate("/auth");
     }
-    
-    // Always navigate to auth page regardless of API result
-    navigate("/auth");
   };
 
   const resetPassword = async (email: string) => {
