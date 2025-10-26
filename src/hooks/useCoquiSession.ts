@@ -22,9 +22,10 @@ interface UseCoquiSessionProps {
   activityId?: string;
   activityType?: 'lesson' | 'exercise' | 'system';
   voiceContext?: VoiceContextConfig;
+  onAudioLevel?: (dbLevel: number) => void;
 }
 
-export function useCoquiSession({ activityId, activityType, voiceContext }: UseCoquiSessionProps = {}) {
+export function useCoquiSession({ activityId, activityType, voiceContext, onAudioLevel }: UseCoquiSessionProps = {}) {
   const { user } = useAuth();
   const { language } = useLanguage();
 
@@ -53,7 +54,8 @@ export function useCoquiSession({ activityId, activityType, voiceContext }: UseC
     activityId,
     activityType,
     voiceGuidance: voiceContext?.voiceGuidance ?? undefined,
-    contextPayload: serializedVoiceContext
+    contextPayload: serializedVoiceContext,
+    onAudioLevel: onAudioLevel
   });
 
   const startSession = useCallback(async () => {
@@ -65,9 +67,12 @@ export function useCoquiSession({ activityId, activityType, voiceContext }: UseC
     await connect();
   }, [connect, user]);
 
-  const endSession = useCallback(() => {
+  const endSession = useCallback(async () => {
     console.log('[useCoquiSession] 🛑 Ending session');
-    disconnect();
+    await disconnect();
+    
+    // Add extra delay to ensure cleanup completes
+    await new Promise(resolve => setTimeout(resolve, 200));
   }, [disconnect]);
 
   return {

@@ -32,10 +32,13 @@ export default function ViewAssessment() {
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [transcript, setTranscript] = useState<string[]>([]);
   const [metrics, setMetrics] = useState<any>({});
+  const [isPreConnecting, setIsPreConnecting] = useState(false);
+  const [showExercise, setShowExercise] = useState(false);
   const clientRef = useRef<EnhancedRealtimeClient | null>(null);
 
   useEffect(() => {
-    const fetchAssessment = async () => {
+    const fetchAndConnect = async () => {
+      // Step 1: Fetch assessment data
       const { data, error } = await supabase
         .from('manual_assessments')
         .select('*')
@@ -53,9 +56,27 @@ export default function ViewAssessment() {
       }
 
       setAssessment(data);
+      
+      // Step 2: Pre-connect voice in background
+      setIsPreConnecting(true);
+      try {
+        await startVoiceSession();
+        
+        // Small delay to ensure connection is stable
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Now show the exercise
+        setShowExercise(true);
+      } catch (error) {
+        console.error('[ViewAssessment] Pre-connection failed:', error);
+        // Show exercise anyway (voice optional)
+        setShowExercise(true);
+      } finally {
+        setIsPreConnecting(false);
+      }
     };
 
-    if (id) fetchAssessment();
+    if (id) fetchAndConnect();
   }, [id]);
 
   const startVoiceSession = async () => {
@@ -116,10 +137,19 @@ export default function ViewAssessment() {
     }
   };
 
-  // Cleanup on unmount
+  // Cleanup on unmount - FORCE disconnect
   useEffect(() => {
     return () => {
-      clientRef.current?.disconnect();
+      console.log('[ViewAssessment] 🧹 Unmounting - forcing disconnect');
+      
+      // Force immediate disconnect without awaiting (unmount can't be async)
+      if (clientRef.current) {
+        clientRef.current.disconnect();
+        clientRef.current = null;
+      }
+      
+      // Also stop any playing audio
+      setIsAIPlaying(false);
     };
   }, []);
 
@@ -198,6 +228,35 @@ export default function ViewAssessment() {
     }
     return 'thinking';
   };
+
+  // Show loading screen while pre-connecting
+  if (isPreConnecting || !showExercise) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 via-green-50 to-blue-50">
+        <div className="text-center space-y-6">
+          <CoquiMascot 
+            state={isPreConnecting ? "loading" : "thinking"} 
+            size="large" 
+          />
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-foreground">
+              {t("Preparando tu ejercicio...", "Preparing your exercise...")}
+            </h2>
+            <p className="text-muted-foreground">
+              {isPreConnecting 
+                ? t("Conectando con Coquí...", "Connecting with Coquí...")
+                : t("Cargando contenido...", "Loading content...")}
+            </p>
+          </div>
+          <div className="flex gap-2 justify-center">
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!assessment) {
     return (

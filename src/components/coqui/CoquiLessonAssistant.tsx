@@ -21,6 +21,8 @@ export const CoquiLessonAssistant = ({
 }: CoquiLessonAssistantProps) => {
   const { t } = useLanguage();
   const [mascotState, setMascotState] = useState("idle");
+  const [audioLevel, setAudioLevel] = useState(-100);
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
 
   const {
     isConnected,
@@ -31,25 +33,25 @@ export const CoquiLessonAssistant = ({
   } = useCoquiSession({
     activityId,
     activityType,
-    voiceContext
+    voiceContext,
+    onAudioLevel: (dbLevel) => {
+      setAudioLevel(dbLevel);
+      
+      // Detect if user is speaking (above silence threshold)
+      const isSpeaking = dbLevel > -45;
+      setIsUserSpeaking(isSpeaking);
+      
+      // Show hint if level too low (user trying to speak but too quiet)
+      if (dbLevel > -50 && dbLevel < -45 && isConnected) {
+        toast.info(
+          t("Habla un poco más fuerte", "Speak a bit louder"),
+          { duration: 2000 }
+        );
+      }
+    }
   });
 
-  // Auto-start session on mount
-  useEffect(() => {
-    const initSession = async () => {
-      console.log('[CoquiLessonAssistant] 🚀 Auto-starting voice session');
-      try {
-        await startSession();
-        toast.success(t("¡Coquí está listo! Empieza a hablar.", "Coquí is ready! Start talking."));
-      } catch (error) {
-        console.error('[CoquiLessonAssistant] Failed to auto-start session:', error);
-        toast.error(t("No se pudo iniciar la voz. Haz clic en Coquí para reintentar.", "Could not start voice. Click Coquí to retry."));
-      }
-    };
-    
-    initSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Removed auto-start - parent component handles connection
 
   // Update mascot state based on connection and AI state
   useEffect(() => {
@@ -64,14 +66,13 @@ export const CoquiLessonAssistant = ({
     }
   }, [isConnecting, isAIPlaying, isConnected]);
 
-  // Cleanup: End session when leaving the page
+  // Cleanup: IMMEDIATE session termination on unmount
   useEffect(() => {
     return () => {
-      console.log('[CoquiLessonAssistant] 🧹 Cleanup - ending session on unmount');
-      endSession();
+      console.log('[CoquiLessonAssistant] 🛑 IMMEDIATE CLEANUP');
+      endSession(); // Don't await - force immediate termination
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [endSession]);
 
   const handleMascotClick = () => {
     toast.info(t("Estoy escuchando. Habla conmigo.", "I'm listening. Talk to me."));
@@ -95,6 +96,41 @@ export const CoquiLessonAssistant = ({
           position={mascotPosition}
         />
       </div>
+      
+      {/* Audio Level Indicator (only show when connected) */}
+      {isConnected && (
+        <div className="mt-4 space-y-2">
+          {/* Visual bar */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              {t("Audio:", "Audio:")}
+            </span>
+            <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-100 ${
+                  isUserSpeaking ? 'bg-green-500' : 'bg-gray-400'
+                }`}
+                style={{ 
+                  width: `${Math.max(0, Math.min(100, (audioLevel + 60) * 2))}%` 
+                }}
+              />
+            </div>
+          </div>
+          
+          {/* Speaking indicator */}
+          {isUserSpeaking && (
+            <div className="flex items-center gap-2 text-xs text-green-600">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              {t("Te estoy escuchando...", "I'm listening...")}
+            </div>
+          )}
+          
+          {/* Debug info */}
+          <div className="text-xs text-muted-foreground">
+            {audioLevel.toFixed(1)} dB
+          </div>
+        </div>
+      )}
     </div>
   );
 };

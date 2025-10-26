@@ -134,13 +134,20 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
     }
   }, [studentId, language, model, voiceGuidance, activityId, activityType, contextPayload, isConnecting, isConnected, onTranscription, onAudioLevel, onResponseComplete, toast]);
 
-  const disconnect = useCallback(() => {
-    console.log('[useRealtimeVoice] Disconnecting...');
-    clientRef.current?.disconnect();
-    clientRef.current = null;
+  const disconnect = useCallback(async () => {
+    console.log('[useRealtimeVoice] 🛑 Disconnecting...');
+    
+    if (clientRef.current) {
+      await clientRef.current.disconnect();
+      clientRef.current = null;
+    }
+    
     setIsConnected(false);
-    setTranscript([]);
+    setIsConnecting(false);
     setIsAIPlaying(false);
+    setTranscript([]);
+    
+    console.log('[useRealtimeVoice] ✅ Disconnected successfully');
   }, []);
 
   const sendText = useCallback((text: string) => {
