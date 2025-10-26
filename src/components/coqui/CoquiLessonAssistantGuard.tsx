@@ -12,16 +12,11 @@ interface GuardProps {
   isConnecting?: boolean;
 }
 
-export const CoquiLessonAssistantGuard = (props: GuardProps) => {
+export const CoquiLessonAssistantGuard = ({ autoConnect = true, ...rest }: GuardProps) => {
   const { user, loading } = useAuth();
   
   // Never render the assistant until auth resolves AND a user exists
   if (loading || !user) return null;
   
-  return (
-    <CoquiLessonAssistant
-      {...props}
-      autoConnect={props.autoConnect ?? true}
-    />
-  );
+  return <CoquiLessonAssistant autoConnect={autoConnect} {...rest} />;
 };
