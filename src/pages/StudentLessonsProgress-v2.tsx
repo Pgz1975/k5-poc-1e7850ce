@@ -87,14 +87,17 @@ const StudentLessonsProgressV2 = () => {
     return new Map(completedActivities.map(a => [a.activity_id, a]));
   }, [completedActivities]);
 
-  // Domain color mapping
-  const domainColors: Record<string, string> = {
-    "Alfabeto y Fonética": "bg-gradient-to-br from-purple-400 to-purple-600",
-    "Lectura y Comprensión": "bg-gradient-to-br from-pink-400 to-pink-600",
-    "Vocabulario": "bg-gradient-to-br from-blue-400 to-blue-600",
-    "Expresión": "bg-gradient-to-br from-green-400 to-green-600",
-    "TEST_G1_FIXTURES": "bg-gradient-to-br from-orange-400 to-orange-600",
-  };
+  // Unit color progression - changes for each unit regardless of domain
+  const unitColors = [
+    { bg: "bg-gradient-to-br from-emerald-400 to-teal-500", path: "#10b981" },
+    { bg: "bg-gradient-to-br from-violet-400 to-purple-500", path: "#8b5cf6" },
+    { bg: "bg-gradient-to-br from-rose-400 to-pink-500", path: "#f43f5e" },
+    { bg: "bg-gradient-to-br from-amber-400 to-orange-500", path: "#f59e0b" },
+    { bg: "bg-gradient-to-br from-sky-400 to-blue-500", path: "#0ea5e9" },
+    { bg: "bg-gradient-to-br from-fuchsia-400 to-pink-600", path: "#d946ef" },
+    { bg: "bg-gradient-to-br from-lime-400 to-green-500", path: "#84cc16" },
+    { bg: "bg-gradient-to-br from-indigo-400 to-blue-600", path: "#6366f1" },
+  ];
 
   const getNodeState = (lessonId: string) => {
     const isLocked = lockingMap.get(lessonId);
@@ -116,6 +119,14 @@ const StudentLessonsProgressV2 = () => {
     "thick-leaf", "forest-leaf", "three-leaves", "oval-leaf", 
     "twin-leaves", "split-leaf", "small-leaves"
   ] as const;
+
+  // Generate curved path positions for nodes
+  const generatePathPosition = (index: number, total: number) => {
+    const amplitude = 80; // How far left/right the curve goes
+    const frequency = 0.5; // How many curves
+    const xOffset = Math.sin(index * frequency) * amplitude;
+    return xOffset;
+  };
 
   if (isLoadingOrdering) {
     return (
@@ -153,25 +164,45 @@ const StudentLessonsProgressV2 = () => {
           </div>
 
           {/* Lessons Path */}
-          <div className="relative">
-            {/* Background decorations */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
+          <div className="relative pb-20">
+            {/* Background nature decorations */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-15">
               <img 
                 src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
                 alt=""
-                className="absolute -left-20 top-40 w-32 h-32 opacity-50"
+                className="absolute -left-24 top-20 w-40 h-40 opacity-40"
+              />
+              <img 
+                src="/design elements/svgs/reshot-icon-forest-leaf-LSCJ9B4X6H.svg" 
+                alt=""
+                className="absolute right-12 top-80 w-24 h-24 opacity-30 rotate-45"
               />
               <img 
                 src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
                 alt=""
-                className="absolute -right-20 top-[600px] w-32 h-32 opacity-50"
+                className="absolute -right-28 top-[500px] w-48 h-48 opacity-35"
+              />
+              <img 
+                src="/design elements/svgs/reshot-icon-three-leaves-KD6UVGSNFP.svg" 
+                alt=""
+                className="absolute left-8 top-[700px] w-20 h-20 opacity-40 -rotate-12"
+              />
+              <img 
+                src="/design elements/svgs/reshot-icon-twin-leaves-258L6V4RY3.svg" 
+                alt=""
+                className="absolute -left-16 top-[1000px] w-28 h-28 opacity-30"
+              />
+              <img 
+                src="/design elements/svgs/reshot-icon-oval-leaf-J5NGAV7Q2Y.svg" 
+                alt=""
+                className="absolute right-4 top-[1200px] w-16 h-16 opacity-35 rotate-90"
               />
             </div>
 
             {/* Path container */}
-            <div className="relative space-y-16">
+            <div className="relative space-y-20">
               {domainGroups.map((group, groupIndex) => {
-                const color = domainColors[group.domain] || "bg-gradient-to-br from-primary to-primary-glow";
+                const colorScheme = unitColors[groupIndex % unitColors.length];
                 const completedInDomain = group.lessons.filter(l => completedMap.has(l.id)).length;
                 
                 return (
@@ -184,18 +215,50 @@ const StudentLessonsProgressV2 = () => {
                     <UnitHeader
                       unitNumber={groupIndex + 1}
                       title={group.domain}
-                      color={color}
+                      color={colorScheme.bg}
                       totalLessons={group.lessons.length}
                       completedLessons={completedInDomain}
                     />
 
-                    {/* Lesson nodes in winding path */}
-                    <div className="relative flex flex-col items-center gap-12 py-8">
+                    {/* Curved path with lesson nodes */}
+                    <div className="relative flex flex-col items-center py-8">
+                      {/* SVG curved path */}
+                      <svg 
+                        className="absolute inset-0 w-full h-full pointer-events-none" 
+                        style={{ top: '40px', height: `${group.lessons.length * 140}px` }}
+                      >
+                        <defs>
+                          <linearGradient id={`pathGradient-${groupIndex}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor={colorScheme.path} stopOpacity="0.3" />
+                            <stop offset="100%" stopColor={colorScheme.path} stopOpacity="0.1" />
+                          </linearGradient>
+                        </defs>
+                        <path
+                          d={(() => {
+                            let pathD = `M ${200} 0`;
+                            for (let i = 0; i < group.lessons.length; i++) {
+                              const y = i * 140 + 70;
+                              const x = 200 + generatePathPosition(i, group.lessons.length);
+                              const controlY = y - 35;
+                              const prevX = i > 0 ? 200 + generatePathPosition(i - 1, group.lessons.length) : 200;
+                              pathD += ` Q ${(x + prevX) / 2} ${controlY}, ${x} ${y}`;
+                            }
+                            return pathD;
+                          })()}
+                          stroke={`url(#pathGradient-${groupIndex})`}
+                          strokeWidth="6"
+                          fill="none"
+                          strokeLinecap="round"
+                          strokeDasharray="12 8"
+                        />
+                      </svg>
+
+                      {/* Lesson nodes positioned along curve */}
                       {group.lessons.map((lesson, lessonIndex) => {
                         const state = getNodeState(lesson.id);
-                        const position = lessonIndex % 3; // 0 = left, 1 = center, 2 = right
-                        const offsetClass = position === 0 ? "-translate-x-16" : position === 2 ? "translate-x-16" : "";
+                        const xOffset = generatePathPosition(lessonIndex, group.lessons.length);
                         const decorationType = decorationTypes[lessonIndex % decorationTypes.length];
+                        const decorationSide = xOffset > 0 ? "left" : "right";
                         
                         return (
                           <motion.div
@@ -203,19 +266,43 @@ const StudentLessonsProgressV2 = () => {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: groupIndex * 0.1 + lessonIndex * 0.05 }}
-                            className={`relative ${offsetClass}`}
+                            className="relative"
+                            style={{ 
+                              transform: `translateX(${xOffset}px)`,
+                              marginBottom: lessonIndex < group.lessons.length - 1 ? '140px' : '70px'
+                            }}
                           >
-                            {/* Path decoration */}
-                            <PathDecoration
-                              type={decorationType}
-                              position={position === 0 ? "right" : "left"}
-                              size={lessonIndex % 2 === 0 ? "md" : "sm"}
-                              className="top-1/2 -translate-y-1/2"
-                            />
+                            {/* Nature decoration along path */}
+                            {lessonIndex % 2 === 0 && (
+                              <PathDecoration
+                                type={decorationType}
+                                position={decorationSide}
+                                size={lessonIndex % 3 === 0 ? "lg" : "md"}
+                                className="top-1/2 -translate-y-1/2"
+                              />
+                            )}
+                            
+                            {/* Additional scattered leaves */}
+                            {lessonIndex % 3 === 1 && (
+                              <div 
+                                className="absolute opacity-20 pointer-events-none"
+                                style={{
+                                  [decorationSide === "left" ? "right" : "left"]: "-80px",
+                                  top: "50%",
+                                  transform: "translateY(-50%) rotate(-25deg)"
+                                }}
+                              >
+                                <img 
+                                  src={`/design elements/svgs/reshot-icon-${decorationType}.svg`}
+                                  alt=""
+                                  className="w-10 h-10"
+                                />
+                              </div>
+                            )}
                             
                             <LessonNode
                               state={state}
-                              color={color}
+                              color={colorScheme.bg}
                               lessonNumber={lessonIndex + 1}
                               onClick={() => navigate(`/lesson/${lesson.id}`)}
                             />
@@ -228,12 +315,29 @@ const StudentLessonsProgressV2 = () => {
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: groupIndex * 0.1 + group.lessons.length * 0.05 }}
+                        className="relative mt-8"
                       >
+                        {/* Tree decoration next to milestone */}
+                        <div className="absolute -left-20 top-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
+                          <img 
+                            src="/design elements/svgs/reshot-icon-small-leaves-P4MUEALCWH.svg"
+                            alt=""
+                            className="w-16 h-16"
+                          />
+                        </div>
+                        <div className="absolute -right-20 top-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
+                          <img 
+                            src="/design elements/svgs/reshot-icon-split-leaf-GV53AWKBCS.svg"
+                            alt=""
+                            className="w-16 h-16 rotate-180"
+                          />
+                        </div>
+                        
                         <MilestoneIcon
                           type="shield"
                           number={groupIndex + 1}
                           unlocked={completedInDomain === group.lessons.length}
-                          color={color}
+                          color={colorScheme.bg}
                         />
                       </motion.div>
                     </div>
