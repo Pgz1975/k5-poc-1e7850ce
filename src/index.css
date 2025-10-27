@@ -218,43 +218,74 @@ All colors MUST be HSL.
 
 /* Lesson Path Grid System - Duolingo-style */
 @layer utilities {
-  /* Path container */
+  /* S-Curve Grid Container */
+  .s-curve-grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(var(--grid-rows, 7), minmax(4rem, 1fr));
+    gap: 1rem;
+    width: min(90vw, 500px);
+    max-width: 500px;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 0;
+  }
+
+  /* Path element wrapper - centered in grid cell */
+  .s-curve-path-element {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+  }
+
+  .s-curve-path-element:hover {
+    transform: scale(1.05);
+  }
+
+  /* Node sizing with responsive clamp */
+  .s-curve-node {
+    width: clamp(3rem, 8vw, 4rem);
+    height: clamp(3rem, 8vw, 4rem);
+    position: relative;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 600px) {
+    .s-curve-grid-container {
+      gap: 0.5rem;
+    }
+    
+    .s-curve-node {
+      width: clamp(2.5rem, 10vw, 3.5rem);
+      height: clamp(2.5rem, 10vw, 3.5rem);
+    }
+  }
+
+  /* Desktop enhancements */
+  @media (min-width: 1200px) {
+    .s-curve-grid-container {
+      width: 600px;
+      gap: 1.5rem;
+    }
+  }
+
+  /* Legacy classes - kept for backwards compatibility */
   .lesson-path-container {
     @apply relative py-12 mx-auto;
     width: 400px;
     max-width: 90vw;
   }
 
-  /* Horizontal offset positions for smooth zigzag (applied to relative wrapper) */
-  .lesson-node-col-0 {
-    left: 0px;
-  }
-  
-  .lesson-node-col-1 {
-    left: -45px;
-  }
-  
-  .lesson-node-col-2 {
-    left: -70px;
-  }
-  
-  .lesson-node-col-3 {
-    left: -45px;
-  }
-  
-  .lesson-node-col-4 {
-    left: 0px;
-  }
-  
-  .lesson-node-col-5 {
-    left: 45px;
-  }
-  
-  .lesson-node-col-6 {
-    left: 0px;
-  }
+  .lesson-node-col-0 { left: 0px; }
+  .lesson-node-col-1 { left: -45px; }
+  .lesson-node-col-2 { left: -70px; }
+  .lesson-node-col-3 { left: -45px; }
+  .lesson-node-col-4 { left: 0px; }
+  .lesson-node-col-5 { left: 45px; }
+  .lesson-node-col-6 { left: 0px; }
 
-  /* Vertical spacing helper */
   .lesson-vertical-spacing {
     --lesson-spacing: 80px;
   }

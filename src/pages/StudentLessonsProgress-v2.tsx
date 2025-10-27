@@ -110,14 +110,13 @@ const StudentLessonsProgressV2 = () => {
     return "unlocked";
   };
 
-  // Grid column positions (7-position smooth S-curve pattern like Duolingo)
-  const getColumnPosition = (index: number): number => {
-    const pattern = [0, 1, 2, 3, 4, 5, 6];
-    return pattern[index % pattern.length];
-  };
-
-  const getColumnClass = (col: number): string => {
-    return `lesson-node-col-${col}`;
+  // S-Curve pattern: 7-row repeating cycle
+  // Pattern: [3, 4, 4, 3, 2, 2, 3] creates the S-curve across 5 columns
+  const getSCurvePosition = (index: number): { column: number; row: number } => {
+    const columnPattern = [3, 4, 4, 3, 2, 2, 3]; // S-curve columns
+    const column = columnPattern[index % 7];
+    const row = index + 1; // Grid rows start at 1
+    return { column, row };
   };
 
   // Background decorations
@@ -216,26 +215,30 @@ const StudentLessonsProgressV2 = () => {
                       color={color}
                     />
 
-                    {/* Lesson nodes in grid pattern */}
+                    {/* Lesson nodes in S-curve grid pattern */}
                     <div 
-                      className="lesson-path-container lesson-vertical-spacing"
-                      style={{ minHeight: `${(group.lessons.length + 1) * 80}px` }}
+                      className="s-curve-grid-container"
+                      style={{ 
+                        ['--grid-rows' as any]: group.lessons.length + 1 
+                      }}
                     >
                       {group.lessons.map((lesson, lessonIndex) => {
                         const state = getNodeState(lesson.id);
-                        const colPosition = getColumnPosition(lessonIndex);
-                        const colClass = getColumnClass(colPosition);
+                        const { column, row } = getSCurvePosition(lessonIndex);
                         
                         return (
                           <motion.div
                             key={lesson.id}
+                            className="s-curve-path-element"
+                            style={{ 
+                              gridColumn: column, 
+                              gridRow: row 
+                            }}
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: groupIndex * 0.1 + lessonIndex * 0.05 }}
-                            className="absolute left-1/2 -translate-x-1/2"
-                            style={{ top: `${lessonIndex * 80}px` }}
                           >
-                            <div className={`relative ${colClass}`}>
+                            <div className="s-curve-node">
                               <LessonNode
                                 state={state}
                                 color={color}
@@ -248,13 +251,16 @@ const StudentLessonsProgressV2 = () => {
                         );
                       })}
                       
-                      {/* Milestone at end of unit */}
+                      {/* Milestone at bottom-center */}
                       <motion.div
+                        className="s-curve-path-element"
+                        style={{ 
+                          gridColumn: 3,
+                          gridRow: group.lessons.length + 1 
+                        }}
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: groupIndex * 0.1 + group.lessons.length * 0.05 }}
-                        className="absolute left-1/2 -translate-x-1/2"
-                        style={{ top: `${group.lessons.length * 80}px` }}
                       >
                         <MilestoneIcon
                           type="shield"
