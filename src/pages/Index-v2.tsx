@@ -13,21 +13,23 @@ function HeroV2() {
   return (
     <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-sky-100 via-green-50 to-yellow-50">
       <div className="container mx-auto px-4 py-16">
-        <div className="flex items-center gap-8 justify-center">
-          {/* Mascot on the left */}
-          <div className="relative shrink-0 hidden lg:block">
-            <CoquiMascot 
-              state="happy" 
-              size="large"
-              className="animate-bounce-gentle drop-shadow-2xl w-48 h-48"
-            />
-            <div className="absolute -top-2 -right-2 animate-pulse">
-              <Sparkles className="w-12 h-12 text-student-yellow" />
+        <div className="grid lg:grid-cols-[auto_1fr] gap-8 items-center max-w-6xl mx-auto">
+          {/* Left Column - Mascot */}
+          <div className="hidden lg:flex justify-center">
+            <div className="relative">
+              <CoquiMascot 
+                state="happy" 
+                size="large"
+                className="animate-bounce-gentle drop-shadow-2xl w-48 h-48"
+              />
+              <div className="absolute -top-2 -right-2 animate-pulse">
+                <Sparkles className="w-12 h-12 text-student-yellow" />
+              </div>
             </div>
           </div>
 
-          {/* Content on the right */}
-          <div className="text-center lg:text-left space-y-6 animate-fade-in max-w-2xl">
+          {/* Right Column - Content */}
+          <div className="text-center lg:text-left space-y-6 animate-fade-in">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-student-pink via-student-peach to-student-yellow">
                 {t("¡Aprende a Leer!", "Learn to Read!")}
@@ -41,7 +43,7 @@ function HeroV2() {
               )}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center lg:justify-start">
               <Button 
                 asChild 
                 size="lg" 
