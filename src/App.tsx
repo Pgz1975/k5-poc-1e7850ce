@@ -7,7 +7,9 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { useDesignVersion } from "./hooks/useDesignVersion";
 import Index from "./pages/Index";
+import IndexV2 from "./pages/Index-v2";
 import Dashboard from "./pages/Dashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import Activities from "./pages/Activities";
@@ -35,8 +37,50 @@ import LessonExerciseFlow from "./pages/LessonExerciseFlow";
 import GenerateContent from "./pages/GenerateContent";
 import GenerateContentAdmin from "./pages/GenerateContentAdmin";
 import TestG1Reset from "./pages/admin/TestG1Reset";
+import DesignPreview from "./pages/DesignPreview";
 
 const queryClient = new QueryClient();
+
+function AppRoutes() {
+  const { useV2Design } = useDesignVersion();
+  
+  return (
+    <Routes>
+      <Route path="/" element={useV2Design ? <IndexV2 /> : <Index />} />
+      <Route path="/design-preview" element={<DesignPreview />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentDashboard /></ProtectedRoute>} />
+      <Route path="/student-dashboard/lessons" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentLessonsProgress /></ProtectedRoute>} />
+      <Route path="/student-dashboard/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentExercisesProgress /></ProtectedRoute>} />
+      <Route path="/student-dashboard/assessments" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentAssessmentsProgress /></ProtectedRoute>} />
+      <Route path="/lesson/:id" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ViewLesson /></ProtectedRoute>} />
+      <Route path="/lesson/:lessonId/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><LessonExerciseFlow /></ProtectedRoute>} />
+      <Route path="/activities" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><Activities /></ProtectedRoute>} />
+      <Route path="/available-assessments" element={<ProtectedRoute><AvailableAssessments /></ProtectedRoute>} />
+      <Route path="/teacher-dashboard" element={<ProtectedRoute allowedRoles={["teacher", "teacher_english", "teacher_spanish"]}><TeacherDashboard /></ProtectedRoute>} />
+      <Route path="/family-dashboard" element={<ProtectedRoute allowedRoles={["family"]}><FamilyDashboard /></ProtectedRoute>} />
+      <Route path="/reading-exercise" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ReadingExercise /></ProtectedRoute>} />
+      <Route path="/voice-test" element={<ProtectedRoute><VoiceTest /></ProtectedRoute>} />
+      
+      <Route path="/pdf-demo" element={<ProtectedRoute><PDFDemo /></ProtectedRoute>} />
+      <Route path="/assessment-generator" element={<ProtectedRoute><AssessmentGenerator /></ProtectedRoute>} />
+      <Route path="/generated/:id" element={<ProtectedRoute><GeneratedAssessment /></ProtectedRoute>} />
+      <Route path="/create-assessment" element={<ProtectedRoute><CreateAssessment /></ProtectedRoute>} />
+      <Route path="/assessments/edit/:id" element={<ProtectedRoute><CreateAssessment /></ProtectedRoute>} />
+      <Route path="/assessment/:id" element={<ProtectedRoute><ViewAssessment /></ProtectedRoute>} />
+      <Route path="/view-assessment/:id" element={<ProtectedRoute><ViewAssessment /></ProtectedRoute>} />
+      <Route path="/create-demo-users" element={<CreateDemoUsers />} />
+      <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/generate-content" element={<ProtectedRoute><GenerateContent /></ProtectedRoute>} />
+      <Route path="/generate-content-admin" element={<ProtectedRoute><GenerateContentAdmin /></ProtectedRoute>} />
+      <Route path="/admin/test-g1-reset" element={<ProtectedRoute allowedRoles={["teacher_english", "teacher_spanish", "school_director", "regional_director", "depr_executive"]}><TestG1Reset /></ProtectedRoute>} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -47,39 +91,7 @@ const App = () => (
         <LanguageProvider>
           <AuthProvider>
             <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentDashboard /></ProtectedRoute>} />
-              <Route path="/student-dashboard/lessons" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentLessonsProgress /></ProtectedRoute>} />
-              <Route path="/student-dashboard/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentExercisesProgress /></ProtectedRoute>} />
-              <Route path="/student-dashboard/assessments" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentAssessmentsProgress /></ProtectedRoute>} />
-              <Route path="/lesson/:id" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ViewLesson /></ProtectedRoute>} />
-              <Route path="/lesson/:lessonId/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><LessonExerciseFlow /></ProtectedRoute>} />
-              <Route path="/activities" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><Activities /></ProtectedRoute>} />
-              <Route path="/available-assessments" element={<ProtectedRoute><AvailableAssessments /></ProtectedRoute>} />
-              <Route path="/teacher-dashboard" element={<ProtectedRoute allowedRoles={["teacher", "teacher_english", "teacher_spanish"]}><TeacherDashboard /></ProtectedRoute>} />
-              <Route path="/family-dashboard" element={<ProtectedRoute allowedRoles={["family"]}><FamilyDashboard /></ProtectedRoute>} />
-              <Route path="/reading-exercise" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ReadingExercise /></ProtectedRoute>} />
-              <Route path="/voice-test" element={<ProtectedRoute><VoiceTest /></ProtectedRoute>} />
-              
-              <Route path="/pdf-demo" element={<ProtectedRoute><PDFDemo /></ProtectedRoute>} />
-              <Route path="/assessment-generator" element={<ProtectedRoute><AssessmentGenerator /></ProtectedRoute>} />
-              <Route path="/generated/:id" element={<ProtectedRoute><GeneratedAssessment /></ProtectedRoute>} />
-              <Route path="/create-assessment" element={<ProtectedRoute><CreateAssessment /></ProtectedRoute>} />
-              <Route path="/assessments/edit/:id" element={<ProtectedRoute><CreateAssessment /></ProtectedRoute>} />
-              <Route path="/assessment/:id" element={<ProtectedRoute><ViewAssessment /></ProtectedRoute>} />
-              <Route path="/view-assessment/:id" element={<ProtectedRoute><ViewAssessment /></ProtectedRoute>} />
-              <Route path="/create-demo-users" element={<CreateDemoUsers />} />
-              <Route path="/admin-dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/generate-content" element={<ProtectedRoute><GenerateContent /></ProtectedRoute>} />
-              <Route path="/generate-content-admin" element={<ProtectedRoute><GenerateContentAdmin /></ProtectedRoute>} />
-              <Route path="/admin/test-g1-reset" element={<ProtectedRoute allowedRoles={["teacher_english", "teacher_spanish", "school_director", "regional_director", "depr_executive"]}><TestG1Reset /></ProtectedRoute>} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AppRoutes />
           </AuthProvider>
         </LanguageProvider>
       </BrowserRouter>
