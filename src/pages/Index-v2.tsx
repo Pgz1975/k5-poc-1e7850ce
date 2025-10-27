@@ -11,7 +11,7 @@ function HeroV2() {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-gradient-hero">
+    <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-sky-100 via-green-50 to-yellow-50">
       <div className="container mx-auto px-4 py-16">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Content */}
