@@ -61,6 +61,20 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(176 84% 41%) 0%, hsl(176 84% 55%) 100%);
     --gradient-primary-button: linear-gradient(135deg, hsl(176 84% 41%) 0%, hsl(176 84% 48%) 100%);
     --gradient-navy: linear-gradient(135deg, hsl(222 47% 35%) 0%, hsl(222 47% 45%) 100%);
+
+    /* Student-facing vibrant palette (Duolingo-style) */
+    --student-pink: 329 100% 71%;
+    --student-coral: 11 100% 67%;
+    --student-peach: 27 100% 71%;
+    --student-yellow: 45 100% 71%;
+    --student-lime: 125 100% 71%;
+    
+    /* Student button gradients with 3D effect */
+    --gradient-student-pink: linear-gradient(180deg, hsl(329 100% 71%), hsl(329 100% 65%));
+    --gradient-student-coral: linear-gradient(180deg, hsl(11 100% 67%), hsl(11 100% 61%));
+    --gradient-student-peach: linear-gradient(180deg, hsl(27 100% 71%), hsl(27 100% 65%));
+    --gradient-student-yellow: linear-gradient(180deg, hsl(45 100% 71%), hsl(45 100% 65%));
+    --gradient-student-lime: linear-gradient(180deg, hsl(125 100% 71%), hsl(125 100% 65%));
     
     /* Professional shadows with teal tint */
     --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.07);

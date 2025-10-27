@@ -17,6 +17,13 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         playful: "bg-gradient-success text-white shadow-soft hover:shadow-hover hover:scale-105 rounded-xl font-bold",
         warning: "bg-warning text-warning-foreground shadow-soft hover:shadow-medium hover:scale-105 rounded-xl",
+        
+        // Student-facing 3D buttons (Duolingo-style)
+        "student-pink": "bg-gradient-student-pink text-white rounded-2xl border-b-4 border-[hsl(329,100%,55%)] shadow-[0_4px_0_hsl(329,100%,55%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(329,100%,55%)] active:translate-y-2 active:shadow-none transition-all",
+        "student-coral": "bg-gradient-student-coral text-white rounded-2xl border-b-4 border-[hsl(11,100%,51%)] shadow-[0_4px_0_hsl(11,100%,51%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(11,100%,51%)] active:translate-y-2 active:shadow-none transition-all",
+        "student-peach": "bg-gradient-student-peach text-white rounded-2xl border-b-4 border-[hsl(27,100%,55%)] shadow-[0_4px_0_hsl(27,100%,55%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(27,100%,55%)] active:translate-y-2 active:shadow-none transition-all",
+        "student-yellow": "bg-gradient-student-yellow text-gray-900 rounded-2xl border-b-4 border-[hsl(45,100%,55%)] shadow-[0_4px_0_hsl(45,100%,55%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(45,100%,55%)] active:translate-y-2 active:shadow-none transition-all",
+        "student-lime": "bg-gradient-student-lime text-gray-900 rounded-2xl border-b-4 border-[hsl(125,100%,55%)] shadow-[0_4px_0_hsl(125,100%,55%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(125,100%,55%)] active:translate-y-2 active:shadow-none transition-all",
       },
       size: {
         default: "h-12 px-6 py-3",

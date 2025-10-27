@@ -56,6 +56,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Student-facing vibrant colors
+        "student-pink": "hsl(var(--student-pink))",
+        "student-coral": "hsl(var(--student-coral))",
+        "student-peach": "hsl(var(--student-peach))",
+        "student-yellow": "hsl(var(--student-yellow))",
+        "student-lime": "hsl(var(--student-lime))",
       },
       fontFamily: {
         sans: ['Nunito Sans', 'system-ui', 'sans-serif'],
@@ -73,6 +79,11 @@ export default {
         'gradient-card': 'var(--gradient-card)',
         'gradient-success': 'var(--gradient-success)',
         'gradient-primary-button': 'var(--gradient-primary-button)',
+        'gradient-student-pink': 'var(--gradient-student-pink)',
+        'gradient-student-coral': 'var(--gradient-student-coral)',
+        'gradient-student-peach': 'var(--gradient-student-peach)',
+        'gradient-student-yellow': 'var(--gradient-student-yellow)',
+        'gradient-student-lime': 'var(--gradient-student-lime)',
       },
       borderRadius: {
         lg: "var(--radius)",
