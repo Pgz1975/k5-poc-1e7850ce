@@ -87,17 +87,14 @@ const StudentLessonsProgressV2 = () => {
     return new Map(completedActivities.map(a => [a.activity_id, a]));
   }, [completedActivities]);
 
-  // Unit color progression - changes for each unit regardless of domain
-  const unitColors = [
-    { bg: "bg-gradient-to-br from-emerald-400 to-teal-500", path: "#10b981" },
-    { bg: "bg-gradient-to-br from-violet-400 to-purple-500", path: "#8b5cf6" },
-    { bg: "bg-gradient-to-br from-rose-400 to-pink-500", path: "#f43f5e" },
-    { bg: "bg-gradient-to-br from-amber-400 to-orange-500", path: "#f59e0b" },
-    { bg: "bg-gradient-to-br from-sky-400 to-blue-500", path: "#0ea5e9" },
-    { bg: "bg-gradient-to-br from-fuchsia-400 to-pink-600", path: "#d946ef" },
-    { bg: "bg-gradient-to-br from-lime-400 to-green-500", path: "#84cc16" },
-    { bg: "bg-gradient-to-br from-indigo-400 to-blue-600", path: "#6366f1" },
-  ];
+  // Domain color mapping
+  const domainColors: Record<string, string> = {
+    "Alfabeto y Fonética": "bg-gradient-to-br from-purple-400 to-purple-600",
+    "Lectura y Comprensión": "bg-gradient-to-br from-pink-400 to-pink-600",
+    "Vocabulario": "bg-gradient-to-br from-blue-400 to-blue-600",
+    "Expresión": "bg-gradient-to-br from-green-400 to-green-600",
+    "TEST_G1_FIXTURES": "bg-gradient-to-br from-orange-400 to-orange-600",
+  };
 
   const getNodeState = (lessonId: string) => {
     const isLocked = lockingMap.get(lessonId);
@@ -119,14 +116,6 @@ const StudentLessonsProgressV2 = () => {
     "thick-leaf", "forest-leaf", "three-leaves", "oval-leaf", 
     "twin-leaves", "split-leaf", "small-leaves"
   ] as const;
-
-  // Generate curved path positions for nodes
-  const generatePathPosition = (index: number, total: number) => {
-    const amplitude = 120; // Increased for more dramatic curves
-    const frequency = 0.4; // Smoother waves
-    const xOffset = Math.sin(index * frequency) * amplitude;
-    return xOffset;
-  };
 
   if (isLoadingOrdering) {
     return (
@@ -164,12 +153,25 @@ const StudentLessonsProgressV2 = () => {
           </div>
 
           {/* Lessons Path */}
-          <div className="relative pb-20">
+          <div className="relative">
+            {/* Background decorations */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
+              <img 
+                src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
+                alt=""
+                className="absolute -left-20 top-40 w-32 h-32 opacity-50"
+              />
+              <img 
+                src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
+                alt=""
+                className="absolute -right-20 top-[600px] w-32 h-32 opacity-50"
+              />
+            </div>
 
             {/* Path container */}
-            <div className="relative space-y-20">
+            <div className="relative space-y-16">
               {domainGroups.map((group, groupIndex) => {
-                const colorScheme = unitColors[groupIndex % unitColors.length];
+                const color = domainColors[group.domain] || "bg-gradient-to-br from-primary to-primary-glow";
                 const completedInDomain = group.lessons.filter(l => completedMap.has(l.id)).length;
                 
                 return (
@@ -182,54 +184,18 @@ const StudentLessonsProgressV2 = () => {
                     <UnitHeader
                       unitNumber={groupIndex + 1}
                       title={group.domain}
-                      color={colorScheme.bg}
+                      color={color}
                       totalLessons={group.lessons.length}
                       completedLessons={completedInDomain}
                     />
 
-                    {/* Curved path with lesson nodes */}
-                    <div className="relative flex flex-col items-center py-8">
-                      {/* Continuous curved SVG path */}
-                      <svg 
-                        className="absolute inset-0 w-full h-full pointer-events-none" 
-                        style={{ top: '40px', height: `${group.lessons.length * 140}px` }}
-                      >
-                        <path
-                          d={(() => {
-                            if (group.lessons.length === 0) return '';
-                            
-                            const startX = 200 + generatePathPosition(0, group.lessons.length);
-                            const startY = 70;
-                            let pathData = `M ${startX} ${startY}`;
-                            
-                            for (let i = 1; i < group.lessons.length; i++) {
-                              const prevX = 200 + generatePathPosition(i - 1, group.lessons.length);
-                              const prevY = (i - 1) * 140 + 70;
-                              const currentX = 200 + generatePathPosition(i, group.lessons.length);
-                              const currentY = i * 140 + 70;
-                              
-                              // Calculate control points for smooth bezier curves
-                              const controlY = (prevY + currentY) / 2;
-                              pathData += ` Q ${prevX} ${controlY}, ${currentX} ${currentY}`;
-                            }
-                            
-                            return pathData;
-                          })()}
-                          stroke="#9ca3af"
-                          strokeWidth="8"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          opacity="0.4"
-                        />
-                      </svg>
-
-                      {/* Lesson nodes positioned along curve */}
+                    {/* Lesson nodes in winding path */}
+                    <div className="relative flex flex-col items-center gap-12 py-8">
                       {group.lessons.map((lesson, lessonIndex) => {
                         const state = getNodeState(lesson.id);
-                        const xOffset = generatePathPosition(lessonIndex, group.lessons.length);
+                        const position = lessonIndex % 3; // 0 = left, 1 = center, 2 = right
+                        const offsetClass = position === 0 ? "-translate-x-16" : position === 2 ? "translate-x-16" : "";
                         const decorationType = decorationTypes[lessonIndex % decorationTypes.length];
-                        const decorationSide = xOffset > 0 ? "left" : "right";
                         
                         return (
                           <motion.div
@@ -237,43 +203,19 @@ const StudentLessonsProgressV2 = () => {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: groupIndex * 0.1 + lessonIndex * 0.05 }}
-                            className="relative"
-                            style={{ 
-                              transform: `translateX(${xOffset}px)`,
-                              marginBottom: lessonIndex < group.lessons.length - 1 ? '140px' : '70px'
-                            }}
+                            className={`relative ${offsetClass}`}
                           >
-                            {/* Nature decoration along path */}
-                            {lessonIndex % 2 === 0 && (
-                              <PathDecoration
-                                type={decorationType}
-                                position={decorationSide}
-                                size={lessonIndex % 3 === 0 ? "lg" : "md"}
-                                className="top-1/2 -translate-y-1/2"
-                              />
-                            )}
-                            
-                            {/* Additional scattered leaves */}
-                            {lessonIndex % 3 === 1 && (
-                              <div 
-                                className="absolute opacity-20 pointer-events-none"
-                                style={{
-                                  [decorationSide === "left" ? "right" : "left"]: "-80px",
-                                  top: "50%",
-                                  transform: "translateY(-50%) rotate(-25deg)"
-                                }}
-                              >
-                                <img 
-                                  src={`/design elements/svgs/reshot-icon-${decorationType}.svg`}
-                                  alt=""
-                                  className="w-10 h-10"
-                                />
-                              </div>
-                            )}
+                            {/* Path decoration */}
+                            <PathDecoration
+                              type={decorationType}
+                              position={position === 0 ? "right" : "left"}
+                              size={lessonIndex % 2 === 0 ? "md" : "sm"}
+                              className="top-1/2 -translate-y-1/2"
+                            />
                             
                             <LessonNode
                               state={state}
-                              color={colorScheme.bg}
+                              color={color}
                               lessonNumber={lessonIndex + 1}
                               onClick={() => navigate(`/lesson/${lesson.id}`)}
                             />
@@ -286,29 +228,12 @@ const StudentLessonsProgressV2 = () => {
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: groupIndex * 0.1 + group.lessons.length * 0.05 }}
-                        className="relative mt-8"
                       >
-                        {/* Tree decoration next to milestone */}
-                        <div className="absolute -left-20 top-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
-                          <img 
-                            src="/design elements/svgs/reshot-icon-small-leaves-P4MUEALCWH.svg"
-                            alt=""
-                            className="w-16 h-16"
-                          />
-                        </div>
-                        <div className="absolute -right-20 top-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
-                          <img 
-                            src="/design elements/svgs/reshot-icon-split-leaf-GV53AWKBCS.svg"
-                            alt=""
-                            className="w-16 h-16 rotate-180"
-                          />
-                        </div>
-                        
                         <MilestoneIcon
                           type="shield"
                           number={groupIndex + 1}
                           unlocked={completedInDomain === group.lessons.length}
-                          color={colorScheme.bg}
+                          color={color}
                         />
                       </motion.div>
                     </div>
