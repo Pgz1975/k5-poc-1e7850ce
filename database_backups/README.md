@@ -1,33 +1,33 @@
-# COMPLETE Database Backup - 2025-10-26T08-34-27
+# COMPLETE Database Backup - 2025-10-27T09-32-58
 
 ## 📊 Backup Information
-- **Date**: 10/26/2025, 8:34:27 AM
+- **Date**: 10/27/2025, 9:32:58 AM
 - **Project ID**: meertwtenhlmnlpwxhyz
 - **Project URL**: https://meertwtenhlmnlpwxhyz.supabase.co
 - **Backup Type**: COMPLETE (All Tables)
 
 ## 📁 Files
-- **SQL Backup**: `supabase_COMPLETE_backup_2025-10-26T08-34-27.sql` (363.50 KB)
-- **JSON Backup**: `supabase_COMPLETE_backup_2025-10-26T08-34-27.json` (729.74 KB)
+- **SQL Backup**: `supabase_COMPLETE_backup_2025-10-27T09-32-58.sql` (409.50 KB)
+- **JSON Backup**: `supabase_COMPLETE_backup_2025-10-27T09-32-58.json` (820.07 KB)
 
 ## 📋 Tables Included (5 total)
-- **manual_assessments**: 308 records
+- **manual_assessments**: 349 records
 - **voice_sessions**: 284 records
 - **profiles**: 1 records
 - **user_roles**: 1 records
 - **pdf_text_content**: 0 records
 
-**Total Records**: 594
+**Total Records**: 635
 
 ## 🚀 How to Restore
 
 ### From SQL file:
 ```bash
 # Full restore
-psql "postgresql://[USER]:[PASSWORD]@db.meertwtenhlmnlpwxhyz.supabase.co:5432/postgres" < supabase_COMPLETE_backup_2025-10-26T08-34-27.sql
+psql "postgresql://[USER]:[PASSWORD]@db.meertwtenhlmnlpwxhyz.supabase.co:5432/postgres" < supabase_COMPLETE_backup_2025-10-27T09-32-58.sql
 
 # Restore specific table
-grep -A 1000 "Table: manual_assessments" supabase_COMPLETE_backup_2025-10-26T08-34-27.sql | psql [CONNECTION_STRING]
+grep -A 1000 "Table: manual_assessments" supabase_COMPLETE_backup_2025-10-27T09-32-58.sql | psql [CONNECTION_STRING]
 ```
 
 ### From JSON file:
@@ -35,7 +35,7 @@ Use the provided import script or manually import via Supabase Dashboard.
 
 ```javascript
 // Example: Restore from JSON
-const backup = require('./supabase_COMPLETE_backup_2025-10-26T08-34-27.json');
+const backup = require('./supabase_COMPLETE_backup_2025-10-27T09-32-58.json');
 for (const [table, data] of Object.entries(backup.data)) {
   await supabase.from(table).insert(data);
 }
@@ -50,7 +50,7 @@ for (const [table, data] of Object.entries(backup.data)) {
 
 ## 📈 Backup Statistics
 - Export Duration: ~60 seconds
-- Compression Ratio: 49.8% (SQL vs JSON)
+- Compression Ratio: 49.9% (SQL vs JSON)
 
 ## 🔄 Incremental Backups
 For incremental backups, compare the created_at or updated_at timestamps with the previous backup date.
