@@ -122,8 +122,8 @@ const StudentLessonsProgressV2 = () => {
 
   // Generate curved path positions for nodes
   const generatePathPosition = (index: number, total: number) => {
-    const amplitude = 80; // How far left/right the curve goes
-    const frequency = 0.5; // How many curves
+    const amplitude = 120; // Increased for more dramatic curves
+    const frequency = 0.4; // Smoother waves
     const xOffset = Math.sin(index * frequency) * amplitude;
     return xOffset;
   };
@@ -165,37 +165,47 @@ const StudentLessonsProgressV2 = () => {
 
           {/* Lessons Path */}
           <div className="relative pb-20">
-            {/* Background nature decorations */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-15">
+            {/* Subtle scattered background nature decorations */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <img 
                 src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
                 alt=""
-                className="absolute -left-24 top-20 w-40 h-40 opacity-40"
+                className="absolute -left-24 top-20 w-32 h-32 opacity-[0.08]"
+              />
+              <img 
+                src="/design elements/svgs/reshot-icon-thick-leaf-VRTC7E3JP5.svg" 
+                alt=""
+                className="absolute right-16 top-[15%] w-20 h-20 opacity-[0.1] rotate-12"
               />
               <img 
                 src="/design elements/svgs/reshot-icon-forest-leaf-LSCJ9B4X6H.svg" 
                 alt=""
-                className="absolute right-12 top-80 w-24 h-24 opacity-30 rotate-45"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
-                alt=""
-                className="absolute -right-28 top-[500px] w-48 h-48 opacity-35"
+                className="absolute left-12 top-[30%] w-24 h-24 opacity-[0.08] -rotate-6"
               />
               <img 
                 src="/design elements/svgs/reshot-icon-three-leaves-KD6UVGSNFP.svg" 
                 alt=""
-                className="absolute left-8 top-[700px] w-20 h-20 opacity-40 -rotate-12"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-twin-leaves-258L6V4RY3.svg" 
-                alt=""
-                className="absolute -left-16 top-[1000px] w-28 h-28 opacity-30"
+                className="absolute right-20 top-[45%] w-28 h-28 opacity-[0.1]"
               />
               <img 
                 src="/design elements/svgs/reshot-icon-oval-leaf-J5NGAV7Q2Y.svg" 
                 alt=""
-                className="absolute right-4 top-[1200px] w-16 h-16 opacity-35 rotate-90"
+                className="absolute left-16 top-[60%] w-20 h-20 opacity-[0.08] rotate-45"
+              />
+              <img 
+                src="/design elements/svgs/reshot-icon-twin-leaves-258L6V4RY3.svg" 
+                alt=""
+                className="absolute right-14 top-[75%] w-18 h-18 opacity-[0.1] -rotate-12"
+              />
+              <img 
+                src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
+                alt=""
+                className="absolute -right-28 top-[85%] w-40 h-40 opacity-[0.08]"
+              />
+              <img 
+                src="/design elements/svgs/reshot-icon-small-leaves-P4MUEALCWH.svg" 
+                alt=""
+                className="absolute left-20 bottom-40 w-16 h-16 opacity-[0.08]"
               />
             </div>
 
@@ -222,34 +232,38 @@ const StudentLessonsProgressV2 = () => {
 
                     {/* Curved path with lesson nodes */}
                     <div className="relative flex flex-col items-center py-8">
-                      {/* SVG curved path */}
+                      {/* Continuous curved SVG path */}
                       <svg 
                         className="absolute inset-0 w-full h-full pointer-events-none" 
                         style={{ top: '40px', height: `${group.lessons.length * 140}px` }}
                       >
-                        <defs>
-                          <linearGradient id={`pathGradient-${groupIndex}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor={colorScheme.path} stopOpacity="0.3" />
-                            <stop offset="100%" stopColor={colorScheme.path} stopOpacity="0.1" />
-                          </linearGradient>
-                        </defs>
                         <path
                           d={(() => {
-                            let pathD = `M ${200} 0`;
-                            for (let i = 0; i < group.lessons.length; i++) {
-                              const y = i * 140 + 70;
-                              const x = 200 + generatePathPosition(i, group.lessons.length);
-                              const controlY = y - 35;
-                              const prevX = i > 0 ? 200 + generatePathPosition(i - 1, group.lessons.length) : 200;
-                              pathD += ` Q ${(x + prevX) / 2} ${controlY}, ${x} ${y}`;
+                            if (group.lessons.length === 0) return '';
+                            
+                            const startX = 200 + generatePathPosition(0, group.lessons.length);
+                            const startY = 70;
+                            let pathData = `M ${startX} ${startY}`;
+                            
+                            for (let i = 1; i < group.lessons.length; i++) {
+                              const prevX = 200 + generatePathPosition(i - 1, group.lessons.length);
+                              const prevY = (i - 1) * 140 + 70;
+                              const currentX = 200 + generatePathPosition(i, group.lessons.length);
+                              const currentY = i * 140 + 70;
+                              
+                              // Calculate control points for smooth bezier curves
+                              const controlY = (prevY + currentY) / 2;
+                              pathData += ` Q ${prevX} ${controlY}, ${currentX} ${currentY}`;
                             }
-                            return pathD;
+                            
+                            return pathData;
                           })()}
-                          stroke={`url(#pathGradient-${groupIndex})`}
-                          strokeWidth="6"
+                          stroke="#9ca3af"
+                          strokeWidth="8"
                           fill="none"
                           strokeLinecap="round"
-                          strokeDasharray="12 8"
+                          strokeLinejoin="round"
+                          opacity="0.4"
                         />
                       </svg>
 

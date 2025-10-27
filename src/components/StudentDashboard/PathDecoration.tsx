@@ -35,7 +35,7 @@ export const PathDecoration = ({
   return (
     <div 
       className={cn(
-        "absolute z-0 opacity-20 pointer-events-none",
+        "absolute z-0 opacity-10 pointer-events-none",
         sizeClasses[size],
         position === "left" ? "-left-6" : "-right-6",
         className
