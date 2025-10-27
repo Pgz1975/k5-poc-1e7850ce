@@ -165,49 +165,6 @@ const StudentLessonsProgressV2 = () => {
 
           {/* Lessons Path */}
           <div className="relative pb-20">
-            {/* Subtle scattered background nature decorations */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <img 
-                src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
-                alt=""
-                className="absolute -left-24 top-20 w-32 h-32 opacity-[0.08]"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-thick-leaf-VRTC7E3JP5.svg" 
-                alt=""
-                className="absolute right-16 top-[15%] w-20 h-20 opacity-[0.1] rotate-12"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-forest-leaf-LSCJ9B4X6H.svg" 
-                alt=""
-                className="absolute left-12 top-[30%] w-24 h-24 opacity-[0.08] -rotate-6"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-three-leaves-KD6UVGSNFP.svg" 
-                alt=""
-                className="absolute right-20 top-[45%] w-28 h-28 opacity-[0.1]"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-oval-leaf-J5NGAV7Q2Y.svg" 
-                alt=""
-                className="absolute left-16 top-[60%] w-20 h-20 opacity-[0.08] rotate-45"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-twin-leaves-258L6V4RY3.svg" 
-                alt=""
-                className="absolute right-14 top-[75%] w-18 h-18 opacity-[0.1] -rotate-12"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
-                alt=""
-                className="absolute -right-28 top-[85%] w-40 h-40 opacity-[0.08]"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-small-leaves-P4MUEALCWH.svg" 
-                alt=""
-                className="absolute left-20 bottom-40 w-16 h-16 opacity-[0.08]"
-              />
-            </div>
 
             {/* Path container */}
             <div className="relative space-y-20">
