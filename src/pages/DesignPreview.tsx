@@ -50,6 +50,13 @@ export default function DesignPreview() {
             >
               View Student Dashboard
             </Button>
+            <Button 
+              onClick={() => navigate('/student-dashboard/lessons')} 
+              variant="outline"
+              className="w-full"
+            >
+              View Lessons Path
+            </Button>
           </div>
 
           <p className="text-xs text-muted-foreground text-center pt-4">
