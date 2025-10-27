@@ -216,58 +216,95 @@ All colors MUST be HSL.
   }
 }
 
-/* Lesson Path Grid System - Duolingo-style */
+/* ====================================
+   Lesson Path System - CSS Variables
+   ==================================== */
 @layer utilities {
-  /* S-Curve Grid Container */
-  .s-curve-grid-container {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(var(--grid-rows, 7), minmax(4rem, 1fr));
-    gap: 1rem;
+  /* Main lesson path container */
+  .lesson-path {
+    /* Curve parameters */
+    --base-offset: 50%;           /* Center position */
+    --curve-amplitude: 30%;       /* How far elements swing left/right */
+    --vertical-spacing: 95px;     /* Space between elements */
+    --element-size: 80px;         /* Element size */
+    
+    position: relative;
     width: min(90vw, 500px);
     max-width: 500px;
-    position: relative;
     margin-left: auto;
     margin-right: auto;
     padding: 2rem 0;
+    min-height: 400px;
   }
 
-  /* Path element wrapper - centered in grid cell */
-  .s-curve-path-element {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease;
+  /* Individual lesson wrapper */
+  .lesson {
+    /* Position variables (set via inline styles) */
+    --x-offset: 0;      /* Horizontal offset (-1 to 1) */
+    --y-position: 0;    /* Vertical position (0, 1, 2, ...) */
+    
+    position: absolute;
+    
+    /* Calculate position using custom properties */
+    left: calc(var(--base-offset) + (var(--x-offset) * var(--curve-amplitude)));
+    top: calc(var(--y-position) * var(--vertical-spacing));
+    
+    /* Center the element on its position */
+    transform: translateX(-50%);
+    
+    /* Smooth transitions */
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .s-curve-path-element:hover {
-    transform: scale(1.05);
-  }
-
-  /* Node sizing with responsive clamp */
-  .s-curve-node {
-    width: clamp(3rem, 8vw, 4rem);
-    height: clamp(3rem, 8vw, 4rem);
+  /* Lesson node sizing */
+  .lesson-node {
+    width: var(--element-size);
+    height: var(--element-size);
     position: relative;
   }
 
-  /* Mobile adjustments */
-  @media (max-width: 600px) {
-    .s-curve-grid-container {
-      gap: 0.5rem;
-    }
-    
-    .s-curve-node {
-      width: clamp(2.5rem, 10vw, 3.5rem);
-      height: clamp(2.5rem, 10vw, 3.5rem);
+  /* Hover effect */
+  .lesson:hover {
+    --hover-scale: 1.05;
+    transform: translateX(-50%) scale(var(--hover-scale));
+  }
+
+  /* Connecting line between lessons */
+  .lesson::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: var(--vertical-spacing);
+    background: linear-gradient(
+      180deg, 
+      transparent 0%, 
+      rgba(78, 183, 229, 0.15) 50%, 
+      transparent 100%
+    );
+    top: calc(var(--element-size) / 2);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: -1;
+  }
+
+  .lesson:first-child::before {
+    display: none;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .lesson-path {
+      --curve-amplitude: 25%;
+      --vertical-spacing: 70px;
+      --element-size: 60px;
     }
   }
 
-  /* Desktop enhancements */
   @media (min-width: 1200px) {
-    .s-curve-grid-container {
-      width: 600px;
-      gap: 1.5rem;
+    .lesson-path {
+      --curve-amplitude: 35%;
+      --vertical-spacing: 110px;
+      --element-size: 90px;
     }
   }
 
