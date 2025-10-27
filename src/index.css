@@ -225,35 +225,33 @@ All colors MUST be HSL.
     max-width: 90vw;
   }
 
-  /* Column positions for 6-position zigzag pattern */
+  /* Horizontal offset positions for smooth zigzag (applied to relative wrapper) */
   .lesson-node-col-0 {
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0px;
   }
   
   .lesson-node-col-1 {
-    left: calc(50% - 60px);
-    transform: translateX(-50%);
+    left: -45px;
   }
   
   .lesson-node-col-2 {
-    left: calc(50% - 90px);
-    transform: translateX(-50%);
+    left: -70px;
   }
   
   .lesson-node-col-3 {
-    left: calc(50% + 90px);
-    transform: translateX(-50%);
+    left: -45px;
   }
   
   .lesson-node-col-4 {
-    left: calc(50% + 60px);
-    transform: translateX(-50%);
+    left: 0px;
   }
   
   .lesson-node-col-5 {
-    left: 50%;
-    transform: translateX(-50%);
+    left: 45px;
+  }
+  
+  .lesson-node-col-6 {
+    left: 0px;
   }
 
   /* Vertical spacing helper */

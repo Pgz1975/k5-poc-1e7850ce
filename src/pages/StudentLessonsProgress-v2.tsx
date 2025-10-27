@@ -110,9 +110,9 @@ const StudentLessonsProgressV2 = () => {
     return "unlocked";
   };
 
-  // Grid column positions (6-position smooth zigzag pattern)
+  // Grid column positions (7-position smooth S-curve pattern like Duolingo)
   const getColumnPosition = (index: number): number => {
-    const pattern = [0, 1, 2, 3, 4, 5];
+    const pattern = [0, 1, 2, 3, 4, 5, 6];
     return pattern[index % pattern.length];
   };
 
@@ -232,16 +232,18 @@ const StudentLessonsProgressV2 = () => {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: groupIndex * 0.1 + lessonIndex * 0.05 }}
-                            className={`absolute ${colClass}`}
+                            className="absolute left-1/2 -translate-x-1/2"
                             style={{ top: `${lessonIndex * 80}px` }}
                           >
-                            <LessonNode
-                              state={state}
-                              color={color}
-                              lessonNumber={lessonIndex + 1}
-                              title={lesson.title}
-                              onClick={() => state !== 'locked' ? navigate(`/lesson/${lesson.id}`) : undefined}
-                            />
+                            <div className={`relative ${colClass}`}>
+                              <LessonNode
+                                state={state}
+                                color={color}
+                                lessonNumber={lessonIndex + 1}
+                                title={lesson.title}
+                                onClick={() => state !== 'locked' ? navigate(`/lesson/${lesson.id}`) : undefined}
+                              />
+                            </div>
                           </motion.div>
                         );
                       })}
