@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S-Curve Game Path</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #1a2633 0%, #243442 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 400px;
+            height: 700px;
+        }
+
+        .title {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #4a6b7c;
+            font-size: 18px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .title.bottom {
+            top: auto;
+            bottom: 10px;
+        }
+
+        /* Path dots to visualize the S-curve (optional) */
+        .path-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        /* Base styles for path elements */
+        .path-element {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            transition: transform 0.3s ease;
+        }
+
+        .path-element:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        /* Checkmark circles */
+        .checkmark {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4eb7e5 0%, #2d8cc4 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .checkmark::after {
+            content: '✓';
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        /* Book icon */
+        .book {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4eb7e5 0%, #2d8cc4 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .book::after {
+            content: '📖';
+            font-size: 30px;
+        }
+
+        /* Treasure chest */
+        .chest {
+            width: 70px;
+            height: 60px;
+            position: relative;
+        }
+
+        .chest-bottom {
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(180deg, #f4b643 0%, #d4941f 100%);
+            border-radius: 5px;
+            position: absolute;
+            bottom: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .chest-top {
+            width: 100%;
+            height: 25px;
+            background: linear-gradient(180deg, #f9c550 0%, #f4b643 100%);
+            border-radius: 15px 15px 5px 5px;
+            position: absolute;
+            top: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .chest-lock {
+            width: 15px;
+            height: 15px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Trophy */
+        .trophy {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+
+        .trophy-cup {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #5bc0de 0%, #3a9fc4 100%);
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .trophy-cup::before {
+            content: '10';
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .trophy-wings {
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .trophy-wings::before,
+        .trophy-wings::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            background: linear-gradient(135deg, #7dd3e8 0%, #5bc0de 100%);
+            border-radius: 50% 10% 50% 10%;
+        }
+
+        .trophy-wings::before {
+            left: -5px;
+            transform: rotate(-30deg);
+        }
+
+        .trophy-wings::after {
+            right: -5px;
+            transform: rotate(30deg) scaleX(-1);
+        }
+
+        /* S-curve positioning */
+        .element-1 { left: 50%; top: 15%; }
+        .element-2 { left: 60%; top: 23%; }
+        .element-3 { left: 65%; top: 35%; }
+        .element-4 { left: 60%; top: 47%; }
+        .element-5 { left: 45%; top: 58%; }
+        .element-6 { left: 35%; top: 70%; }
+        .element-7 { left: 50%; top: 82%; }
+
+        /* Connection lines (optional - creates a visual path) */
+        .path-line {
+            position: absolute;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(78, 183, 229, 0.2) 50%, 
+                transparent 100%);
+            height: 2px;
+            transform-origin: left center;
+        }
+
+        /* Animated glow effect */
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); }
+            50% { box-shadow: 0 4px 20px rgba(78, 183, 229, 0.5); }
+        }
+
+        .path-element:nth-child(odd) {
+            animation: glow 3s ease-in-out infinite;
+            animation-delay: calc(var(--index) * 0.2s);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">Explorer la ville</div>
+        
+        <!-- S-curve elements -->
+        <div class="path-element element-1" style="--index: 1">
+            <div class="checkmark"></div>
+        </div>
+        
+        <div class="path-element element-2" style="--index: 2">
+            <div class="book"></div>
+        </div>
+        
+        <div class="path-element element-3" style="--index: 3">
+            <div class="checkmark"></div>
+        </div>
+        
+        <div class="path-element element-4" style="--index: 4">
+            <div class="checkmark"></div>
+        </div>
+        
+        <div class="path-element element-5" style="--index: 5">
+            <div class="chest">
+                <div class="chest-top"></div>
+                <div class="chest-bottom">
+                    <div class="chest-lock"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="path-element element-6" style="--index: 6">
+            <div class="checkmark"></div>
+        </div>
+        
+        <div class="path-element element-7" style="--index: 7">
+            <div class="trophy">
+                <div class="trophy-wings"></div>
+                <div class="trophy-cup"></div>
+            </div>
+        </div>
+        
+        <div class="title bottom">Acheter des vêtements</div>
+    </div>
+
+    <script>
+        // Optional: Add connecting path visualization
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            const elements = document.querySelectorAll('.path-element');
+            
+            // Create dotted path between elements
+            for (let i = 0; i < elements.length - 1; i++) {
+                const current = elements[i];
+                const next = elements[i + 1];
+                
+                const currentRect = current.getBoundingClientRect();
+                const nextRect = next.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                
+                const startX = currentRect.left + currentRect.width / 2 - containerRect.left;
+                const startY = currentRect.top + currentRect.height / 2 - containerRect.top;
+                const endX = nextRect.left + nextRect.width / 2 - containerRect.left;
+                const endY = nextRect.top + nextRect.height / 2 - containerRect.top;
+                
+                // Create dots along the path
+                const steps = 10;
+                for (let j = 1; j < steps; j++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'path-dot';
+                    const t = j / steps;
+                    
+                    // Simple bezier curve for S-shape
+                    let x, y;
+                    if (i % 2 === 0) {
+                        // Right curve
+                        const midX = startX + (endX - startX) * 0.8;
+                        x = startX + (midX - startX) * t + (endX - midX) * t;
+                        y = startY + (endY - startY) * t;
+                    } else {
+                        // Left curve
+                        const midX = startX + (endX - startX) * 0.2;
+                        x = startX + (midX - startX) * t + (endX - midX) * t;
+                        y = startY + (endY - startY) * t;
+                    }
+                    
+                    dot.style.left = x + 'px';
+                    dot.style.top = y + 'px';
+                    container.appendChild(dot);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
