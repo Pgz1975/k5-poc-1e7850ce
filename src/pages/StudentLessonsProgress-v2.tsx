@@ -221,7 +221,7 @@ const StudentLessonsProgressV2 = () => {
                     />
 
                     {/* Lesson nodes in grid pattern */}
-                    <div className="relative flex flex-col items-center gap-12 py-12">
+                    <div className="relative py-12 mx-auto" style={{ width: '600px', minHeight: `${(group.lessons.length + 1) * 160}px` }}>
                       {group.lessons.map((lesson, lessonIndex) => {
                         const state = getNodeState(lesson.id);
                         const colPosition = getColumnPosition(lessonIndex);
@@ -233,14 +233,18 @@ const StudentLessonsProgressV2 = () => {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: groupIndex * 0.1 + lessonIndex * 0.05 }}
-                            style={{ transform: `translateX(${offset})` }}
+                            className="absolute left-1/2"
+                            style={{ 
+                              top: `${lessonIndex * 160}px`,
+                              transform: `translate(calc(-50% + ${offset}), 0)`
+                            }}
                           >
                             <LessonNode
                               state={state}
                               color={color}
                               lessonNumber={lessonIndex + 1}
                               title={lesson.title}
-                              onClick={() => navigate(`/lesson/${lesson.id}`)}
+                              onClick={() => state !== 'locked' ? navigate(`/lesson/${lesson.id}`) : undefined}
                             />
                           </motion.div>
                         );
@@ -251,6 +255,8 @@ const StudentLessonsProgressV2 = () => {
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: groupIndex * 0.1 + group.lessons.length * 0.05 }}
+                        className="absolute left-1/2 -translate-x-1/2"
+                        style={{ top: `${group.lessons.length * 160}px` }}
                       >
                         <MilestoneIcon
                           type="shield"
