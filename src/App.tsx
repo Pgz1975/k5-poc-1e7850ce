@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import IndexV2 from "./pages/Index-v2";
 import Dashboard from "./pages/Dashboard";
 import StudentDashboard from "./pages/StudentDashboard";
+import StudentDashboardV2 from "./pages/StudentDashboard-v2";
 import Activities from "./pages/Activities";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import FamilyDashboard from "./pages/FamilyDashboard";
@@ -51,7 +52,7 @@ function AppRoutes() {
       <Route path="/auth" element={<Auth />} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentDashboard /></ProtectedRoute>} />
+      <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentDashboardV2 /> : <StudentDashboard />}</ProtectedRoute>} />
       <Route path="/student-dashboard/lessons" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentLessonsProgress /></ProtectedRoute>} />
       <Route path="/student-dashboard/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentExercisesProgress /></ProtectedRoute>} />
       <Route path="/student-dashboard/assessments" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentAssessmentsProgress /></ProtectedRoute>} />
