@@ -225,16 +225,26 @@ All colors MUST be HSL.
     /* Curve parameters */
     --base-offset: 50%;           /* Center position */
     --curve-amplitude: 30%;       /* How far elements swing left/right */
-    --vertical-spacing: 95px;     /* Space between elements */
+    --vertical-spacing: 85px;     /* Space between lessons */
     --element-size: 80px;         /* Element size */
+    --chapter-spacing: 100px;     /* Extra space for chapter bubbles */
     
     position: relative;
     width: min(90vw, 500px);
     max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 2rem 0;
-    min-height: 400px;
+    margin: 0 auto;
+    padding: 0;                    /* Remove padding - causes gaps */
+  }
+  
+  /* Chapter bubble positioning - part of the flow */
+  .chapter-bubble-wrapper {
+    position: absolute;
+    --y-position: 0;
+    top: calc(var(--y-position) * var(--vertical-spacing));
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    z-index: 5;                    /* Below lessons but above background */
   }
 
   /* Individual lesson wrapper */
@@ -254,6 +264,7 @@ All colors MUST be HSL.
     
     /* Smooth transitions */
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;                   /* Ensure lessons are above lines */
   }
 
   /* Lesson node sizing */
@@ -297,14 +308,16 @@ All colors MUST be HSL.
       --curve-amplitude: 25%;
       --vertical-spacing: 70px;
       --element-size: 60px;
+      --chapter-spacing: 80px;
     }
   }
 
   @media (min-width: 1200px) {
     .lesson-path {
       --curve-amplitude: 35%;
-      --vertical-spacing: 110px;
+      --vertical-spacing: 100px;
       --element-size: 90px;
+      --chapter-spacing: 120px;
     }
   }
 

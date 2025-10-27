@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -7,7 +8,6 @@ import { useLessonOrdering } from "@/hooks/useLessonOrdering";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMemo } from "react";
 import { getLessonLockingStatus } from "@/utils/lessonUnlocking";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Sparkles } from "lucide-react";
@@ -198,125 +198,132 @@ const StudentLessonsProgressV2 = () => {
               ))}
             </div>
 
-            {/* Path container with continuous S-curve */}
-            <div className="relative flex flex-col items-center">
-              {(() => {
-                let globalLessonIndex = 0;
-                
-                return (
-                  <>
-                    {domainGroups.map((group, groupIndex) => {
-                      const color = unitColorSchemes[groupIndex % unitColorSchemes.length];
-                      const completedInDomain = group.lessons.filter(l => completedMap.has(l.id)).length;
-                      const chapterNumber = Math.floor(groupIndex / 2) + 1;
-                      
-                      return (
+            {/* Single continuous path container */}
+            {(() => {
+              let globalLessonIndex = 0;
+              
+              // Calculate total height needed
+              const totalLessons = domainGroups.reduce((sum, group) => sum + group.lessons.length + 1, 0); // +1 for milestone per domain
+              const totalHeight = (totalLessons + domainGroups.length + 2) * 85 + 200; // Extra for chapter bubbles and trophy
+              
+              return (
+                <div className="lesson-path" style={{ minHeight: `${totalHeight}px` }}>
+                  {domainGroups.map((group, groupIndex) => {
+                    const color = unitColorSchemes[groupIndex % unitColorSchemes.length];
+                    const completedInDomain = group.lessons.filter(l => completedMap.has(l.id)).length;
+                    const chapterNumber = Math.floor(groupIndex / 2) + 1;
+                    
+                    // Chapter bubble position (1.2 positions before first lesson)
+                    const chapterPosition = globalLessonIndex === 0 ? 0 : globalLessonIndex - 0.2;
+                    
+                    // Increment for chapter space
+                    if (groupIndex > 0) globalLessonIndex += 1.3;
+                    
+                    const chapterKey = `chapter-${group.domain}`;
+                    const lessonStartIndex = globalLessonIndex;
+                    
+                    return (
+                      <React.Fragment key={group.domain}>
+                        {/* Chapter Bubble */}
                         <motion.div
-                          key={group.domain}
+                          key={chapterKey}
+                          className="chapter-bubble-wrapper"
+                          style={{ '--y-position': chapterPosition } as React.CSSProperties}
                           initial={{ opacity: 0, y: 30 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: groupIndex * 0.1 }}
-                          className="w-full"
                         >
-                          {/* Chapter Bubble */}
                           <ChapterBubble
                             chapterNumber={chapterNumber}
                             unitNumber={groupIndex + 1}
                             title={group.domain}
                             color={color}
                           />
-
-                          {/* Lesson path with CSS variables */}
-                          <div className="lesson-path" style={{ minHeight: `${(group.lessons.length + 1) * 95}px` }}>
-                            {group.lessons.map((lesson, lessonIndex) => {
-                              const state = getNodeState(lesson.id);
-                              const { xOffset, yPosition } = getSCurvePosition(globalLessonIndex);
-                              const currentGlobalIndex = globalLessonIndex;
-                              globalLessonIndex++; // Increment for continuous curve
-                              
-                              return (
-                                <motion.div
-                                  key={lesson.id}
-                                  className="lesson"
-                                  style={{ 
-                                    '--x-offset': xOffset,
-                                    '--y-position': yPosition
-                                  } as React.CSSProperties}
-                                  initial={{ opacity: 0, scale: 0.8 }}
-                                  animate={{ opacity: 1, scale: 1 }}
-                                  transition={{ delay: currentGlobalIndex * 0.05 }}
-                                >
-                                  <div className="lesson-node">
-                                    <LessonNode
-                                      state={state}
-                                      color={color}
-                                      lessonNumber={lessonIndex + 1}
-                                      title={lesson.title}
-                                      onClick={() => state !== 'locked' ? navigate(`/lesson/${lesson.id}`) : undefined}
-                                    />
-                                  </div>
-                                </motion.div>
-                              );
-                            })}
-                            
-                            {/* Milestone continues the curve (separator with color change) */}
+                        </motion.div>
+                        
+                        {/* Lessons */}
+                        {group.lessons.map((lesson, lessonIndex) => {
+                          const state = getNodeState(lesson.id);
+                          const { xOffset, yPosition } = getSCurvePosition(globalLessonIndex);
+                          const currentGlobalIndex = globalLessonIndex;
+                          globalLessonIndex++;
+                          
+                          return (
                             <motion.div
+                              key={lesson.id}
                               className="lesson"
                               style={{ 
-                                '--x-offset': getSCurvePosition(globalLessonIndex).xOffset,
-                                '--y-position': getSCurvePosition(globalLessonIndex).yPosition
+                                '--x-offset': xOffset,
+                                '--y-position': yPosition
                               } as React.CSSProperties}
-                              initial={{ opacity: 0, scale: 0 }}
+                              initial={{ opacity: 0, scale: 0.8 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: globalLessonIndex * 0.05 }}
+                              transition={{ delay: currentGlobalIndex * 0.05 }}
                             >
                               <div className="lesson-node">
-                                <MilestoneIcon
-                                  type="shield"
-                                  number={groupIndex + 1}
-                                  unlocked={completedInDomain === group.lessons.length}
+                                <LessonNode
+                                  state={state}
                                   color={color}
+                                  lessonNumber={lessonIndex + 1}
+                                  title={lesson.title}
+                                  onClick={() => state !== 'locked' ? navigate(`/lesson/${lesson.id}`) : undefined}
                                 />
                               </div>
                             </motion.div>
-                            
-                            {/* Increment global counter after milestone */}
-                            {(() => { globalLessonIndex++; return null; })()}
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                    
-                    {/* Final trophy at end of continuous curve */}
-                    {domainGroups.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: globalLessonIndex * 0.05 }}
-                        className="lesson-path"
-                        style={{ minHeight: '150px' }}
-                      >
-                        <div 
+                          );
+                        })}
+                        
+                        {/* Milestone at end of domain */}
+                        <motion.div
+                          key={`milestone-${group.domain}`}
                           className="lesson"
                           style={{ 
                             '--x-offset': getSCurvePosition(globalLessonIndex).xOffset,
-                            '--y-position': 0
+                            '--y-position': globalLessonIndex
                           } as React.CSSProperties}
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: globalLessonIndex * 0.05 }}
                         >
                           <div className="lesson-node">
                             <MilestoneIcon
-                              type="trophy"
-                              unlocked={completedActivities.length === lessonsWithOrder?.length}
-                              color="bg-gradient-to-br from-yellow-400 to-orange-500"
+                              type="shield"
+                              number={groupIndex + 1}
+                              unlocked={completedInDomain === group.lessons.length}
+                              color={color}
                             />
                           </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
+                        </motion.div>
+                        {(() => { globalLessonIndex++; return null; })()}
+                      </React.Fragment>
+                    );
+                  })}
+                  
+                  {/* Final trophy */}
+                  {domainGroups.length > 0 && (
+                    <motion.div
+                      key="final-trophy"
+                      className="lesson"
+                      style={{ 
+                        '--x-offset': getSCurvePosition(globalLessonIndex).xOffset,
+                        '--y-position': globalLessonIndex + 1
+                      } as React.CSSProperties}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: globalLessonIndex * 0.05 }}
+                    >
+                      <div className="lesson-node">
+                        <MilestoneIcon
+                          type="trophy"
+                          unlocked={completedActivities.length === lessonsWithOrder?.length}
+                          color="bg-gradient-to-br from-yellow-400 to-orange-500"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Back button */}
