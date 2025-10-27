@@ -55,14 +55,14 @@ function HeroV2() {
           </div>
 
           {/* Right Column - Mascot */}
-          <div className="flex justify-center lg:justify-end items-end h-full">
-            <div className="relative h-[400px] md:h-[500px] flex items-end">
+          <div className="flex justify-center lg:justify-end">
+            <div className="relative">
               <CoquiMascot 
                 state="happy" 
                 size="large"
-                className="animate-bounce-gentle drop-shadow-2xl h-full w-auto object-contain"
+                className="animate-bounce-gentle drop-shadow-2xl"
               />
-              <div className="absolute top-8 right-0 animate-pulse">
+              <div className="absolute -top-4 -right-4 animate-pulse">
                 <Sparkles className="w-12 h-12 text-student-yellow" />
               </div>
             </div>
