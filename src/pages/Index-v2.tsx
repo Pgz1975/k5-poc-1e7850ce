@@ -13,16 +13,17 @@ function HeroV2() {
   return (
     <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-sky-100 via-green-50 to-yellow-50">
       <div className="container mx-auto px-4 py-16">
-        <div className="grid lg:grid-cols-[auto_1fr] gap-8 items-center max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-[16rem_1fr] gap-10 items-center max-w-6xl mx-auto">
           {/* Left Column - Mascot */}
           <div className="hidden lg:flex justify-center">
-            <div className="relative">
+            <div className="relative w-[16rem]">
               <CoquiMascot 
                 state="happy" 
                 size="large"
-                className="animate-bounce-gentle drop-shadow-2xl w-48 h-48"
+                position="inline"
+                className="z-10 animate-bounce-gentle drop-shadow-2xl w-48 h-48"
               />
-              <div className="absolute -top-2 -right-2 animate-pulse">
+              <div className="absolute -top-2 right-0 animate-pulse">
                 <Sparkles className="w-12 h-12 text-student-yellow" />
               </div>
             </div>
