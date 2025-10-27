@@ -1,0 +1,451 @@
+{
+  "metadata": {
+    "last_updated": "2025-10-27",
+    "total_schools": 858,
+    "total_students": 240910,
+    "total_staff": 41311,
+    "student_teacher_ratio": 9.8,
+    "data_source": "NCES Common Core of Data, Puerto Rico Department of Education",
+    "notes": "Puerto Rico operates as a single unified school district. Data compilation includes information from NCES, Wikipedia, and public sources.",
+    "district_headquarters": {
+      "address": "Calle Federico Costas",
+      "city": "San Juan (Hato Rey)",
+      "zip": "00919-0759",
+      "phone": "(787) 759-2000",
+      "website": "de.pr.gov"
+    }
+  },
+  "educational_regions": [
+    {
+      "region_id": "R01",
+      "region_name": "San Juan",
+      "region_center": "San Juan",
+      "municipalities": ["San Juan", "Guaynabo", "Trujillo Alto", "Carolina"],
+      "coordinates": {
+        "latitude": 18.4655,
+        "longitude": -66.1057
+      },
+      "estimated_schools": 145,
+      "color_code": "#FF6B6B"
+    },
+    {
+      "region_id": "R02",
+      "region_name": "Bayamón",
+      "region_center": "Bayamón",
+      "municipalities": ["Bayamón", "Toa Baja", "Toa Alta", "Cataño", "Dorado", "Vega Alta", "Vega Baja", "Naranjito", "Corozal"],
+      "coordinates": {
+        "latitude": 18.3994,
+        "longitude": -66.1532
+      },
+      "estimated_schools": 130,
+      "color_code": "#4ECDC4"
+    },
+    {
+      "region_id": "R03",
+      "region_name": "Caguas",
+      "region_center": "Caguas",
+      "municipalities": ["Caguas", "Cayey", "Cidra", "Aguas Buenas", "Gurabo", "San Lorenzo", "Juncos", "Las Piedras", "Humacao", "Yabucoa", "Maunabo", "Patillas", "Arroyo", "Guayama"],
+      "coordinates": {
+        "latitude": 18.2388,
+        "longitude": -66.0353
+      },
+      "estimated_schools": 125,
+      "color_code": "#45B7D1"
+    },
+    {
+      "region_id": "R04",
+      "region_name": "Humacao",
+      "region_center": "Humacao",
+      "municipalities": ["Humacao", "Naguabo", "Ceiba", "Fajardo", "Luquillo", "Río Grande", "Canóvanas", "Loíza", "Vieques", "Culebra"],
+      "coordinates": {
+        "latitude": 18.1496,
+        "longitude": -65.8276
+      },
+      "estimated_schools": 110,
+      "color_code": "#96CEB4"
+    },
+    {
+      "region_id": "R05",
+      "region_name": "Ponce",
+      "region_center": "Ponce",
+      "municipalities": ["Ponce", "Juana Díaz", "Villalba", "Coamo", "Santa Isabel", "Salinas", "Guánica", "Peñuelas", "Yauco", "Guayanilla", "Adjuntas", "Jayuya"],
+      "coordinates": {
+        "latitude": 18.0111,
+        "longitude": -66.6141
+      },
+      "estimated_schools": 125,
+      "color_code": "#FFEAA7"
+    },
+    {
+      "region_id": "R06",
+      "region_name": "Arecibo",
+      "region_center": "Arecibo",
+      "municipalities": ["Arecibo", "Hatillo", "Camuy", "Quebradillas", "Barceloneta", "Florida", "Manatí", "Ciales", "Morovis", "Utuado", "Lares", "Jayuya"],
+      "coordinates": {
+        "latitude": 18.4724,
+        "longitude": -66.7157
+      },
+      "estimated_schools": 115,
+      "color_code": "#DDA0DD"
+    },
+    {
+      "region_id": "R07",
+      "region_name": "Mayagüez",
+      "region_center": "Mayagüez",
+      "municipalities": ["Mayagüez", "Aguadilla", "Aguada", "Rincón", "Añasco", "San Germán", "Sabana Grande", "Lajas", "Cabo Rojo", "Hormigueros", "San Sebastián", "Moca", "Isabela", "Las Marías", "Maricao"],
+      "coordinates": {
+        "latitude": 18.2013,
+        "longitude": -67.1397
+      },
+      "estimated_schools": 108,
+      "color_code": "#98D8C8"
+    }
+  ],
+  "municipalities": {
+    "total": 78,
+    "list": [
+      {"name": "Adjuntas", "region": "R05", "coordinates": {"lat": 18.1627, "lng": -66.7224}},
+      {"name": "Aguada", "region": "R07", "coordinates": {"lat": 18.3816, "lng": -67.1883}},
+      {"name": "Aguadilla", "region": "R07", "coordinates": {"lat": 18.4277, "lng": -67.1541}},
+      {"name": "Aguas Buenas", "region": "R03", "coordinates": {"lat": 18.2569, "lng": -66.1030}},
+      {"name": "Aibonito", "region": "R03", "coordinates": {"lat": 18.1400, "lng": -66.2661}},
+      {"name": "Añasco", "region": "R07", "coordinates": {"lat": 18.2827, "lng": -67.1397}},
+      {"name": "Arecibo", "region": "R06", "coordinates": {"lat": 18.4724, "lng": -66.7157}},
+      {"name": "Arroyo", "region": "R03", "coordinates": {"lat": 17.9661, "lng": -66.0619}},
+      {"name": "Barceloneta", "region": "R06", "coordinates": {"lat": 18.4508, "lng": -66.5389}},
+      {"name": "Barranquitas", "region": "R03", "coordinates": {"lat": 18.1866, "lng": -66.3061}},
+      {"name": "Bayamón", "region": "R02", "coordinates": {"lat": 18.3994, "lng": -66.1532}},
+      {"name": "Cabo Rojo", "region": "R07", "coordinates": {"lat": 18.0869, "lng": -67.1458}},
+      {"name": "Caguas", "region": "R03", "coordinates": {"lat": 18.2388, "lng": -66.0353}},
+      {"name": "Camuy", "region": "R06", "coordinates": {"lat": 18.4838, "lng": -66.8450}},
+      {"name": "Canóvanas", "region": "R04", "coordinates": {"lat": 18.3791, "lng": -65.9013}},
+      {"name": "Carolina", "region": "R01", "coordinates": {"lat": 18.3808, "lng": -65.9574}},
+      {"name": "Cataño", "region": "R02", "coordinates": {"lat": 18.4413, "lng": -66.1183}},
+      {"name": "Cayey", "region": "R03", "coordinates": {"lat": 18.1119, "lng": -66.1661}},
+      {"name": "Ceiba", "region": "R04", "coordinates": {"lat": 18.2641, "lng": -65.6486}},
+      {"name": "Ciales", "region": "R06", "coordinates": {"lat": 18.3361, "lng": -66.4689}},
+      {"name": "Cidra", "region": "R03", "coordinates": {"lat": 18.1758, "lng": -66.1611}},
+      {"name": "Coamo", "region": "R05", "coordinates": {"lat": 18.0800, "lng": -66.3580}},
+      {"name": "Comerío", "region": "R03", "coordinates": {"lat": 18.2194, "lng": -66.2256}},
+      {"name": "Corozal", "region": "R02", "coordinates": {"lat": 18.3413, "lng": -66.3169}},
+      {"name": "Culebra", "region": "R04", "coordinates": {"lat": 18.3108, "lng": -65.3033}},
+      {"name": "Dorado", "region": "R02", "coordinates": {"lat": 18.4588, "lng": -66.2678}},
+      {"name": "Fajardo", "region": "R04", "coordinates": {"lat": 18.3258, "lng": -65.6524}},
+      {"name": "Florida", "region": "R06", "coordinates": {"lat": 18.3627, "lng": -66.5611}},
+      {"name": "Guánica", "region": "R05", "coordinates": {"lat": 17.9716, "lng": -66.9081}},
+      {"name": "Guayama", "region": "R03", "coordinates": {"lat": 17.9841, "lng": -66.1139}},
+      {"name": "Guayanilla", "region": "R05", "coordinates": {"lat": 18.0191, "lng": -66.7919}},
+      {"name": "Guaynabo", "region": "R01", "coordinates": {"lat": 18.3574, "lng": -66.1103}},
+      {"name": "Gurabo", "region": "R03", "coordinates": {"lat": 18.2544, "lng": -65.9730}},
+      {"name": "Hatillo", "region": "R06", "coordinates": {"lat": 18.4863, "lng": -66.8253}},
+      {"name": "Hormigueros", "region": "R07", "coordinates": {"lat": 18.1397, "lng": -67.1275}},
+      {"name": "Humacao", "region": "R04", "coordinates": {"lat": 18.1496, "lng": -65.8276}},
+      {"name": "Isabela", "region": "R07", "coordinates": {"lat": 18.5008, "lng": -67.0244}},
+      {"name": "Jayuya", "region": "R05", "coordinates": {"lat": 18.2185, "lng": -66.5916}},
+      {"name": "Juana Díaz", "region": "R05", "coordinates": {"lat": 18.0525, "lng": -66.5072}},
+      {"name": "Juncos", "region": "R03", "coordinates": {"lat": 18.2274, "lng": -65.9213}},
+      {"name": "Lajas", "region": "R07", "coordinates": {"lat": 18.0497, "lng": -67.0594}},
+      {"name": "Lares", "region": "R06", "coordinates": {"lat": 18.2947, "lng": -66.8780}},
+      {"name": "Las Marías", "region": "R07", "coordinates": {"lat": 18.2516, "lng": -66.9889}},
+      {"name": "Las Piedras", "region": "R03", "coordinates": {"lat": 18.1830, "lng": -65.8663}},
+      {"name": "Loíza", "region": "R04", "coordinates": {"lat": 18.4313, "lng": -65.8802}},
+      {"name": "Luquillo", "region": "R04", "coordinates": {"lat": 18.3724, "lng": -65.7163}},
+      {"name": "Manatí", "region": "R06", "coordinates": {"lat": 18.4308, "lng": -66.4822}},
+      {"name": "Maricao", "region": "R07", "coordinates": {"lat": 18.1805, "lng": -66.9800}},
+      {"name": "Maunabo", "region": "R03", "coordinates": {"lat": 18.0072, "lng": -65.8991}},
+      {"name": "Mayagüez", "region": "R07", "coordinates": {"lat": 18.2013, "lng": -67.1397}},
+      {"name": "Moca", "region": "R07", "coordinates": {"lat": 18.3947, "lng": -67.1133}},
+      {"name": "Morovis", "region": "R06", "coordinates": {"lat": 18.3258, "lng": -66.4061}},
+      {"name": "Naguabo", "region": "R04", "coordinates": {"lat": 18.2116, "lng": -65.7347}},
+      {"name": "Naranjito", "region": "R02", "coordinates": {"lat": 18.3008, "lng": -66.2450}},
+      {"name": "Orocovis", "region": "R03", "coordinates": {"lat": 18.2269, "lng": -66.3911}},
+      {"name": "Patillas", "region": "R03", "coordinates": {"lat": 18.0036, "lng": -66.0136}},
+      {"name": "Peñuelas", "region": "R05", "coordinates": {"lat": 18.0563, "lng": -66.7211}},
+      {"name": "Ponce", "region": "R05", "coordinates": {"lat": 18.0111, "lng": -66.6141}},
+      {"name": "Quebradillas", "region": "R06", "coordinates": {"lat": 18.4733, "lng": -66.9386}},
+      {"name": "Rincón", "region": "R07", "coordinates": {"lat": 18.3402, "lng": -67.2500}},
+      {"name": "Río Grande", "region": "R04", "coordinates": {"lat": 18.3802, "lng": -65.8313}},
+      {"name": "Sabana Grande", "region": "R07", "coordinates": {"lat": 18.0775, "lng": -66.9605}},
+      {"name": "Salinas", "region": "R05", "coordinates": {"lat": 17.9775, "lng": -66.2980}},
+      {"name": "San Germán", "region": "R07", "coordinates": {"lat": 18.0822, "lng": -67.0397}},
+      {"name": "San Juan", "region": "R01", "coordinates": {"lat": 18.4655, "lng": -66.1057}},
+      {"name": "San Lorenzo", "region": "R03", "coordinates": {"lat": 18.1894, "lng": -65.9608}},
+      {"name": "San Sebastián", "region": "R07", "coordinates": {"lat": 18.3369, "lng": -66.9902}},
+      {"name": "Santa Isabel", "region": "R05", "coordinates": {"lat": 17.9661, "lng": -66.4050}},
+      {"name": "Toa Alta", "region": "R02", "coordinates": {"lat": 18.3883, "lng": -66.2481}},
+      {"name": "Toa Baja", "region": "R02", "coordinates": {"lat": 18.4444, "lng": -66.2544}},
+      {"name": "Trujillo Alto", "region": "R01", "coordinates": {"lat": 18.3547, "lng": -66.0075}},
+      {"name": "Utuado", "region": "R06", "coordinates": {"lat": 18.2655, "lng": -66.7003}},
+      {"name": "Vega Alta", "region": "R02", "coordinates": {"lat": 18.4122, "lng": -66.3314}},
+      {"name": "Vega Baja", "region": "R02", "coordinates": {"lat": 18.4436, "lng": -66.3872}},
+      {"name": "Vieques", "region": "R04", "coordinates": {"lat": 18.1263, "lng": -65.4402}},
+      {"name": "Villalba", "region": "R05", "coordinates": {"lat": 18.1272, "lng": -66.4922}},
+      {"name": "Yabucoa", "region": "R03", "coordinates": {"lat": 18.0508, "lng": -65.8791}},
+      {"name": "Yauco", "region": "R05", "coordinates": {"lat": 18.0350, "lng": -66.8500}}
+    ]
+  },
+  "school_types": {
+    "categories": [
+      {
+        "type": "elementary",
+        "grades": "K-5",
+        "description": "Elementary schools serving kindergarten through 5th grade",
+        "estimated_count": 400,
+        "color_code": "#3498DB"
+      },
+      {
+        "type": "middle",
+        "grades": "6-8",
+        "description": "Middle schools or intermediate schools serving grades 6-8",
+        "estimated_count": 200,
+        "color_code": "#E74C3C"
+      },
+      {
+        "type": "high",
+        "grades": "9-12",
+        "description": "High schools serving grades 9-12",
+        "estimated_count": 180,
+        "color_code": "#2ECC71"
+      },
+      {
+        "type": "specialized",
+        "grades": "varies",
+        "description": "Specialized schools including science, math, arts, and vocational",
+        "estimated_count": 50,
+        "color_code": "#9B59B6"
+      },
+      {
+        "type": "combined",
+        "grades": "K-12",
+        "description": "Schools serving multiple grade levels",
+        "estimated_count": 28,
+        "color_code": "#F39C12"
+      }
+    ]
+  },
+  "sample_schools": [
+    {
+      "school_id": "PR001",
+      "school_name": "Escuela Especializada en Ciencias y Matemáticas",
+      "school_type": "specialized",
+      "grades": "7-12",
+      "municipality": "San Juan",
+      "region": "R01",
+      "address": "Ave. Ponce de León",
+      "city": "San Juan",
+      "zip": "00901",
+      "coordinates": {
+        "latitude": 18.4655,
+        "longitude": -66.1057
+      },
+      "enrollment": null,
+      "phone": null,
+      "website": null,
+      "status": "active"
+    },
+    {
+      "school_id": "PR002",
+      "school_name": "Ponce High School",
+      "school_type": "high",
+      "grades": "9-12",
+      "municipality": "Ponce",
+      "region": "R05",
+      "address": "Calle Marina",
+      "city": "Ponce",
+      "zip": "00730",
+      "coordinates": {
+        "latitude": 18.0111,
+        "longitude": -66.6141
+      },
+      "enrollment": null,
+      "phone": null,
+      "website": null,
+      "status": "active"
+    },
+    {
+      "school_id": "PR003",
+      "school_name": "University Gardens High School",
+      "school_type": "high",
+      "grades": "9-12",
+      "municipality": "San Juan",
+      "region": "R01",
+      "address": "Calle Arzuaga",
+      "city": "San Juan",
+      "zip": "00927",
+      "coordinates": {
+        "latitude": 18.3808,
+        "longitude": -66.0464
+      },
+      "enrollment": null,
+      "phone": null,
+      "website": null,
+      "status": "active"
+    },
+    {
+      "school_id": "PR004",
+      "school_name": "Benjamin Harrison School",
+      "school_type": "high",
+      "grades": "9-12",
+      "municipality": "Cayey",
+      "region": "R03",
+      "address": "Carretera 14",
+      "city": "Cayey",
+      "zip": "00736",
+      "coordinates": {
+        "latitude": 18.1119,
+        "longitude": -66.1661
+      },
+      "enrollment": null,
+      "phone": null,
+      "website": null,
+      "status": "active"
+    },
+    {
+      "school_id": "PR005",
+      "school_name": "Escuela Elemental de Bayamón",
+      "school_type": "elementary",
+      "grades": "K-5",
+      "municipality": "Bayamón",
+      "region": "R02",
+      "address": "Calle Principal",
+      "city": "Bayamón",
+      "zip": "00959",
+      "coordinates": {
+        "latitude": 18.3994,
+        "longitude": -66.1532
+      },
+      "enrollment": null,
+      "phone": null,
+      "website": null,
+      "status": "active"
+    }
+  ],
+  "dashboard_configuration": {
+    "map_settings": {
+      "center_coordinates": {
+        "latitude": 18.2208,
+        "longitude": -66.5901
+      },
+      "initial_zoom": 9,
+      "style": "modern",
+      "layers": [
+        {
+          "name": "regions",
+          "type": "polygon",
+          "visible": true,
+          "opacity": 0.3
+        },
+        {
+          "name": "municipalities",
+          "type": "boundary",
+          "visible": true,
+          "opacity": 0.5
+        },
+        {
+          "name": "schools",
+          "type": "markers",
+          "visible": true,
+          "clustering": true
+        }
+      ]
+    },
+    "filters": {
+      "by_region": true,
+      "by_municipality": true,
+      "by_school_type": true,
+      "by_grade_level": true,
+      "search_box": true
+    },
+    "statistics_panels": [
+      {
+        "name": "Total Schools",
+        "value": 858,
+        "icon": "school"
+      },
+      {
+        "name": "Total Students",
+        "value": 240910,
+        "icon": "students"
+      },
+      {
+        "name": "Total Teachers",
+        "value": 24591,
+        "icon": "teachers"
+      },
+      {
+        "name": "Student/Teacher Ratio",
+        "value": "9.8:1",
+        "icon": "ratio"
+      }
+    ],
+    "visualizations": [
+      {
+        "type": "heatmap",
+        "name": "School Density",
+        "data_source": "school_coordinates"
+      },
+      {
+        "type": "choropleth",
+        "name": "Schools per Municipality",
+        "data_source": "municipality_counts"
+      },
+      {
+        "type": "pie_chart",
+        "name": "Schools by Type",
+        "data_source": "school_types"
+      },
+      {
+        "type": "bar_chart",
+        "name": "Schools by Region",
+        "data_source": "regional_distribution"
+      }
+    ]
+  },
+  "data_collection_status": {
+    "complete_records": 5,
+    "partial_records": 0,
+    "missing_records": 853,
+    "data_quality": {
+      "schools_with_addresses": 5,
+      "schools_with_coordinates": 5,
+      "schools_with_enrollment": 0,
+      "schools_with_contact": 0
+    },
+    "notes": [
+      "This is a framework database with sample data",
+      "Complete school listing requires official data from Puerto Rico Department of Education",
+      "NCES database access needed for comprehensive school addresses",
+      "Geographic coordinates are approximated based on municipality centers",
+      "Actual number of active schools may vary from the 858 reported"
+    ]
+  },
+  "recommended_next_steps": [
+    {
+      "step": 1,
+      "action": "Contact Puerto Rico Department of Education at (787) 759-2000",
+      "purpose": "Request official school directory with addresses"
+    },
+    {
+      "step": 2,
+      "action": "Access NCES Common Core of Data",
+      "purpose": "Download complete school listing with NCES IDs",
+      "url": "https://nces.ed.gov/ccd/schoolsearch/"
+    },
+    {
+      "step": 3,
+      "action": "Use Puerto Rico GIS data",
+      "purpose": "Obtain accurate geographic coordinates for each school",
+      "resource": "Puerto Rico Planning Board GIS Portal"
+    },
+    {
+      "step": 4,
+      "action": "Validate with local educational regions",
+      "purpose": "Confirm school assignments to regions and current operational status"
+    },
+    {
+      "step": 5,
+      "action": "Implement geocoding service",
+      "purpose": "Convert addresses to coordinates for mapping"
+    }
+  ]
+}
