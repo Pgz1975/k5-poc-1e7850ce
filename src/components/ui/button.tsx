@@ -23,7 +23,7 @@ const buttonVariants = cva(
         "student-coral": "bg-gradient-student-coral text-white rounded-2xl border-b-4 border-[hsl(11,100%,51%)] shadow-[0_4px_0_hsl(11,100%,51%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(11,100%,51%)] active:translate-y-2 active:shadow-none transition-all",
         "student-peach": "bg-gradient-student-peach text-white rounded-2xl border-b-4 border-[hsl(27,100%,55%)] shadow-[0_4px_0_hsl(27,100%,55%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(27,100%,55%)] active:translate-y-2 active:shadow-none transition-all",
         "student-yellow": "bg-gradient-student-yellow text-gray-900 rounded-2xl border-b-4 border-[hsl(45,100%,55%)] shadow-[0_4px_0_hsl(45,100%,55%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(45,100%,55%)] active:translate-y-2 active:shadow-none transition-all",
-        "student-lime": "bg-gradient-student-lime text-gray-900 rounded-2xl border-b-4 border-[hsl(125,100%,55%)] shadow-[0_4px_0_hsl(125,100%,55%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(125,100%,55%)] active:translate-y-2 active:shadow-none transition-all",
+        "student-lime": "bg-gradient-student-lime text-gray-900 rounded-2xl border-b-4 border-[hsl(125,100%,40%)] shadow-[0_4px_0_hsl(125,100%,40%)] hover:translate-y-1 hover:shadow-[0_2px_0_hsl(125,100%,40%)] active:translate-y-2 active:shadow-none transition-all",
       },
       size: {
         default: "h-12 px-6 py-3",
