@@ -215,3 +215,58 @@ All colors MUST be HSL.
     border-color: hsl(var(--primary) / 0.3);
   }
 }
+
+/* Lesson Path Grid System - Duolingo-style */
+@layer utilities {
+  /* Path container */
+  .lesson-path-container {
+    @apply relative py-12 mx-auto;
+    width: 400px;
+    max-width: 90vw;
+  }
+
+  /* Column positions for 6-position zigzag pattern */
+  .lesson-node-col-0 {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .lesson-node-col-1 {
+    left: calc(50% - 60px);
+    transform: translateX(-50%);
+  }
+  
+  .lesson-node-col-2 {
+    left: calc(50% - 90px);
+    transform: translateX(-50%);
+  }
+  
+  .lesson-node-col-3 {
+    left: calc(50% + 90px);
+    transform: translateX(-50%);
+  }
+  
+  .lesson-node-col-4 {
+    left: calc(50% + 60px);
+    transform: translateX(-50%);
+  }
+  
+  .lesson-node-col-5 {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* Vertical spacing helper */
+  .lesson-vertical-spacing {
+    --lesson-spacing: 80px;
+  }
+
+  /* Background decorations positioning */
+  .path-decoration-left {
+    left: 5%;
+  }
+  
+  .path-decoration-right {
+    left: 85%;
+  }
+}

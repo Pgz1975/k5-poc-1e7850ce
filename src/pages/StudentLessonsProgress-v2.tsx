@@ -110,15 +110,14 @@ const StudentLessonsProgressV2 = () => {
     return "unlocked";
   };
 
-  // Grid column positions (4-column zigzag pattern)
+  // Grid column positions (6-position smooth zigzag pattern)
   const getColumnPosition = (index: number): number => {
-    const pattern = [0, 1, 2, 3, 2, 1];
+    const pattern = [0, 1, 2, 3, 4, 5];
     return pattern[index % pattern.length];
   };
 
-  const columnToOffset = (col: number): string => {
-    const offsets = ["-150px", "-50px", "50px", "150px"];
-    return offsets[col];
+  const getColumnClass = (col: number): string => {
+    return `lesson-node-col-${col}`;
   };
 
   // Background decorations
@@ -184,14 +183,11 @@ const StudentLessonsProgressV2 = () => {
                   key={i}
                   src={`/design elements/svgs/${leaf.type}.svg`}
                   alt=""
-                  className="absolute"
+                  className={`absolute w-20 h-20 ${i % 2 === 0 ? 'path-decoration-left' : 'path-decoration-right'}`}
                   style={{
-                    left: `${leaf.x}%`,
                     top: `${leaf.y}%`,
                     transform: `rotate(${leaf.rotation}deg) scale(${leaf.scale})`,
-                    opacity: leaf.opacity,
-                    width: '80px',
-                    height: '80px'
+                    opacity: leaf.opacity
                   }}
                 />
               ))}
@@ -221,11 +217,14 @@ const StudentLessonsProgressV2 = () => {
                     />
 
                     {/* Lesson nodes in grid pattern */}
-                    <div className="relative py-12 mx-auto" style={{ width: '600px', minHeight: `${(group.lessons.length + 1) * 160}px` }}>
+                    <div 
+                      className="lesson-path-container lesson-vertical-spacing"
+                      style={{ minHeight: `${(group.lessons.length + 1) * 80}px` }}
+                    >
                       {group.lessons.map((lesson, lessonIndex) => {
                         const state = getNodeState(lesson.id);
                         const colPosition = getColumnPosition(lessonIndex);
-                        const offset = columnToOffset(colPosition);
+                        const colClass = getColumnClass(colPosition);
                         
                         return (
                           <motion.div
@@ -233,11 +232,8 @@ const StudentLessonsProgressV2 = () => {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: groupIndex * 0.1 + lessonIndex * 0.05 }}
-                            className="absolute left-1/2"
-                            style={{ 
-                              top: `${lessonIndex * 160}px`,
-                              transform: `translate(calc(-50% + ${offset}), 0)`
-                            }}
+                            className={`absolute ${colClass}`}
+                            style={{ top: `${lessonIndex * 80}px` }}
                           >
                             <LessonNode
                               state={state}
@@ -256,7 +252,7 @@ const StudentLessonsProgressV2 = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: groupIndex * 0.1 + group.lessons.length * 0.05 }}
                         className="absolute left-1/2 -translate-x-1/2"
-                        style={{ top: `${group.lessons.length * 160}px` }}
+                        style={{ top: `${group.lessons.length * 80}px` }}
                       >
                         <MilestoneIcon
                           type="shield"
