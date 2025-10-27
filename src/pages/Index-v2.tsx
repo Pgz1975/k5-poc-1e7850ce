@@ -11,7 +11,7 @@ function HeroV2() {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden bg-gradient-hero">
+    <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
       <div className="container mx-auto px-4 py-16">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Content */}
@@ -124,7 +124,7 @@ function FeaturesV2() {
   };
 
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
           {t("¿Qué hace especial a LecturaPR?", "What makes LecturaPR special?")}
@@ -160,7 +160,7 @@ function CTAV2() {
   const { t } = useLanguage();
 
   return (
-    <section className="py-20 bg-gradient-to-br from-student-pink/10 via-student-peach/10 to-student-yellow/10">
+    <section className="py-20">
       <div className="container mx-auto px-4 text-center">
         <div className="max-w-3xl mx-auto space-y-6">
           <h2 className="text-4xl md:text-5xl font-bold">
