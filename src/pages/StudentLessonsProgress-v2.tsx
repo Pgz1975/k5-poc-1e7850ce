@@ -13,9 +13,8 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LessonNode } from "@/components/StudentDashboard/LessonNode";
-import { UnitHeader } from "@/components/StudentDashboard/UnitHeader";
 import { MilestoneIcon } from "@/components/StudentDashboard/MilestoneIcon";
-import { PathDecoration } from "@/components/StudentDashboard/PathDecoration";
+import { ChapterBubble } from "@/components/StudentDashboard/ChapterBubble";
 import { motion } from "framer-motion";
 
 const StudentLessonsProgressV2 = () => {
@@ -71,7 +70,6 @@ const StudentLessonsProgressV2 = () => {
   const lockingMap = useMemo(() => {
     if (!lessonsWithOrder) return new Map();
     
-    // Map lessonsWithOrder to the format expected by getLessonLockingStatus
     const mappedLessons = lessonsWithOrder.map(lesson => ({
       id: lesson.id,
       assessment_id: lesson.id,
@@ -87,14 +85,15 @@ const StudentLessonsProgressV2 = () => {
     return new Map(completedActivities.map(a => [a.activity_id, a]));
   }, [completedActivities]);
 
-  // Domain color mapping
-  const domainColors: Record<string, string> = {
-    "Alfabeto y Fonética": "bg-gradient-to-br from-purple-400 to-purple-600",
-    "Lectura y Comprensión": "bg-gradient-to-br from-pink-400 to-pink-600",
-    "Vocabulario": "bg-gradient-to-br from-blue-400 to-blue-600",
-    "Expresión": "bg-gradient-to-br from-green-400 to-green-600",
-    "TEST_G1_FIXTURES": "bg-gradient-to-br from-orange-400 to-orange-600",
-  };
+  // Unit color schemes (Duolingo-inspired)
+  const unitColorSchemes = [
+    "bg-gradient-to-br from-green-400 to-green-600",
+    "bg-gradient-to-br from-blue-400 to-blue-600",
+    "bg-gradient-to-br from-purple-400 to-purple-600",
+    "bg-gradient-to-br from-pink-400 to-pink-600",
+    "bg-gradient-to-br from-orange-400 to-orange-600",
+    "bg-gradient-to-br from-teal-400 to-teal-600",
+  ];
 
   const getNodeState = (lessonId: string) => {
     const isLocked = lockingMap.get(lessonId);
@@ -103,7 +102,6 @@ const StudentLessonsProgressV2 = () => {
     if (isLocked) return "locked";
     if (isCompleted) return "completed";
     
-    // First unlocked lesson is active
     const firstUnlocked = lessonsWithOrder?.find(l => 
       !lockingMap.get(l.id) && !completedMap.has(l.id)
     );
@@ -112,10 +110,35 @@ const StudentLessonsProgressV2 = () => {
     return "unlocked";
   };
 
-  const decorationTypes = [
-    "thick-leaf", "forest-leaf", "three-leaves", "oval-leaf", 
-    "twin-leaves", "split-leaf", "small-leaves"
-  ] as const;
+  // Grid column positions (4-column zigzag pattern)
+  const getColumnPosition = (index: number): number => {
+    const pattern = [0, 1, 2, 3, 2, 1];
+    return pattern[index % pattern.length];
+  };
+
+  const columnToOffset = (col: number): string => {
+    const offsets = ["-150px", "-50px", "50px", "150px"];
+    return offsets[col];
+  };
+
+  // Background decorations
+  const backgroundLeaves = useMemo(() => {
+    const leafTypes = [
+      "reshot-icon-thick-leaf-VRTC7E3JP5",
+      "reshot-icon-forest-leaf-LSCJ9B4X6H",
+      "reshot-icon-three-leaves-KD6UVGSNFP",
+      "reshot-icon-oval-leaf-J5NGAV7Q2Y"
+    ];
+    
+    return Array.from({ length: 12 }, (_, i) => ({
+      type: leafTypes[i % leafTypes.length],
+      x: i % 2 === 0 ? 5 + Math.random() * 15 : 80 + Math.random() * 15,
+      y: (i / 12) * 90 + Math.random() * 10,
+      rotation: Math.random() * 360,
+      scale: 0.4 + Math.random() * 0.4,
+      opacity: 0.06 + Math.random() * 0.04
+    }));
+  }, []);
 
   if (isLoadingOrdering) {
     return (
@@ -155,24 +178,31 @@ const StudentLessonsProgressV2 = () => {
           {/* Lessons Path */}
           <div className="relative">
             {/* Background decorations */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
-              <img 
-                src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
-                alt=""
-                className="absolute -left-20 top-40 w-32 h-32 opacity-50"
-              />
-              <img 
-                src="/design elements/svgs/reshot-icon-tree-2RGUBYTHQZ.svg" 
-                alt=""
-                className="absolute -right-20 top-[600px] w-32 h-32 opacity-50"
-              />
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {backgroundLeaves.map((leaf, i) => (
+                <img 
+                  key={i}
+                  src={`/design elements/svgs/${leaf.type}.svg`}
+                  alt=""
+                  className="absolute"
+                  style={{
+                    left: `${leaf.x}%`,
+                    top: `${leaf.y}%`,
+                    transform: `rotate(${leaf.rotation}deg) scale(${leaf.scale})`,
+                    opacity: leaf.opacity,
+                    width: '80px',
+                    height: '80px'
+                  }}
+                />
+              ))}
             </div>
 
             {/* Path container */}
-            <div className="relative space-y-16">
+            <div className="relative flex flex-col items-center gap-16">
               {domainGroups.map((group, groupIndex) => {
-                const color = domainColors[group.domain] || "bg-gradient-to-br from-primary to-primary-glow";
+                const color = unitColorSchemes[groupIndex % unitColorSchemes.length];
                 const completedInDomain = group.lessons.filter(l => completedMap.has(l.id)).length;
+                const chapterNumber = Math.floor(groupIndex / 2) + 1;
                 
                 return (
                   <motion.div
@@ -180,22 +210,22 @@ const StudentLessonsProgressV2 = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: groupIndex * 0.1 }}
+                    className="w-full"
                   >
-                    <UnitHeader
+                    {/* Chapter Bubble */}
+                    <ChapterBubble
+                      chapterNumber={chapterNumber}
                       unitNumber={groupIndex + 1}
                       title={group.domain}
                       color={color}
-                      totalLessons={group.lessons.length}
-                      completedLessons={completedInDomain}
                     />
 
-                    {/* Lesson nodes in winding path */}
-                    <div className="relative flex flex-col items-center gap-12 py-8">
+                    {/* Lesson nodes in grid pattern */}
+                    <div className="relative flex flex-col items-center gap-12 py-12">
                       {group.lessons.map((lesson, lessonIndex) => {
                         const state = getNodeState(lesson.id);
-                        const position = lessonIndex % 3; // 0 = left, 1 = center, 2 = right
-                        const offsetClass = position === 0 ? "-translate-x-16" : position === 2 ? "translate-x-16" : "";
-                        const decorationType = decorationTypes[lessonIndex % decorationTypes.length];
+                        const colPosition = getColumnPosition(lessonIndex);
+                        const offset = columnToOffset(colPosition);
                         
                         return (
                           <motion.div
@@ -203,20 +233,13 @@ const StudentLessonsProgressV2 = () => {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: groupIndex * 0.1 + lessonIndex * 0.05 }}
-                            className={`relative ${offsetClass}`}
+                            style={{ transform: `translateX(${offset})` }}
                           >
-                            {/* Path decoration */}
-                            <PathDecoration
-                              type={decorationType}
-                              position={position === 0 ? "right" : "left"}
-                              size={lessonIndex % 2 === 0 ? "md" : "sm"}
-                              className="top-1/2 -translate-y-1/2"
-                            />
-                            
                             <LessonNode
                               state={state}
                               color={color}
                               lessonNumber={lessonIndex + 1}
+                              title={lesson.title}
                               onClick={() => navigate(`/lesson/${lesson.id}`)}
                             />
                           </motion.div>
