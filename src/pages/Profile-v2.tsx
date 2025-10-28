@@ -40,66 +40,56 @@ const profileSchema = z.object({
   ).optional().or(z.literal("")),
 });
 
-// V2 Color scheme based on user's primary unit
-const getUnitColorScheme = (gradeLevel: number) => {
-  const schemes = [
-    {
-      // K - Pink
-      bg: "bg-[hsl(329,100%,71%)]",
-      border: "border-[hsl(329,100%,65%)]",
-      text: "text-[hsl(329,100%,40%)]",
-      shadow: "shadow-[0_6px_0_hsl(329,100%,60%)]",
-      badgeBg: "bg-[hsl(329,100%,85%)]",
-      cardBg: "bg-white",
-    },
-    {
-      // Grade 1 - Orange
-      bg: "bg-[hsl(11,100%,67%)]",
-      border: "border-[hsl(11,100%,65%)]",
-      text: "text-[hsl(11,100%,40%)]",
-      shadow: "shadow-[0_6px_0_hsl(11,100%,60%)]",
-      badgeBg: "bg-[hsl(11,100%,85%)]",
-      cardBg: "bg-white",
-    },
-    {
-      // Grade 2 - Amber
-      bg: "bg-[hsl(27,100%,71%)]",
-      border: "border-[hsl(27,100%,65%)]",
-      text: "text-[hsl(27,100%,40%)]",
-      shadow: "shadow-[0_6px_0_hsl(27,100%,60%)]",
-      badgeBg: "bg-[hsl(27,100%,85%)]",
-      cardBg: "bg-white",
-    },
-    {
-      // Grade 3 - Green
-      bg: "bg-[hsl(125,100%,71%)]",
-      border: "border-[hsl(125,100%,65%)]",
-      text: "text-[hsl(125,100%,35%)]",
-      shadow: "shadow-[0_6px_0_hsl(125,100%,60%)]",
-      badgeBg: "bg-[hsl(125,100%,85%)]",
-      cardBg: "bg-white",
-    },
-    {
-      // Grade 4 - Cyan
-      bg: "bg-[hsl(176,84%,71%)]",
-      border: "border-[hsl(176,84%,65%)]",
-      text: "text-[hsl(176,84%,35%)]",
-      shadow: "shadow-[0_6px_0_hsl(176,84%,60%)]",
-      badgeBg: "bg-[hsl(176,84%,85%)]",
-      cardBg: "bg-white",
-    },
-    {
-      // Grade 5 - Purple
-      bg: "bg-[hsl(250,100%,75%)]",
-      border: "border-[hsl(250,100%,70%)]",
-      text: "text-[hsl(250,100%,40%)]",
-      shadow: "shadow-[0_6px_0_hsl(250,100%,65%)]",
-      badgeBg: "bg-[hsl(250,100%,85%)]",
-      cardBg: "bg-white",
-    },
-  ];
-
-  return schemes[Math.min(gradeLevel, 5)] || schemes[0];
+// V2 Color schemes - Multiple colors for variety like Family Dashboard
+const colorSchemes = {
+  pink: {
+    bg: "bg-[hsl(329,100%,71%)]",
+    border: "border-[hsl(329,100%,65%)]",
+    text: "text-[hsl(329,100%,40%)]",
+    shadow: "shadow-[0_6px_0_hsl(329,100%,60%)]",
+    badgeBg: "bg-[hsl(329,100%,85%)]",
+    cardBg: "bg-white",
+  },
+  cyan: {
+    bg: "bg-[hsl(176,84%,71%)]",
+    border: "border-[hsl(176,84%,65%)]",
+    text: "text-[hsl(176,84%,35%)]",
+    shadow: "shadow-[0_6px_0_hsl(176,84%,60%)]",
+    badgeBg: "bg-[hsl(176,84%,85%)]",
+    cardBg: "bg-white",
+  },
+  purple: {
+    bg: "bg-[hsl(250,100%,75%)]",
+    border: "border-[hsl(250,100%,70%)]",
+    text: "text-[hsl(250,100%,40%)]",
+    shadow: "shadow-[0_6px_0_hsl(250,100%,65%)]",
+    badgeBg: "bg-[hsl(250,100%,85%)]",
+    cardBg: "bg-white",
+  },
+  lime: {
+    bg: "bg-[hsl(84,100%,71%)]",
+    border: "border-[hsl(84,100%,65%)]",
+    text: "text-[hsl(84,100%,35%)]",
+    shadow: "shadow-[0_6px_0_hsl(84,100%,60%)]",
+    badgeBg: "bg-[hsl(84,100%,85%)]",
+    cardBg: "bg-white",
+  },
+  orange: {
+    bg: "bg-[hsl(11,100%,67%)]",
+    border: "border-[hsl(11,100%,65%)]",
+    text: "text-[hsl(11,100%,40%)]",
+    shadow: "shadow-[0_6px_0_hsl(11,100%,60%)]",
+    badgeBg: "bg-[hsl(11,100%,85%)]",
+    cardBg: "bg-white",
+  },
+  amber: {
+    bg: "bg-[hsl(27,100%,71%)]",
+    border: "border-[hsl(27,100%,65%)]",
+    text: "text-[hsl(27,100%,40%)]",
+    shadow: "shadow-[0_6px_0_hsl(27,100%,60%)]",
+    badgeBg: "bg-[hsl(27,100%,85%)]",
+    cardBg: "bg-white",
+  },
 };
 
 const ProfileV2 = () => {
@@ -118,7 +108,10 @@ const ProfileV2 = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const colorScheme = getUnitColorScheme(studentProfile?.gradeLevel || 0);
+  // Use different colors for different sections
+  const headerColor = colorSchemes.pink;
+  const detailsColor = colorSchemes.purple;
+  const activityColor = colorSchemes.cyan;
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -202,7 +195,7 @@ const ProfileV2 = () => {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case "student":
-        return `${colorScheme.badgeBg} ${colorScheme.text} border-4 ${colorScheme.border}`;
+        return `${headerColor.badgeBg} ${headerColor.text} border-4 ${headerColor.border}`;
       case "teacher":
         return "bg-[hsl(11,100%,85%)] text-[hsl(11,100%,40%)] border-4 border-[hsl(11,100%,65%)]";
       case "family":
@@ -211,6 +204,9 @@ const ProfileV2 = () => {
         return "bg-muted";
     }
   };
+
+  // Stat card colors - different color for each stat
+  const statColors = [colorSchemes.pink, colorSchemes.cyan, colorSchemes.purple, colorSchemes.lime];
 
   const getRoleLabel = (role: string) => {
     switch (role) {
@@ -311,12 +307,12 @@ const ProfileV2 = () => {
         <main className="flex-1 py-8">
           <div className="container max-w-6xl px-4 md:px-6 space-y-6">
             {/* Profile Header Card - V2 Style */}
-            <Card className={`border-4 ${colorScheme.border} ${colorScheme.shadow} ${colorScheme.cardBg} rounded-3xl overflow-hidden transition-all hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-[0_2px_0_hsl(var(--primary)/0.6)]`}>
-              <CardHeader className={`${colorScheme.bg} border-b-4 ${colorScheme.border}`}>
+            <Card className={`border-4 ${headerColor.border} ${headerColor.shadow} ${headerColor.cardBg} rounded-3xl overflow-hidden transition-all hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-[0_2px_0_hsl(var(--primary)/0.6)]`}>
+              <CardHeader className={`${headerColor.bg} border-b-4 ${headerColor.border}`}>
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                  <Avatar className={`h-24 w-24 border-4 border-white ${colorScheme.shadow} rounded-full`}>
+                  <Avatar className={`h-24 w-24 border-4 border-white ${headerColor.shadow} rounded-full`}>
                     <AvatarImage src={avatarUrl || undefined} alt={fullName} />
-                    <AvatarFallback className={`${colorScheme.bg} text-white text-3xl font-black`}>
+                    <AvatarFallback className={`${headerColor.bg} text-white text-3xl font-black`}>
                       {fullName.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -345,21 +341,22 @@ const ProfileV2 = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {Object.values(stats).map((stat, index) => {
                   const IconComponent = stat.icon;
+                  const cardColor = statColors[index % statColors.length];
                   return (
                     <Card 
                       key={index}
-                      className={`border-4 ${colorScheme.border} ${colorScheme.shadow} rounded-2xl transition-all hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-[0_2px_0_hsl(var(--primary)/0.6)]`}
+                      className={`border-4 ${cardColor.border} ${cardColor.shadow} rounded-2xl transition-all hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-[0_2px_0_hsl(var(--primary)/0.6)]`}
                     >
                       <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-bold">
                           {stat.label}
                         </CardTitle>
-                        <div className={`${colorScheme.bg} p-2 rounded-xl border-2 ${colorScheme.border}`}>
-                          <IconComponent className={`h-4 w-4 ${colorScheme.text}`} />
+                        <div className={`${cardColor.bg} p-2 rounded-xl border-2 ${cardColor.border}`}>
+                          <IconComponent className={`h-4 w-4 ${cardColor.text}`} />
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <div className={`text-3xl font-black ${colorScheme.text}`}>{stat.value}</div>
+                        <div className={`text-3xl font-black ${cardColor.text}`}>{stat.value}</div>
                       </CardContent>
                     </Card>
                   );
@@ -369,7 +366,7 @@ const ProfileV2 = () => {
 
             {/* Tabs for Profile Details and Activity - V2 Style */}
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className={`grid w-full grid-cols-2 ${colorScheme.bg} border-4 ${colorScheme.border} rounded-2xl p-2 ${colorScheme.shadow}`}>
+              <TabsList className={`grid w-full grid-cols-2 ${colorSchemes.amber.bg} border-4 ${colorSchemes.amber.border} rounded-2xl p-2 ${colorSchemes.amber.shadow}`}>
                 <TabsTrigger 
                   value="details" 
                   className="font-bold rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md"
@@ -385,11 +382,11 @@ const ProfileV2 = () => {
               </TabsList>
 
               <TabsContent value="details" className="space-y-4 mt-6">
-                <Card className={`border-4 ${colorScheme.border} ${colorScheme.shadow} rounded-3xl overflow-hidden`}>
-                  <CardHeader className={`${colorScheme.bg} border-b-4 ${colorScheme.border}`}>
+                <Card className={`border-4 ${detailsColor.border} ${detailsColor.shadow} rounded-3xl overflow-hidden`}>
+                  <CardHeader className={`${detailsColor.bg} border-b-4 ${detailsColor.border}`}>
                     <div className="flex items-center gap-4">
-                      <div className={`p-3 bg-white rounded-2xl border-2 ${colorScheme.border}`}>
-                        <User className={`h-6 w-6 ${colorScheme.text}`} />
+                      <div className={`p-3 bg-white rounded-2xl border-2 ${detailsColor.border}`}>
+                        <User className={`h-6 w-6 ${detailsColor.text}`} />
                       </div>
                       <div>
                         <CardTitle className="text-xl font-black">{t("Editar Perfil", "Edit Profile")}</CardTitle>
@@ -419,14 +416,14 @@ const ProfileV2 = () => {
                           {t("Nombre completo", "Full name")}
                         </Label>
                         <div className="relative">
-                          <User className={`absolute left-4 top-4 h-5 w-5 ${colorScheme.text}`} />
+                          <User className={`absolute left-4 top-4 h-5 w-5 ${detailsColor.text}`} />
                           <Input
                             id="full-name"
                             type="text"
                             placeholder={t("Tu nombre", "Your name")}
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            className={`pl-12 h-14 border-4 ${colorScheme.border} rounded-2xl font-bold text-lg focus-visible:ring-offset-0 focus-visible:ring-2 focus-visible:ring-offset-2`}
+                            className={`pl-12 h-14 border-4 ${detailsColor.border} rounded-2xl font-bold text-lg focus-visible:ring-offset-0 focus-visible:ring-2 focus-visible:ring-offset-2`}
                             required
                           />
                         </div>
@@ -443,7 +440,7 @@ const ProfileV2 = () => {
                           placeholder="https://example.com/avatar.jpg or /avatars/student-2.jpg"
                           value={avatarUrl}
                           onChange={(e) => setAvatarUrl(e.target.value)}
-                          className={`h-14 border-4 ${colorScheme.border} rounded-2xl font-bold text-lg focus-visible:ring-offset-0 focus-visible:ring-2 focus-visible:ring-offset-2`}
+                          className={`h-14 border-4 ${detailsColor.border} rounded-2xl font-bold text-lg focus-visible:ring-offset-0 focus-visible:ring-2 focus-visible:ring-offset-2`}
                         />
                         <p className="text-sm text-muted-foreground font-medium">
                           {t(
@@ -460,7 +457,7 @@ const ProfileV2 = () => {
                             {t("Idiomas que Estoy Aprendiendo", "Languages I'm Learning")}
                           </Label>
                           <div className="flex gap-4">
-                            <label className={`flex items-center gap-3 px-6 py-3 border-4 ${colorScheme.border} rounded-2xl cursor-pointer transition-all ${learningLanguages.includes("es") ? colorScheme.bg : 'bg-white'}`}>
+                            <label className={`flex items-center gap-3 px-6 py-3 border-4 ${detailsColor.border} rounded-2xl cursor-pointer transition-all ${learningLanguages.includes("es") ? detailsColor.bg : 'bg-white'}`}>
                               <input
                                 type="checkbox"
                                 checked={learningLanguages.includes("es")}
@@ -475,7 +472,7 @@ const ProfileV2 = () => {
                               />
                               <span className="font-bold">{t("Español", "Spanish")}</span>
                             </label>
-                            <label className={`flex items-center gap-3 px-6 py-3 border-4 ${colorScheme.border} rounded-2xl cursor-pointer transition-all ${learningLanguages.includes("en") ? colorScheme.bg : 'bg-white'}`}>
+                            <label className={`flex items-center gap-3 px-6 py-3 border-4 ${detailsColor.border} rounded-2xl cursor-pointer transition-all ${learningLanguages.includes("en") ? detailsColor.bg : 'bg-white'}`}>
                               <input
                                 type="checkbox"
                                 checked={learningLanguages.includes("en")}
@@ -502,7 +499,7 @@ const ProfileV2 = () => {
 
                       <Button 
                         type="submit" 
-                        className={`w-full gap-2 h-14 ${colorScheme.bg} ${colorScheme.text} border-4 ${colorScheme.border} ${colorScheme.shadow} rounded-2xl font-black text-lg transition-all hover:translate-y-[-2px] active:translate-y-[4px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`w-full gap-2 h-14 ${detailsColor.bg} ${detailsColor.text} border-4 ${detailsColor.border} ${detailsColor.shadow} rounded-2xl font-black text-lg transition-all hover:translate-y-[-2px] active:translate-y-[4px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed`}
                         disabled={saving}
                       >
                         {saving ? (
@@ -523,8 +520,8 @@ const ProfileV2 = () => {
               </TabsContent>
 
               <TabsContent value="activity" className="space-y-4 mt-6">
-                <Card className={`border-4 ${colorScheme.border} ${colorScheme.shadow} rounded-3xl overflow-hidden`}>
-                  <CardHeader className={`${colorScheme.bg} border-b-4 ${colorScheme.border}`}>
+                <Card className={`border-4 ${activityColor.border} ${activityColor.shadow} rounded-3xl overflow-hidden`}>
+                  <CardHeader className={`${activityColor.bg} border-b-4 ${activityColor.border}`}>
                     <CardTitle className="font-black text-xl">{t("Actividad Reciente", "Recent Activity")}</CardTitle>
                     <CardDescription className="text-gray-700 font-medium">
                       {t("Tus últimas acciones en la plataforma", "Your latest actions on the platform")}
@@ -535,9 +532,9 @@ const ProfileV2 = () => {
                       {recentActivity.map((activity, index) => {
                         const IconComponent = activity.icon;
                         return (
-                          <div key={index} className={`flex items-start gap-4 pb-4 border-b-2 ${colorScheme.border} last:border-0`}>
-                            <div className={`h-12 w-12 rounded-2xl ${colorScheme.bg} border-4 ${colorScheme.border} flex items-center justify-center shrink-0`}>
-                              <IconComponent className={`h-6 w-6 ${colorScheme.text}`} />
+                          <div key={index} className={`flex items-start gap-4 pb-4 border-b-2 ${activityColor.border} last:border-0`}>
+                            <div className={`h-12 w-12 rounded-2xl ${activityColor.bg} border-4 ${activityColor.border} flex items-center justify-center shrink-0`}>
+                              <IconComponent className={`h-6 w-6 ${activityColor.text}`} />
                             </div>
                             <div className="flex-1 space-y-1">
                               <p className="text-sm font-bold">{activity.text}</p>
@@ -552,8 +549,8 @@ const ProfileV2 = () => {
 
                 {/* Progress Section for Students */}
                 {role === "student" && (
-                  <Card className={`border-4 ${colorScheme.border} ${colorScheme.shadow} rounded-3xl overflow-hidden`}>
-                    <CardHeader className={`${colorScheme.bg} border-b-4 ${colorScheme.border}`}>
+                  <Card className={`border-4 ${colorSchemes.lime.border} ${colorSchemes.lime.shadow} rounded-3xl overflow-hidden`}>
+                    <CardHeader className={`${colorSchemes.lime.bg} border-b-4 ${colorSchemes.lime.border}`}>
                       <CardTitle className="font-black text-xl">{t("Progreso del Mes", "Monthly Progress")}</CardTitle>
                       <CardDescription className="text-gray-700 font-medium">
                         {t("Tu avance en los últimos 30 días", "Your progress in the last 30 days")}
@@ -563,30 +560,30 @@ const ProfileV2 = () => {
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-sm">
                           <span className="font-bold">{t("Actividades completadas", "Activities completed")}</span>
-                          <span className={`font-black ${colorScheme.text}`}>24/30</span>
+                          <span className={`font-black ${colorSchemes.lime.text}`}>24/30</span>
                         </div>
-                        <div className={`h-4 bg-gray-200 rounded-full border-2 ${colorScheme.border} overflow-hidden`}>
-                          <div className={`h-full ${colorScheme.bg} transition-all`} style={{ width: '80%' }} />
+                        <div className={`h-4 bg-gray-200 rounded-full border-2 ${colorSchemes.lime.border} overflow-hidden`}>
+                          <div className={`h-full ${colorSchemes.lime.bg} transition-all`} style={{ width: '80%' }} />
                         </div>
                       </div>
                       
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-sm">
                           <span className="font-bold">{t("Tiempo de práctica", "Practice time")}</span>
-                          <span className={`font-black ${colorScheme.text}`}>8.5h / 10h</span>
+                          <span className={`font-black ${colorSchemes.lime.text}`}>8.5h / 10h</span>
                         </div>
-                        <div className={`h-4 bg-gray-200 rounded-full border-2 ${colorScheme.border} overflow-hidden`}>
-                          <div className={`h-full ${colorScheme.bg} transition-all`} style={{ width: '85%' }} />
+                        <div className={`h-4 bg-gray-200 rounded-full border-2 ${colorSchemes.lime.border} overflow-hidden`}>
+                          <div className={`h-full ${colorSchemes.lime.bg} transition-all`} style={{ width: '85%' }} />
                         </div>
                       </div>
                       
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-sm">
                           <span className="font-bold">{t("Sesiones con AI Mentor", "AI Mentor sessions")}</span>
-                          <span className={`font-black ${colorScheme.text}`}>12/15</span>
+                          <span className={`font-black ${colorSchemes.lime.text}`}>12/15</span>
                         </div>
-                        <div className={`h-4 bg-gray-200 rounded-full border-2 ${colorScheme.border} overflow-hidden`}>
-                          <div className={`h-full ${colorScheme.bg} transition-all`} style={{ width: '80%' }} />
+                        <div className={`h-4 bg-gray-200 rounded-full border-2 ${colorSchemes.lime.border} overflow-hidden`}>
+                          <div className={`h-full ${colorSchemes.lime.bg} transition-all`} style={{ width: '80%' }} />
                         </div>
                       </div>
                     </CardContent>
