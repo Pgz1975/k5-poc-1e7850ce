@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 
 export function useDesignVersion() {
   const [useV2Design, setUseV2Design] = useState(() => {
-    return localStorage.getItem('useV2Design') === 'true';
+    const stored = localStorage.getItem('useV2Design');
+    // Default to V2 if no preference stored
+    return stored === null ? true : stored === 'true';
   });
 
   const toggleDesignVersion = () => {
