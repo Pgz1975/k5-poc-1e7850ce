@@ -39,9 +39,12 @@ export class AdaptiveJitterBuffer {
     this.updateJitterEstimate(timestamp);
     this.adjustTargetLatency();
 
-    // Trigger playback if we have enough buffered (now targets larger chunks)
+    // Trigger playback if we have enough buffered OR if existing playback ended
     const bufferedDuration = this.getBufferedDuration();
-    if (bufferedDuration >= this.targetLatency && !this.isPlaying) {
+    const shouldStart = bufferedDuration >= this.targetLatency && !this.isPlaying;
+    const shouldContinue = this.accumulatedPCM.length >= 3 && !this.isPlaying; // At least 3 chunks
+    
+    if (shouldStart || shouldContinue) {
       console.log('[JitterBuffer] Starting playback, buffered:', bufferedDuration, 'ms');
       this.schedulePlayback();
     }
@@ -91,7 +94,7 @@ export class AdaptiveJitterBuffer {
   }
 
   private schedulePlayback(): void {
-    if (this.isPlaying || this.accumulatedPCM.length === 0) return;
+    if (this.accumulatedPCM.length === 0) return;
 
     this.isPlaying = true;
 
@@ -131,6 +134,8 @@ export class AdaptiveJitterBuffer {
 
     source.onended = () => {
       this.isPlaying = false;
+      console.log('[JitterBuffer] Playback ended, checking for more chunks');
+      
       // Clear old chunks from buffer
       const currentSeq = this.playbackPosition;
       for (const [seq] of this.buffer) {
@@ -142,10 +147,13 @@ export class AdaptiveJitterBuffer {
       
       // Continue if more data available
       if (this.buffer.size > 0 || this.accumulatedPCM.length > 0) {
-        this.schedulePlayback();
+        setTimeout(() => this.schedulePlayback(), 10); // Small delay to accumulate
       }
     };
 
+    const durationMs = (combinedPCM.length / 24000) * 1000;
+    console.log(`[JitterBuffer] Playing ${durationMs.toFixed(0)}ms of audio (${this.accumulatedPCM.length + 1} chunks combined)`);
+    
     source.start(0);
   }
 

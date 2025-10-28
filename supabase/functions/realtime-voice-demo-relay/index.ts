@@ -435,17 +435,37 @@ function handleOpenAIMessage(
       const transcript = message.transcript?.trim() || "";
       
       if (transcript.length > 0) {
-        // Estimate confidence based on heuristics (logprobs not available in current API)
-        const confidence = estimateConfidence(transcript);
+        let confidence = 0.7; // Default fallback
+        let logprobsAvailable = false;
+        let avgLogprob = 0;
         
-        log(`🎤 Student said: "${transcript}" (estimated confidence: ${confidence.toFixed(3)})`);
+        // Try to extract real logprobs if available
+        if (message.tokens && Array.isArray(message.tokens)) {
+          const tokensWithLogprobs = message.tokens.filter((t: any) => typeof t.logprob === 'number');
+          if (tokensWithLogprobs.length > 0) {
+            avgLogprob = tokensWithLogprobs.reduce((sum: number, t: any) => sum + t.logprob, 0) / tokensWithLogprobs.length;
+            // Convert logprob to confidence (logprobs range from -5 to 0)
+            // Using threshold of -1.0 (classic Whisper heuristic)
+            confidence = Math.max(0, Math.min(1, Math.exp(avgLogprob)));
+            logprobsAvailable = true;
+            log(`🎤 Student said: "${transcript}" (real logprob: ${avgLogprob.toFixed(2)}, confidence: ${confidence.toFixed(3)})`);
+          } else {
+            // Fallback to heuristic
+            confidence = estimateConfidence(transcript);
+            log(`🎤 Student said: "${transcript}" (heuristic confidence: ${confidence.toFixed(3)})`);
+          }
+        } else {
+          confidence = estimateConfidence(transcript);
+          log(`🎤 Student said: "${transcript}" (heuristic confidence: ${confidence.toFixed(3)})`);
+        }
         
         logDemoInteraction(state, {
           interaction_type: "user_transcript",
           transcript,
           metadata: {
             confidence,
-            estimation_method: "heuristic",
+            estimation_method: logprobsAvailable ? "logprobs" : "heuristic",
+            avg_logprob: logprobsAvailable ? avgLogprob : undefined,
           },
         });
         
@@ -454,7 +474,7 @@ function handleOpenAIMessage(
           state.clientWS.send(JSON.stringify({
             ...message,
             confidence,
-            logprobs_available: false,
+            logprobs_available: logprobsAvailable,
           }));
         }
       }
@@ -495,6 +515,8 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
       },
       input_audio_transcription: {
         model: "whisper-1",
+        enable_segments: true,
+        include: ["logprobs", "timestamps"],
       },
       temperature: 0.8,
       max_response_output_tokens: 4096,

@@ -141,9 +141,16 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
     setSpokenWord(word);
     setConfidence(confidenceScore);
 
-    // Fuzzy phonetic matching with 80% similarity threshold
-    const SIMILARITY_THRESHOLD = 0.80;
-    const MIN_CONFIDENCE = 0.70; // Lowered from 90% to 70%
+    // Adaptive threshold based on word length
+    const getSimilarityThreshold = (word: string): number => {
+      const len = word.replace(/\s+/g, '').length;
+      if (len <= 4) return 0.60;  // Short words: more lenient
+      if (len <= 7) return 0.70;  // Medium words
+      return 0.80;                // Long words
+    };
+
+    const SIMILARITY_THRESHOLD = getSimilarityThreshold(word);
+    const MIN_CONFIDENCE = 0.65; // Lowered for better acceptance
 
     const matchResults = content.answers.map((answer, index) => {
       const normalizedAnswer = phoneticNormalize(answer.text);
@@ -176,10 +183,14 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
       originalWord: word,
       normalizedWord: phoneticNormalize(word),
       wordWithoutSpaces: word.replace(/\s+/g, ''),
+      wordLength: word.replace(/\s+/g, '').length,
+      threshold: (SIMILARITY_THRESHOLD * 100).toFixed(0) + '%',
+      confidenceScore: (confidenceScore * 100).toFixed(0) + '%',
       matches: matchResults.map(r => ({
         text: r.answer.text,
         phonetic: phoneticNormalize(r.answer.text),
-        similarity: (r.similarity * 100).toFixed(1) + '%'
+        similarity: (r.similarity * 100).toFixed(1) + '%',
+        passed: r.similarity >= SIMILARITY_THRESHOLD
       })),
       bestMatch: bestMatch ? {
         text: bestMatch.answer.text,
