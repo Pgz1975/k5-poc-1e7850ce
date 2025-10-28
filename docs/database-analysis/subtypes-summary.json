@@ -1,0 +1,211 @@
+{
+  "generatedAt": "2025-10-28T00:00:00Z",
+  "database": {
+    "url": "https://meertwtenhlmnlpwxhyz.supabase.co",
+    "table": "manual_assessments"
+  },
+  "summary": {
+    "totalRecords": 495,
+    "totalTypes": 3,
+    "totalSubtypes": 6,
+    "completionRate": "80.6%",
+    "recentActivityDays": 7
+  },
+  "allSubtypes": [
+    "multiple_choice",
+    "lesson",
+    "drag_drop",
+    "true_false",
+    "fill_blank",
+    "write_answer"
+  ],
+  "subtypeDetails": [
+    {
+      "id": "multiple_choice",
+      "count": 270,
+      "percentage": 54.5,
+      "icon": "ListChecks",
+      "titleEs": "Opción Múltiple",
+      "titleEn": "Multiple Choice",
+      "descriptionEs": "Seleccionar la respuesta correcta",
+      "descriptionEn": "Select the correct answer",
+      "userAction": "Select from multiple options",
+      "contentStructure": {
+        "question": "string",
+        "answers": "array",
+        "questionImage": "string (optional)",
+        "imageUrl": "string (optional, in answers)"
+      }
+    },
+    {
+      "id": "lesson",
+      "count": 109,
+      "percentage": 22.0,
+      "icon": "BookOpen",
+      "titleEs": "Lección",
+      "titleEn": "Lesson",
+      "descriptionEs": "Contenido de lección",
+      "descriptionEn": "Lesson content",
+      "userAction": "View lesson content",
+      "autoSelected": true,
+      "contentStructure": {
+        "question": "string (lesson content)",
+        "answers": "array (supporting info)"
+      }
+    },
+    {
+      "id": "drag_drop",
+      "count": 50,
+      "percentage": 10.1,
+      "icon": "Move",
+      "titleEs": "Arrastrar y Soltar",
+      "titleEn": "Drag and Drop",
+      "descriptionEs": "Arrastrar elementos para responder",
+      "descriptionEn": "Drag elements to answer",
+      "userAction": "Drag and drop interactive elements",
+      "contentStructure": {
+        "interactive": true,
+        "dragItems": "array",
+        "dropZones": "array"
+      }
+    },
+    {
+      "id": "true_false",
+      "count": 29,
+      "percentage": 5.9,
+      "icon": "CheckCircle2",
+      "titleEs": "Verdadero/Falso",
+      "titleEn": "True/False",
+      "descriptionEs": "Responder verdadero o falso",
+      "descriptionEn": "Answer true or false",
+      "userAction": "Choose true or false",
+      "contentStructure": {
+        "question": "string (statement)",
+        "answers": "array (2 items: Verdadero/Falso)"
+      }
+    },
+    {
+      "id": "fill_blank",
+      "count": 28,
+      "percentage": 5.7,
+      "icon": "HelpCircle",
+      "titleEs": "Completar Espacios",
+      "titleEn": "Fill in the Blank",
+      "descriptionEs": "Arrastrar letras para formar palabras",
+      "descriptionEn": "Drag letters to form words",
+      "userAction": "Fill in missing letters or words",
+      "contentStructure": {
+        "question": "string (with blanks)",
+        "letters": "array",
+        "correctAnswer": "string"
+      }
+    },
+    {
+      "id": "write_answer",
+      "count": 9,
+      "percentage": 1.8,
+      "icon": "PenLine",
+      "titleEs": "Escribir Respuesta",
+      "titleEn": "Write Answer",
+      "descriptionEs": "Escribir la palabra correcta",
+      "descriptionEn": "Write the correct word",
+      "userAction": "Type the answer",
+      "contentStructure": {
+        "question": "string (prompt)",
+        "expectedAnswer": "string",
+        "acceptAlternatives": "boolean"
+      }
+    }
+  ],
+  "typeDistribution": {
+    "exercise": {
+      "count": 385,
+      "percentage": 77.8,
+      "subtypes": [
+        "multiple_choice",
+        "drag_drop",
+        "true_false",
+        "fill_blank",
+        "write_answer"
+      ]
+    },
+    "lesson": {
+      "count": 109,
+      "percentage": 22.0,
+      "subtypes": [
+        "lesson"
+      ]
+    },
+    "assessment": {
+      "count": 1,
+      "percentage": 0.2,
+      "subtypes": []
+    }
+  },
+  "contentQuality": {
+    "withImages": {
+      "count": 130,
+      "percentage": 26.3
+    },
+    "withQuestions": {
+      "count": 456,
+      "percentage": 92.1
+    },
+    "withAnswers": {
+      "count": 401,
+      "percentage": 81.0
+    },
+    "complete": {
+      "count": 399,
+      "percentage": 80.6
+    }
+  },
+  "recentActivity": {
+    "last7Days": 495,
+    "byDate": {
+      "2025-10-28": 82,
+      "2025-10-27": 101,
+      "2025-10-26": 40,
+      "2025-10-25": 135,
+      "2025-10-24": 73,
+      "2025-10-23": 43,
+      "2025-10-22": 18,
+      "2025-10-21": 3
+    }
+  },
+  "usageRecommendations": {
+    "mostPopular": "multiple_choice",
+    "leastUsed": "write_answer",
+    "suggestedNewTypes": [
+      "matching",
+      "ordering",
+      "audio_response",
+      "drawing",
+      "math_input"
+    ]
+  },
+  "componentReference": {
+    "subtypeSelector": "/src/components/ManualAssessment/SubtypeSelector.tsx",
+    "analysisScript": "/scripts/analyze-manual-assessments.mjs",
+    "extractionScript": "/scripts/extract-assessment-content.js"
+  },
+  "databaseAccess": {
+    "authRequired": true,
+    "adminEmail": "admin@demo.com",
+    "adminPassword": "demo1234",
+    "table": "manual_assessments",
+    "keyFields": [
+      "id",
+      "type",
+      "subtype",
+      "content",
+      "title",
+      "grade_level",
+      "language",
+      "enable_voice",
+      "estimated_duration_minutes",
+      "parent_assessment_id",
+      "created_at"
+    ]
+  }
+}

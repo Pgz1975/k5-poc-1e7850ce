@@ -1,0 +1,12 @@
+{
+  "name": "supabase-subtype-analyzer",
+  "version": "1.0.0",
+  "description": "Analyze manual_assessments table for unique subtypes",
+  "type": "module",
+  "scripts": {
+    "analyze": "node analyze-subtypes.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}

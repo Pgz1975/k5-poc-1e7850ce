@@ -1,0 +1,205 @@
+═══════════════════════════════════════════════════════════════════════════════
+              MANUAL ASSESSMENTS - SUBTYPES QUICK REFERENCE
+═══════════════════════════════════════════════════════════════════════════════
+
+Database: meertwtenhlmnlpwxhyz.supabase.co
+Table: manual_assessments
+Total Records: 495
+Analysis Date: October 28, 2025
+
+───────────────────────────────────────────────────────────────────────────────
+                        ALL UNIQUE SUBTYPES (6 TOTAL)
+───────────────────────────────────────────────────────────────────────────────
+
+1. MULTIPLE_CHOICE
+   Count: 270 (54.5%)
+   Spanish: Opción Múltiple
+   Icon: ListChecks
+   Description: Select the correct answer from multiple options
+   User Action: Click/tap on one of several answer choices
+   Used In: Exercises (70.1% of exercises)
+
+2. LESSON
+   Count: 109 (22.0%)
+   Spanish: Lección
+   Icon: BookOpen
+   Description: Lesson content (auto-selected for lesson type)
+   User Action: View and read lesson content
+   Used In: Lessons (100% of lessons)
+   Note: Only one subtype available for lesson type
+
+3. DRAG_DROP
+   Count: 50 (10.1%)
+   Spanish: Arrastrar y Soltar
+   Icon: Move
+   Description: Drag elements to answer questions
+   User Action: Click and drag items to correct positions
+   Used In: Exercises (13.0% of exercises)
+
+4. TRUE_FALSE
+   Count: 29 (5.9%)
+   Spanish: Verdadero/Falso
+   Icon: CheckCircle2
+   Description: Answer true or false questions
+   User Action: Choose between Verdadero/Falso options
+   Used In: Exercises (7.5% of exercises)
+
+5. FILL_BLANK
+   Count: 28 (5.7%)
+   Spanish: Completar Espacios
+   Icon: HelpCircle
+   Description: Drag letters to form words
+   User Action: Drag letters into blank spaces to complete words
+   Used In: Exercises (7.3% of exercises)
+
+6. WRITE_ANSWER
+   Count: 9 (1.8%)
+   Spanish: Escribir Respuesta
+   Icon: PenLine
+   Description: Type the correct word/answer
+   User Action: Type answer using keyboard
+   Used In: Exercises (2.3% of exercises)
+
+───────────────────────────────────────────────────────────────────────────────
+                            TYPE DISTRIBUTION
+───────────────────────────────────────────────────────────────────────────────
+
+EXERCISE (385 records - 77.8%)
+├── multiple_choice (270) ███████████████████████████████████░░░░░░ 70.1%
+├── drag_drop       (50)  ██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 13.0%
+├── true_false      (29)  ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  7.5%
+├── fill_blank      (28)  ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  7.3%
+└── write_answer    (9)   █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  2.3%
+
+LESSON (109 records - 22.0%)
+└── lesson          (109) ████████████████████████████████████████ 100.0%
+
+ASSESSMENT (1 record - 0.2%)
+└── No specific subtype
+
+───────────────────────────────────────────────────────────────────────────────
+                         USAGE RECOMMENDATIONS
+───────────────────────────────────────────────────────────────────────────────
+
+MOST POPULAR:  multiple_choice (54.5%) - Best for comprehension checks
+SECOND:        lesson (22.0%) - Essential for teaching concepts
+THIRD:         drag_drop (10.1%) - Good for interactive engagement
+FOURTH:        true_false (5.9%) - Quick assessment format
+FIFTH:         fill_blank (5.7%) - Vocabulary and spelling practice
+LEAST USED:    write_answer (1.8%) - Free-form response (challenging)
+
+───────────────────────────────────────────────────────────────────────────────
+                          CONTENT QUALITY METRICS
+───────────────────────────────────────────────────────────────────────────────
+
+Total Assessments:    495 (100%)
+With Images:          130 (26.3%)
+With Questions:       456 (92.1%)
+With Answers:         401 (81.0%)
+Complete (Q+A):       399 (80.6%) ✓ High Quality
+
+───────────────────────────────────────────────────────────────────────────────
+                        RECENT ACTIVITY (7 DAYS)
+───────────────────────────────────────────────────────────────────────────────
+
+10/28/2025: ████████████████████ 82 assessments
+10/27/2025: █████████████████████████ 101 assessments (Peak)
+10/26/2025: ██████████ 40 assessments
+10/25/2025: █████████████████████████████████ 135 assessments (Highest)
+10/24/2025: ██████████████████ 73 assessments
+10/23/2025: ██████████ 43 assessments
+10/22/2025: █████ 18 assessments
+10/21/2025: █ 3 assessments
+
+TOTAL: 495 assessments created in the last week
+
+───────────────────────────────────────────────────────────────────────────────
+                       COMPONENT IMPLEMENTATION
+───────────────────────────────────────────────────────────────────────────────
+
+Location: /src/components/ManualAssessment/SubtypeSelector.tsx
+
+TypeScript Definition:
+  type Subtype =
+    | 'multiple_choice'
+    | 'lesson'
+    | 'drag_drop'
+    | 'true_false'
+    | 'fill_blank'
+    | 'write_answer';
+
+  interface SubtypeSelectorProps {
+    type: 'lesson' | 'exercise' | 'assessment';
+    onSelect: (subtype: string) => void;
+    onBack: () => void;
+  }
+
+Note: For 'lesson' type, 'lesson' subtype is auto-selected automatically.
+
+───────────────────────────────────────────────────────────────────────────────
+                          DATABASE CONNECTION
+───────────────────────────────────────────────────────────────────────────────
+
+URL:  https://meertwtenhlmnlpwxhyz.supabase.co
+Table: manual_assessments
+
+Authentication Required:
+  Email:    admin@demo.com
+  Password: demo1234
+
+Key Fields:
+  - id (uuid)
+  - type (text: 'lesson' | 'exercise' | 'assessment')
+  - subtype (text: see list above)
+  - content (jsonb: question, answers, images)
+  - title (text)
+  - grade_level (integer)
+  - language (text: 'es' | 'en')
+  - enable_voice (boolean)
+  - estimated_duration_minutes (integer)
+  - parent_assessment_id (uuid, nullable)
+  - created_at (timestamp)
+
+───────────────────────────────────────────────────────────────────────────────
+                          ANALYSIS SCRIPTS
+───────────────────────────────────────────────────────────────────────────────
+
+1. Comprehensive Analysis:
+   $ node scripts/analyze-manual-assessments.mjs
+
+2. Content Extraction:
+   $ node scripts/extract-assessment-content.js
+
+3. Subtype Analysis (with auth):
+   $ cd scripts/database-analysis && npm run analyze
+
+───────────────────────────────────────────────────────────────────────────────
+                       SUGGESTED NEW SUBTYPES
+───────────────────────────────────────────────────────────────────────────────
+
+Based on usage patterns, consider adding:
+
+1. MATCHING - Pair items from two columns
+2. ORDERING - Arrange items in sequence
+3. AUDIO_RESPONSE - Voice-based answers
+4. DRAWING - Visual/sketch responses
+5. MATH_INPUT - Equation/formula entry
+
+───────────────────────────────────────────────────────────────────────────────
+                              SUMMARY
+───────────────────────────────────────────────────────────────────────────────
+
+✓ 6 unique subtypes identified
+✓ 495 total activities analyzed
+✓ 80.6% completion rate (high quality)
+✓ 495 activities created in last 7 days (very active)
+✓ Multiple choice is dominant (54.5%)
+✓ All subtypes are functional and in use
+
+───────────────────────────────────────────────────────────────────────────────
+
+For detailed analysis, see:
+  - /docs/database-analysis/SUBTYPE_ANALYSIS_REPORT.md
+  - /docs/database-analysis/subtypes-summary.json
+
+═══════════════════════════════════════════════════════════════════════════════
