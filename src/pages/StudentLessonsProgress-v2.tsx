@@ -232,41 +232,6 @@ const StudentLessonsProgressV2 = () => {
 
                     {/* Curved path with lesson nodes */}
                     <div className="relative flex flex-col items-center py-8">
-                      {/* Continuous curved SVG path */}
-                      <svg 
-                        className="absolute inset-0 w-full h-full pointer-events-none" 
-                        style={{ top: '40px', height: `${group.lessons.length * 140}px` }}
-                      >
-                        <path
-                          d={(() => {
-                            if (group.lessons.length === 0) return '';
-                            
-                            const startX = 200 + generatePathPosition(0, group.lessons.length);
-                            const startY = 70;
-                            let pathData = `M ${startX} ${startY}`;
-                            
-                            for (let i = 1; i < group.lessons.length; i++) {
-                              const prevX = 200 + generatePathPosition(i - 1, group.lessons.length);
-                              const prevY = (i - 1) * 140 + 70;
-                              const currentX = 200 + generatePathPosition(i, group.lessons.length);
-                              const currentY = i * 140 + 70;
-                              
-                              // Calculate control points for smooth bezier curves
-                              const controlY = (prevY + currentY) / 2;
-                              pathData += ` Q ${prevX} ${controlY}, ${currentX} ${currentY}`;
-                            }
-                            
-                            return pathData;
-                          })()}
-                          stroke="#9ca3af"
-                          strokeWidth="8"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          opacity="0.4"
-                        />
-                      </svg>
-
                       {/* Lesson nodes positioned along curve */}
                       {group.lessons.map((lesson, lessonIndex) => {
                         const state = getNodeState(lesson.id);
