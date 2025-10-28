@@ -36,6 +36,7 @@ import StudentLessonsProgressV2 from "./pages/StudentLessonsProgress-v2";
 import StudentExercisesProgress from "./pages/StudentExercisesProgress";
 import StudentExercisesProgressV2 from "./pages/StudentExercisesProgress-v2";
 import StudentAssessmentsProgress from "./pages/StudentAssessmentsProgress";
+import StudentAssessmentsProgressV2 from "./pages/StudentAssessmentsProgress-v2";
 import ViewLesson from "./pages/ViewLesson";
 import LessonExerciseFlow from "./pages/LessonExerciseFlow";
 import GenerateContent from "./pages/GenerateContent";
@@ -58,7 +59,7 @@ function AppRoutes() {
       <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentDashboardV2 /> : <StudentDashboard />}</ProtectedRoute>} />
       <Route path="/student-dashboard/lessons" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentLessonsProgressV2 /> : <StudentLessonsProgress />}</ProtectedRoute>} />
       <Route path="/student-dashboard/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentExercisesProgressV2 /> : <StudentExercisesProgress />}</ProtectedRoute>} />
-      <Route path="/student-dashboard/assessments" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentAssessmentsProgress /></ProtectedRoute>} />
+      <Route path="/student-dashboard/assessments" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentAssessmentsProgressV2 /> : <StudentAssessmentsProgress />}</ProtectedRoute>} />
       <Route path="/lesson/:id" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ViewLesson /></ProtectedRoute>} />
       <Route path="/lesson/:lessonId/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><LessonExerciseFlow /></ProtectedRoute>} />
       <Route path="/activities" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <ActivitiesV2 /> : <Activities />}</ProtectedRoute>} />
