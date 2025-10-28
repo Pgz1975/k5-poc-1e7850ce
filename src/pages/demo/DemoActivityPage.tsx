@@ -10,6 +10,9 @@ import { Loader2, ArrowLeft, Construction } from "lucide-react";
 import { ReadFlowPlayer } from "@/components/demo/DemoPlayers/ReadFlowPlayer";
 import { PronunciationPlayer } from "@/components/demo/DemoPlayers/PronunciationPlayer";
 import { SpeedQuizPlayer } from "@/components/demo/DemoPlayers/SpeedQuizPlayer";
+import { StoryPlayer } from "@/components/demo/DemoPlayers/StoryPlayer";
+import { WritingPlayer } from "@/components/demo/DemoPlayers/WritingPlayer";
+import { SpellingCoachPlayer } from "@/components/demo/DemoPlayers/SpellingCoachPlayer";
 
 type DemoActivity =
   Database["public"]["Tables"]["demo_activities"]["Row"];
@@ -67,6 +70,27 @@ export default function DemoActivityPage() {
       case "speed_quiz":
         return (
           <SpeedQuizPlayer
+            {...baseProps}
+            content={activity.content as any}
+          />
+        );
+      case "story":
+        return (
+          <StoryPlayer
+            {...baseProps}
+            content={activity.content as any}
+          />
+        );
+      case "writing":
+        return (
+          <WritingPlayer
+            {...baseProps}
+            content={activity.content as any}
+          />
+        );
+      case "spelling":
+        return (
+          <SpellingCoachPlayer
             {...baseProps}
             content={activity.content as any}
           />
