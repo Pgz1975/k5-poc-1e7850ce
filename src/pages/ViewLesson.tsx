@@ -160,11 +160,17 @@ export default function ViewLesson() {
         }
         await new Promise(resolve => setTimeout(resolve, 200));
         
+        // Extract unit color for confetti
+        const hslMatch = colorScheme?.bg.match(/hsl\((\d+),(\d+)%,(\d+)%\)/);
+        const unitColor = hslMatch 
+          ? `hsl(${hslMatch[1]}, ${hslMatch[2]}%, ${hslMatch[3]}%)`
+          : '#ec4899';
+        
         confetti({
           particleCount: 100,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+          colors: [unitColor, '#10b981', '#fbbf24', '#3b82f6', '#8b5cf6']
         });
 
         toast.success(t("¡Lección completada!", "Lesson completed!"));

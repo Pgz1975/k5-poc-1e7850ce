@@ -38,10 +38,22 @@ export function LessonCompletionScreen({
   const { colorScheme } = useUnitColor(lesson.id);
 
   useEffect(() => {
+    // Extract HSL color from colorScheme for confetti
+    const hslMatch = colorScheme?.bg.match(/hsl\((\d+),(\d+)%,(\d+)%\)/);
+    const unitColor = hslMatch 
+      ? `hsl(${hslMatch[1]}, ${hslMatch[2]}%, ${hslMatch[3]}%)`
+      : '#ec4899'; // fallback pink
+    
     // Trigger confetti on mount
     const duration = 3000;
     const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+    const defaults = { 
+      startVelocity: 30, 
+      spread: 360, 
+      ticks: 60, 
+      zIndex: 0,
+      colors: [unitColor, '#10b981', '#fbbf24', '#3b82f6']
+    };
 
     const randomInRange = (min: number, max: number) => {
       return Math.random() * (max - min) + min;
@@ -69,7 +81,7 @@ export function LessonCompletionScreen({
     }, 250);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [colorScheme]);
 
   const renderContent = () => {
     const content = lesson.content;

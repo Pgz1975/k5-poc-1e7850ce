@@ -11,6 +11,7 @@ import { CheckCircle2, XCircle, ArrowLeft } from 'lucide-react';
 import { ActivityActions } from '@/components/ActivityManagement/ActivityActions';
 import { useUnitColor } from '@/hooks/useUnitColor';
 import { cn } from '@/lib/utils';
+import confetti from 'canvas-confetti';
 
 interface Exercise {
   id: string;
@@ -63,6 +64,21 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
     
     const calculatedScore = correct ? 100 : 0;
     setScore(calculatedScore);
+
+    // Trigger confetti for correct answers with unit color
+    if (correct) {
+      const hslMatch = colorScheme?.bg.match(/hsl\((\d+),(\d+)%,(\d+)%\)/);
+      const confettiColor = hslMatch 
+        ? `hsl(${hslMatch[1]}, ${hslMatch[2]}%, ${hslMatch[3]}%)`
+        : '#ec4899'; // fallback pink
+      
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.7 },
+        colors: [confettiColor, '#10b981', '#fbbf24']
+      });
+    }
   };
 
   const handleDragDropAnswer = (answer: string, correct: boolean) => {
@@ -167,7 +183,7 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
   const passed = score >= (exercise.passing_score || 70);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header with Back Button */}
       <div className={cn(
         "rounded-2xl border-4 p-6",

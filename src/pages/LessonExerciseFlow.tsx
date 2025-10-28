@@ -263,7 +263,7 @@ export default function LessonExerciseFlow() {
   const progressPercent = (completedExercises.size / exercises.length) * 100;
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6 max-w-4xl animate-fade-in">
       {/* Progress Indicator */}
       <div className="mb-6">
         <div className="relative h-4 rounded-full bg-gray-200 overflow-hidden border-2 border-gray-300">
