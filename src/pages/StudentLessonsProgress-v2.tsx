@@ -10,9 +10,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMemo } from "react";
 import { getLessonLockingStatus } from "@/utils/lessonUnlocking";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles, Lock, Star, Trophy, BookOpen, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LessonNode } from "@/components/StudentDashboard/LessonNode";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { UnitHeader } from "@/components/StudentDashboard/UnitHeader";
 import { MilestoneIcon } from "@/components/StudentDashboard/MilestoneIcon";
 import { PathDecoration } from "@/components/StudentDashboard/PathDecoration";
@@ -115,18 +116,51 @@ const StudentLessonsProgressV2 = () => {
     return "unlocked";
   };
 
-  const decorationTypes = [
-    "thick-leaf", "forest-leaf", "three-leaves", "oval-leaf", 
-    "twin-leaves", "split-leaf", "small-leaves"
-  ] as const;
-
-  // Generate curved path positions for nodes
-  const generatePathPosition = (index: number, total: number) => {
-    const amplitude = 120; // Increased for more dramatic curves
-    const frequency = 0.4; // Smoother waves
-    const xOffset = Math.sin(index * frequency) * amplitude;
-    return xOffset;
-  };
+  // V2 Color schemes for different units
+  const unitColorSchemes = [
+    {
+      bg: "bg-[hsl(329,100%,71%)]",
+      border: "border-[hsl(329,100%,65%)]",
+      text: "text-[hsl(329,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(329,100%,65%)]",
+      iconBg: "bg-[hsl(329,100%,71%)]",
+    },
+    {
+      bg: "bg-[hsl(11,100%,67%)]",
+      border: "border-[hsl(11,100%,65%)]",
+      text: "text-[hsl(11,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(11,100%,65%)]",
+      iconBg: "bg-[hsl(11,100%,67%)]",
+    },
+    {
+      bg: "bg-[hsl(27,100%,71%)]",
+      border: "border-[hsl(27,100%,65%)]",
+      text: "text-[hsl(27,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(27,100%,65%)]",
+      iconBg: "bg-[hsl(27,100%,71%)]",
+    },
+    {
+      bg: "bg-[hsl(125,100%,71%)]",
+      border: "border-[hsl(125,100%,65%)]",
+      text: "text-[hsl(125,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(125,100%,65%)]",
+      iconBg: "bg-[hsl(125,100%,71%)]",
+    },
+    {
+      bg: "bg-[hsl(176,84%,71%)]",
+      border: "border-[hsl(176,84%,65%)]",
+      text: "text-[hsl(176,84%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(176,84%,65%)]",
+      iconBg: "bg-[hsl(176,84%,71%)]",
+    },
+    {
+      bg: "bg-[hsl(250,100%,75%)]",
+      border: "border-[hsl(250,100%,70%)]",
+      text: "text-[hsl(250,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(250,100%,70%)]",
+      iconBg: "bg-[hsl(250,100%,75%)]",
+    },
+  ];
 
   if (isLoadingOrdering) {
     return (
@@ -230,101 +264,95 @@ const StudentLessonsProgressV2 = () => {
                       completedLessons={completedInDomain}
                     />
 
-                    {/* Curved path with lesson nodes */}
-                    <div className="relative flex flex-col items-center py-8">
-                      {/* Lesson nodes positioned along curve */}
+                    {/* V2 Horizontal Card Layout */}
+                    <div className="relative flex flex-col items-stretch py-8 max-w-4xl mx-auto px-4">
+                      {/* Lesson cards */}
                       {group.lessons.map((lesson, lessonIndex) => {
                         const state = getNodeState(lesson.id);
-                        const xOffset = generatePathPosition(lessonIndex, group.lessons.length);
-                        const decorationType = decorationTypes[lessonIndex % decorationTypes.length];
-                        const decorationSide = xOffset > 0 ? "left" : "right";
-                        
+                        const colorScheme = unitColorSchemes[groupIndex % unitColorSchemes.length];
+                        const isLocked = state === "locked";
+
                         return (
                           <motion.div
                             key={lesson.id}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: groupIndex * 0.1 + lessonIndex * 0.05 }}
-                            className="relative"
-                            style={{ 
-                              transform: `translateX(${xOffset}px)`,
-                              marginBottom: lessonIndex < group.lessons.length - 1 ? '140px' : '70px'
-                            }}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: lessonIndex * 0.05 }}
+                            className="mb-4"
                           >
-                            {/* Nature decoration along path */}
-                            {lessonIndex % 2 === 0 && (
-                              <PathDecoration
-                                type={decorationType}
-                                position={decorationSide}
-                                size={lessonIndex % 3 === 0 ? "lg" : "md"}
-                                className="top-1/2 -translate-y-1/2"
-                              />
-                            )}
-                            
-                            {/* Additional scattered leaves */}
-                            {lessonIndex % 3 === 1 && (
-                              <div 
-                                className="absolute opacity-20 pointer-events-none"
-                                style={{
-                                  [decorationSide === "left" ? "right" : "left"]: "-80px",
-                                  top: "50%",
-                                  transform: "translateY(-50%) rotate(-25deg)"
-                                }}
-                              >
-                                <img 
-                                  src={`/design elements/svgs/reshot-icon-${decorationType}.svg`}
-                                  alt=""
-                                  className="w-10 h-10"
-                                />
+                            <button
+                              onClick={() => !isLocked && navigate(`/lesson/${lesson.id}`)}
+                              disabled={isLocked}
+                              className={cn(
+                                "w-full flex items-center gap-4 md:gap-6 p-4 md:p-6 rounded-2xl border-4",
+                                colorScheme.shadow,
+                                colorScheme.border,
+                                "bg-white",
+                                "transition-all duration-200",
+                                !isLocked && "hover:shadow-[0_8px_0_rgba(0,0,0,0.15)] hover:-translate-y-0.5",
+                                !isLocked && "active:shadow-[0_2px_0_rgba(0,0,0,0.15)] active:translate-y-1",
+                                isLocked && "opacity-50 cursor-not-allowed grayscale"
+                              )}
+                            >
+                              {/* Left: Lesson Icon */}
+                              <div className={cn(
+                                "flex-shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-xl border-4 flex items-center justify-center",
+                                colorScheme.iconBg,
+                                colorScheme.border,
+                                "shadow-[0_4px_0_rgba(0,0,0,0.12)]"
+                              )}>
+                                {state === "completed" && <Check className="w-7 h-7 md:w-8 md:h-8 text-white" />}
+                                {state === "active" && <Star className="w-7 h-7 md:w-8 md:h-8 text-white fill-white" />}
+                                {state === "locked" && <Lock className="w-7 h-7 md:w-8 md:h-8 text-white" />}
+                                {state === "unlocked" && <BookOpen className="w-7 h-7 md:w-8 md:h-8 text-white" />}
                               </div>
-                            )}
-                            
-                            <LessonNode
-                              state={state}
-                              color={colorScheme.bg}
-                              lessonNumber={lessonIndex + 1}
-                              onClick={() => navigate(`/lesson/${lesson.id}`)}
-                            />
+
+                              {/* Right: Lesson Title and Info */}
+                              <div className="flex-1 text-left min-w-0">
+                                <h3 className="text-lg md:text-xl font-black text-gray-800 truncate">
+                                  {lesson.title}
+                                </h3>
+                                <p className="text-sm font-bold text-gray-600">
+                                  {t("Lección", "Lesson")} {lessonIndex + 1}
+                                </p>
+                              </div>
+
+                              {/* Far Right: Status Badge */}
+                              {state === "completed" && (
+                                <Badge className="hidden md:flex bg-[hsl(125,100%,55%)] text-white font-bold border-0">
+                                  {t("Completado", "Completed")}
+                                </Badge>
+                              )}
+                            </button>
                           </motion.div>
                         );
                       })}
                       
-                      {/* Milestone at end of unit */}
+                      {/* V2 Milestone */}
                       <motion.div
-                        initial={{ opacity: 0, scale: 0 }}
+                        initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: groupIndex * 0.1 + group.lessons.length * 0.05 }}
-                        className="relative mt-8"
+                        transition={{ delay: group.lessons.length * 0.05 + 0.2 }}
+                        className="relative flex justify-center my-8"
                       >
-                        {/* Tree decoration next to milestone */}
-                        <div className="absolute -left-20 top-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
-                          <img 
-                            src="/design elements/svgs/reshot-icon-small-leaves-P4MUEALCWH.svg"
-                            alt=""
-                            className="w-16 h-16"
-                          />
+                        <div className="flex flex-col items-center">
+                          <div className="bg-gradient-to-br from-[hsl(45,100%,71%)] to-[hsl(45,100%,55%)] rounded-2xl p-6 border-4 border-[hsl(45,100%,65%)] shadow-[0_6px_0_hsl(45,100%,65%)]">
+                            <Trophy className="w-12 h-12 text-white" />
+                          </div>
+                          
+                          <div className="mt-4 bg-white rounded-xl px-6 py-3 border-4 border-[hsl(45,100%,65%)] shadow-[0_4px_0_hsl(45,100%,65%)]">
+                            <span className="text-lg font-black text-[hsl(45,100%,35%)]">
+                              {t("¡Unidad Completa!", "Unit Complete!")}
+                            </span>
+                          </div>
                         </div>
-                        <div className="absolute -right-20 top-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
-                          <img 
-                            src="/design elements/svgs/reshot-icon-split-leaf-GV53AWKBCS.svg"
-                            alt=""
-                            className="w-16 h-16 rotate-180"
-                          />
-                        </div>
-                        
-                        <MilestoneIcon
-                          type="shield"
-                          number={groupIndex + 1}
-                          unlocked={completedInDomain === group.lessons.length}
-                          color={colorScheme.bg}
-                        />
                       </motion.div>
                     </div>
                   </motion.div>
                 );
               })}
               
-              {/* Final trophy */}
+              {/* Final trophy - V2 Style */}
               {domainGroups.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0 }}
@@ -332,11 +360,17 @@ const StudentLessonsProgressV2 = () => {
                   transition={{ delay: domainGroups.length * 0.1 }}
                   className="flex justify-center"
                 >
-                  <MilestoneIcon
-                    type="trophy"
-                    unlocked={completedActivities.length === lessonsWithOrder?.length}
-                    color="bg-gradient-to-br from-yellow-400 to-orange-500"
-                  />
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gradient-to-br from-[hsl(45,100%,71%)] to-[hsl(45,100%,55%)] rounded-3xl p-8 border-4 border-[hsl(45,100%,65%)] shadow-[0_8px_0_hsl(45,100%,65%)]">
+                      <Trophy className="w-16 h-16 text-white" />
+                    </div>
+                    
+                    <div className="mt-6 bg-white rounded-xl px-8 py-4 border-4 border-[hsl(45,100%,65%)] shadow-[0_4px_0_hsl(45,100%,65%)]">
+                      <span className="text-2xl font-black text-[hsl(45,100%,35%)]">
+                        {t("¡Campeón!", "Champion!")}
+                      </span>
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </div>
