@@ -446,9 +446,9 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
       output_audio_format: "pcm16",
       turn_detection: {
         type: "server_vad",
-        threshold: 0.55,
-        prefix_padding_ms: 320,
-        silence_duration_ms: 600,
+        threshold: 0.45,
+        prefix_padding_ms: 300,
+        silence_duration_ms: 3000,
         create_response: true,
       },
       input_audio_transcription: {
