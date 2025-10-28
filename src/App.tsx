@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
+import IndexV2 from "./pages/Index-v2";
 import Auth from "./pages/Auth";
 import AuthV2 from "./pages/Auth-v2";
 import Profile from "./pages/Profile";
@@ -49,7 +50,7 @@ function AppRoutes() {
   
   return (
     <Routes>
-      <Route path="/" element={<Index />} />
+      <Route path="/" element={useV2Design ? <IndexV2 /> : <Index />} />
       <Route path="/design-preview" element={<DesignPreview />} />
       <Route path="/auth" element={useV2Design ? <AuthV2 /> : <Auth />} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
