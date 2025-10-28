@@ -17,6 +17,8 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherDashboardV2 from "./pages/TeacherDashboard-v2";
 import FamilyDashboard from "./pages/FamilyDashboard";
 import FamilyDashboardV2 from "./pages/FamilyDashboard-v2";
+import Activities from "./pages/Activities";
+import ActivitiesV2 from "./pages/Activities-v2";
 import ReadingExercise from "./pages/ReadingExercise";
 import VoiceTest from "./pages/VoiceTest";
 import ViewLesson from "./pages/ViewLesson";
@@ -62,7 +64,7 @@ function AppRoutes() {
       <Route path="/student-dashboard/assessments" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentAssessmentsProgressV2 /> : <StudentAssessmentsProgress />}</ProtectedRoute>} />
       <Route path="/lesson/:id" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ViewLesson /></ProtectedRoute>} />
       <Route path="/lesson/:lessonId/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><LessonExerciseFlow /></ProtectedRoute>} />
-      <Route path="/activities" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ReadingExercise /></ProtectedRoute>} />
+      <Route path="/activities" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <ActivitiesV2 /> : <Activities />}</ProtectedRoute>} />
       <Route path="/available-assessments" element={<ProtectedRoute><AvailableAssessments /></ProtectedRoute>} />
       <Route path="/teacher-dashboard" element={<ProtectedRoute allowedRoles={["teacher", "teacher_english", "teacher_spanish"]}>{useV2Design ? <TeacherDashboardV2 /> : <TeacherDashboard />}</ProtectedRoute>} />
       <Route path="/family-dashboard" element={<ProtectedRoute allowedRoles={["family"]}>{useV2Design ? <FamilyDashboardV2 /> : <FamilyDashboard />}</ProtectedRoute>} />
