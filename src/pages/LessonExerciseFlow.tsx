@@ -298,40 +298,30 @@ export default function LessonExerciseFlow() {
           const isLocked = idx > maxUnlocked;
           
           return (
-            <div key={ex.id} className="relative flex-shrink-0">
-              <button
-                onClick={() => !isLocked && setCurrentExerciseId(ex.id)}
-                disabled={isLocked}
-                className={cn(
-                  "w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-black text-lg",
-                  "border-4 transition-all duration-200",
-                  "shadow-[0_4px_0_rgba(0,0,0,0.12)]",
-                  "hover:shadow-[0_6px_0_rgba(0,0,0,0.15)] hover:-translate-y-0.5",
-                  "active:shadow-[0_2px_0_rgba(0,0,0,0.08)] active:translate-y-1",
-                  isCurrent && "ring-4 ring-offset-2",
-                  isCurrent && colorScheme?.border?.replace('border-', 'ring-'),
-                  isCompleted 
-                    ? 'bg-success border-success text-white' 
-                    : isCurrent 
-                      ? cn(colorScheme?.bg, colorScheme?.border, "text-white")
-                      : isLocked
-                        ? 'bg-gray-200 border-gray-300 text-gray-400 opacity-50 cursor-not-allowed'
-                        : cn(colorScheme?.border, "bg-white", colorScheme?.text, "hover:bg-gray-50")
-                )}
-                aria-label={t(`Ejercicio ${idx + 1}`, `Exercise ${idx + 1}`)}
-              >
-                {idx + 1}
-              </button>
-              {!isLocked && (
-                <div className="absolute -top-1 -right-1">
-                  <ActivityActions 
-                    activity={{ id: ex.id, title: ex.title }} 
-                    redirectPath={`/lesson/${lessonId}`}
-                    size="icon"
-                  />
-                </div>
+            <button
+              key={ex.id}
+              onClick={() => !isLocked && setCurrentExerciseId(ex.id)}
+              disabled={isLocked}
+              className={cn(
+                "w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-black text-lg flex-shrink-0",
+                "border-4 transition-all duration-200",
+                "shadow-[0_4px_0_rgba(0,0,0,0.12)]",
+                "hover:shadow-[0_6px_0_rgba(0,0,0,0.15)] hover:-translate-y-0.5",
+                "active:shadow-[0_2px_0_rgba(0,0,0,0.08)] active:translate-y-1",
+                isCurrent && "ring-4 ring-offset-2",
+                isCurrent && colorScheme?.border?.replace('border-', 'ring-'),
+                isCompleted 
+                  ? 'bg-success border-success text-white' 
+                  : isCurrent 
+                    ? cn(colorScheme?.bg, colorScheme?.border, "text-white")
+                    : isLocked
+                      ? 'bg-gray-200 border-gray-300 text-gray-400 opacity-50 cursor-not-allowed'
+                      : cn(colorScheme?.border, "bg-white", colorScheme?.text, "hover:bg-gray-50")
               )}
-            </div>
+              aria-label={t(`Ejercicio ${idx + 1}`, `Exercise ${idx + 1}`)}
+            >
+              {idx + 1}
+            </button>
           );
         })}
       </div>
