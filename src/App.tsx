@@ -42,6 +42,8 @@ import GenerateContent from "./pages/GenerateContent";
 import GenerateContentAdmin from "./pages/GenerateContentAdmin";
 import TestG1Reset from "./pages/admin/TestG1Reset";
 import DesignPreview from "./pages/DesignPreview";
+import DemoHome from "./pages/demo/DemoHome";
+import DemoActivityPage from "./pages/demo/DemoActivityPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { useDesignVersion } from "@/hooks/useDesignVersion";
@@ -83,6 +85,8 @@ function AppRoutes() {
       <Route path="/generate-content" element={<ProtectedRoute><GenerateContent /></ProtectedRoute>} />
       <Route path="/generate-content-admin" element={<ProtectedRoute><GenerateContentAdmin /></ProtectedRoute>} />
       <Route path="/admin/test-g1-reset" element={<ProtectedRoute allowedRoles={["teacher_english", "teacher_spanish", "school_director", "regional_director", "depr_executive"]}><TestG1Reset /></ProtectedRoute>} />
+      <Route path="/demo" element={<ProtectedRoute><DemoHome /></ProtectedRoute>} />
+      <Route path="/demo/:type/:id" element={<ProtectedRoute><DemoActivityPage /></ProtectedRoute>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
