@@ -88,16 +88,56 @@ const StudentLessonsProgressV2 = () => {
     return new Map(completedActivities.map(a => [a.activity_id, a]));
   }, [completedActivities]);
 
-  // Unit color progression - changes for each unit regardless of domain
-  const unitColors = [
-    { bg: "bg-gradient-to-br from-emerald-400 to-teal-500", path: "#10b981" },
-    { bg: "bg-gradient-to-br from-violet-400 to-purple-500", path: "#8b5cf6" },
-    { bg: "bg-gradient-to-br from-rose-400 to-pink-500", path: "#f43f5e" },
-    { bg: "bg-gradient-to-br from-amber-400 to-orange-500", path: "#f59e0b" },
-    { bg: "bg-gradient-to-br from-sky-400 to-blue-500", path: "#0ea5e9" },
-    { bg: "bg-gradient-to-br from-fuchsia-400 to-pink-600", path: "#d946ef" },
-    { bg: "bg-gradient-to-br from-lime-400 to-green-500", path: "#84cc16" },
-    { bg: "bg-gradient-to-br from-indigo-400 to-blue-600", path: "#6366f1" },
+  // V2 Color schemes for units - consolidated
+  const unitColorSchemes = [
+    {
+      bg: "bg-[hsl(329,100%,71%)]",
+      border: "border-[hsl(329,100%,65%)]",
+      text: "text-[hsl(329,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(329,100%,65%)]",
+      iconBg: "bg-[hsl(329,100%,71%)]",
+      headerBg: "bg-gradient-to-br from-[hsl(329,100%,85%)] to-[hsl(329,100%,71%)]",
+    },
+    {
+      bg: "bg-[hsl(11,100%,67%)]",
+      border: "border-[hsl(11,100%,65%)]",
+      text: "text-[hsl(11,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(11,100%,65%)]",
+      iconBg: "bg-[hsl(11,100%,67%)]",
+      headerBg: "bg-gradient-to-br from-[hsl(11,100%,85%)] to-[hsl(11,100%,67%)]",
+    },
+    {
+      bg: "bg-[hsl(27,100%,71%)]",
+      border: "border-[hsl(27,100%,65%)]",
+      text: "text-[hsl(27,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(27,100%,65%)]",
+      iconBg: "bg-[hsl(27,100%,71%)]",
+      headerBg: "bg-gradient-to-br from-[hsl(27,100%,85%)] to-[hsl(27,100%,71%)]",
+    },
+    {
+      bg: "bg-[hsl(125,100%,71%)]",
+      border: "border-[hsl(125,100%,65%)]",
+      text: "text-[hsl(125,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(125,100%,65%)]",
+      iconBg: "bg-[hsl(125,100%,71%)]",
+      headerBg: "bg-gradient-to-br from-[hsl(125,100%,85%)] to-[hsl(125,100%,71%)]",
+    },
+    {
+      bg: "bg-[hsl(176,84%,71%)]",
+      border: "border-[hsl(176,84%,65%)]",
+      text: "text-[hsl(176,84%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(176,84%,65%)]",
+      iconBg: "bg-[hsl(176,84%,71%)]",
+      headerBg: "bg-gradient-to-br from-[hsl(176,84%,85%)] to-[hsl(176,84%,71%)]",
+    },
+    {
+      bg: "bg-[hsl(250,100%,75%)]",
+      border: "border-[hsl(250,100%,70%)]",
+      text: "text-[hsl(250,100%,35%)]",
+      shadow: "shadow-[0_6px_0_hsl(250,100%,70%)]",
+      iconBg: "bg-[hsl(250,100%,75%)]",
+      headerBg: "bg-gradient-to-br from-[hsl(250,100%,90%)] to-[hsl(250,100%,75%)]",
+    },
   ];
 
   const getNodeState = (lessonId: string) => {
@@ -116,51 +156,6 @@ const StudentLessonsProgressV2 = () => {
     return "unlocked";
   };
 
-  // V2 Color schemes for different units
-  const unitColorSchemes = [
-    {
-      bg: "bg-[hsl(329,100%,71%)]",
-      border: "border-[hsl(329,100%,65%)]",
-      text: "text-[hsl(329,100%,35%)]",
-      shadow: "shadow-[0_6px_0_hsl(329,100%,65%)]",
-      iconBg: "bg-[hsl(329,100%,71%)]",
-    },
-    {
-      bg: "bg-[hsl(11,100%,67%)]",
-      border: "border-[hsl(11,100%,65%)]",
-      text: "text-[hsl(11,100%,35%)]",
-      shadow: "shadow-[0_6px_0_hsl(11,100%,65%)]",
-      iconBg: "bg-[hsl(11,100%,67%)]",
-    },
-    {
-      bg: "bg-[hsl(27,100%,71%)]",
-      border: "border-[hsl(27,100%,65%)]",
-      text: "text-[hsl(27,100%,35%)]",
-      shadow: "shadow-[0_6px_0_hsl(27,100%,65%)]",
-      iconBg: "bg-[hsl(27,100%,71%)]",
-    },
-    {
-      bg: "bg-[hsl(125,100%,71%)]",
-      border: "border-[hsl(125,100%,65%)]",
-      text: "text-[hsl(125,100%,35%)]",
-      shadow: "shadow-[0_6px_0_hsl(125,100%,65%)]",
-      iconBg: "bg-[hsl(125,100%,71%)]",
-    },
-    {
-      bg: "bg-[hsl(176,84%,71%)]",
-      border: "border-[hsl(176,84%,65%)]",
-      text: "text-[hsl(176,84%,35%)]",
-      shadow: "shadow-[0_6px_0_hsl(176,84%,65%)]",
-      iconBg: "bg-[hsl(176,84%,71%)]",
-    },
-    {
-      bg: "bg-[hsl(250,100%,75%)]",
-      border: "border-[hsl(250,100%,70%)]",
-      text: "text-[hsl(250,100%,35%)]",
-      shadow: "shadow-[0_6px_0_hsl(250,100%,70%)]",
-      iconBg: "bg-[hsl(250,100%,75%)]",
-    },
-  ];
 
   if (isLoadingOrdering) {
     return (
@@ -246,7 +241,7 @@ const StudentLessonsProgressV2 = () => {
             {/* Path container */}
             <div className="relative space-y-20">
               {domainGroups.map((group, groupIndex) => {
-                const colorScheme = unitColors[groupIndex % unitColors.length];
+                const colorScheme = unitColorSchemes[groupIndex % unitColorSchemes.length];
                 const completedInDomain = group.lessons.filter(l => completedMap.has(l.id)).length;
                 
                 return (
@@ -259,7 +254,7 @@ const StudentLessonsProgressV2 = () => {
                     <UnitHeader
                       unitNumber={groupIndex + 1}
                       title={group.domain}
-                      color={colorScheme.bg}
+                      color={colorScheme.headerBg}
                       totalLessons={group.lessons.length}
                       completedLessons={completedInDomain}
                     />
