@@ -47,6 +47,8 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
   private aiAnalyser: AnalyserNode | null = null;
   private audioContext: AudioContext | null = null;
   private animationFrameId: number | null = null;
+  private isConnected: boolean = false;
+  private connectionTimeout: NodeJS.Timeout | null = null;
 
   constructor(config: EnhancedRealtimeConfig) {
     super();
@@ -72,8 +74,21 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
         console.log('[Enhanced] 🔊 AI audio track received');
         this.audioEl.srcObject = e.streams[0];
         this.setupAIAudioAnalyser(e.streams[0]);
+        this.isConnected = true;
+        if (this.connectionTimeout) {
+          clearTimeout(this.connectionTimeout);
+          this.connectionTimeout = null;
+        }
         this.emit('connected', true);
       };
+      
+      // Set 5-second timeout for connection
+      this.connectionTimeout = setTimeout(() => {
+        if (!this.isConnected) {
+          console.warn('[Enhanced] ⚠️ Connection timeout - no AI audio track after 5s');
+          this.emit('error', new Error('Connection timeout - AI did not respond'));
+        }
+      }, 5000);
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -200,9 +215,10 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
   }
 
   sendText(text: string) {
-    if (!this.dc || this.dc.readyState !== 'open') {
-      console.warn('[Enhanced] Data channel not ready');
-      return;
+    if (!this.isConnected || !this.dc || this.dc.readyState !== 'open') {
+      console.warn('[Enhanced] ⚠️ Cannot send text – connection not ready');
+      this.emit('error', new Error('Cannot send text - connection not ready'));
+      return false;
     }
 
     const event = {
@@ -217,6 +233,11 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
     this.dc.send(JSON.stringify(event));
     this.dc.send(JSON.stringify({ type: 'response.create' }));
     console.log('[Enhanced] 📤 Sent text:', text);
+    return true;
+  }
+  
+  isReady(): boolean {
+    return this.isConnected && this.dc?.readyState === 'open';
   }
 
   interrupt() {
@@ -326,6 +347,13 @@ export class EnhancedRealtimeClient extends SimpleEventEmitter {
 
   disconnect() {
     console.log('[Enhanced] 🛑 Disconnecting...');
+    
+    this.isConnected = false;
+    
+    if (this.connectionTimeout) {
+      clearTimeout(this.connectionTimeout);
+      this.connectionTimeout = null;
+    }
 
     if (this.animationFrameId) {
       cancelAnimationFrame(this.animationFrameId);

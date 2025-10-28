@@ -69,6 +69,14 @@ serve(async (req) => {
     const requestedVoice = url.searchParams.get("voice") ?? "alloy";
     const explicitGuidance = url.searchParams.get("voice_guidance");
 
+    log("📡 WebSocket upgrade request", {
+      demoActivityId,
+      studentId,
+      language: requestedLanguage,
+      voice: requestedVoice,
+      hasGuidance: !!explicitGuidance
+    });
+
     if (!demoActivityId) {
       warn("Missing demo_activity_id");
       return new Response("Missing demo_activity_id", { status: 400, headers: corsHeaders });
@@ -178,10 +186,11 @@ serve(async (req) => {
 
 function connectToOpenAI(state: DemoSessionState, voiceGuidance?: string) {
   const model = "gpt-4o-realtime-preview-2024-10-01";
+  log("🔌 Connecting to OpenAI Realtime API...", { model });
+  
   const ws = new WebSocket(
     `wss://api.openai.com/v1/realtime?model=${model}`,
     [
-      "realtime",
       `openai-insecure-api-key.${OPENAI_API_KEY}`,
       "openai-beta.realtime-v1",
     ],
@@ -190,7 +199,7 @@ function connectToOpenAI(state: DemoSessionState, voiceGuidance?: string) {
   state.openaiWS = ws;
 
   ws.addEventListener("open", () => {
-    log("Connected to OpenAI Realtime API");
+    log("✅ Connected to OpenAI Realtime API");
   });
 
   ws.addEventListener("message", (event) =>
@@ -198,16 +207,31 @@ function connectToOpenAI(state: DemoSessionState, voiceGuidance?: string) {
   );
 
   ws.addEventListener("close", (event) => {
-    warn("OpenAI WebSocket closed", event.code, event.reason);
+    warn("❌ OpenAI WebSocket closed", event.code, event.reason);
     if (state.clientWS.readyState === WebSocket.OPEN) {
+      try {
+        state.clientWS.send(JSON.stringify({
+          type: "error",
+          message: `AI connection closed: ${event.reason || 'Unknown reason'}`,
+          stage: "openai_close",
+          code: event.code
+        }));
+      } catch (_) {}
       state.clientWS.close(1014, "OpenAI connection closed");
     }
     finalizeSession(state);
   });
 
   ws.addEventListener("error", (event) => {
-    error("OpenAI WebSocket error", event);
+    error("❌ OpenAI WebSocket error", event);
     if (state.clientWS.readyState === WebSocket.OPEN) {
+      try {
+        state.clientWS.send(JSON.stringify({
+          type: "error",
+          message: "AI connection error occurred",
+          stage: "openai_error"
+        }));
+      } catch (_) {}
       state.clientWS.close(1011, "OpenAI error");
     }
     finalizeSession(state);
@@ -272,10 +296,11 @@ function handleOpenAIMessage(
     const message = JSON.parse(raw);
     const type = message.type;
 
-    if (type === "session.created") {
-      log("session.created received");
+  if (type === "session.created") {
+      log("✅ session.created received");
       sendSessionUpdate(state, voiceGuidance);
     } else if (type === "session.updated") {
+      log("✅ session.updated - relay ready");
       state.isReady = true;
       state.telemetry.sessionReady = performance.now();
       flushPendingMessages(state);
