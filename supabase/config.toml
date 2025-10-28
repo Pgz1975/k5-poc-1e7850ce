@@ -3,6 +3,9 @@ project_id = "meertwtenhlmnlpwxhyz"
 [functions.realtime-voice-relay]
 verify_jwt = false
 
+[functions.realtime-voice-demo-relay]
+verify_jwt = false
+
 [functions.realtime-token-simple]
 verify_jwt = false
 

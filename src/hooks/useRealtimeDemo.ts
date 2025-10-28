@@ -23,7 +23,7 @@ export interface UseRealtimeDemoConfig {
 }
 
 export function useRealtimeDemo(config: UseRealtimeDemoConfig) {
-  const { user, session } = useAuth();
+  const { user } = useAuth();
   const clientRef = useRef<ExperimentalVoiceClient | null>(null);
   const listenersRef = useRef<Array<() => void>>([]);
 
@@ -49,8 +49,6 @@ export function useRealtimeDemo(config: UseRealtimeDemoConfig) {
       voiceGuidance: config.voiceGuidance,
       voice: config.voice ?? "alloy",
       edgeFunctionUrl: config.edgeFunctionUrl,
-      apiKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-      accessToken: session?.access_token,
       onWordTranscription: config.onWordTranscription,
       onFunctionCall: config.onFunctionCall,
       onAudioVisualization: (data) => {
@@ -58,7 +56,7 @@ export function useRealtimeDemo(config: UseRealtimeDemoConfig) {
         config.onAudioVisualization?.(data);
       },
     };
-  }, [config, user?.id, session?.access_token]);
+  }, [config, user?.id]);
 
   const detachListeners = useCallback(() => {
     listenersRef.current.forEach((unsubscribe) => {
