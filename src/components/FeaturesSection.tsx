@@ -53,7 +53,7 @@ export const FeaturesSection = () => {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className={`${feature.bgColor} border-4 border-primary/20 hover:border-primary hover:scale-105 transition-all duration-300 shadow-soft hover:shadow-hover overflow-hidden group`}
+              className={`${feature.bgColor} border-4 border-cyan-300 rounded-3xl shadow-[0_6px_0_hsl(180,60%,80%)] hover:-translate-y-1 hover:border-cyan-400 hover:shadow-[0_8px_0_hsl(180,60%,70%)] transition-all duration-300 overflow-hidden group`}
             >
               <CardHeader className="text-center pb-4">
                 {/* Coquí Mascot */}
@@ -65,7 +65,7 @@ export const FeaturesSection = () => {
                     className="drop-shadow-lg"
                   />
                 </div>
-                <CardTitle className="text-2xl font-heading">
+                <CardTitle className="text-2xl font-heading font-bold">
                   {t(feature.titleEs, feature.titleEn)}
                 </CardTitle>
               </CardHeader>

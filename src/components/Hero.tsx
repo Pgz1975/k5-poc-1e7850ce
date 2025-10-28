@@ -34,7 +34,7 @@ export const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button 
                 size="lg" 
-                className="gap-2 text-lg py-6 px-8 bg-gradient-to-br from-primary via-green-700 to-green-900 hover:scale-105 shadow-hover" 
+                className="gap-2 text-lg py-6 px-8 bg-gradient-to-br from-cyan-400 to-cyan-500 text-white border-4 border-cyan-600 rounded-3xl shadow-[0_6px_0_hsl(186,72%,40%)] hover:-translate-y-1 hover:shadow-[0_8px_0_hsl(186,72%,40%)] active:translate-y-1 active:shadow-[0_2px_0_hsl(186,72%,40%)] transition-all font-bold" 
                 asChild
               >
                 <a href="/auth">
@@ -42,7 +42,11 @@ export const Hero = () => {
                   <ArrowRight className="h-5 w-5" />
                 </a>
               </Button>
-              <Button size="lg" variant="outline" className="text-lg py-6 px-8 border-2 border-primary hover:bg-primary/10" asChild>
+              <Button 
+                size="lg" 
+                className="text-lg py-6 px-8 bg-white text-gray-700 border-4 border-purple-400 rounded-3xl shadow-[0_6px_0_hsl(270,60%,70%)] hover:-translate-y-1 hover:shadow-[0_8px_0_hsl(270,60%,70%)] active:translate-y-1 active:shadow-[0_2px_0_hsl(270,60%,70%)] transition-all font-bold" 
+                asChild
+              >
                 <a href="/dashboard">
                   {t("Ver Demo", "View Demo")}
                 </a>
