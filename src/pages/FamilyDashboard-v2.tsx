@@ -6,9 +6,20 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import CoquiMascot from "@/components/CoquiMascot";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const FamilyDashboardV2 = () => {
   const { t } = useLanguage();
+  const [messageSubject, setMessageSubject] = useState("");
+  const [messageContent, setMessageContent] = useState("");
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success(t("Mensaje enviado a la maestra", "Message sent to teacher"));
+    setMessageSubject("");
+    setMessageContent("");
+  };
 
   const weeklyProgress = [
     { day: t("Lun", "Mon"), minutes: 25 },
