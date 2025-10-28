@@ -256,33 +256,68 @@ export class ExperimentalVoiceClient {
 
   private async connectToDemo(): Promise<void> {
     const url = this.buildWebSocketUrl();
+    console.log("[ExperimentalVoiceClient] 🔌 Connecting to WebSocket:", url);
 
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(url);
       this.ws = ws;
 
+      // Connection timeout - if no session.created within 5s, fail
+      const connectionTimeout = setTimeout(() => {
+        if (!this.isReady && this.ws === ws) {
+          console.error("[ExperimentalVoiceClient] ⏱️ Connection timeout - no session.created received");
+          reject(new Error("Connection timeout - no session established"));
+          ws.close();
+        }
+      }, 5000);
+
       const rejectOnce = (err: unknown) => {
+        clearTimeout(connectionTimeout);
         if (this.ws === ws) {
           reject(err);
         }
       };
 
       ws.onopen = () => {
+        console.log("[ExperimentalVoiceClient] ✅ WebSocket opened", {
+          readyState: ws.readyState,
+          protocol: ws.protocol,
+          url: ws.url
+        });
         if (this.destroyed) {
+          clearTimeout(connectionTimeout);
           ws.close();
           return;
         }
         resolve();
       };
 
-      ws.onmessage = (event) => this.handleMessage(event);
+      ws.onmessage = (event) => {
+        console.log("[ExperimentalVoiceClient] 📨 Message received:", {
+          dataType: typeof event.data,
+          dataLength: event.data?.length,
+          preview: event.data?.substring?.(0, 200)
+        });
+        this.handleMessage(event);
+      };
+
       ws.onerror = (event) => {
-        console.error("[ExperimentalVoiceClient] WebSocket error", event);
+        console.error("[ExperimentalVoiceClient] ❌ WebSocket error", {
+          event,
+          readyState: ws.readyState,
+          url: ws.url
+        });
         this.emit("error", new Error("Realtime connection error"));
         rejectOnce(new Error("Realtime connection error"));
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
+        clearTimeout(connectionTimeout);
+        console.log("[ExperimentalVoiceClient] 🔌 WebSocket closed", {
+          code: event.code,
+          reason: event.reason,
+          wasClean: event.wasClean
+        });
         this.isReady = false;
         this.emit("disconnected", undefined);
       };
@@ -321,23 +356,30 @@ export class ExperimentalVoiceClient {
   }
 
   private handleMessage(event: MessageEvent) {
-    if (typeof event.data !== "string") return;
+    if (typeof event.data !== "string") {
+      console.warn("[ExperimentalVoiceClient] ⚠️ Non-string message data:", typeof event.data);
+      return;
+    }
 
     try {
       const message = JSON.parse(event.data);
       const type = message.type;
+      console.log("[ExperimentalVoiceClient] 📥 Parsed message type:", type, message);
 
       switch (type) {
         case "demo.session.created":
+          console.log("[ExperimentalVoiceClient] 🎯 Demo session created:", message.demo_session_id);
           if (typeof message.demo_session_id === "string") {
             this.demoSessionId = message.demo_session_id;
             this.emit("demo-session", this.demoSessionId);
           }
           break;
         case "session.created":
+          console.log("[ExperimentalVoiceClient] ✅ OpenAI session.created - sending session.update");
           this.sendSessionUpdate();
           break;
         case "session.updated":
+          console.log("[ExperimentalVoiceClient] ✅ session.updated - relay is ready");
           if (!this.isReady) {
             this.isReady = true;
             this.emit("connected", undefined);
