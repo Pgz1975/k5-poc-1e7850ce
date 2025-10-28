@@ -407,6 +407,7 @@ function handleOpenAIMessage(
       }
     } else if (type === "conversation.item.input_audio_transcription.completed") {
       if (typeof message.transcript === "string" && message.transcript.trim().length > 0) {
+        log(`🎤 Student said: "${message.transcript.trim()}" (confidence: ${message.confidence ?? 'N/A'})`);
         logDemoInteraction(state, {
           interaction_type: "user_transcript",
           transcript: message.transcript.trim(),
@@ -415,6 +416,10 @@ function handleOpenAIMessage(
             confidence: message.confidence ?? null,
           },
         });
+      }
+      // CRITICAL: Forward student transcription to client for word matching
+      if (state.clientWS.readyState === WebSocket.OPEN) {
+        state.clientWS.send(raw);
       }
     } else if (type === "response.error" || type === "error") {
       warn("OpenAI reported error", message);

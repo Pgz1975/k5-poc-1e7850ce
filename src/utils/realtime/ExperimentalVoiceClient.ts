@@ -424,9 +424,16 @@ export class ExperimentalVoiceClient {
         case "response.output_audio_transcript.done":
           break;
         case "conversation.item.input_audio_transcription.completed":
+          console.log(`[ExperimentalVoiceClient] 🎤 Student transcription completed:`, {
+            transcript: message.transcript,
+            confidence: message.confidence,
+          });
           if (message.transcript) {
+            const cleaned = message.transcript.toLowerCase().trim();
+            console.log(`[ExperimentalVoiceClient] 🔍 Triggering onWordTranscription with: "${cleaned}"`);
+            this.config.onWordTranscription?.(cleaned, performance.now(), message.confidence ?? 0.9);
             this.transcriptionBuffer.push({
-              word: message.transcript,
+              word: cleaned,
               timestamp: performance.now(),
               confidence: message.confidence ?? 0.9,
             });
