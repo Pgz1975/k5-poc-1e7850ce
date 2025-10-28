@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CoquiLessonAssistantGuard } from "@/components/coqui/CoquiLessonAssistantGuard";
 import { CoquiVoiceBridge } from "@/components/coqui/CoquiVoiceBridge";
-import { CheckCircle, Lock } from "lucide-react";
+import { CheckCircle, Lock, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 import { Helmet } from "react-helmet";
 import { checkLessonLocked } from "@/utils/lessonUnlocking";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
+import { useUnitColor } from "@/hooks/useUnitColor";
+import { cn } from "@/lib/utils";
 
 export default function ViewLesson() {
   const { id } = useParams();
@@ -22,6 +24,9 @@ export default function ViewLesson() {
   const { t, language } = useLanguage();
   const queryClient = useQueryClient();
   const { data: profile } = useStudentProfile();
+  
+  // Get unit color scheme for V2 styling
+  const { colorScheme, isLoading: colorLoading } = useUnitColor(id);
   
   // Voice session management for navigation guard
   const endSessionRef = useRef<(() => Promise<void>) | null>(null);
@@ -210,7 +215,7 @@ export default function ViewLesson() {
   // Show locked message if lesson is locked
   if (lockData?.isLocked) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-primary/5">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <Helmet>
           <title>{t("Lección Bloqueada", "Locked Lesson")} - LecturaPR</title>
         </Helmet>
@@ -218,11 +223,16 @@ export default function ViewLesson() {
         <Header />
 
         <main className="flex-1 container mx-auto px-4 py-8 flex items-center justify-center">
-          <Card className="max-w-md border-2 shadow-lg">
+          <Card className="max-w-md border-4 shadow-lg">
             <CardContent className="p-8 text-center space-y-6">
               <div className="flex justify-center">
-                <div className="p-6 rounded-full bg-muted">
-                  <Lock className="w-16 h-16 text-muted-foreground" />
+                <div className={cn(
+                  "p-6 rounded-full border-4",
+                  colorScheme?.iconBg,
+                  colorScheme?.border,
+                  "opacity-40"
+                )}>
+                  <Lock className="w-16 h-16 text-white" />
                 </div>
               </div>
               
@@ -263,14 +273,31 @@ export default function ViewLesson() {
 
       <main className="flex-1 container mx-auto px-4 py-8 relative">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Lesson Header */}
-          <Card className="border-2 shadow-lg">
+          {/* Lesson Header - V2 Style */}
+          <Card className={cn(
+            "border-4 rounded-2xl",
+            colorScheme?.border,
+            colorScheme?.shadow,
+            "bg-white"
+          )}>
             <CardContent className="p-6">
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold mb-2">{lesson.title}</h1>
-                {lesson.description && (
-                  <p className="text-muted-foreground">{lesson.description}</p>
-                )}
+              <div className="flex items-center gap-4">
+                {/* Unit icon */}
+                <div className={cn(
+                  "w-16 h-16 rounded-xl border-4 flex items-center justify-center flex-shrink-0",
+                  colorScheme?.iconBg,
+                  colorScheme?.border,
+                  "shadow-[0_4px_0_rgba(0,0,0,0.12)]"
+                )}>
+                  <BookOpen className="w-8 h-8 text-white" />
+                </div>
+                
+                <div className="flex-1">
+                  <h1 className="text-3xl font-black text-gray-800 mb-1">{lesson.title}</h1>
+                  {lesson.description && (
+                    <p className="text-base font-bold text-gray-600">{lesson.description}</p>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -343,11 +370,16 @@ export default function ViewLesson() {
           )}
         </div>
 
-          {/* Complete Button */}
+          {/* Complete Button - V2 Style */}
           <div className="flex justify-center gap-4">
             <Button
               variant="outline"
               size="lg"
+              className={cn(
+                "rounded-2xl border-4 font-bold",
+                colorScheme?.border,
+                "bg-white hover:bg-gray-50"
+              )}
               onClick={async () => {
                 console.log('[ViewLesson] 🚦 Back button - cleaning up voice...');
                 if (endSessionRef.current) {
@@ -361,7 +393,15 @@ export default function ViewLesson() {
             </Button>
             <Button
               size="lg"
-              className="gap-2"
+              className={cn(
+                "gap-2 rounded-2xl border-4 font-black text-white",
+                colorScheme?.bg,
+                colorScheme?.border,
+                colorScheme?.shadow,
+                "hover:shadow-[0_8px_0_rgba(0,0,0,0.15)] hover:-translate-y-0.5",
+                "active:shadow-[0_2px_0_rgba(0,0,0,0.15)] active:translate-y-1",
+                "transition-all duration-200"
+              )}
               onClick={handleComplete}
             >
               <CheckCircle className="w-5 h-5" />
