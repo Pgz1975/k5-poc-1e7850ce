@@ -304,16 +304,32 @@ function handleOpenAIMessage(
   if (type === "session.created") {
       log("✅ session.created received");
       sendSessionUpdate(state, voiceGuidance);
+      // CRITICAL: Forward to client so it knows session is ready
+      if (state.clientWS.readyState === WebSocket.OPEN) {
+        state.clientWS.send(raw);
+      }
     } else if (type === "session.updated") {
       log("✅ session.updated - relay ready");
       state.isReady = true;
       state.telemetry.sessionReady = performance.now();
       flushPendingMessages(state);
+      // Forward to client
+      if (state.clientWS.readyState === WebSocket.OPEN) {
+        state.clientWS.send(raw);
+      }
     } else if (type === "response.audio.delta" || type === "response.output_audio.delta") {
       state.telemetry.audioChunksForwarded += 1;
+      // Forward to client
+      if (state.clientWS.readyState === WebSocket.OPEN) {
+        state.clientWS.send(raw);
+      }
     } else if (type === "response.audio_transcript.delta" || type === "response.output_audio_transcript.delta") {
       if (typeof message.delta === "string") {
         state.aiTranscriptBuffer.push(message.delta);
+      }
+      // Forward to client
+      if (state.clientWS.readyState === WebSocket.OPEN) {
+        state.clientWS.send(raw);
       }
     } else if (type === "response.audio_transcript.done" || type === "response.output_audio_transcript.done") {
       if (state.aiTranscriptBuffer.length > 0) {
