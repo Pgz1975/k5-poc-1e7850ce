@@ -51,21 +51,30 @@ const StudentLessonsProgressV2 = () => {
     
     const groups = lessonsWithOrder.reduce((acc, lesson) => {
       const domain = lesson.domain_name || "Other";
+      const domainOrder = lesson.domain_order ?? 999;
+      
       if (!acc[domain]) {
-        acc[domain] = [];
+        acc[domain] = {
+          domain_name: domain,
+          domain_order: domainOrder,
+          lessons: []
+        };
       }
-      acc[domain].push(lesson);
+      acc[domain].lessons.push(lesson);
       return acc;
-    }, {} as Record<string, typeof lessonsWithOrder>);
+    }, {} as Record<string, { domain_name: string; domain_order: number; lessons: typeof lessonsWithOrder }>);
 
-    return Object.entries(groups).map(([domain, lessons]) => ({
-      domain,
-      lessons: lessons.sort((a, b) => {
-        const aOrder = a.display_order ?? 999;
-        const bOrder = b.display_order ?? 999;
-        return aOrder - bOrder;
-      })
-    }));
+    return Object.values(groups)
+      .sort((a, b) => a.domain_order - b.domain_order)
+      .map(group => ({
+        domain: group.domain_name,
+        domain_order: group.domain_order,
+        lessons: group.lessons.sort((a, b) => {
+          const aOrder = a.display_order ?? 999;
+          const bOrder = b.display_order ?? 999;
+          return aOrder - bOrder;
+        })
+      }));
   }, [lessonsWithOrder]);
 
   // Get locking status
@@ -241,7 +250,9 @@ const StudentLessonsProgressV2 = () => {
             {/* Path container */}
             <div className="relative space-y-20">
               {domainGroups.map((group, groupIndex) => {
-                const colorScheme = unitColorSchemes[groupIndex % unitColorSchemes.length];
+                const colorScheme = group.domain_order && group.domain_order >= 1 && group.domain_order <= 6
+                  ? unitColorSchemes[group.domain_order - 1]
+                  : unitColorSchemes[0];
                 const completedInDomain = group.lessons.filter(l => completedMap.has(l.id)).length;
                 
                 return (
@@ -251,20 +262,19 @@ const StudentLessonsProgressV2 = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: groupIndex * 0.1 }}
                   >
-                    <UnitHeader
-                      unitNumber={groupIndex + 1}
-                      title={group.domain}
-                      color={colorScheme.headerBg}
-                      totalLessons={group.lessons.length}
-                      completedLessons={completedInDomain}
-                    />
+              <UnitHeader
+                unitNumber={group.domain_order ?? (groupIndex + 1)}
+                title={group.domain}
+                color={colorScheme.headerBg}
+                totalLessons={group.lessons.length}
+                completedLessons={completedInDomain}
+              />
 
                     {/* V2 Horizontal Card Layout */}
                     <div className="relative flex flex-col items-stretch py-8 max-w-4xl mx-auto px-4">
                       {/* Lesson cards */}
                       {group.lessons.map((lesson, lessonIndex) => {
                         const state = getNodeState(lesson.id);
-                        const colorScheme = unitColorSchemes[groupIndex % unitColorSchemes.length];
                         const isLocked = state === "locked";
 
                         return (
