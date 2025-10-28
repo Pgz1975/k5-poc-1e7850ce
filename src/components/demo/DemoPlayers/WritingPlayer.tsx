@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useRealtimeDemo } from "@/hooks/useRealtimeDemo";
-import { supabase } from "@/integrations/supabase/client";
+import { logDemoInteraction, updateDemoSession } from "@/features/demo/api";
 import confetti from "canvas-confetti";
 import { PenTool, CheckCircle2, XCircle, Mic } from "lucide-react";
 import { AudioWaveform } from "@/components/realtime/AudioWaveform";
@@ -89,8 +89,7 @@ Transcribe exactly what they say, then provide encouraging feedback.`;
 
     // Log interaction
     if (demoSessionId) {
-      await supabase.from("demo_interactions").insert({
-        demo_session_id: demoSessionId,
+      await logDemoInteraction(demoSessionId, {
         interaction_type: "story_completion",
         transcript: story,
         metadata: { 
@@ -99,15 +98,14 @@ Transcribe exactly what they say, then provide encouraging feedback.`;
         }
       });
 
-      await supabase.from("demo_sessions").update({
-        status: "completed",
+      await updateDemoSession(demoSessionId, {
         completion_percentage: 100,
         telemetry: { 
           story_length: story.length,
           word_count: story.split(/\s+/).length,
           guidelines_met: checks.filter(c => c.met).length
         }
-      }).eq("id", demoSessionId);
+      });
     }
 
     const allMet = checks.every(c => c.met);

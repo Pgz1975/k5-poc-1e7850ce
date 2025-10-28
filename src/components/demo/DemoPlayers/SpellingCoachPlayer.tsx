@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useRealtimeDemo } from "@/hooks/useRealtimeDemo";
-import { supabase } from "@/integrations/supabase/client";
+import { logDemoInteraction, updateDemoSession } from "@/features/demo/api";
 import confetti from "canvas-confetti";
 import { Sparkles, CheckCircle2, XCircle, Mic } from "lucide-react";
 import { AudioWaveform } from "@/components/realtime/AudioWaveform";
@@ -138,8 +138,7 @@ Celebrate each correct letter enthusiastically! Encourage students when they nee
 
     // Log interaction
     if (demoSessionId) {
-      supabase.from("demo_interactions").insert({
-        demo_session_id: demoSessionId,
+      logDemoInteraction(demoSessionId, {
         interaction_type: "letter_attempt",
         transcript: word,
         metadata: { 
@@ -202,14 +201,14 @@ Celebrate each correct letter enthusiastically! Encourage students when they nee
     client?.sendText(`Fantastic! You spelled the word ${content.word} perfectly! Great job!`);
 
     if (demoSessionId) {
-      supabase.from("demo_sessions").update({
-        status: "completed",
+      updateDemoSession(demoSessionId, {
         completion_percentage: 100,
         telemetry: { 
           word: content.word,
-          letters_count: content.letters.length
+          letters_count: content.letters.length,
+          total_attempts: spokenLetters.length
         }
-      }).eq("id", demoSessionId);
+      });
     }
   }
 

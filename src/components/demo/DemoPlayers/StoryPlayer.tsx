@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useRealtimeDemo } from "@/hooks/useRealtimeDemo";
-import { supabase } from "@/integrations/supabase/client";
+import { logDemoInteraction, updateDemoSession } from "@/features/demo/api";
 import confetti from "canvas-confetti";
 import { BookOpen, CheckCircle2, XCircle, Mic } from "lucide-react";
 import { AudioWaveform } from "@/components/realtime/AudioWaveform";
@@ -90,14 +90,16 @@ Celebrate correct answers enthusiastically! Be encouraging when answers are inco
 
     // Log interaction
     if (demoSessionId) {
-      supabase.from("demo_interactions").insert({
-        session_id: demoSessionId,
+      logDemoInteraction(demoSessionId, {
         interaction_type: "answer",
-        user_input: word,
-        expected_response: segment.expected_answer,
-        is_correct: isCorrect,
-        confidence_score: confidence,
-        metadata: { segment_id: segment.id, similarity }
+        transcript: word,
+        metadata: { 
+          segment_id: segment.id,
+          expected_response: segment.expected_answer,
+          is_correct: isCorrect,
+          confidence_score: confidence,
+          similarity 
+        }
       }).then(({ error }) => {
         if (error) console.error("[StoryPlayer] Failed to log interaction:", error);
       });
@@ -166,8 +168,7 @@ Celebrate correct answers enthusiastically! Be encouraging when answers are inco
     client?.sendText(`Amazing job! You answered ${correctAnswers} out of ${content.story_segments.length} questions correctly! That's ${score}%!`);
 
     if (demoSessionId) {
-      supabase.from("demo_sessions").update({
-        status: "completed",
+      updateDemoSession(demoSessionId, {
         completion_percentage: 100,
         telemetry: { 
           correct_answers: correctAnswers,
@@ -175,7 +176,7 @@ Celebrate correct answers enthusiastically! Be encouraging when answers are inco
           score,
           attempt_history: attemptHistory
         }
-      }).eq("id", demoSessionId);
+      });
     }
   }
 
