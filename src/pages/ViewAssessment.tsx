@@ -14,12 +14,16 @@ import { DragDropPlayer } from '@/components/ManualAssessment/players/DragDropPl
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
+import { useDesignVersion } from '@/hooks/useDesignVersion';
+import { useUnitColor } from '@/hooks/useUnitColor';
 
 export default function ViewAssessment() {
   const { id } = useParams();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { useV2Design } = useDesignVersion();
   const [assessment, setAssessment] = useState<any>(null);
+  const { colorScheme } = useUnitColor(assessment?.id);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -104,7 +108,7 @@ export default function ViewAssessment() {
   // Early return only if assessment hasn't loaded yet
   if (!assessment) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-accent/20 to-background">
+      <div className={useV2Design ? "min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50" : "min-h-screen bg-gradient-to-b from-accent/20 to-background"}>
         <Header />
         <div className="flex items-center justify-center h-screen">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -117,7 +121,7 @@ export default function ViewAssessment() {
   const showOverlay = isPreConnecting || !showExercise;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-accent/20 to-background relative">
+    <div className={useV2Design ? "min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative" : "min-h-screen bg-gradient-to-b from-accent/20 to-background relative"}>
       <Header />
 
       <main className="container mx-auto px-6 py-8 max-w-4xl relative">
@@ -140,19 +144,35 @@ export default function ViewAssessment() {
         {assessment.subtype !== 'fill_blank' && 
          assessment.subtype !== 'write_answer' && 
          assessment.subtype !== 'drag_drop' && (
-          <Card className="p-8 mb-6">
-            <h2 className="text-4xl font-bold mb-6 text-foreground">
-              {assessment.content.question}
-            </h2>
-
-            {assessment.content.questionImage && (
-              <img
-                src={assessment.content.questionImage}
-                alt="Question"
-                className="w-full max-h-96 object-contain rounded border-2 mb-4"
-              />
+          <div className={useV2Design ? `rounded-2xl border-4 ${colorScheme.border} ${colorScheme.shadow} bg-white p-8 mb-6` : "mb-6"}>
+            {useV2Design ? (
+              <>
+                <h2 className="text-4xl font-bold mb-6 text-gray-800">
+                  {assessment.content.question}
+                </h2>
+                {assessment.content.questionImage && (
+                  <img
+                    src={assessment.content.questionImage}
+                    alt="Question"
+                    className="w-full max-h-96 object-contain rounded-xl mb-4"
+                  />
+                )}
+              </>
+            ) : (
+              <Card className="p-8">
+                <h2 className="text-4xl font-bold mb-6 text-foreground">
+                  {assessment.content.question}
+                </h2>
+                {assessment.content.questionImage && (
+                  <img
+                    src={assessment.content.questionImage}
+                    alt="Question"
+                    className="w-full max-h-96 object-contain rounded border-2 mb-4"
+                  />
+                )}
+              </Card>
             )}
-          </Card>
+          </div>
         )}
 
         {/* Type-Specific Players */}
@@ -163,6 +183,7 @@ export default function ViewAssessment() {
             selectedAnswer={selectedAnswer}
             showFeedback={showFeedback}
             isCorrect={isCorrect}
+            colorScheme={useV2Design ? colorScheme : undefined}
           />
         )}
 
@@ -173,6 +194,7 @@ export default function ViewAssessment() {
             selectedAnswer={selectedAnswer}
             showFeedback={showFeedback}
             isCorrect={isCorrect}
+            colorScheme={useV2Design ? colorScheme : undefined}
           />
         )}
 
@@ -184,6 +206,7 @@ export default function ViewAssessment() {
               setShowFeedback(true);
             }}
             voiceClient={null}
+            colorScheme={useV2Design ? colorScheme : undefined}
           />
         )}
 
@@ -195,6 +218,7 @@ export default function ViewAssessment() {
               setShowFeedback(true);
             }}
             voiceClient={null}
+            colorScheme={useV2Design ? colorScheme : undefined}
           />
         )}
 
@@ -206,6 +230,7 @@ export default function ViewAssessment() {
               setShowFeedback(true);
             }}
             voiceClient={null}
+            colorScheme={useV2Design ? colorScheme : undefined}
           />
         )}
 
@@ -227,13 +252,26 @@ export default function ViewAssessment() {
 
         {/* Feedback */}
         {showFeedback && (
-          <Card className={`p-6 mt-6 ${isCorrect ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500'}`}>
-            <p className="text-2xl font-bold text-center mb-4">
-              {isCorrect
-                ? t("¡Correcto! ¡Excelente trabajo!", "Correct! Excellent work!")
-                : t("Intenta de nuevo", "Try again")}
-            </p>
-          </Card>
+          <div className={useV2Design 
+            ? `rounded-2xl border-4 p-6 mt-6 ${isCorrect ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`
+            : ""
+          }>
+            {useV2Design ? (
+              <p className="text-2xl font-bold text-center mb-4 text-gray-800">
+                {isCorrect
+                  ? t("¡Correcto! ¡Excelente trabajo!", "Correct! Excellent work!")
+                  : t("Intenta de nuevo", "Try again")}
+              </p>
+            ) : (
+              <Card className={`p-6 ${isCorrect ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500'}`}>
+                <p className="text-2xl font-bold text-center mb-4">
+                  {isCorrect
+                    ? t("¡Correcto! ¡Excelente trabajo!", "Correct! Excellent work!")
+                    : t("Intenta de nuevo", "Try again")}
+                </p>
+              </Card>
+            )}
+          </div>
         )}
 
         {/* Loading Overlay - covers content but doesn't unmount components */}
