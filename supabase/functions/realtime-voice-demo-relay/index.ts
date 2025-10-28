@@ -374,6 +374,8 @@ function handleOpenAIMessage(
       if (state.clientWS.readyState === WebSocket.OPEN) {
         state.clientWS.send(raw);
       }
+      // Trigger AI to speak first with greeting
+      sendInitialGreeting(state);
     } else if (type === "response.audio.delta" || type === "response.output_audio.delta") {
       state.telemetry.audioChunksForwarded += 1;
       // Forward to client
@@ -470,6 +472,46 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
     } catch (_) {}
   }
   state.openaiWS.send(JSON.stringify(sessionUpdate));
+}
+
+function sendInitialGreeting(state: DemoSessionState) {
+  if (!state.openaiWS || state.openaiWS.readyState !== WebSocket.OPEN) return;
+
+  log("📤 Sending initial greeting to trigger AI to speak first");
+  
+  // Get the pronunciation question from the activity content
+  let greetingPrompt = "";
+  if (state.language === "es-PR") {
+    greetingPrompt = "Saluda al estudiante y presenta la actividad de pronunciación. Luego pregunta claramente cuál palabra quieren practicar.";
+  } else {
+    greetingPrompt = "Greet the student warmly and introduce the pronunciation activity. Then clearly ask which word they would like to practice.";
+  }
+
+  // Send a conversation item to trigger the AI
+  const conversationItem = {
+    type: "conversation.item.create",
+    item: {
+      type: "message",
+      role: "user",
+      content: [
+        {
+          type: "input_text",
+          text: greetingPrompt
+        }
+      ]
+    }
+  };
+
+  state.openaiWS.send(JSON.stringify(conversationItem));
+  
+  // Trigger response creation
+  const responseCreate = {
+    type: "response.create"
+  };
+  
+  state.openaiWS.send(JSON.stringify(responseCreate));
+  
+  log("✅ Initial greeting sent - AI should speak first now");
 }
 
 function buildInstructions({
