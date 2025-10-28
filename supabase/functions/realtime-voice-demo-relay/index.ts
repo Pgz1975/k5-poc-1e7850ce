@@ -156,6 +156,14 @@ serve(async (req) => {
     clientWS.onopen = () => {
       log("Client WebSocket opened");
       try {
+        // Debug: notify client that the browser-side WS is open
+        clientWS.send(JSON.stringify({
+          type: "debug",
+          stage: "client_ws_open",
+          ts: Date.now(),
+          demo_session_id: sessionRow.id,
+        }));
+
         clientWS.send(JSON.stringify({
           type: "demo.session.created",
           demo_session_id: sessionRow.id,
@@ -205,6 +213,17 @@ function connectToOpenAI(state: DemoSessionState, voiceGuidance?: string) {
   ws.addEventListener("open", () => {
     log("✅ Connected to OpenAI Realtime API");
     log("Negotiated subprotocols:", ws.protocol);
+    // Debug: notify client about OpenAI WS open and negotiated protocol(s)
+    if (state.clientWS.readyState === WebSocket.OPEN) {
+      try {
+        state.clientWS.send(JSON.stringify({
+          type: "debug",
+          stage: "openai_ws_open",
+          ts: Date.now(),
+          negotiated_protocols: ws.protocol,
+        }));
+      } catch (_) {}
+    }
   });
 
   ws.addEventListener("message", (event) =>
@@ -215,6 +234,15 @@ function connectToOpenAI(state: DemoSessionState, voiceGuidance?: string) {
     warn("❌ OpenAI WebSocket closed", event.code, event.reason);
     if (state.clientWS.readyState === WebSocket.OPEN) {
       try {
+        // Debug: notify client about OpenAI WS close
+        state.clientWS.send(JSON.stringify({
+          type: "debug",
+          stage: "openai_ws_close",
+          ts: Date.now(),
+          code: event.code,
+          reason: event.reason || "",
+        }));
+
         state.clientWS.send(JSON.stringify({
           type: "error",
           message: `AI connection closed: ${event.reason || 'Unknown reason'}`,
@@ -231,6 +259,13 @@ function connectToOpenAI(state: DemoSessionState, voiceGuidance?: string) {
     error("❌ OpenAI WebSocket error", event);
     if (state.clientWS.readyState === WebSocket.OPEN) {
       try {
+        // Debug: notify client about OpenAI WS error
+        state.clientWS.send(JSON.stringify({
+          type: "debug",
+          stage: "openai_ws_error",
+          ts: Date.now(),
+        }));
+
         state.clientWS.send(JSON.stringify({
           type: "error",
           message: "AI connection error occurred",
@@ -269,6 +304,17 @@ function handleClientMessage(state: DemoSessionState, event: MessageEvent) {
       if (state.pendingMessages.length > 500) {
         state.pendingMessages.shift();
       }
+      // Debug: queued message while waiting for session to be ready
+      if (state.clientWS.readyState === WebSocket.OPEN) {
+        try {
+          state.clientWS.send(JSON.stringify({
+            type: "debug",
+            stage: "queued_until_ready",
+            ts: Date.now(),
+            queue_length: state.pendingMessages.length,
+          }));
+        } catch (_) {}
+      }
     }
   } catch (err) {
     error("Failed to handle client message", err);
@@ -278,10 +324,21 @@ function handleClientMessage(state: DemoSessionState, event: MessageEvent) {
 function flushPendingMessages(state: DemoSessionState) {
   if (!state.openaiWS || state.openaiWS.readyState !== WebSocket.OPEN) return;
 
+  const count = state.pendingMessages.length;
   for (const message of state.pendingMessages) {
     state.openaiWS.send(message);
   }
   state.pendingMessages = [];
+  if (state.clientWS.readyState === WebSocket.OPEN) {
+    try {
+      state.clientWS.send(JSON.stringify({
+        type: "debug",
+        stage: "pending_flushed",
+        ts: Date.now(),
+        count,
+      }));
+    } catch (_) {}
+  }
 }
 
 function handleOpenAIMessage(
@@ -402,6 +459,16 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
   };
 
   log("📤 Sending session.update");
+  // Debug: notify client that session.update is being sent to OpenAI
+  if (state.clientWS.readyState === WebSocket.OPEN) {
+    try {
+      state.clientWS.send(JSON.stringify({
+        type: "debug",
+        stage: "session_update_sent",
+        ts: Date.now(),
+      }));
+    } catch (_) {}
+  }
   state.openaiWS.send(JSON.stringify(sessionUpdate));
 }
 
