@@ -46,6 +46,32 @@ interface DemoSessionState {
   };
 }
 
+function estimateConfidence(transcript: string): number {
+  let confidence = 0.85; // Base confidence
+  
+  // Penalize very short transcriptions (likely errors)
+  if (transcript.length < 2) confidence -= 0.3;
+  else if (transcript.length < 4) confidence -= 0.15;
+  
+  // Penalize common filler words
+  const fillers = ["uh", "um", "ah", "er", "hmm"];
+  const lowerTranscript = transcript.toLowerCase();
+  if (fillers.some(f => lowerTranscript.includes(f))) {
+    confidence -= 0.2;
+  }
+  
+  // Penalize if mostly punctuation or numbers
+  const alphaCount = (transcript.match(/[a-záéíóúñ]/gi) || []).length;
+  if (alphaCount < transcript.length * 0.5) confidence -= 0.15;
+  
+  // Boost confidence for clean, clear words
+  if (transcript.length >= 4 && alphaCount === transcript.length) {
+    confidence += 0.1;
+  }
+  
+  return Math.max(0.3, Math.min(1.0, confidence));
+}
+
 serve(async (req) => {
   try {
     if (req.method === "OPTIONS") {
@@ -409,23 +435,17 @@ function handleOpenAIMessage(
       const transcript = message.transcript?.trim() || "";
       
       if (transcript.length > 0) {
-        // Extract confidence from logprobs
-        let confidence = 0.9;
+        // Estimate confidence based on heuristics (logprobs not available in current API)
+        const confidence = estimateConfidence(transcript);
         
-        if (message.usage?.avg_logprob !== undefined) {
-          confidence = Math.exp(message.usage.avg_logprob);
-          log(`🎤 Student said: "${transcript}" (avg_logprob: ${message.usage.avg_logprob.toFixed(3)}, confidence: ${confidence.toFixed(3)})`);
-        } else {
-          log(`🎤 Student said: "${transcript}" (no logprobs, default confidence: ${confidence})`);
-        }
+        log(`🎤 Student said: "${transcript}" (estimated confidence: ${confidence.toFixed(3)})`);
         
         logDemoInteraction(state, {
           interaction_type: "user_transcript",
           transcript,
           metadata: {
             confidence,
-            avg_logprob: message.usage?.avg_logprob,
-            logprobs_available: !!message.usage?.avg_logprob,
+            estimation_method: "heuristic",
           },
         });
         
@@ -434,8 +454,7 @@ function handleOpenAIMessage(
           state.clientWS.send(JSON.stringify({
             ...message,
             confidence,
-            logprobs_available: !!message.usage?.avg_logprob,
-            raw_avg_logprob: message.usage?.avg_logprob,
+            logprobs_available: false,
           }));
         }
       }
@@ -480,7 +499,6 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
       temperature: 0.8,
       max_response_output_tokens: 4096,
     },
-    include: ["item.input_audio_transcription.logprobs"],
   };
 
   log("📤 Sending session.update");
