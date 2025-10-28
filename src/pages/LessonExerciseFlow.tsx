@@ -311,7 +311,7 @@ export default function LessonExerciseFlow() {
                 isCurrent && "ring-4 ring-offset-2",
                 isCurrent && colorScheme?.border?.replace('border-', 'ring-'),
                 isCompleted 
-                  ? 'bg-success border-success text-white' 
+                  ? cn(colorScheme?.bg, colorScheme?.border, "text-white opacity-80")
                   : isCurrent 
                     ? cn(colorScheme?.bg, colorScheme?.border, "text-white")
                     : isLocked
