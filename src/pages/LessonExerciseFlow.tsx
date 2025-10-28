@@ -287,7 +287,7 @@ export default function LessonExerciseFlow() {
       </div>
 
       {/* Exercise Navigation Menu */}
-      <div className="flex gap-2 overflow-x-auto mb-6 pb-2">
+      <div className="flex gap-2 overflow-x-auto mb-6 pb-2 pt-2 px-1">
         {exercises.map((ex, idx) => {
           const isCurrent = ex.id === currentExerciseId;
           const isCompleted = completedExercises.has(ex.id);
