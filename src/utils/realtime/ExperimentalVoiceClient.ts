@@ -62,9 +62,7 @@ export class ExperimentalVoiceClient {
   private eventHandlers: Map<DemoEvent, Set<DemoEventHandler>> = new Map();
   private audioPlaybackQueue: Int16Array[] = [];
   private isPlayingAudio = false;
-  private samplesSinceCommit = 0;
-  private lastCommitTime = 0;
-  private commitIntervalMs = 750;
+  // Server VAD handles turn detection - no manual commits needed
   private isAwaitingResponse = false;
   private isReady = false;
   private destroyed = false;
@@ -116,8 +114,6 @@ export class ExperimentalVoiceClient {
     this.destroyed = true;
     this.isReady = false;
     this.isAwaitingResponse = false;
-    this.samplesSinceCommit = 0;
-    this.lastCommitTime = 0;
     this.audioPlaybackQueue = [];
 
     if (this.visualizerFrame !== null) {
@@ -465,25 +461,9 @@ export class ExperimentalVoiceClient {
       }),
     );
 
-    this.samplesSinceCommit += chunk.length;
-    const now = Date.now();
-    if (
-      this.samplesSinceCommit >= PCM_CHUNK_SIZE * 3 &&
-      now - this.lastCommitTime >= this.commitIntervalMs
-    ) {
-      this.commitAudioBuffer();
-    }
+    // No manual commits - server VAD handles turn detection
   }
 
-  private commitAudioBuffer() {
-    if (!this.canSend()) return;
-    this.ws!.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
-    this.samplesSinceCommit = 0;
-    this.lastCommitTime = Date.now();
-    if (!this.isAwaitingResponse) {
-      this.requestResponse();
-    }
-  }
 
   private requestResponse() {
     if (!this.canSend()) return;
