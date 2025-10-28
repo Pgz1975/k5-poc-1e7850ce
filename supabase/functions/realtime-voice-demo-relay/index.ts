@@ -185,7 +185,7 @@ serve(async (req) => {
 });
 
 function connectToOpenAI(state: DemoSessionState, voiceGuidance?: string) {
-  const model = "gpt-4o-realtime-preview-2024-10-01";
+  const model = "gpt-realtime-2025-08-28";
   log("🔌 Connecting to OpenAI Realtime API...", { model });
   
   const ws = new WebSocket(
