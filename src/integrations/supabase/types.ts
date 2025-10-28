@@ -120,6 +120,87 @@ export type Database = {
           },
         ]
       }
+      demo_activities: {
+        Row: {
+          content: Json
+          created_at: string | null
+          demo_type: string
+          description: string | null
+          grade_level: number
+          id: string
+          language: string
+          title: string
+          updated_at: string | null
+          voice_guidance: string | null
+        }
+        Insert: {
+          content: Json
+          created_at?: string | null
+          demo_type: string
+          description?: string | null
+          grade_level?: number
+          id?: string
+          language: string
+          title: string
+          updated_at?: string | null
+          voice_guidance?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          demo_type?: string
+          description?: string | null
+          grade_level?: number
+          id?: string
+          language?: string
+          title?: string
+          updated_at?: string | null
+          voice_guidance?: string | null
+        }
+        Relationships: []
+      }
+      demo_interactions: {
+        Row: {
+          created_at: string | null
+          demo_session_id: string
+          id: string
+          interaction_type: string
+          metadata: Json | null
+          transcript: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          demo_session_id: string
+          id?: string
+          interaction_type: string
+          metadata?: Json | null
+          transcript?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          demo_session_id?: string
+          id?: string
+          interaction_type?: string
+          metadata?: Json | null
+          transcript?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_interactions_demo_session_id_fkey"
+            columns: ["demo_session_id"]
+            isOneToOne: false
+            referencedRelation: "demo_session_summary"
+            referencedColumns: ["session_id"]
+          },
+          {
+            foreignKeyName: "demo_interactions_demo_session_id_fkey"
+            columns: ["demo_session_id"]
+            isOneToOne: false
+            referencedRelation: "demo_voice_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_metrics: {
         Row: {
           activity_id: string | null
@@ -182,6 +263,50 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "voice_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_voice_sessions: {
+        Row: {
+          completion_percentage: number | null
+          demo_activity_id: string
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          started_at: string | null
+          student_id: string | null
+          telemetry: Json | null
+          total_api_cost_cents: number | null
+        }
+        Insert: {
+          completion_percentage?: number | null
+          demo_activity_id: string
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string | null
+          student_id?: string | null
+          telemetry?: Json | null
+          total_api_cost_cents?: number | null
+        }
+        Update: {
+          completion_percentage?: number | null
+          demo_activity_id?: string
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string | null
+          student_id?: string | null
+          telemetry?: Json | null
+          total_api_cost_cents?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_voice_sessions_demo_activity_id_fkey"
+            columns: ["demo_activity_id"]
+            isOneToOne: false
+            referencedRelation: "demo_activities"
             referencedColumns: ["id"]
           },
         ]
@@ -1316,7 +1441,35 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      demo_effectiveness_by_type: {
+        Row: {
+          avg_completion_pct: number | null
+          avg_duration_seconds: number | null
+          avg_satisfaction: number | null
+          demo_type: string | null
+          language: string | null
+          total_cost_dollars: number | null
+          total_sessions: number | null
+          unique_students: number | null
+        }
+        Relationships: []
+      }
+      demo_session_summary: {
+        Row: {
+          completion_percentage: number | null
+          cost_dollars: number | null
+          demo_title: string | null
+          demo_type: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          language: string | null
+          satisfaction: string | null
+          session_id: string | null
+          started_at: string | null
+          student_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_access_grade_content: {
@@ -1334,6 +1487,7 @@ export type Database = {
         Args: { _exercise_id: string; _user_id: string }
         Returns: boolean
       }
+      cleanup_old_demo_data: { Args: never; Returns: undefined }
       get_user_grade_level: { Args: { user_id: string }; Returns: number }
       has_role: {
         Args: {
