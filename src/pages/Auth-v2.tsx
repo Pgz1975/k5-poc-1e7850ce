@@ -27,7 +27,7 @@ const emailSchema = z.string().email();
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
 
 const AuthV2 = () => {
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const { signUp, signIn, resetPassword, user, loading } = useAuth();
   const navigate = useNavigate();
   
@@ -197,6 +197,17 @@ const AuthV2 = () => {
       </Helmet>
 
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-purple-50 to-pink-50 p-4 relative overflow-hidden">
+        {/* Language Toggle - Top Right */}
+        <div className="fixed top-4 right-4 z-20">
+          <button
+            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            className="bg-white border-4 border-cyan-300 rounded-2xl px-6 py-3 font-bold text-gray-700 hover:border-cyan-400 hover:shadow-lg transition-all flex items-center gap-2"
+          >
+            <span className="text-xl">{language === 'es' ? '🇪🇸' : '🇺🇸'}</span>
+            <span>{language === 'es' ? 'ES' : 'EN'}</span>
+          </button>
+        </div>
+
         {/* Decorative Coquí in corner */}
         <div className="fixed bottom-8 right-8 hidden lg:block">
           <CoquiMascot state="happy" size="medium" />

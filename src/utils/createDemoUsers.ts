@@ -46,20 +46,6 @@ export const demoUsers = [
   },
   // Teacher accounts
   { 
-    email: "teacher-english@demo.com", 
-    password: "demo123", 
-    fullName: "Demo English Teacher", 
-    role: "teacher_english" as const,
-    avatar: "/avatars/teacher-1.jpg"
-  },
-  { 
-    email: "teacher-spanish@demo.com", 
-    password: "demo123", 
-    fullName: "Demo Spanish Teacher", 
-    role: "teacher_spanish" as const,
-    avatar: "/avatars/teacher-2.jpg"
-  },
-  { 
     email: "teacher@demo.com", 
     password: "demo123", 
     fullName: "Demo Teacher", 
@@ -88,20 +74,6 @@ export const demoUsers = [
     fullName: "Demo Regional Director", 
     role: "regional_director" as const,
     avatar: "/avatars/teacher-1.jpg"
-  },
-  { 
-    email: "spanish-admin@demo.com", 
-    password: "demo123", 
-    fullName: "Demo Spanish Program Admin", 
-    role: "spanish_program_admin" as const,
-    avatar: "/avatars/teacher-2.jpg"
-  },
-  { 
-    email: "english-admin@demo.com", 
-    password: "demo123", 
-    fullName: "Demo English Program Admin", 
-    role: "english_program_admin" as const,
-    avatar: "/avatars/teacher-3.jpg"
   },
   { 
     email: "depr-executive@demo.com", 
