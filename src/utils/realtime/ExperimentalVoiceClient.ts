@@ -23,6 +23,8 @@ export interface DemoConfig {
   voiceGuidance?: string;
   voice?: "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
   edgeFunctionUrl?: string;
+  apiKey?: string;
+  accessToken?: string;
   onWordTranscription?: (word: string, timestamp: number, confidence: number) => void;
   onFunctionCall?: (name: string, args: any) => Promise<any>;
   onAudioVisualization?: (frequencyData: Uint8Array) => void;
@@ -319,6 +321,12 @@ export class ExperimentalVoiceClient {
     }
     if (this.config.voiceGuidance) {
       params.set("voice_guidance", this.config.voiceGuidance);
+    }
+    if (this.config.apiKey) {
+      params.set("apikey", this.config.apiKey);
+    }
+    if (this.config.accessToken) {
+      params.set("access_token", this.config.accessToken);
     }
 
     return `${baseUrl}?${params.toString()}`;
