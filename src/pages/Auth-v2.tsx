@@ -348,7 +348,7 @@ const AuthV2 = () => {
                     {t("Acceso Rápido - Cuentas Demo:", "Quick Access - Demo Accounts:")}
                   </p>
                   <div className="grid gap-2">
-                    {demoUsers.filter(u => ['kindergarten@demo.com', 'teacher@demo.com', 'school-director@demo.com', 'regional-director@demo.com', 'depr-executive@demo.com'].includes(u.email)).map((demo) => (
+                    {demoUsers.map((demo) => (
                       <button
                         key={demo.email}
                         type="button"
