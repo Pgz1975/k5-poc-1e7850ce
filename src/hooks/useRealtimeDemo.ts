@@ -47,7 +47,7 @@ export function useRealtimeDemo(config: UseRealtimeDemoConfig) {
       studentId: config.studentId ?? user?.id ?? undefined,
       language: config.language ?? "es-PR",
       voiceGuidance: config.voiceGuidance,
-      voice: config.voice ?? "alloy",
+      voice: config.voice ?? "ash",
       edgeFunctionUrl: config.edgeFunctionUrl,
       onWordTranscription: config.onWordTranscription,
       onFunctionCall: config.onFunctionCall,

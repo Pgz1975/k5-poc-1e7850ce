@@ -23,7 +23,7 @@ export interface DemoConfig {
   studentId?: string;
   language?: "es-PR" | "en-US";
   voiceGuidance?: string;
-  voice?: "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
+  voice?: "alloy" | "ash" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
   edgeFunctionUrl?: string;
   onWordTranscription?: (word: string, timestamp: number, confidence: number) => void;
   onFunctionCall?: (name: string, args: any) => Promise<any>;

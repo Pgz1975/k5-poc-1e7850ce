@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, CheckCircle2 } from "lucide-react";
-import confetti from "canvas-confetti";
 import { useRealtimeDemo } from "@/hooks/useRealtimeDemo";
-import { logDemoInteraction, updateDemoSession } from "@/features/demo/api";
+import { supabase } from "@/integrations/supabase/client";
+import confetti from "canvas-confetti";
+import { Sparkles, CheckCircle2, XCircle, Mic } from "lucide-react";
+import { AudioWaveform } from "@/components/realtime/AudioWaveform";
 
 interface SpellingContent {
   word: string;
@@ -20,137 +21,173 @@ interface SpellingCoachPlayerProps {
   content: SpellingContent;
 }
 
-// Letter name mapping for recognition (English and Spanish)
+// Enhanced letter mapping for English and Spanish
 const LETTER_MAP: Record<string, string> = {
   // English letter names
   "a": "A", "ay": "A", "eh": "A",
-  "b": "B", "be": "B", "bee": "B",
+  "b": "B", "bee": "B", "be": "B",
   "c": "C", "see": "C", "sea": "C",
-  "d": "D", "de": "D", "dee": "D",
+  "d": "D", "dee": "D", "de": "D",
   "e": "E", "ee": "E",
-  "f": "F", "ef": "F", "eff": "F",
-  "g": "G", "gee": "G", "jee": "G",
+  "f": "F", "eff": "F", "ef": "F",
+  "g": "G", "gee": "G", "ge": "G",
   "h": "H", "aitch": "H", "ache": "H",
   "i": "I", "eye": "I",
   "j": "J", "jay": "J",
   "k": "K", "kay": "K",
-  "l": "L", "el": "L", "ell": "L",
+  "l": "L", "ell": "L", "el": "L",
   "m": "M", "em": "M",
   "n": "N", "en": "N",
-  "o": "O", "oh": "O", "owe": "O",
-  "p": "P", "pee": "P",
-  "q": "Q", "queue": "Q", "cue": "Q",
+  "o": "O", "oh": "O",
+  "p": "P", "pee": "P", "pe": "P",
+  "q": "Q", "cue": "Q", "queue": "Q",
   "r": "R", "are": "R", "ar": "R",
-  "s": "S", "ess": "S", "ese": "S",
+  "s": "S", "ess": "S", "esses": "S",
   "t": "T", "tee": "T", "tea": "T",
-  "u": "U", "you": "U", "yoo": "U",
+  "u": "U", "you": "U", "yu": "U",
   "v": "V", "vee": "V",
-  "w": "W", "double": "W", "doubleyou": "W",
-  "x": "X", "ex": "X",
+  "w": "W", "double you": "W", "doubleyou": "W",
+  "x": "X",
   "y": "Y", "why": "Y", "wye": "Y",
   "z": "Z", "zee": "Z", "zed": "Z",
   
   // Spanish letter names
-  "efe": "F",
-  "elle": "LL",
-  "ene": "N",
+  "ese letra": "S",
+  "efe": "F", "efe letra": "F",
+  "ache letra": "H",
+  "jota": "J", "jota letra": "J",
+  "elle": "LL", "elle letra": "LL",
+  "eme": "M", "eme letra": "M",
+  "ene letra": "N",
   "eñe": "Ñ",
-  "erre": "R",
-  "uvé": "V",
-  "doble": "W",
-  "equis": "X",
-  "ye": "Y",
-  "zeta": "Z",
+  "pe letra": "P",
+  "cu": "Q", "cu letra": "Q",
+  "erre": "R", "ere": "R",
+  "te letra": "T",
+  "uve": "V", "ve corta": "V",
+  "doble ve": "W", "doble uve": "W",
+  "equis letra": "X",
+  "i griega": "Y", "ye": "Y",
+  "zeta letra": "Z",
 };
 
-// Normalize spoken letter to actual letter
 function normalizeLetter(spoken: string): string | null {
   const normalized = spoken.toLowerCase().trim();
   
-  // Direct single letter
+  // Direct match
+  if (LETTER_MAP[normalized]) {
+    return LETTER_MAP[normalized];
+  }
+  
+  // Check if it's already a single letter
   if (normalized.length === 1 && /[a-z]/i.test(normalized)) {
     return normalized.toUpperCase();
   }
   
-  // Look up in letter map
-  return LETTER_MAP[normalized] || null;
+  // Partial matches
+  for (const [key, value] of Object.entries(LETTER_MAP)) {
+    if (normalized.includes(key) || key.includes(normalized)) {
+      return value;
+    }
+  }
+  
+  return null;
 }
 
 export function SpellingCoachPlayer({ activityId, language, content }: SpellingCoachPlayerProps) {
   const [phase, setPhase] = useState<"start" | "spelling" | "complete">("start");
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [spokenLetters, setSpokenLetters] = useState<string[]>([]);
-  const [lastAttempt, setLastAttempt] = useState<{ letter: string; correct: boolean } | null>(null);
+  const [lastAttempt, setLastAttempt] = useState<{ letter: string; correct: boolean; confidence: number } | null>(null);
 
-  const { client, isConnected, startSession, demoSessionId } = useRealtimeDemo({
+  const voiceGuidance = `You are a friendly spelling coach for Grade 1 students.
+Word to spell: "${content.word}"
+Correct letters in order: ${content.letters.join(', ')}
+Listen for letter names like "A", "B", "C" or "ay", "bee", "see" in English, or "ese", "efe", "ache" in Spanish.
+Celebrate each correct letter enthusiastically! Encourage students when they need to try again.`;
+
+  const { client, isConnected, startSession, demoSessionId, audioLevel, frequencyData, isAIPlaying } = useRealtimeDemo({
     demoActivityId: activityId,
     demoType: "spelling",
     language: language as "es-PR" | "en-US",
-    voiceGuidance:
-      "You are a friendly spelling coach. Encourage the student as they spell each letter. Celebrate correct letters and gently guide them if they make a mistake.",
+    voiceGuidance,
     onWordTranscription: handleLetterAttempt,
   });
 
   function handleLetterAttempt(word: string, _timestamp: number, confidence: number) {
     if (phase !== "spelling") return;
 
-    const expectedLetter = content.letters[currentLetterIndex];
-    const spokenLetter = normalizeLetter(word);
+    console.log("[SpellingCoach] Letter attempt:", { word, confidence });
 
-    console.log(`[SpellingCoachPlayer] Letter attempt:`, {
-      spoken: word,
-      normalized: spokenLetter,
-      expected: expectedLetter,
-      confidence,
-    });
-
-    if (!spokenLetter) {
-      console.log(`[SpellingCoachPlayer] Could not recognize letter from: ${word}`);
+    const normalizedLetter = normalizeLetter(word);
+    if (!normalizedLetter) {
+      console.log("[SpellingCoach] Could not normalize:", word);
       return;
     }
 
-    const isCorrect = spokenLetter === expectedLetter;
-    setLastAttempt({ letter: spokenLetter, correct: isCorrect });
+    const expectedLetter = content.letters[currentLetterIndex];
+    const isCorrect = normalizedLetter === expectedLetter.toUpperCase();
 
+    console.log("[SpellingCoach] Match result:", { 
+      normalized: normalizedLetter, 
+      expected: expectedLetter, 
+      isCorrect 
+    });
+
+    setLastAttempt({ letter: normalizedLetter, correct: isCorrect, confidence });
+
+    // Log interaction
     if (demoSessionId) {
-      logDemoInteraction(demoSessionId, {
-        interaction_type: "spelling_letter",
+      supabase.from("demo_interactions").insert({
+        demo_session_id: demoSessionId,
+        interaction_type: "letter_attempt",
         transcript: word,
-        metadata: {
+        metadata: { 
           letter_index: currentLetterIndex,
-          expected_letter: expectedLetter,
-          spoken_letter: spokenLetter,
+          normalized: normalizedLetter,
+          expected: expectedLetter,
           correct: isCorrect,
-          confidence,
-        },
-      }).catch((err) => console.warn("Failed to log spelling attempt", err));
+          confidence
+        }
+      });
     }
 
     if (isCorrect) {
-      setSpokenLetters((prev) => [...prev, spokenLetter]);
-      client?.sendText(`Correct! ${spokenLetter}!`);
-
+      setSpokenLetters(prev => [...prev, normalizedLetter]);
+      
       setTimeout(() => {
         setLastAttempt(null);
         
         if (currentLetterIndex < content.letters.length - 1) {
-          // Move to next letter
-          setCurrentLetterIndex((prev) => prev + 1);
-          client?.sendText(`Great! Next letter?`);
+          setCurrentLetterIndex(prev => prev + 1);
+          client?.sendText(`Perfect! Next letter!`);
         } else {
-          // Word complete!
           finishSpelling();
         }
       }, 1500);
     } else {
-      client?.sendText(
-        `Not quite. You said ${spokenLetter}, but the next letter is ${expectedLetter}. Try again!`,
-      );
+      client?.sendText(`Not quite! The letter is ${expectedLetter}. Try again!`);
       
       setTimeout(() => {
         setLastAttempt(null);
       }, 2000);
     }
+  }
+
+  async function startSpelling() {
+    if (!isConnected) {
+      await startSession(activityId);
+      await new Promise(resolve => setTimeout(resolve, 800));
+    }
+
+    // AI Introduction
+    client?.sendText(`We're going to spell a word together, letter by letter! I'll give you hints, and you tell me each letter. The word is ${content.word}. Here's your first hint: ${content.hints[0]}. What's the first letter?`);
+    
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    setPhase("spelling");
+    setCurrentLetterIndex(0);
+    setSpokenLetters([]);
   }
 
   function finishSpelling() {
@@ -159,164 +196,165 @@ export function SpellingCoachPlayer({ activityId, language, content }: SpellingC
     confetti({
       particleCount: 150,
       spread: 80,
-      origin: { y: 0.6 },
+      origin: { y: 0.6 }
     });
 
-    client?.sendText(
-      `Perfect! You spelled ${content.word} correctly: ${content.letters.join(', ')}. Excellent work!`,
-    );
+    client?.sendText(`Fantastic! You spelled the word ${content.word} perfectly! Great job!`);
 
     if (demoSessionId) {
-      updateDemoSession(demoSessionId, {
+      supabase.from("demo_sessions").update({
+        status: "completed",
         completion_percentage: 100,
-        telemetry: {
-          demo_type: "spelling",
+        telemetry: { 
           word: content.word,
-          letters_count: content.letters.length,
-        },
-      }).catch((err) => console.warn("Failed to update spelling session", err));
+          letters_count: content.letters.length
+        }
+      }).eq("id", demoSessionId);
     }
   }
 
-  async function startSpelling() {
-    if (!isConnected) {
-      await startSession(activityId);
-      await new Promise((resolve) => setTimeout(resolve, 800));
-    }
-
-    setPhase("spelling");
-    setCurrentLetterIndex(0);
-    setSpokenLetters([]);
-    setLastAttempt(null);
-
-    client?.sendText(
-      `Let's spell the word ${content.word}! ${content.hints[0]}. What's the first letter?`,
-    );
-
-    if (demoSessionId) {
-      logDemoInteraction(demoSessionId, {
-        interaction_type: "spelling_start",
-        transcript: null,
-        metadata: {
-          word: content.word,
-          letters: content.letters,
-          language,
-        },
-      }).catch((err) => console.warn("Failed to log spelling start", err));
-    }
-  }
-
-  const progressPercentage = ((spokenLetters.length) / content.letters.length) * 100;
+  const progressPercentage = (spokenLetters.length / content.letters.length) * 100;
 
   return (
-    <div className="space-y-6">
-      <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">
-        🔤 Spelling Demo - Letter by Letter
-      </Badge>
-
-      {phase === "start" && (
-        <Card className="p-12 text-center">
-          <Sparkles className="w-16 h-16 mx-auto mb-4 text-green-500" />
-          <h2 className="text-2xl font-bold mb-4">Ready to spell?</h2>
-          
-          <Card className="p-6 mb-6 bg-gradient-to-r from-green-50 to-emerald-50">
-            <p className="text-lg font-semibold mb-3">Hints about the word:</p>
-            <ul className="space-y-2">
-              {content.hints.map((hint, i) => (
-                <li key={i} className="text-muted-foreground">💡 {hint}</li>
-              ))}
-            </ul>
-          </Card>
-
-          <Button onClick={startSpelling} size="lg">
-            Start Spelling
-          </Button>
-        </Card>
-      )}
-
-      {phase === "spelling" && (
-        <Card className="p-8">
-          <Progress value={progressPercentage} className="mb-6" />
-
-          <div className="flex items-center justify-center gap-3 mb-8">
-            {content.letters.map((letter, i) => {
-              const isSpoken = i < spokenLetters.length;
-              const isCurrent = i === currentLetterIndex;
-              const showAttempt = isCurrent && lastAttempt;
-
-              return (
-                <div
-                  key={i}
-                  className={`
-                    w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-bold
-                    transition-all duration-300
-                    ${isSpoken ? 'bg-green-100 text-green-700 border-2 border-green-400' : 
-                      isCurrent ? 'bg-blue-100 text-blue-700 border-2 border-blue-400 animate-pulse' :
-                      'bg-muted text-muted-foreground border-2 border-transparent'}
-                  `}
-                >
-                  {isSpoken ? (
-                    <div className="flex flex-col items-center">
-                      <span>{letter}</span>
-                      <CheckCircle2 className="w-4 h-4 text-green-600 absolute -bottom-1" />
-                    </div>
-                  ) : isCurrent && showAttempt ? (
-                    <span className={lastAttempt.correct ? 'text-green-600' : 'text-red-600'}>
-                      {lastAttempt.letter}
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground">_</span>
-                  )}
-                </div>
-              );
-            })}
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 p-6">
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold">Spelling Coach</h1>
           </div>
+          <Badge variant="secondary">{language === "es-PR" ? "Español" : "English"}</Badge>
+        </div>
 
-          <div className="text-center space-y-4">
-            <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-              <p className="text-lg font-semibold mb-2">
-                {spokenLetters.length === 0 ? "What's the first letter?" : "What's the next letter?"}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Say the letter name out loud (e.g., "S", "O", "L")
+        {phase === "start" && (
+          <Card className="p-8 text-center space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold">Let's Spell Together!</h2>
+              <p className="text-muted-foreground">
+                I'll give you hints and you tell me each letter
               </p>
             </div>
 
+            <div className="bg-muted/40 rounded-lg p-6">
+              <p className="text-sm text-muted-foreground mb-2">Word to spell:</p>
+              <p className="text-4xl font-bold text-primary">{content.word.toUpperCase()}</p>
+            </div>
+
+            <div className="bg-primary/5 border-l-4 border-primary rounded-lg p-4 text-left space-y-2">
+              <p className="font-semibold">Hints:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                {content.hints.map((hint, idx) => (
+                  <li key={idx}>{hint}</li>
+                ))}
+              </ul>
+            </div>
+
+            <Button size="lg" onClick={startSpelling} disabled={!isConnected && !client}>
+              {isConnected ? "Start Spelling" : "Connecting..."}
+            </Button>
+          </Card>
+        )}
+
+        {phase === "spelling" && (
+          <Card className="p-8 space-y-6">
+            <Progress value={progressPercentage} className="h-3" />
+
+            <div className="flex items-center justify-center gap-4">
+              {content.letters.map((letter, idx) => (
+                <div
+                  key={idx}
+                  className={`w-16 h-20 flex items-center justify-center rounded-lg border-2 text-3xl font-bold transition-all ${
+                    idx < spokenLetters.length
+                      ? "bg-green-100 border-green-500 text-green-700"
+                      : idx === currentLetterIndex
+                      ? "bg-primary/10 border-primary border-dashed animate-pulse"
+                      : "bg-muted/20 border-muted-foreground/20 text-muted-foreground"
+                  }`}
+                >
+                  {idx < spokenLetters.length ? spokenLetters[idx] : "?"}
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center space-y-2">
+              <Badge variant="outline">Letter {currentLetterIndex + 1} of {content.letters.length}</Badge>
+              <p className="text-lg text-muted-foreground">
+                {content.hints[Math.min(currentLetterIndex, content.hints.length - 1)]}
+              </p>
+            </div>
+
+            <div className="rounded-lg border bg-muted/40 p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <Mic className="w-5 h-5 text-green-500" />
+                <span className="font-medium">Say the next letter...</span>
+              </div>
+              <AudioWaveform
+                frequencyData={frequencyData}
+                audioLevel={audioLevel}
+                isActive={true}
+              />
+            </div>
+
             {lastAttempt && (
-              <Card className={`p-4 ${lastAttempt.correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                <p className={`font-semibold ${lastAttempt.correct ? 'text-green-700' : 'text-red-700'}`}>
-                  {lastAttempt.correct ? `✓ Correct! ${lastAttempt.letter}` : `✗ Not quite, try again!`}
-                </p>
+              <Card className="p-4 bg-slate-50">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {lastAttempt.correct ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <XCircle className="w-5 h-5 text-red-500" />
+                    )}
+                    <span className="font-semibold">
+                      You said: "{lastAttempt.letter}"
+                    </span>
+                  </div>
+                  <span className="text-2xl font-bold">
+                    {(lastAttempt.confidence * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className="h-full transition-all rounded-full"
+                    style={{
+                      width: `${lastAttempt.confidence * 100}%`,
+                      backgroundColor: lastAttempt.confidence > 0.7 ? '#22c55e' : 
+                                     lastAttempt.confidence > 0.4 ? '#f59e0b' : '#ef4444'
+                    }}
+                  />
+                </div>
               </Card>
             )}
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
 
-      {phase === "complete" && (
-        <Card className="p-8 bg-gradient-to-r from-green-50 to-emerald-50">
-          <h3 className="text-2xl font-bold text-center mb-6">🎉 Perfect Spelling!</h3>
-          
-          <div className="flex justify-center gap-2 mb-6">
-            {content.letters.map((letter, i) => (
-              <div
-                key={i}
-                className="w-16 h-16 rounded-lg bg-green-100 border-2 border-green-400 flex items-center justify-center text-3xl font-bold text-green-700"
-              >
-                {letter}
-              </div>
-            ))}
-          </div>
+        {phase === "complete" && (
+          <Card className="p-8 text-center space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-green-600">Perfect Spelling! 🎉</h2>
+              <p className="text-xl text-muted-foreground">
+                You spelled <span className="font-bold text-primary">{content.word.toUpperCase()}</span> correctly!
+              </p>
+            </div>
 
-          <p className="text-center text-xl font-semibold mb-6 text-green-700">
-            {content.word}
-          </p>
+            <div className="flex items-center justify-center gap-3 text-5xl font-bold text-primary">
+              {spokenLetters.map((letter, idx) => (
+                <span key={idx} className="animate-bounce" style={{ animationDelay: `${idx * 0.1}s` }}>
+                  {letter}
+                </span>
+              ))}
+            </div>
 
-          <Button onClick={startSpelling} size="lg" className="w-full">
-            Spell Again
-          </Button>
-        </Card>
-      )}
+            <Button size="lg" onClick={() => {
+              setPhase("start");
+              setCurrentLetterIndex(0);
+              setSpokenLetters([]);
+              setLastAttempt(null);
+            }}>
+              Spell Again
+            </Button>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

@@ -92,7 +92,7 @@ serve(async (req) => {
     const demoActivityId = url.searchParams.get("demo_activity_id");
     const studentId = url.searchParams.get("student_id");
     const requestedLanguage = url.searchParams.get("language") ?? "es-PR";
-    const requestedVoice = url.searchParams.get("voice") ?? "alloy";
+    const requestedVoice = url.searchParams.get("voice") ?? "ash";
     const explicitGuidance = url.searchParams.get("voice_guidance");
 
     log("📡 WebSocket upgrade request", {
