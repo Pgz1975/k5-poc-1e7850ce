@@ -126,21 +126,29 @@ Celebrate correct answers enthusiastically! Be encouraging when answers are inco
   }
 
   async function startStory() {
+    console.log("[StoryPlayer] startStory() called", { isConnected });
+    
     if (!isConnected) {
+      console.log("[StoryPlayer] Not connected, starting session...");
       await startSession(activityId);
+      console.log("[StoryPlayer] startSession() completed");
       await new Promise(resolve => setTimeout(resolve, 800));
+      console.log("[StoryPlayer] Connection delay complete");
     }
 
-    // AI Introduction
-    client?.sendText(`Hi! I'm going to tell you an exciting story. Listen carefully because I'll ask questions afterwards. Ready? Here we go!`);
-    
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
+    console.log("[StoryPlayer] Updating UI to reading phase");
     setPhase("reading");
-    const firstSegment = content.story_segments[0];
     
+    // Send AI greeting after UI is responsive
     setTimeout(() => {
-      client?.sendText(firstSegment.text);
+      console.log("[StoryPlayer] Sending AI introduction");
+      client?.sendText(`Hi! I'm going to tell you an exciting story. Listen carefully because I'll ask questions afterwards. Ready? Here we go!`);
+      
+      setTimeout(() => {
+        const firstSegment = content.story_segments[0];
+        console.log("[StoryPlayer] Starting first segment");
+        client?.sendText(firstSegment.text);
+      }, 2000);
     }, 500);
   }
 
@@ -240,7 +248,7 @@ Celebrate correct answers enthusiastically! Be encouraging when answers are inco
               <AudioWaveform
                 frequencyData={frequencyData}
                 audioLevel={audioLevel}
-                isActive={isAIPlaying}
+                isActive={phase === "reading" || isAIPlaying}
               />
             </div>
 
@@ -264,6 +272,29 @@ Celebrate correct answers enthusiastically! Be encouraging when answers are inco
               </div>
             </div>
 
+            {/* Real-time Confidence Score */}
+            {lastConfidence > 0 && (
+              <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/20">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold uppercase tracking-wide">Confidence Score</span>
+                  <span className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    {(lastConfidence * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <div className="w-full h-4 bg-muted/50 rounded-full overflow-hidden border">
+                  <div 
+                    className="h-full transition-all duration-500 ease-out"
+                    style={{
+                      width: `${lastConfidence * 100}%`,
+                      backgroundColor: lastConfidence > 0.7 ? 'hsl(var(--success))' : 
+                                     lastConfidence > 0.4 ? 'hsl(45, 93%, 47%)' : 
+                                     'hsl(var(--destructive))'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="rounded-lg border bg-muted/40 p-4">
               <div className="flex items-center gap-3 mb-2">
                 <Mic className="w-5 h-5 text-green-500" />
@@ -272,7 +303,7 @@ Celebrate correct answers enthusiastically! Be encouraging when answers are inco
               <AudioWaveform
                 frequencyData={frequencyData}
                 audioLevel={audioLevel}
-                isActive={true}
+                isActive={phase === "question" || isAIPlaying}
               />
             </div>
 

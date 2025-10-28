@@ -174,19 +174,26 @@ Celebrate each correct letter enthusiastically! Encourage students when they nee
   }
 
   async function startSpelling() {
+    console.log("[SpellingCoach] startSpelling() called", { isConnected });
+    
     if (!isConnected) {
+      console.log("[SpellingCoach] Not connected, starting session...");
       await startSession(activityId);
+      console.log("[SpellingCoach] startSession() completed");
       await new Promise(resolve => setTimeout(resolve, 800));
+      console.log("[SpellingCoach] Connection delay complete");
     }
 
-    // AI Introduction
-    client?.sendText(`We're going to spell a word together, letter by letter! I'll give you hints, and you tell me each letter. The word is ${content.word}. Here's your first hint: ${content.hints[0]}. What's the first letter?`);
-    
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    
+    console.log("[SpellingCoach] Updating UI to spelling phase");
     setPhase("spelling");
     setCurrentLetterIndex(0);
     setSpokenLetters([]);
+    
+    // Send AI greeting after UI is responsive
+    setTimeout(() => {
+      console.log("[SpellingCoach] Sending AI introduction");
+      client?.sendText(`We're going to spell a word together, letter by letter! I'll give you hints, and you tell me each letter. The word is ${content.word}. Here's your first hint: ${content.hints[0]}. What's the first letter?`);
+    }, 500);
   }
 
   function finishSpelling() {
@@ -282,6 +289,29 @@ Celebrate each correct letter enthusiastically! Encourage students when they nee
               </p>
             </div>
 
+            {/* Real-time Confidence Score */}
+            {lastAttempt && lastAttempt.confidence > 0 && (
+              <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/20">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold uppercase tracking-wide">Confidence Score</span>
+                  <span className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    {(lastAttempt.confidence * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <div className="w-full h-4 bg-muted/50 rounded-full overflow-hidden border">
+                  <div 
+                    className="h-full transition-all duration-500 ease-out"
+                    style={{
+                      width: `${lastAttempt.confidence * 100}%`,
+                      backgroundColor: lastAttempt.confidence > 0.7 ? 'hsl(var(--success))' : 
+                                     lastAttempt.confidence > 0.4 ? 'hsl(45, 93%, 47%)' : 
+                                     'hsl(var(--destructive))'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="rounded-lg border bg-muted/40 p-4">
               <div className="flex items-center gap-3 mb-2">
                 <Mic className="w-5 h-5 text-green-500" />
@@ -290,7 +320,7 @@ Celebrate each correct letter enthusiastically! Encourage students when they nee
               <AudioWaveform
                 frequencyData={frequencyData}
                 audioLevel={audioLevel}
-                isActive={true}
+                isActive={phase === "spelling" || isAIPlaying}
               />
             </div>
 

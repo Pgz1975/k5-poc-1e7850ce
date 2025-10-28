@@ -44,18 +44,25 @@ Transcribe exactly what they say, then provide encouraging feedback.`;
   }
 
   async function startDictating() {
+    console.log("[WritingPlayer] startDictating() called", { isConnected });
+    
     if (!isConnected) {
+      console.log("[WritingPlayer] Not connected, starting session...");
       await startSession(activityId);
+      console.log("[WritingPlayer] startSession() completed");
       await new Promise(resolve => setTimeout(resolve, 800));
+      console.log("[WritingPlayer] Connection delay complete");
     }
 
-    // AI Introduction
-    client?.sendText(`Let's write a creative story together! I'll help you turn your ideas into words. When you're ready, just start speaking and I'll type everything you say. Your prompt is: ${content.prompt}`);
-    
-    await new Promise(resolve => setTimeout(resolve, 4000));
-    
+    console.log("[WritingPlayer] Updating UI to dictating phase");
     setPhase("dictating");
     setStory("");
+    
+    // Send AI greeting after UI is responsive
+    setTimeout(() => {
+      console.log("[WritingPlayer] Sending AI introduction");
+      client?.sendText(`Let's write a creative story together! I'll help you turn your ideas into words. When you're ready, just start speaking and I'll type everything you say. Your prompt is: ${content.prompt}`);
+    }, 500);
   }
 
   function reviewStory() {
