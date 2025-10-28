@@ -73,7 +73,9 @@ export class ExperimentalVoiceClient {
   constructor(config: DemoConfig) {
     this.config = config;
     if (config.features.functionCalling && config.onFunctionCall) {
-      this.registerFunctionHandler("__default__", config.onFunctionCall);
+      this.registerFunctionHandler("__default__", (args) =>
+        config.onFunctionCall!("__default__", args)
+      );
     }
   }
 
