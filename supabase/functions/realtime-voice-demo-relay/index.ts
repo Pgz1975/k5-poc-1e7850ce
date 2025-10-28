@@ -514,8 +514,8 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
         create_response: true,
       },
       input_audio_transcription: {
-        model: "whisper-1",
-        enable_segments: true,
+        model: "gpt-4o-transcribe",
+        language: state.language,
         include: ["logprobs", "timestamps"],
       },
       temperature: 0.8,
