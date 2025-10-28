@@ -13,6 +13,16 @@ import { z } from "zod";
 import { demoUsers } from "@/utils/createDemoUsers";
 import CoquiMascot from "@/components/CoquiMascot";
 
+const unitColors = {
+  pink: 'hsl(329, 100%, 71%)',
+  coral: 'hsl(11, 100%, 67%)',
+  peach: 'hsl(27, 100%, 71%)',
+  yellow: 'hsl(48, 100%, 71%)',
+  lime: 'hsl(125, 100%, 71%)',
+  cyan: 'hsl(176, 84%, 71%)',
+  purple: 'hsl(250, 100%, 85%)',
+};
+
 const emailSchema = z.string().email();
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
 
@@ -249,13 +259,13 @@ const AuthV2 = () => {
           {/* Content */}
           <div className="p-6 space-y-4">
             {error && (
-              <Alert variant="destructive" className="border-3 rounded-xl">
+              <Alert variant="destructive" className="border-4 rounded-xl">
                 <AlertDescription className="font-medium">{error}</AlertDescription>
               </Alert>
             )}
 
             {success && (
-              <Alert className="bg-green-50 text-green-800 border-3 border-green-300 rounded-xl">
+              <Alert className="bg-green-50 text-green-800 border-4 border-green-300 rounded-xl">
                 <AlertDescription className="font-medium">{success}</AlertDescription>
               </Alert>
             )}
@@ -276,7 +286,7 @@ const AuthV2 = () => {
                         placeholder="tu@email.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pl-12 h-14 border-3 border-gray-300 rounded-xl focus:border-cyan-400 text-base"
+                        className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-cyan-400 text-base"
                         autoComplete="email"
                         required
                       />
@@ -294,7 +304,7 @@ const AuthV2 = () => {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-12 h-14 border-3 border-gray-300 rounded-xl focus:border-cyan-400 text-base"
+                        className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-cyan-400 text-base"
                         autoComplete="current-password"
                         required
                       />
@@ -304,7 +314,7 @@ const AuthV2 = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-14 bg-gradient-to-r from-cyan-400 to-cyan-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full h-14 bg-gradient-to-r from-cyan-400 to-cyan-500 text-white font-bold rounded-xl shadow-[0_4px_0_hsl(176,84%,60%)] hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-4 border-cyan-600"
                   >
                     {isLoading ? t("Entrando...", "Signing in...") : t("Entrar 🚀", "Sign In 🚀")}
                   </button>
@@ -326,7 +336,7 @@ const AuthV2 = () => {
                 <button
                   type="button"
                   onClick={handleGoogleSignIn}
-                  className="w-full h-14 bg-white border-3 border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
+                  className="w-full h-14 bg-white border-4 border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
                 >
                   <Chrome className="h-5 w-5" />
                   Google
@@ -338,13 +348,13 @@ const AuthV2 = () => {
                     {t("Acceso Rápido - Cuentas Demo:", "Quick Access - Demo Accounts:")}
                   </p>
                   <div className="grid gap-2">
-                    {demoUsers.slice(0, 5).map((demo) => (
+                    {demoUsers.filter(u => ['kindergarten@demo.com', 'teacher@demo.com', 'school-director@demo.com', 'regional-director@demo.com', 'depr-executive@demo.com'].includes(u.email)).map((demo) => (
                       <button
                         key={demo.email}
                         type="button"
                         onClick={() => handleDemoLogin(demo)}
                         disabled={isLoading}
-                        className="w-full bg-gradient-to-br from-gray-50 to-white border-3 border-gray-200 rounded-xl p-3 hover:border-cyan-300 hover:shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-3"
+                        className="w-full bg-gradient-to-br from-gray-50 to-white border-4 border-gray-200 rounded-3xl p-3 hover:border-cyan-300 hover:shadow-[0_6px_0_hsl(176,84%,85%)] hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-3"
                       >
                         <div className="h-12 w-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                           <img 
@@ -383,7 +393,7 @@ const AuthV2 = () => {
                       placeholder={t("Tu nombre", "Your name")}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="pl-12 h-14 border-3 border-gray-300 rounded-xl focus:border-purple-400 text-base"
+                      className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-purple-400 text-base"
                       required
                     />
                   </div>
@@ -401,7 +411,7 @@ const AuthV2 = () => {
                       placeholder="tu@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-12 h-14 border-3 border-gray-300 rounded-xl focus:border-purple-400 text-base"
+                      className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-purple-400 text-base"
                       autoComplete="email"
                       required
                     />
@@ -419,7 +429,7 @@ const AuthV2 = () => {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-12 h-14 border-3 border-gray-300 rounded-xl focus:border-purple-400 text-base"
+                      className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-purple-400 text-base"
                       autoComplete="new-password"
                       required
                     />
@@ -435,7 +445,7 @@ const AuthV2 = () => {
                       className={`py-3 px-2 rounded-xl font-bold text-sm transition-all ${
                         role === "student"
                           ? "bg-gradient-to-br from-pink-400 to-pink-500 text-white shadow-lg scale-105"
-                          : "bg-white border-3 border-gray-300 text-gray-700 hover:border-pink-300"
+                          : "bg-white border-4 border-gray-300 text-gray-700 hover:border-pink-300"
                       }`}
                     >
                       {t("Estudiante", "Student")}
@@ -446,7 +456,7 @@ const AuthV2 = () => {
                       className={`py-3 px-2 rounded-xl font-bold text-sm transition-all ${
                         role === "teacher_english"
                           ? "bg-gradient-to-br from-cyan-400 to-cyan-500 text-white shadow-lg scale-105"
-                          : "bg-white border-3 border-gray-300 text-gray-700 hover:border-cyan-300"
+                          : "bg-white border-4 border-gray-300 text-gray-700 hover:border-cyan-300"
                       }`}
                     >
                       {t("Maestro", "Teacher")}
@@ -457,7 +467,7 @@ const AuthV2 = () => {
                       className={`py-3 px-2 rounded-xl font-bold text-sm transition-all ${
                         role === "family"
                           ? "bg-gradient-to-br from-lime-400 to-lime-500 text-white shadow-lg scale-105"
-                          : "bg-white border-3 border-gray-300 text-gray-700 hover:border-lime-300"
+                          : "bg-white border-4 border-gray-300 text-gray-700 hover:border-lime-300"
                       }`}
                     >
                       {t("Familia", "Family")}
@@ -468,7 +478,7 @@ const AuthV2 = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-14 bg-gradient-to-r from-purple-400 to-purple-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-14 bg-gradient-to-r from-purple-400 to-purple-500 text-white font-bold rounded-xl shadow-[0_4px_0_hsl(250,100%,75%)] hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-4 border-purple-600"
                 >
                   {isLoading ? t("Creando cuenta...", "Creating account...") : t("Crear cuenta ✨", "Create account ✨")}
                 </button>
@@ -490,7 +500,7 @@ const AuthV2 = () => {
                       placeholder="tu@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-12 h-14 border-3 border-gray-300 rounded-xl focus:border-pink-400 text-base"
+                      className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-pink-400 text-base"
                       autoComplete="email"
                       required
                     />
@@ -500,7 +510,7 @@ const AuthV2 = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-14 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-14 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-bold rounded-xl shadow-[0_4px_0_hsl(329,100%,60%)] hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-4 border-pink-600"
                 >
                   {isLoading ? t("Enviando...", "Sending...") : t("Enviar enlace 📧", "Send link 📧")}
                 </button>

@@ -59,6 +59,13 @@ export const demoUsers = [
     role: "teacher_spanish" as const,
     avatar: "/avatars/teacher-2.jpg"
   },
+  { 
+    email: "teacher@demo.com", 
+    password: "demo123", 
+    fullName: "Demo Teacher", 
+    role: "teacher_english" as const,
+    avatar: "/avatars/teacher-1.jpg"
+  },
   // Family account
   { 
     email: "family@demo.com", 
