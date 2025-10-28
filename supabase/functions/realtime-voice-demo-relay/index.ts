@@ -200,6 +200,7 @@ function connectToOpenAI(state: DemoSessionState, voiceGuidance?: string) {
 
   ws.addEventListener("open", () => {
     log("✅ Connected to OpenAI Realtime API");
+    log("Negotiated subprotocols:", ws.protocol);
   });
 
   ws.addEventListener("message", (event) =>
