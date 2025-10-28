@@ -127,6 +127,7 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
             content={exercise.content}
             onAnswer={handleDragDropAnswer}
             voiceClient={voiceClient}
+            colorScheme={colorScheme}
           />
         );
       
@@ -136,6 +137,7 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
             content={exercise.content}
             onAnswer={handleWriteAnswer}
             voiceClient={voiceClient}
+            colorScheme={colorScheme}
           />
         );
       
@@ -145,6 +147,7 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
             content={exercise.content}
             onAnswer={handleDragDropAnswer}
             voiceClient={voiceClient}
+            colorScheme={colorScheme}
           />
         );
       
@@ -247,12 +250,12 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
                   onClick={handleComplete} 
                   size="lg" 
                   className={cn(
-                    "flex-1 rounded-xl border-4 font-black text-lg py-6",
+                    "flex-1 rounded-2xl border-4 font-black text-lg py-6",
                     "shadow-[0_4px_0_rgba(0,0,0,0.12)]",
                     "hover:shadow-[0_6px_0_rgba(0,0,0,0.15)] hover:-translate-y-0.5",
                     "active:shadow-[0_2px_0_rgba(0,0,0,0.08)] active:translate-y-1",
                     "transition-all duration-200",
-                    colorScheme?.iconBg,
+                    colorScheme?.bg,
                     colorScheme?.border,
                     "text-white"
                   )}
@@ -261,10 +264,18 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
                 </Button>
               ) : (
                 <>
-                  <Button onClick={handleRetry} variant="outline" size="lg" className="flex-1">
+                  <Button 
+                    onClick={handleRetry} 
+                    size="lg" 
+                    className="flex-1 rounded-2xl border-4 border-primary bg-background text-primary font-black text-lg py-6 hover:bg-primary/5"
+                  >
                     {t('Intentar de Nuevo', 'Try Again')}
                   </Button>
-                  <Button onClick={onExit} variant="secondary" size="lg" className="flex-1">
+                  <Button 
+                    onClick={onExit} 
+                    size="lg" 
+                    className="flex-1 rounded-2xl border-4 bg-destructive border-destructive text-white font-black text-lg py-6 hover:bg-destructive/90"
+                  >
                     {t('Salir', 'Exit')}
                   </Button>
                 </>
