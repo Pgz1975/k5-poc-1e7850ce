@@ -153,16 +153,19 @@ serve(async (req) => {
       },
     };
 
-    try {
-      clientWS.send(JSON.stringify({
-        type: "demo.session.created",
-        demo_session_id: sessionRow.id,
-        demo_activity_id: demoActivity.id,
-        language: requestedLanguage,
-      }));
-    } catch (sendErr) {
-      warn("Failed to send demo session metadata", sendErr);
-    }
+    clientWS.onopen = () => {
+      log("Client WebSocket opened");
+      try {
+        clientWS.send(JSON.stringify({
+          type: "demo.session.created",
+          demo_session_id: sessionRow.id,
+          demo_activity_id: demoActivity.id,
+          language: requestedLanguage,
+        }));
+      } catch (sendErr) {
+        warn("Failed to send demo session metadata", sendErr);
+      }
+    };
 
     connectToOpenAI(state, voiceGuidance);
 
@@ -191,6 +194,7 @@ function connectToOpenAI(state: DemoSessionState, voiceGuidance?: string) {
   const ws = new WebSocket(
     `wss://api.openai.com/v1/realtime?model=${model}`,
     [
+      "realtime",
       `openai-insecure-api-key.${OPENAI_API_KEY}`,
       "openai-beta.realtime-v1",
     ],
@@ -305,13 +309,13 @@ function handleOpenAIMessage(
       state.isReady = true;
       state.telemetry.sessionReady = performance.now();
       flushPendingMessages(state);
-    } else if (type === "response.output_audio.delta") {
+    } else if (type === "response.audio.delta" || type === "response.output_audio.delta") {
       state.telemetry.audioChunksForwarded += 1;
-    } else if (type === "response.output_audio_transcript.delta") {
+    } else if (type === "response.audio_transcript.delta" || type === "response.output_audio_transcript.delta") {
       if (typeof message.delta === "string") {
         state.aiTranscriptBuffer.push(message.delta);
       }
-    } else if (type === "response.output_audio_transcript.done") {
+    } else if (type === "response.audio_transcript.done" || type === "response.output_audio_transcript.done") {
       if (state.aiTranscriptBuffer.length > 0) {
         const transcript = state.aiTranscriptBuffer.join("").trim();
         state.aiTranscriptBuffer = [];
@@ -381,7 +385,7 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
     },
   };
 
-  log("Sending session.update with GA schema");
+  log("📤 Sending session.update");
   state.openaiWS.send(JSON.stringify(sessionUpdate));
 }
 
