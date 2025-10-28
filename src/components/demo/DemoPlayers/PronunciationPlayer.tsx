@@ -146,10 +146,22 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
     const MIN_CONFIDENCE = 0.70; // Lowered from 90% to 70%
 
     const matchResults = content.answers.map((answer, index) => {
-      const similarity = calculateSimilarity(
-        phoneticNormalize(answer.text),
-        phoneticNormalize(word)
+      const normalizedAnswer = phoneticNormalize(answer.text);
+      const normalizedWord = phoneticNormalize(word);
+      
+      // Calculate similarity with and without spaces
+      const directSimilarity = calculateSimilarity(normalizedAnswer, normalizedWord);
+      
+      // Also try matching if original transcription was multi-word (e.g., "cool key")
+      const wordWithoutSpaces = word.replace(/\s+/g, '');
+      const spacelessSimilarity = calculateSimilarity(
+        normalizedAnswer, 
+        phoneticNormalize(wordWithoutSpaces)
       );
+      
+      // Use best similarity
+      const similarity = Math.max(directSimilarity, spacelessSimilarity);
+      
       return { index, similarity, answer };
     });
 
@@ -161,7 +173,9 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
     const matchedIndex = bestMatch ? bestMatch.index : -1;
 
     console.log(`[PronunciationPlayer] 🔍 Fuzzy match results:`, {
+      originalWord: word,
       normalizedWord: phoneticNormalize(word),
+      wordWithoutSpaces: word.replace(/\s+/g, ''),
       matches: matchResults.map(r => ({
         text: r.answer.text,
         phonetic: phoneticNormalize(r.answer.text),

@@ -1,3 +1,5 @@
+import { AdaptiveJitterBuffer } from "./AdaptiveJitterBuffer";
+
 export type DemoType =
   | "readflow"
   | "pronunciation"
@@ -70,6 +72,7 @@ export class ExperimentalVoiceClient {
   // Track whether AI is currently responding to filter out AI speech transcriptions
   private isAIResponding = false;
   private studentSpeaking = false;
+  private jitterBuffer: AdaptiveJitterBuffer | null = null;
 
   constructor(config: DemoConfig) {
     this.config = config;
@@ -118,6 +121,11 @@ export class ExperimentalVoiceClient {
     this.isReady = false;
     this.isAwaitingResponse = false;
     this.audioPlaybackQueue = [];
+
+    if (this.jitterBuffer) {
+      this.jitterBuffer.clear();
+      this.jitterBuffer = null;
+    }
 
     if (this.visualizerFrame !== null) {
       cancelAnimationFrame(this.visualizerFrame);
@@ -191,6 +199,9 @@ export class ExperimentalVoiceClient {
 
     const ctx = new AudioContext({ sampleRate: DEFAULT_SAMPLE_RATE });
     this.audioContext = ctx;
+
+    // Initialize jitter buffer for smooth audio playback
+    this.jitterBuffer = new AdaptiveJitterBuffer(ctx);
 
     const processorCode = `
       class PCM16CaptureProcessor extends AudioWorkletProcessor {
@@ -496,9 +507,21 @@ export class ExperimentalVoiceClient {
   }
 
   private queueAudioPlayback(chunk: Int16Array) {
-    this.audioPlaybackQueue.push(chunk);
+    if (!this.jitterBuffer) {
+      // Fallback to direct playback if jitter buffer not initialized
+      this.audioPlaybackQueue.push(chunk);
+      if (!this.isPlayingAudio) {
+        this.playNextAudioChunk();
+      }
+      return;
+    }
+
+    // Add to jitter buffer for smooth playback
+    this.jitterBuffer.addChunk(chunk, Date.now());
+    
     if (!this.isPlayingAudio) {
-      this.playNextAudioChunk();
+      this.isPlayingAudio = true;
+      this.emit("audio-playback", true);
     }
   }
 
