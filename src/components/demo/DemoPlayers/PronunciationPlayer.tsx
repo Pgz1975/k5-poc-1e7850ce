@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,10 +34,16 @@ interface PronunciationPlayerProps {
 
 export function PronunciationPlayer({ activityId, language, content }: PronunciationPlayerProps) {
   const [isListening, setIsListening] = useState(false);
+  const isListeningRef = useRef(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [spokenWord, setSpokenWord] = useState("");
   const [confidence, setConfidence] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
+
+  // Sync ref with state to avoid stale closures
+  useEffect(() => {
+    isListeningRef.current = isListening;
+  }, [isListening]);
 
   const {
     client,
@@ -68,14 +74,36 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
   });
 
   function handlePronunciation(word: string, _timestamp: number, confidenceScore: number) {
-    if (!isListening) return;
+    console.log(`[PronunciationPlayer] 🎤 handlePronunciation ENTRY:`, { 
+      word, 
+      isListening: isListeningRef.current, 
+      confidence: confidenceScore,
+      timestamp: new Date().toISOString()
+    });
+
+    if (!isListeningRef.current) {
+      console.log('[PronunciationPlayer] ⏸️ EARLY RETURN - isListening is false');
+      return;
+    }
 
     setSpokenWord(word);
     setConfidence(confidenceScore);
 
+    // Fuzzy matching: normalize words by removing punctuation, hyphens, spaces
+    const normalizeWord = (text: string) => 
+      text.toLowerCase()
+        .replace(/[.,!?]/g, '')
+        .replace(/[-\s]/g, '');
+
     const matchedIndex = content.answers.findIndex(
-      (answer) => answer.text.toLowerCase() === word.toLowerCase(),
+      (answer) => normalizeWord(answer.text) === normalizeWord(word),
     );
+
+    console.log(`[PronunciationPlayer] 🔍 Match result:`, { 
+      matchedIndex, 
+      normalizedWord: normalizeWord(word),
+      answerOptions: content.answers.map(a => ({ text: a.text, normalized: normalizeWord(a.text) }))
+    });
 
     if (
       matchedIndex !== -1 &&
