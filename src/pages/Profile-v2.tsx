@@ -108,9 +108,14 @@ const ProfileV2 = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Use different colors for different sections
+  // Use different colors for different sections - lighter colors
   const headerColor = colorSchemes.pink;
-  const detailsColor = colorSchemes.purple;
+  const detailsColor = {
+    bg: "bg-sky-100",
+    border: "border-sky-400",
+    text: "text-sky-700",
+    shadow: "shadow-[0_8px_0_0_rgb(56,189,248)]",
+  };
   const activityColor = colorSchemes.cyan;
 
   useEffect(() => {
@@ -310,7 +315,7 @@ const ProfileV2 = () => {
             <Card className={`border-4 ${headerColor.border} ${headerColor.shadow} bg-white rounded-3xl overflow-hidden transition-all hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-[0_2px_0_hsl(var(--primary)/0.6)]`}>
               <CardHeader className="bg-white">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                  <Avatar className={`h-24 w-24 border-4 border-white ${headerColor.shadow} rounded-full`}>
+                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg rounded-full">
                     <AvatarImage src={avatarUrl || undefined} alt={fullName} />
                     <AvatarFallback className={`${headerColor.bg} text-white text-3xl font-black`}>
                       {fullName.charAt(0).toUpperCase()}
@@ -319,7 +324,7 @@ const ProfileV2 = () => {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-3 flex-wrap">
                       <CardTitle className="text-2xl md:text-3xl font-black">{fullName}</CardTitle>
-                      <Badge className={`${getRoleBadgeColor(role)} font-bold px-4 py-1 rounded-full`}>
+                      <Badge className="bg-white border-4 border-gray-300 text-gray-700 font-bold px-4 py-1 rounded-full shadow-sm">
                         {getRoleLabel(role)}
                       </Badge>
                     </div>
@@ -366,16 +371,16 @@ const ProfileV2 = () => {
 
             {/* Tabs for Profile Details and Activity - V2 Style */}
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className={`grid w-full grid-cols-2 bg-white border-4 ${colorSchemes.amber.border} rounded-2xl p-2 ${colorSchemes.amber.shadow}`}>
+              <TabsList className="grid w-full grid-cols-2 bg-white border-4 border-gray-300 rounded-2xl p-1 shadow-lg h-auto">
                 <TabsTrigger 
                   value="details" 
-                  className="font-bold rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md"
+                  className="font-black text-base py-3 rounded-xl data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-400 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 transition-all"
                 >
                   {t("Detalles del Perfil", "Profile Details")}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="activity"
-                  className="font-bold rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md"
+                  className="font-black text-base py-3 rounded-xl data-[state=active]:bg-gradient-to-br data-[state=active]:from-cyan-400 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=inactive]:text-gray-600 transition-all"
                 >
                   {t("Actividad Reciente", "Recent Activity")}
                 </TabsTrigger>
@@ -499,7 +504,7 @@ const ProfileV2 = () => {
 
                       <Button 
                         type="submit" 
-                        className={`w-full gap-2 h-14 ${detailsColor.bg} ${detailsColor.text} border-4 ${detailsColor.border} ${detailsColor.shadow} rounded-2xl font-black text-lg transition-all hover:translate-y-[-2px] active:translate-y-[4px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className="w-full gap-2 h-14 bg-white hover:bg-gray-50 text-sky-700 border-4 border-sky-400 shadow-[0_8px_0_0_rgb(56,189,248)] rounded-2xl font-black text-lg transition-all hover:translate-y-[-2px] active:translate-y-[4px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={saving}
                       >
                         {saving ? (
