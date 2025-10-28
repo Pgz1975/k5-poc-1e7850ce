@@ -420,9 +420,8 @@ function handleOpenAIMessage(
       warn("OpenAI reported error", message);
     }
 
-    if (state.clientWS.readyState === WebSocket.OPEN) {
-      state.clientWS.send(raw);
-    }
+    // NOTE: We no longer send ALL messages here to avoid duplicates.
+    // Each event type that needs forwarding is already handled in its specific case above.
   } catch (err) {
     error("Failed to process OpenAI message", err);
   }
