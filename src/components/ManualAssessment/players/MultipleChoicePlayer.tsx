@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface Answer {
   text: string;
@@ -19,6 +20,7 @@ interface MultipleChoicePlayerProps {
   selectedAnswer: number | null;
   showFeedback: boolean;
   isCorrect: boolean | null;
+  colorScheme?: any;
 }
 
 export function MultipleChoicePlayer({
@@ -26,7 +28,8 @@ export function MultipleChoicePlayer({
   onAnswer,
   selectedAnswer,
   showFeedback,
-  isCorrect
+  isCorrect,
+  colorScheme
 }: MultipleChoicePlayerProps) {
   const { t } = useLanguage();
 
@@ -46,14 +49,25 @@ export function MultipleChoicePlayer({
           <Button
             onClick={() => onAnswer(index)}
             disabled={showFeedback}
-            className={`flex-1 p-4 sm:p-6 justify-start min-h-[80px] ${
-              showFeedback && selectedAnswer === index
-                ? isCorrect
-                  ? 'bg-success hover:bg-success/90 text-success-foreground'
-                  : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
-                : ''
-            }`}
-            variant={showFeedback && selectedAnswer === index ? 'default' : 'outline'}
+            className={cn(
+              "flex-1 p-4 sm:p-6 justify-start min-h-[80px]",
+              "border-4 rounded-2xl font-bold",
+              "shadow-[0_4px_0_rgba(0,0,0,0.08)]",
+              "hover:shadow-[0_6px_0_rgba(0,0,0,0.12)] hover:-translate-y-0.5",
+              "active:shadow-[0_2px_0_rgba(0,0,0,0.08)] active:translate-y-1",
+              "transition-all duration-200",
+              
+              // Default state: unit color border
+              !showFeedback && cn(colorScheme?.border, "bg-white"),
+              
+              // Feedback state: semantic colors override
+              showFeedback && selectedAnswer === index && (
+                isCorrect
+                  ? 'bg-success border-success text-white'
+                  : 'bg-destructive border-destructive text-white'
+              )
+            )}
+            variant="outline"
             aria-label={`${t("Opción", "Option")} ${String.fromCharCode(65 + index)}: ${answer.text}`}
             aria-pressed={selectedAnswer === index}
           >

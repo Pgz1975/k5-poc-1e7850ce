@@ -9,6 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CheckCircle2, XCircle, ArrowLeft } from 'lucide-react';
 import { ActivityActions } from '@/components/ActivityManagement/ActivityActions';
+import { useUnitColor } from '@/hooks/useUnitColor';
+import { cn } from '@/lib/utils';
 
 interface Exercise {
   id: string;
@@ -29,6 +31,7 @@ interface ExercisePlayerProps {
 
 export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: ExercisePlayerProps) {
   const { t } = useLanguage();
+  const { colorScheme } = useUnitColor(exercise?.id);
   
   // Guard against transient undefined props during transitions
   if (!exercise) {
@@ -102,6 +105,7 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
             selectedAnswer={selectedAnswer}
             showFeedback={showFeedback}
             isCorrect={isCorrect}
+            colorScheme={colorScheme}
           />
         );
       
@@ -113,6 +117,7 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
             selectedAnswer={selectedAnswer}
             showFeedback={showFeedback}
             isCorrect={isCorrect}
+            colorScheme={colorScheme}
           />
         );
       
@@ -161,12 +166,23 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
   return (
     <div className="space-y-6">
       {/* Header with Back Button */}
-      <div className="flex items-center justify-between">
-        <Button onClick={onExit} variant="outline" size="sm">
+      <div className={cn(
+        "rounded-2xl border-4 p-6",
+        colorScheme?.border,
+        colorScheme?.bg,
+        colorScheme?.shadow,
+        "flex items-center justify-between"
+      )}>
+        <Button 
+          onClick={onExit} 
+          variant="outline" 
+          size="sm"
+          className="bg-white border-2 border-white/50 hover:bg-white/90"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t('Volver', 'Back')}
         </Button>
-        <h2 className="text-2xl font-bold">{exercise.title}</h2>
+        <h2 className="text-2xl font-black text-white">{exercise.title}</h2>
         <ActivityActions 
           activity={{ id: exercise.id, title: exercise.title }} 
           redirectPath={window.location.pathname.split('/exercises')[0] || '/student-dashboard'}
@@ -176,9 +192,16 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
 
       {/* Question Display */}
       {exercise.content.question && (
-        <Card>
+        <Card className={cn(
+          "rounded-2xl border-4",
+          colorScheme?.border,
+          "bg-white"
+        )}>
           <CardContent className="p-6">
-            <h3 className="text-xl sm:text-3xl font-semibold mb-4">
+            <h3 className={cn(
+              "text-xl sm:text-3xl font-bold mb-4",
+              colorScheme?.text
+            )}>
               {exercise.content.question}
             </h3>
             {exercise.content.questionImage && (
@@ -220,7 +243,20 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
 
             <div className="flex gap-3">
               {passed ? (
-                <Button onClick={handleComplete} size="lg" className="flex-1">
+                <Button 
+                  onClick={handleComplete} 
+                  size="lg" 
+                  className={cn(
+                    "flex-1 rounded-xl border-4 font-black text-lg py-6",
+                    "shadow-[0_4px_0_rgba(0,0,0,0.12)]",
+                    "hover:shadow-[0_6px_0_rgba(0,0,0,0.15)] hover:-translate-y-0.5",
+                    "active:shadow-[0_2px_0_rgba(0,0,0,0.08)] active:translate-y-1",
+                    "transition-all duration-200",
+                    colorScheme?.iconBg,
+                    colorScheme?.border,
+                    "text-white"
+                  )}
+                >
                   {t('Continuar', 'Continue')}
                 </Button>
               ) : (

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface Answer {
   text: string;
@@ -19,6 +20,7 @@ interface TrueFalsePlayerProps {
   selectedAnswer: number | null;
   showFeedback: boolean;
   isCorrect: boolean | null;
+  colorScheme?: any;
 }
 
 export function TrueFalsePlayer({
@@ -26,7 +28,8 @@ export function TrueFalsePlayer({
   onAnswer,
   selectedAnswer,
   showFeedback,
-  isCorrect
+  isCorrect,
+  colorScheme
 }: TrueFalsePlayerProps) {
   const { t } = useLanguage();
 
@@ -46,14 +49,23 @@ export function TrueFalsePlayer({
           <Button
             onClick={() => onAnswer(index)}
             disabled={showFeedback}
-            className={`text-xl sm:text-3xl p-6 sm:p-12 h-auto ${
-              showFeedback && selectedAnswer === index
-                ? isCorrect
-                  ? 'bg-success hover:bg-success/90 text-success-foreground'
-                  : 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
-                : ''
-            }`}
-            variant={showFeedback && selectedAnswer === index ? 'default' : 'outline'}
+            className={cn(
+              "text-xl sm:text-3xl p-6 sm:p-12 h-auto",
+              "border-4 rounded-2xl font-black",
+              "shadow-[0_6px_0_rgba(0,0,0,0.12)]",
+              "hover:shadow-[0_8px_0_rgba(0,0,0,0.15)] hover:-translate-y-0.5",
+              "active:shadow-[0_2px_0_rgba(0,0,0,0.08)] active:translate-y-1",
+              "transition-all duration-200",
+              
+              !showFeedback && cn(colorScheme?.border, "bg-white", colorScheme?.text),
+              
+              showFeedback && selectedAnswer === index && (
+                isCorrect
+                  ? 'bg-success border-success text-white'
+                  : 'bg-destructive border-destructive text-white'
+              )
+            )}
+            variant="outline"
             aria-label={`${answer.text}`}
             aria-pressed={selectedAnswer === index}
           >
