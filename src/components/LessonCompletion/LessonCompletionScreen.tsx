@@ -5,6 +5,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { CoquiMascot } from '@/components/CoquiMascot';
 import { Star } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useUnitColor } from '@/hooks/useUnitColor';
+import { cn } from '@/lib/utils';
 
 interface Exercise {
   id: string;
@@ -33,6 +35,7 @@ export function LessonCompletionScreen({
   onReturn,
 }: LessonCompletionScreenProps) {
   const { t } = useLanguage();
+  const { colorScheme } = useUnitColor(lesson.id);
 
   useEffect(() => {
     // Trigger confetti on mount
@@ -105,19 +108,28 @@ export function LessonCompletionScreen({
   return (
     <div className="container mx-auto p-6 max-w-4xl space-y-6">
       {/* Celebration Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+      <div className={cn(
+        "text-center p-8 rounded-2xl border-4 mb-6",
+        colorScheme?.border,
+        colorScheme?.bg,
+        "shadow-[0_8px_0_rgba(0,0,0,0.12)]"
+      )}>
+        <h1 className="text-4xl sm:text-5xl font-black text-white drop-shadow-lg">
           {t('🎉 ¡Lección Completada! 🎉', '🎉 Lesson Complete! 🎉')}
         </h1>
-        <p className="text-xl text-muted-foreground">
+        <p className="text-2xl font-bold text-white/90 mt-2">
           {t('¡Excelente trabajo!', 'Excellent work!')}
         </p>
       </div>
 
       {/* Lesson Content Review */}
-      <Card>
+      <Card className={cn(
+        "border-4 rounded-2xl",
+        colorScheme?.border,
+        "bg-white shadow-[0_4px_0_rgba(0,0,0,0.08)]"
+      )}>
         <CardHeader>
-          <CardTitle className="text-2xl">{lesson.title}</CardTitle>
+          <CardTitle className="text-2xl font-black text-gray-800">{lesson.title}</CardTitle>
         </CardHeader>
         <CardContent>
           {renderContent()}
@@ -125,9 +137,13 @@ export function LessonCompletionScreen({
       </Card>
 
       {/* Exercises Summary */}
-      <Card>
+      <Card className={cn(
+        "border-4 rounded-2xl",
+        colorScheme?.border,
+        "bg-white shadow-[0_4px_0_rgba(0,0,0,0.08)]"
+      )}>
         <CardHeader>
-          <CardTitle className="text-xl">
+          <CardTitle className="text-xl font-black text-gray-800">
             {t('Ejercicios Completados', 'Completed Exercises')}
           </CardTitle>
         </CardHeader>
@@ -140,11 +156,18 @@ export function LessonCompletionScreen({
               return (
                 <div
                   key={ex.id}
-                  className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  className={cn(
+                    "flex items-center justify-between p-4 rounded-xl border-3",
+                    colorScheme?.border,
+                    "bg-white hover:shadow-[0_4px_0_rgba(0,0,0,0.08)] transition-all"
+                  )}
                 >
-                  <span className="font-medium">{ex.title}</span>
+                  <span className="font-bold text-gray-800">{ex.title}</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-primary">
+                    <span className={cn(
+                      "text-lg font-black",
+                      colorScheme?.text
+                    )}>
                       {score}%
                     </span>
                     <div className="flex gap-1">
@@ -169,12 +192,30 @@ export function LessonCompletionScreen({
 
       {/* Coquí Mascot */}
       <div className="flex justify-center py-6">
-        <CoquiMascot state="celebration" size="large" position="inline" />
+        <div className={cn(
+          "p-8 rounded-full border-4",
+          colorScheme?.iconBg,
+          colorScheme?.border,
+          "shadow-[0_6px_0_rgba(0,0,0,0.12)]"
+        )}>
+          <CoquiMascot state="celebration" size="large" position="inline" />
+        </div>
       </div>
 
       {/* Return Button */}
       <div className="flex justify-center">
-        <Button onClick={onReturn} size="lg" className="text-lg px-8">
+        <Button 
+          onClick={onReturn} 
+          size="lg"
+          className={cn(
+            "text-lg px-8 py-6 rounded-2xl border-4 font-black",
+            colorScheme?.bg,
+            colorScheme?.border,
+            colorScheme?.shadow,
+            "text-white hover:-translate-y-0.5 active:translate-y-1",
+            "transition-all duration-200"
+          )}
+        >
           {t('Volver al Dashboard', 'Back to Dashboard')}
         </Button>
       </div>
