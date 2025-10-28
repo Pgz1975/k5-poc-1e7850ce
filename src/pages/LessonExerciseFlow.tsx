@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 import { CoquiLessonAssistantGuard } from '@/components/coqui/CoquiLessonAssistantGuard';
 import { CoquiVoiceBridge } from '@/components/coqui/CoquiVoiceBridge';
 import { ActivityActions } from '@/components/ActivityManagement/ActivityActions';
+import { useUnitColor } from '@/hooks/useUnitColor';
+import { cn } from '@/lib/utils';
 
 export default function LessonExerciseFlow() {
   const { lessonId } = useParams<{ lessonId: string }>();
@@ -19,6 +21,7 @@ export default function LessonExerciseFlow() {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const queryClient = useQueryClient();
+  const { colorScheme } = useUnitColor(lessonId);
 
   const hasInitialized = useRef(false);
   const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(null);
@@ -263,8 +266,19 @@ export default function LessonExerciseFlow() {
     <div className="container mx-auto p-6 max-w-4xl">
       {/* Progress Indicator */}
       <div className="mb-6">
-        <Progress value={progressPercent} className="h-2" />
-        <p className="text-sm text-muted-foreground mt-2 text-center">
+        <div className="relative h-4 rounded-full bg-gray-200 overflow-hidden border-2 border-gray-300">
+          <div 
+            className={cn(
+              "h-full transition-all duration-500 rounded-full",
+              colorScheme?.bg
+            )}
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <p className={cn(
+          "text-sm font-bold mt-2 text-center",
+          colorScheme?.text
+        )}>
           {t(
             `Ejercicio ${currentExerciseIndex + 1} de ${exercises.length}`,
             `Exercise ${currentExerciseIndex + 1} of ${exercises.length}`
@@ -288,19 +302,22 @@ export default function LessonExerciseFlow() {
               <button
                 onClick={() => !isLocked && setCurrentExerciseId(ex.id)}
                 disabled={isLocked}
-                className={`
-                  w-12 h-12 rounded-full flex items-center justify-center font-bold
-                  transition-all
-                  ${isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''}
-                  ${isCompleted 
-                    ? 'bg-success text-success-foreground' 
+                className={cn(
+                  "w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center font-black text-lg",
+                  "border-4 transition-all duration-200",
+                  "shadow-[0_4px_0_rgba(0,0,0,0.12)]",
+                  "hover:shadow-[0_6px_0_rgba(0,0,0,0.15)] hover:-translate-y-0.5",
+                  "active:shadow-[0_2px_0_rgba(0,0,0,0.08)] active:translate-y-1",
+                  isCurrent && "ring-4 ring-offset-2",
+                  isCurrent && colorScheme?.border?.replace('border-', 'ring-'),
+                  isCompleted 
+                    ? 'bg-success border-success text-white' 
                     : isCurrent 
-                      ? 'bg-primary text-primary-foreground' 
+                      ? cn(colorScheme?.bg, colorScheme?.border, "text-white")
                       : isLocked
-                        ? 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
-                        : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                  }
-                `}
+                        ? 'bg-gray-200 border-gray-300 text-gray-400 opacity-50 cursor-not-allowed'
+                        : cn(colorScheme?.border, "bg-white", colorScheme?.text, "hover:bg-gray-50")
+                )}
                 aria-label={t(`Ejercicio ${idx + 1}`, `Exercise ${idx + 1}`)}
               >
                 {idx + 1}
