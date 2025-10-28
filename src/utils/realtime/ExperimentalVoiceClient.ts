@@ -364,7 +364,12 @@ export class ExperimentalVoiceClient {
     try {
       const message = JSON.parse(event.data);
       const type = message.type;
-      console.log("[ExperimentalVoiceClient] 📥 Parsed message type:", type, message);
+      
+      // Only log important events, not every audio delta
+      const shouldLog = !type.includes('audio.delta') && !type.includes('audio_transcript.delta');
+      if (shouldLog) {
+        console.log("[ExperimentalVoiceClient] 📥", type);
+      }
 
       switch (type) {
         case "demo.session.created":
@@ -375,40 +380,47 @@ export class ExperimentalVoiceClient {
           }
           break;
         case "session.created":
-          console.log("[ExperimentalVoiceClient] ✅ OpenAI session.created - sending session.update");
+          console.log("[ExperimentalVoiceClient] ✅ OpenAI session.created");
           this.sendSessionUpdate();
           break;
         case "session.updated":
-          console.log("[ExperimentalVoiceClient] ✅ session.updated - relay is ready");
+          console.log("[ExperimentalVoiceClient] ✅ session.updated - ready");
           if (!this.isReady) {
             this.isReady = true;
             this.emit("connected", undefined);
           }
           break;
         case "input_audio_buffer.speech_started":
+          console.log("[ExperimentalVoiceClient] 🎤 You started speaking");
           this.emit("speech-started", undefined);
           break;
         case "input_audio_buffer.speech_stopped":
+          console.log("[ExperimentalVoiceClient] 🎤 You stopped speaking");
           this.emit("speech-stopped", undefined);
           break;
+        case "response.audio.delta":
         case "response.output_audio.delta":
           if (typeof message.delta === "string") {
             this.queueAudioPlayback(this.base64ToPCM16(message.delta));
           }
           break;
+        case "response.audio.done":
         case "response.output_audio.done":
         case "response.completed":
         case "response.done":
+          console.log("[ExperimentalVoiceClient] ✅ AI response complete");
           this.isAwaitingResponse = false;
           if (!this.isPlayingAudio) {
             this.emit("audio-playback", false);
           }
           break;
+        case "response.audio_transcript.delta":
         case "response.output_audio_transcript.delta":
           if (typeof message.delta === "string") {
             this.processTranscriptionDelta(message.delta);
           }
           break;
+        case "response.audio_transcript.done":
         case "response.output_audio_transcript.done":
           break;
         case "conversation.item.input_audio_transcription.completed":
