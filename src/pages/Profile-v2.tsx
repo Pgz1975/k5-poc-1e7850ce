@@ -307,8 +307,8 @@ const ProfileV2 = () => {
         <main className="flex-1 py-8">
           <div className="container max-w-6xl px-4 md:px-6 space-y-6">
             {/* Profile Header Card - V2 Style */}
-            <Card className={`border-4 ${headerColor.border} ${headerColor.shadow} ${headerColor.cardBg} rounded-3xl overflow-hidden transition-all hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-[0_2px_0_hsl(var(--primary)/0.6)]`}>
-              <CardHeader className={`${headerColor.bg} border-b-4 ${headerColor.border}`}>
+            <Card className={`border-4 ${headerColor.border} ${headerColor.shadow} bg-white rounded-3xl overflow-hidden transition-all hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-[0_2px_0_hsl(var(--primary)/0.6)]`}>
+              <CardHeader className="bg-white">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                   <Avatar className={`h-24 w-24 border-4 border-white ${headerColor.shadow} rounded-full`}>
                     <AvatarImage src={avatarUrl || undefined} alt={fullName} />
@@ -343,9 +343,9 @@ const ProfileV2 = () => {
                   const IconComponent = stat.icon;
                   const cardColor = statColors[index % statColors.length];
                   return (
-                    <Card 
+                     <Card 
                       key={index}
-                      className={`border-4 ${cardColor.border} ${cardColor.shadow} rounded-2xl transition-all hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-[0_2px_0_hsl(var(--primary)/0.6)]`}
+                      className={`border-4 ${cardColor.border} ${cardColor.shadow} bg-white rounded-2xl transition-all hover:translate-y-[-2px] active:translate-y-[2px] active:shadow-[0_2px_0_hsl(var(--primary)/0.6)]`}
                     >
                       <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-bold">
@@ -366,7 +366,7 @@ const ProfileV2 = () => {
 
             {/* Tabs for Profile Details and Activity - V2 Style */}
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className={`grid w-full grid-cols-2 ${colorSchemes.amber.bg} border-4 ${colorSchemes.amber.border} rounded-2xl p-2 ${colorSchemes.amber.shadow}`}>
+              <TabsList className={`grid w-full grid-cols-2 bg-white border-4 ${colorSchemes.amber.border} rounded-2xl p-2 ${colorSchemes.amber.shadow}`}>
                 <TabsTrigger 
                   value="details" 
                   className="font-bold rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md"
@@ -382,8 +382,8 @@ const ProfileV2 = () => {
               </TabsList>
 
               <TabsContent value="details" className="space-y-4 mt-6">
-                <Card className={`border-4 ${detailsColor.border} ${detailsColor.shadow} rounded-3xl overflow-hidden`}>
-                  <CardHeader className={`${detailsColor.bg} border-b-4 ${detailsColor.border}`}>
+                <Card className={`border-4 ${detailsColor.border} ${detailsColor.shadow} bg-white rounded-3xl overflow-hidden`}>
+                  <CardHeader className="bg-white">
                     <div className="flex items-center gap-4">
                       <div className={`p-3 bg-white rounded-2xl border-2 ${detailsColor.border}`}>
                         <User className={`h-6 w-6 ${detailsColor.text}`} />
@@ -457,7 +457,7 @@ const ProfileV2 = () => {
                             {t("Idiomas que Estoy Aprendiendo", "Languages I'm Learning")}
                           </Label>
                           <div className="flex gap-4">
-                            <label className={`flex items-center gap-3 px-6 py-3 border-4 ${detailsColor.border} rounded-2xl cursor-pointer transition-all ${learningLanguages.includes("es") ? detailsColor.bg : 'bg-white'}`}>
+                            <label className={`flex items-center gap-3 px-6 py-3 border-4 ${detailsColor.border} rounded-2xl cursor-pointer transition-all ${learningLanguages.includes("es") ? 'bg-gray-100' : 'bg-white'}`}>
                               <input
                                 type="checkbox"
                                 checked={learningLanguages.includes("es")}
@@ -472,7 +472,7 @@ const ProfileV2 = () => {
                               />
                               <span className="font-bold">{t("Español", "Spanish")}</span>
                             </label>
-                            <label className={`flex items-center gap-3 px-6 py-3 border-4 ${detailsColor.border} rounded-2xl cursor-pointer transition-all ${learningLanguages.includes("en") ? detailsColor.bg : 'bg-white'}`}>
+                            <label className={`flex items-center gap-3 px-6 py-3 border-4 ${detailsColor.border} rounded-2xl cursor-pointer transition-all ${learningLanguages.includes("en") ? 'bg-gray-100' : 'bg-white'}`}>
                               <input
                                 type="checkbox"
                                 checked={learningLanguages.includes("en")}
@@ -520,8 +520,8 @@ const ProfileV2 = () => {
               </TabsContent>
 
               <TabsContent value="activity" className="space-y-4 mt-6">
-                <Card className={`border-4 ${activityColor.border} ${activityColor.shadow} rounded-3xl overflow-hidden`}>
-                  <CardHeader className={`${activityColor.bg} border-b-4 ${activityColor.border}`}>
+                <Card className={`border-4 ${activityColor.border} ${activityColor.shadow} bg-white rounded-3xl overflow-hidden`}>
+                  <CardHeader className="bg-white">
                     <CardTitle className="font-black text-xl">{t("Actividad Reciente", "Recent Activity")}</CardTitle>
                     <CardDescription className="text-gray-700 font-medium">
                       {t("Tus últimas acciones en la plataforma", "Your latest actions on the platform")}
