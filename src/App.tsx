@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AuthV2 from "./pages/Auth-v2";
 import Profile from "./pages/Profile";
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentDashboardV2 from "./pages/StudentDashboard-v2";
@@ -50,7 +51,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/design-preview" element={<DesignPreview />} />
-      <Route path="/auth" element={<Auth />} />
+      <Route path="/auth" element={useV2Design ? <AuthV2 /> : <Auth />} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/dashboard" element={<Navigate to="/student-dashboard" replace />} />
       <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentDashboardV2 /> : <StudentDashboard />}</ProtectedRoute>} />
