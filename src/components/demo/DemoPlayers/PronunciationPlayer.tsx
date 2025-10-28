@@ -32,6 +32,57 @@ interface PronunciationPlayerProps {
   content: PronunciationContent;
 }
 
+// Helper: Calculate Levenshtein distance for fuzzy matching
+function levenshteinDistance(a: string, b: string): number {
+  const matrix: number[][] = [];
+  
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+  
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1,     // insertion
+          matrix[i - 1][j] + 1      // deletion
+        );
+      }
+    }
+  }
+  
+  return matrix[b.length][a.length];
+}
+
+// Helper: Calculate similarity percentage (0-1)
+function calculateSimilarity(word1: string, word2: string): number {
+  const distance = levenshteinDistance(word1, word2);
+  const maxLength = Math.max(word1.length, word2.length);
+  return maxLength === 0 ? 1 : 1 - distance / maxLength;
+}
+
+// Helper: Phonetic normalization for Spanish/English
+function phoneticNormalize(word: string): string {
+  return word
+    .toLowerCase()
+    .replace(/[áéíóúñ]/g, (m) => ({ 
+      'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ñ': 'n' 
+    })[m] || m)
+    .replace(/qu/g, 'k')  // "coquí" → "coki"
+    .replace(/c([eiy])/g, 's$1') // "cielo" → "sielo"
+    .replace(/c/g, 'k')   // "casa" → "kasa"
+    .replace(/z/g, 's')   // "zapato" → "sapato"
+    .replace(/ll/g, 'y')  // "llama" → "yama"
+    .replace(/[.,!?\-\s]/g, '');
+}
+
 export function PronunciationPlayer({ activityId, language, content }: PronunciationPlayerProps) {
   const [isListening, setIsListening] = useState(false);
   const isListeningRef = useRef(false);
@@ -39,6 +90,7 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
   const [spokenWord, setSpokenWord] = useState("");
   const [confidence, setConfidence] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [matchSimilarity, setMatchSimilarity] = useState(0);
 
   // Sync ref with state to avoid stale closures
   useEffect(() => {
@@ -89,25 +141,50 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
     setSpokenWord(word);
     setConfidence(confidenceScore);
 
-    // Fuzzy matching: normalize words by removing punctuation, hyphens, spaces
-    const normalizeWord = (text: string) => 
-      text.toLowerCase()
-        .replace(/[.,!?]/g, '')
-        .replace(/[-\s]/g, '');
+    // Fuzzy phonetic matching with 80% similarity threshold
+    const SIMILARITY_THRESHOLD = 0.80;
+    const MIN_CONFIDENCE = 0.70; // Lowered from 90% to 70%
 
-    const matchedIndex = content.answers.findIndex(
-      (answer) => normalizeWord(answer.text) === normalizeWord(word),
-    );
-
-    console.log(`[PronunciationPlayer] 🔍 Match result:`, { 
-      matchedIndex, 
-      normalizedWord: normalizeWord(word),
-      answerOptions: content.answers.map(a => ({ text: a.text, normalized: normalizeWord(a.text) }))
+    const matchResults = content.answers.map((answer, index) => {
+      const similarity = calculateSimilarity(
+        phoneticNormalize(answer.text),
+        phoneticNormalize(word)
+      );
+      return { index, similarity, answer };
     });
+
+    // Find best match above threshold
+    const bestMatch = matchResults
+      .filter(result => result.similarity >= SIMILARITY_THRESHOLD)
+      .sort((a, b) => b.similarity - a.similarity)[0];
+
+    const matchedIndex = bestMatch ? bestMatch.index : -1;
+
+    console.log(`[PronunciationPlayer] 🔍 Fuzzy match results:`, {
+      normalizedWord: phoneticNormalize(word),
+      matches: matchResults.map(r => ({
+        text: r.answer.text,
+        phonetic: phoneticNormalize(r.answer.text),
+        similarity: (r.similarity * 100).toFixed(1) + '%'
+      })),
+      bestMatch: bestMatch ? {
+        text: bestMatch.answer.text,
+        similarity: (bestMatch.similarity * 100).toFixed(1) + '%'
+      } : null
+    });
+
+    if (bestMatch) {
+      setMatchSimilarity(bestMatch.similarity);
+    }
+
+    // Use fuzzy similarity to boost confidence if phonetic match is strong
+    const adjustedConfidence = bestMatch 
+      ? Math.max(confidenceScore, bestMatch.similarity) 
+      : confidenceScore;
 
     if (
       matchedIndex !== -1 &&
-      confidenceScore >= content.pronunciation_challenge.confidence_threshold
+      adjustedConfidence >= MIN_CONFIDENCE
     ) {
       setSelectedAnswer(matchedIndex);
       setIsListening(false);
@@ -277,8 +354,12 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
               Heard: <span className="font-semibold">{spokenWord}</span>{" "}
               {confidence > 0 && (
                 <span className="ml-2">
-                  (Confidence {(confidence * 100).toFixed(0)}
-                  %)
+                  (Confidence: {(confidence * 100).toFixed(0)}%)
+                </span>
+              )}
+              {matchSimilarity > 0 && (
+                <span className="ml-2 text-success font-medium">
+                  ✓ {(matchSimilarity * 100).toFixed(0)}% match
                 </span>
               )}
             </p>
