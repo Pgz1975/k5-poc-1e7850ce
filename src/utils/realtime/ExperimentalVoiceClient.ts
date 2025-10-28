@@ -446,12 +446,7 @@ export class ExperimentalVoiceClient {
         case "response.output_audio_transcript.done":
           break;
         case "conversation.item.input_audio_transcription.completed":
-          // CRITICAL: Only process student speech, not AI responses
-          if (this.isAIResponding) {
-            console.log("[ExperimentalVoiceClient] 🤖 Ignoring AI transcription:", message.transcript);
-            break;
-          }
-          
+          // This event is ALWAYS student speech (OpenAI sends separate events for AI transcriptions)
           console.log(`[ExperimentalVoiceClient] 🎤 Student transcription completed:`, {
             transcript: message.transcript,
             confidence: message.confidence,
