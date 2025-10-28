@@ -529,15 +529,11 @@ export class ExperimentalVoiceClient {
     const sessionUpdate = {
       type: "session.update",
       session: {
-        type: "realtime",
-        model: "gpt-4o-realtime-preview-2024-10-01",
         modalities: ["text", "audio"],
         instructions: this.buildInstructions(),
         voice: this.config.voice ?? "alloy",
-        audio: {
-          input: { format: "pcm16", sample_rate: DEFAULT_SAMPLE_RATE },
-          output: { format: "pcm16", sample_rate: DEFAULT_SAMPLE_RATE, voice: this.config.voice ?? "alloy" },
-        },
+        input_audio_format: "pcm16",
+        output_audio_format: "pcm16",
         turn_detection: {
           type: "server_vad",
           threshold: 0.55,
@@ -550,6 +546,8 @@ export class ExperimentalVoiceClient {
           : undefined,
         tools: this.buildFunctionTools(),
         tool_choice: this.config.features.functionCalling ? "auto" : undefined,
+        temperature: 0.8,
+        max_response_output_tokens: 4096,
       },
     };
 

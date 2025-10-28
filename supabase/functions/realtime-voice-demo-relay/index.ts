@@ -360,15 +360,11 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
   const sessionUpdate = {
     type: "session.update",
     session: {
-      type: "realtime",
-      model: "gpt-4o-realtime-preview-2024-10-01",
       modalities: ["text", "audio"],
       instructions,
       voice: state.voice,
-      audio: {
-        input: { format: "pcm16", sample_rate: 24000 },
-        output: { format: "pcm16", sample_rate: 24000, voice: state.voice },
-      },
+      input_audio_format: "pcm16",
+      output_audio_format: "pcm16",
       turn_detection: {
         type: "server_vad",
         threshold: 0.55,
@@ -379,6 +375,8 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
       input_audio_transcription: {
         model: "whisper-1",
       },
+      temperature: 0.8,
+      max_response_output_tokens: 4096,
     },
   };
 
