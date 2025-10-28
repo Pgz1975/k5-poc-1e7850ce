@@ -197,6 +197,28 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
         <p className="text-muted-foreground">
           Say the word out loud. The AI coach listens and gives instant feedback.
         </p>
+        
+        {confidence > 0 && (
+          <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/20">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold uppercase tracking-wide">Confidence Score</span>
+              <span className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                {(confidence * 100).toFixed(0)}%
+              </span>
+            </div>
+            <div className="w-full h-4 bg-muted/50 rounded-full overflow-hidden border">
+              <div 
+                className="h-full transition-all duration-500 ease-out"
+                style={{
+                  width: `${confidence * 100}%`,
+                  backgroundColor: confidence > 0.7 ? 'hsl(var(--success))' : 
+                                 confidence > 0.4 ? 'hsl(45, 93%, 47%)' : 
+                                 'hsl(var(--destructive))'
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="grid gap-4 md:grid-cols-2">
           {content.answers.map((answer, index) => {

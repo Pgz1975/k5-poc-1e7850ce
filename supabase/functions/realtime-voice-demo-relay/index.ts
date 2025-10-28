@@ -406,20 +406,38 @@ function handleOpenAIMessage(
         }
       }
     } else if (type === "conversation.item.input_audio_transcription.completed") {
-      if (typeof message.transcript === "string" && message.transcript.trim().length > 0) {
-        log(`🎤 Student said: "${message.transcript.trim()}" (confidence: ${message.confidence ?? 'N/A'})`);
+      const transcript = message.transcript?.trim() || "";
+      
+      if (transcript.length > 0) {
+        // Extract confidence from logprobs
+        let confidence = 0.9;
+        
+        if (message.usage?.avg_logprob !== undefined) {
+          confidence = Math.exp(message.usage.avg_logprob);
+          log(`🎤 Student said: "${transcript}" (avg_logprob: ${message.usage.avg_logprob.toFixed(3)}, confidence: ${confidence.toFixed(3)})`);
+        } else {
+          log(`🎤 Student said: "${transcript}" (no logprobs, default confidence: ${confidence})`);
+        }
+        
         logDemoInteraction(state, {
           interaction_type: "user_transcript",
-          transcript: message.transcript.trim(),
+          transcript,
           metadata: {
-            event: type,
-            confidence: message.confidence ?? null,
+            confidence,
+            avg_logprob: message.usage?.avg_logprob,
+            logprobs_available: !!message.usage?.avg_logprob,
           },
         });
-      }
-      // CRITICAL: Forward student transcription to client for word matching
-      if (state.clientWS.readyState === WebSocket.OPEN) {
-        state.clientWS.send(raw);
+        
+        // Forward enhanced message to client
+        if (state.clientWS.readyState === WebSocket.OPEN) {
+          state.clientWS.send(JSON.stringify({
+            ...message,
+            confidence,
+            logprobs_available: !!message.usage?.avg_logprob,
+            raw_avg_logprob: message.usage?.avg_logprob,
+          }));
+        }
       }
     } else if (type === "response.error" || type === "error") {
       warn("OpenAI reported error", message);
@@ -462,6 +480,7 @@ function sendSessionUpdate(state: DemoSessionState, voiceGuidance?: string) {
       temperature: 0.8,
       max_response_output_tokens: 4096,
     },
+    include: ["item.input_audio_transcription.logprobs"],
   };
 
   log("📤 Sending session.update");
