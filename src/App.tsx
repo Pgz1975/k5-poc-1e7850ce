@@ -10,6 +10,7 @@ import IndexV2 from "./pages/Index-v2";
 import Auth from "./pages/Auth";
 import AuthV2 from "./pages/Auth-v2";
 import Profile from "./pages/Profile";
+import ProfileV2 from "./pages/Profile-v2";
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentDashboardV2 from "./pages/StudentDashboard-v2";
 import TeacherDashboard from "./pages/TeacherDashboard";
@@ -53,7 +54,7 @@ function AppRoutes() {
       <Route path="/" element={useV2Design ? <IndexV2 /> : <Index />} />
       <Route path="/design-preview" element={<DesignPreview />} />
       <Route path="/auth" element={useV2Design ? <AuthV2 /> : <Auth />} />
-      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute>{useV2Design ? <ProfileV2 /> : <Profile />}</ProtectedRoute>} />
       <Route path="/dashboard" element={<Navigate to="/student-dashboard" replace />} />
       <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentDashboardV2 /> : <StudentDashboard />}</ProtectedRoute>} />
       <Route path="/student-dashboard/lessons" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentLessonsProgressV2 /> : <StudentLessonsProgress />}</ProtectedRoute>} />
