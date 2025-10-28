@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import StudentDashboardV2 from "./pages/StudentDashboard-v2";
 import Activities from "./pages/Activities";
+import ActivitiesV2 from "./pages/Activities-v2";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import FamilyDashboard from "./pages/FamilyDashboard";
 import Auth from "./pages/Auth";
@@ -33,6 +34,7 @@ import NotFound from "./pages/NotFound";
 import StudentLessonsProgress from "./pages/StudentLessonsProgress";
 import StudentLessonsProgressV2 from "./pages/StudentLessonsProgress-v2";
 import StudentExercisesProgress from "./pages/StudentExercisesProgress";
+import StudentExercisesProgressV2 from "./pages/StudentExercisesProgress-v2";
 import StudentAssessmentsProgress from "./pages/StudentAssessmentsProgress";
 import ViewLesson from "./pages/ViewLesson";
 import LessonExerciseFlow from "./pages/LessonExerciseFlow";
@@ -55,11 +57,11 @@ function AppRoutes() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/student-dashboard" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentDashboardV2 /> : <StudentDashboard />}</ProtectedRoute>} />
       <Route path="/student-dashboard/lessons" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentLessonsProgressV2 /> : <StudentLessonsProgress />}</ProtectedRoute>} />
-      <Route path="/student-dashboard/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentExercisesProgress /></ProtectedRoute>} />
+      <Route path="/student-dashboard/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <StudentExercisesProgressV2 /> : <StudentExercisesProgress />}</ProtectedRoute>} />
       <Route path="/student-dashboard/assessments" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><StudentAssessmentsProgress /></ProtectedRoute>} />
       <Route path="/lesson/:id" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ViewLesson /></ProtectedRoute>} />
       <Route path="/lesson/:lessonId/exercises" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><LessonExerciseFlow /></ProtectedRoute>} />
-      <Route path="/activities" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><Activities /></ProtectedRoute>} />
+      <Route path="/activities" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}>{useV2Design ? <ActivitiesV2 /> : <Activities />}</ProtectedRoute>} />
       <Route path="/available-assessments" element={<ProtectedRoute><AvailableAssessments /></ProtectedRoute>} />
       <Route path="/teacher-dashboard" element={<ProtectedRoute allowedRoles={["teacher", "teacher_english", "teacher_spanish"]}><TeacherDashboard /></ProtectedRoute>} />
       <Route path="/family-dashboard" element={<ProtectedRoute allowedRoles={["family"]}><FamilyDashboard /></ProtectedRoute>} />
