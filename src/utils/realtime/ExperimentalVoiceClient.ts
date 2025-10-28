@@ -67,6 +67,9 @@ export class ExperimentalVoiceClient {
   private isReady = false;
   private destroyed = false;
   private demoSessionId: string | null = null;
+  // Track whether AI is currently responding to filter out AI speech transcriptions
+  private isAIResponding = false;
+  private studentSpeaking = false;
 
   constructor(config: DemoConfig) {
     this.config = config;
@@ -391,12 +394,18 @@ export class ExperimentalVoiceClient {
           }
           break;
         case "input_audio_buffer.speech_started":
-          console.log("[ExperimentalVoiceClient] 🎤 You started speaking");
+          console.log("[ExperimentalVoiceClient] 🎤 Student started speaking");
+          this.studentSpeaking = true;
           this.emit("speech-started", undefined);
           break;
         case "input_audio_buffer.speech_stopped":
-          console.log("[ExperimentalVoiceClient] 🎤 You stopped speaking");
+          console.log("[ExperimentalVoiceClient] 🛑 Student stopped speaking");
+          this.studentSpeaking = false;
           this.emit("speech-stopped", undefined);
+          break;
+        case "response.created":
+          console.log("[ExperimentalVoiceClient] 🤖 AI response started");
+          this.isAIResponding = true;
           break;
         case "response.audio.delta":
         case "response.output_audio.delta":
@@ -410,32 +419,44 @@ export class ExperimentalVoiceClient {
         case "response.done":
           console.log("[ExperimentalVoiceClient] ✅ AI response complete");
           this.isAwaitingResponse = false;
+          this.isAIResponding = false;
           if (!this.isPlayingAudio) {
             this.emit("audio-playback", false);
           }
           break;
         case "response.audio_transcript.delta":
         case "response.output_audio_transcript.delta":
+          // AI speech - ignore for pronunciation matching
           if (typeof message.delta === "string") {
-            this.processTranscriptionDelta(message.delta);
+            console.log("[ExperimentalVoiceClient] 🤖 Ignoring AI speech:", message.delta);
           }
           break;
         case "response.audio_transcript.done":
         case "response.output_audio_transcript.done":
           break;
         case "conversation.item.input_audio_transcription.completed":
+          // CRITICAL: Only process student speech, not AI responses
+          if (this.isAIResponding) {
+            console.log("[ExperimentalVoiceClient] 🤖 Ignoring AI transcription:", message.transcript);
+            break;
+          }
+          
           console.log(`[ExperimentalVoiceClient] 🎤 Student transcription completed:`, {
             transcript: message.transcript,
             confidence: message.confidence,
           });
+          
           if (message.transcript) {
             const cleaned = message.transcript.toLowerCase().trim();
-            console.log(`[ExperimentalVoiceClient] 🔍 Triggering onWordTranscription with: "${cleaned}"`);
-            this.config.onWordTranscription?.(cleaned, performance.now(), message.confidence ?? 0.9);
+            // Extract confidence from logprob if available (Whisper provides this)
+            const confidence = this.extractConfidenceFromMessage(message);
+            
+            console.log(`[ExperimentalVoiceClient] 🔍 Triggering onWordTranscription with: "${cleaned}" (confidence: ${confidence})`);
+            this.config.onWordTranscription?.(cleaned, performance.now(), confidence);
             this.transcriptionBuffer.push({
               word: cleaned,
               timestamp: performance.now(),
-              confidence: message.confidence ?? 0.9,
+              confidence,
             });
           }
           break;
@@ -458,19 +479,20 @@ export class ExperimentalVoiceClient {
     return this.demoSessionId;
   }
 
-  private processTranscriptionDelta(delta: string) {
-    if (!delta?.trim()) return;
-    const words = delta.trim().split(/\s+/);
-    const timestamp = performance.now();
-
-    for (const rawWord of words) {
-      const cleaned = rawWord.toLowerCase().replace(/[^\w\sáéíóúñü]/gi, "");
-      if (cleaned) {
-        const entry = { word: cleaned, timestamp, confidence: 0.9 };
-        this.transcriptionBuffer.push(entry);
-        this.config.onWordTranscription?.(entry.word, entry.timestamp, entry.confidence);
-      }
+  private extractConfidenceFromMessage(message: any): number {
+    // Try to extract confidence from Whisper's logprob
+    // Whisper provides avg_logprob in the usage field
+    if (message.usage?.avg_logprob !== undefined) {
+      // Convert logprob to confidence (0-1 scale)
+      // logprobs typically range from -5 (low confidence) to 0 (high confidence)
+      const avgLogprob = message.usage.avg_logprob;
+      const confidence = Math.max(0, Math.min(1, Math.exp(avgLogprob)));
+      console.log(`[ExperimentalVoiceClient] 📊 Whisper logprob: ${avgLogprob.toFixed(2)}, confidence: ${confidence.toFixed(2)}`);
+      return confidence;
     }
+    
+    // Fallback to provided confidence or default
+    return message.confidence ?? 0.9;
   }
 
   private queueAudioPlayback(chunk: Int16Array) {
