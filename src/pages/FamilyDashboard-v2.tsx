@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, TrendingUp, Clock, Star, Lightbulb, Target, Award } from "lucide-react";
+import { BookOpen, TrendingUp, Clock, Star, Lightbulb, Target, Award, MessageSquare } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -392,6 +392,62 @@ const FamilyDashboardV2 = () => {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Message Teacher Section */}
+            <div className="bg-gradient-to-br from-orange-100 to-coral-50 rounded-3xl p-8 border-4 border-orange-300 shadow-lg">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 rounded-2xl bg-orange-400 flex items-center justify-center">
+                  <MessageSquare className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    {t("Enviar Mensaje a la Maestra 💌", "Message Teacher 💌")}
+                  </h2>
+                  <p className="text-gray-600">
+                    {t("Comunícate con la maestra de María", "Communicate with María's teacher")}
+                  </p>
+                </div>
+              </div>
+              
+              <form onSubmit={handleSendMessage} className="space-y-4">
+                <div>
+                  <label htmlFor="subject" className="block text-sm font-bold text-gray-700 mb-2">
+                    {t("Asunto", "Subject")}
+                  </label>
+                  <input
+                    id="subject"
+                    type="text"
+                    value={messageSubject}
+                    onChange={(e) => setMessageSubject(e.target.value)}
+                    placeholder={t("Ejemplo: Pregunta sobre tarea", "Example: Question about homework")}
+                    className="w-full px-4 py-3 rounded-xl border-3 border-orange-200 focus:border-orange-400 focus:outline-none text-gray-800 font-medium"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="message" className="block text-sm font-bold text-gray-700 mb-2">
+                    {t("Mensaje", "Message")}
+                  </label>
+                  <textarea
+                    id="message"
+                    value={messageContent}
+                    onChange={(e) => setMessageContent(e.target.value)}
+                    placeholder={t("Escribe tu mensaje aquí...", "Write your message here...")}
+                    rows={4}
+                    className="w-full px-4 py-3 rounded-xl border-3 border-orange-200 focus:border-orange-400 focus:outline-none text-gray-800 font-medium resize-none"
+                    required
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-orange-400 to-coral-400 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all border-3 border-orange-500"
+                >
+                  {t("Enviar Mensaje 📧", "Send Message 📧")}
+                </button>
+              </form>
             </div>
           </div>
         </main>
