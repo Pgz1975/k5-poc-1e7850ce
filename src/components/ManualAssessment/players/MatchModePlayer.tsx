@@ -6,6 +6,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { DndContext, DragEndEvent, closestCenter, DragOverlay, DragStartEvent, useDroppable, useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface DragDropMatchContent {
   mode: 'match';
@@ -29,9 +30,10 @@ interface MatchModePlayerProps {
   content: DragDropMatchContent;
   onAnswer: (answer: string, isCorrect: boolean) => void;
   voiceClient?: any;
+  colorScheme?: any;
 }
 
-export function MatchModePlayer({ content, onAnswer, voiceClient }: MatchModePlayerProps) {
+export function MatchModePlayer({ content, onAnswer, voiceClient, colorScheme }: MatchModePlayerProps) {
   const { t } = useLanguage();
 
   // State: map of itemId -> zoneId (or 'pool' for unplaced items)
@@ -133,7 +135,11 @@ export function MatchModePlayer({ content, onAnswer, voiceClient }: MatchModePla
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <Card className="p-6">
+      <Card className={cn(
+        "p-6 border-4 rounded-2xl",
+        colorScheme?.border,
+        "bg-white shadow-[0_4px_0_rgba(0,0,0,0.08)]"
+      )}>
         {/* Drop Zones */}
         <div className="mb-6">
           <p className="text-sm text-muted-foreground mb-3">
@@ -173,6 +179,14 @@ export function MatchModePlayer({ content, onAnswer, voiceClient }: MatchModePla
             onClick={handleCheck}
             disabled={getItemsInPool().length > 0 || isChecked}
             size="lg"
+            className={cn(
+              "border-4 rounded-2xl font-black",
+              colorScheme?.bg,
+              colorScheme?.border,
+              colorScheme?.shadow,
+              "text-white hover:-translate-y-0.5 active:translate-y-1",
+              "transition-all duration-200"
+            )}
           >
             {isChecked
               ? t('✓ Revisado', '✓ Checked')

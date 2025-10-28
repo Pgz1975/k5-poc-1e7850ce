@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface WriteAnswerContent {
   question: string;
@@ -17,9 +18,10 @@ interface WriteAnswerPlayerProps {
   content: WriteAnswerContent;
   onAnswer: (answer: string, isCorrect: boolean) => void;
   voiceClient?: any;
+  colorScheme?: any;
 }
 
-export function WriteAnswerPlayer({ content, onAnswer, voiceClient }: WriteAnswerPlayerProps) {
+export function WriteAnswerPlayer({ content, onAnswer, voiceClient, colorScheme }: WriteAnswerPlayerProps) {
   const { t } = useLanguage();
   const [userInput, setUserInput] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -56,7 +58,11 @@ export function WriteAnswerPlayer({ content, onAnswer, voiceClient }: WriteAnswe
   };
 
   return (
-    <Card className="p-4 sm:p-6">
+    <Card className={cn(
+      "p-4 sm:p-6 border-4 rounded-2xl",
+      colorScheme?.border,
+      "bg-white shadow-[0_4px_0_rgba(0,0,0,0.08)]"
+    )}>
       {/* Answer Input */}
       <div className="mb-6">
         <label htmlFor="answer-input" className="text-sm text-muted-foreground mb-3 block">
@@ -69,7 +75,12 @@ export function WriteAnswerPlayer({ content, onAnswer, voiceClient }: WriteAnswe
           onKeyPress={handleKeyPress}
           placeholder={t("Escribe aquí...", "Type here...")}
           disabled={isSubmitted}
-          className="text-lg sm:text-xl p-3 sm:p-4"
+          className={cn(
+            "text-lg sm:text-xl p-3 sm:p-4 border-3 rounded-xl",
+            colorScheme?.border,
+            "focus-visible:ring-offset-0",
+            `focus-visible:ring-2 focus-visible:${colorScheme?.border}`
+          )}
           autoFocus
           maxLength={50}
           aria-label={t("Campo de respuesta", "Answer field")}
@@ -86,7 +97,14 @@ export function WriteAnswerPlayer({ content, onAnswer, voiceClient }: WriteAnswe
           onClick={handleSubmit} 
           disabled={!userInput.trim() || isSubmitted}
           size="lg"
-          className="w-full sm:w-auto"
+          className={cn(
+            "w-full sm:w-auto border-4 rounded-2xl font-black",
+            colorScheme?.bg,
+            colorScheme?.border,
+            colorScheme?.shadow,
+            "text-white hover:-translate-y-0.5 active:translate-y-1",
+            "transition-all duration-200"
+          )}
         >
           {isSubmitted 
             ? t('✓ Enviado', '✓ Submitted') 

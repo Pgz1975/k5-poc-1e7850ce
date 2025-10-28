@@ -8,6 +8,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { MatchModePlayer } from './MatchModePlayer';
+import { cn } from '@/lib/utils';
 
 // TokenLetter: stable identity for each letter instance
 interface TokenLetter {
@@ -46,15 +47,17 @@ interface DragDropPlayerProps {
   content: DragDropContent;
   onAnswer: (answer: string, isCorrect: boolean) => void;
   voiceClient?: any;
+  colorScheme?: any;
 }
 
 interface LetterTileProps {
   letter: string;
   id: string;
   isInSlot?: boolean;
+  colorScheme?: any;
 }
 
-function LetterTile({ letter, id, isInSlot }: LetterTileProps) {
+function LetterTile({ letter, id, isInSlot, colorScheme }: LetterTileProps) {
   const {
     attributes,
     listeners,
@@ -76,15 +79,16 @@ function LetterTile({ letter, id, isInSlot }: LetterTileProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`
-        w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-xl sm:text-2xl font-bold rounded-md
-        cursor-grab active:cursor-grabbing select-none
-        transition-colors touch-none
-        ${isInSlot 
-          ? 'bg-primary text-primary-foreground border-2 border-primary' 
-          : 'bg-secondary text-secondary-foreground border-2 border-border hover:bg-secondary/80'
-        }
-      `}
+      className={cn(
+        "w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-xl sm:text-2xl font-bold rounded-xl",
+        "cursor-grab active:cursor-grabbing select-none transition-all touch-none",
+        "border-3 shadow-[0_3px_0_rgba(0,0,0,0.08)]",
+        "hover:shadow-[0_4px_0_rgba(0,0,0,0.1)] hover:-translate-y-0.5",
+        "active:shadow-[0_1px_0_rgba(0,0,0,0.08)] active:translate-y-1",
+        isInSlot 
+          ? cn(colorScheme?.bg, colorScheme?.border, "text-white")
+          : cn(colorScheme?.border, "bg-white", colorScheme?.text, "hover:bg-gray-50")
+      )}
       role="button"
       tabIndex={0}
       aria-label={`${letter}`}
@@ -95,20 +99,19 @@ function LetterTile({ letter, id, isInSlot }: LetterTileProps) {
   );
 }
 
-function EmptySlot({ id }: { id: string }) {
+function EmptySlot({ id, colorScheme }: { id: string; colorScheme?: any }) {
   const { setNodeRef, isOver } = useSortable({ id });
 
   return (
     <div
       ref={setNodeRef}
-      className={`
-        w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-md
-        border-2 border-dashed transition-colors
-        ${isOver 
-          ? 'border-primary bg-primary/10' 
-          : 'border-muted-foreground/30 bg-muted/20'
-        }
-      `}
+      className={cn(
+        "w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl",
+        "border-3 border-dashed transition-colors",
+        isOver 
+          ? cn(colorScheme?.border, colorScheme?.bg, "opacity-20")
+          : cn(colorScheme?.border, "bg-white/50", "opacity-40")
+      )}
       role="button"
       aria-label="Empty slot"
     >
@@ -126,17 +129,17 @@ function shuffle<T>(array: T[]): T[] {
   return newArray;
 }
 
-export function DragDropPlayer({ content, onAnswer, voiceClient }: DragDropPlayerProps) {
+export function DragDropPlayer({ content, onAnswer, voiceClient, colorScheme }: DragDropPlayerProps) {
   const { t } = useLanguage();
 
   if (content.mode === 'match') {
-    return <MatchModePlayer content={content} onAnswer={onAnswer} voiceClient={voiceClient} />;
+    return <MatchModePlayer content={content} onAnswer={onAnswer} voiceClient={voiceClient} colorScheme={colorScheme} />;
   }
 
-  return <LettersModePlayer content={content} onAnswer={onAnswer} voiceClient={voiceClient} />;
+  return <LettersModePlayer content={content} onAnswer={onAnswer} voiceClient={voiceClient} colorScheme={colorScheme} />;
 }
 
-function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDropLettersContent; onAnswer: any; voiceClient?: any }) {
+function LettersModePlayer({ content, onAnswer, voiceClient, colorScheme }: { content: DragDropLettersContent; onAnswer: any; voiceClient?: any; colorScheme?: any }) {
   const { t } = useLanguage();
   const tokenIdCounter = useRef(0);
   
@@ -290,7 +293,11 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <Card className="p-4 sm:p-6">
+      <Card className={cn(
+        "p-4 sm:p-6 border-4 rounded-2xl",
+        colorScheme?.border,
+        "bg-white shadow-[0_4px_0_rgba(0,0,0,0.08)]"
+      )}>
         {/* Answer Slots */}
         <div className="mb-6">
           <p className="text-sm text-muted-foreground mb-3" id="slots-instruction">
@@ -308,10 +315,11 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
                     key={`slot-${i}-${token.id}`} 
                     id={`slot-${i}`} 
                     letter={token.char} 
-                    isInSlot 
+                    isInSlot
+                    colorScheme={colorScheme}
                   />
                 ) : (
-                  <EmptySlot key={`slot-${i}`} id={`slot-${i}`} />
+                  <EmptySlot key={`slot-${i}`} id={`slot-${i}`} colorScheme={colorScheme} />
                 )
               ))}
             </div>
@@ -339,7 +347,7 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
                 </p>
               ) : (
                 pool.map((token) => (
-                  <LetterTile key={`pool-${token.id}`} id={`pool-${token.id}`} letter={token.char} />
+                  <LetterTile key={`pool-${token.id}`} id={`pool-${token.id}`} letter={token.char} colorScheme={colorScheme} />
                 ))
               )}
             </div>
@@ -352,7 +360,14 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
             onClick={handleCheck} 
             disabled={slots.some(s => s === null) || isChecked}
             size="lg"
-            className="w-full sm:w-auto"
+            className={cn(
+              "w-full sm:w-auto border-4 rounded-2xl font-black",
+              colorScheme?.bg,
+              colorScheme?.border,
+              colorScheme?.shadow,
+              "text-white hover:-translate-y-0.5 active:translate-y-1",
+              "transition-all duration-200"
+            )}
           >
             {isChecked 
               ? t('✓ Revisado', '✓ Checked') 
@@ -389,11 +404,21 @@ function LettersModePlayer({ content, onAnswer, voiceClient }: { content: DragDr
 
       <DragOverlay>
         {activeId && activeId.startsWith('pool-') ? (
-          <div className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-md bg-primary text-primary-foreground border-2 border-primary opacity-80">
+          <div className={cn(
+            "w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-xl border-3 opacity-80",
+            colorScheme?.bg,
+            colorScheme?.border,
+            "text-white shadow-lg"
+          )}>
             {pool.find(t => t.id === activeId.replace('pool-', ''))?.char}
           </div>
         ) : activeId && activeId.startsWith('slot-') ? (
-          <div className="w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-md bg-primary text-primary-foreground border-2 border-primary opacity-80">
+          <div className={cn(
+            "w-12 h-12 flex items-center justify-center text-2xl font-bold rounded-xl border-3 opacity-80",
+            colorScheme?.bg,
+            colorScheme?.border,
+            "text-white shadow-lg"
+          )}>
             {slots[parseInt(activeId.replace('slot-', ''))]?.char}
           </div>
         ) : null}
