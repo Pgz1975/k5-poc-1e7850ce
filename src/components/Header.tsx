@@ -98,7 +98,6 @@ export const Header = () => {
     if (userRole?.startsWith("student")) {
       return [
         { label: t("Mi Panel", "My Dashboard"), href: "/student-dashboard", icon: HomeIcon },
-        { label: t("Práctica de Pronunciación", "Pronunciation Practice"), href: "/activities", icon: Mic },
       ];
     }
     
