@@ -5,6 +5,8 @@ import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import CoquiMascot from "@/components/CoquiMascot";
+import { WhatIsFluenxIA } from "@/components/WhatIsFluenxIA";
+import { ForPuertoRico } from "@/components/ForPuertoRico";
 import { BookOpen, Mic, Trophy, Sparkles } from "lucide-react";
 
 function HeroV2() {
@@ -32,15 +34,18 @@ function HeroV2() {
           {/* Right Column - Content */}
           <div className="text-center lg:text-left space-y-6 animate-fade-in">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-student-pink via-student-peach to-student-yellow">
-                {t("¡Aprende a Leer!", "Learn to Read!")}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-student-pink via-student-peach to-student-yellow block mb-3">
+                FluenxIA
+              </span>
+              <span className="text-2xl md:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-student-lime to-student-coral">
+                {t("Fluidez impulsada por Inteligencia Artificial", "Fluency powered by Artificial Intelligence")}
               </span>
             </h1>
             
             <p className="text-lg md:text-xl text-foreground/80">
               {t(
-                "Plataforma educativa bilingüe con AI para estudiantes K-5 de Puerto Rico",
-                "Bilingual AI-powered educational platform for K-5 students in Puerto Rico"
+                "Desarrolla fluidez verdadera en español e inglés con tecnología AI que se adapta a tu nivel. Para estudiantes K-5 en Puerto Rico.",
+                "Develop true fluency in Spanish and English with AI technology that adapts to your level. For K-5 students in Puerto Rico."
               )}
             </p>
 
@@ -80,37 +85,37 @@ function FeaturesV2() {
   const features = [
     {
       icon: BookOpen,
-      title: t("Lectura Interactiva", "Interactive Reading"),
+      title: t("Lectura Adaptativa AI", "AI Adaptive Reading"),
       description: t(
-        "Ejercicios de lectura con narración AI y retroalimentación",
-        "Reading exercises with AI narration and feedback"
+        "Textos que se ajustan automáticamente a tu nivel de fluidez",
+        "Texts that automatically adjust to your fluency level"
       ),
       color: "pink" as const,
     },
     {
       icon: Mic,
-      title: t("Práctica de Pronunciación", "Pronunciation Practice"),
+      title: t("Pronunciación Inteligente", "Intelligent Pronunciation"),
       description: t(
-        "Mejora tu pronunciación con reconocimiento de voz",
-        "Improve pronunciation with voice recognition"
+        "AI que escucha tu voz y te ayuda a pronunciar correctamente",
+        "AI that listens to your voice and helps you pronounce correctly"
       ),
       color: "coral" as const,
     },
     {
       icon: Trophy,
-      title: t("Gamificación", "Gamification"),
+      title: t("Seguimiento Personalizado", "Personalized Tracking"),
       description: t(
-        "Gana estrellas, medallas y sube de nivel",
-        "Earn stars, medals and level up"
+        "Progreso detallado en fluidez, pronunciación y comprensión",
+        "Detailed progress in fluency, pronunciation and comprehension"
       ),
       color: "yellow" as const,
     },
     {
       icon: Sparkles,
-      title: t("Mentor AI", "AI Mentor"),
+      title: t("Mentor AI 24/7", "24/7 AI Mentor"),
       description: t(
-        "Asistente personalizado para ayudarte a aprender",
-        "Personalized assistant to help you learn"
+        "Coquí responde tus preguntas cuando lo necesites",
+        "Coquí answers your questions whenever you need"
       ),
       color: "lime" as const,
     },
@@ -218,7 +223,9 @@ function IndexV2Content() {
         
         <main className="flex-1">
           <HeroV2 />
+          <WhatIsFluenxIA />
           <FeaturesV2 />
+          <ForPuertoRico />
           <CTAV2 />
         </main>
 
