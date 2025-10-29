@@ -4,7 +4,7 @@ import { Star, Sparkles, BookOpen, Target, ClipboardCheck, Flame, Trophy } from 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import CoquiMascot from "@/components/CoquiMascot";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCoquiSession } from "@/hooks/useCoquiSession";
 import { CoquiClickHint } from "@/components/StudentDashboard/CoquiClickHint";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
@@ -26,12 +26,13 @@ import { QuickActions } from "@/components/StudentDashboard/QuickActions";
 const StudentDashboardV2 = () => {
   const { t, language } = useLanguage();
   const [mascotState, setMascotState] = useState<"happy" | "thinking" | "reading" | "exploring" | "correct" | "excited" | "speaking">("happy");
+  const hasGreeted = useRef(false);
   const { data: profile, isLoading } = useStudentProfile();
 
   // Dashboard voice guidance context
   const dashboardGuidance = language === 'es' 
-    ? `Eres Coquí, el amigo y guía oficial de la plataforma educativa LecturaPR para estudiantes de K-5 en Puerto Rico. Tu rol es dar la bienvenida al estudiante al dashboard, presentar brevemente las opciones disponibles (Lecciones, Ejercicios, Evaluaciones), y motivarlo a explorar. Sé amigable, breve y entusiasta. Si el estudiante te pregunta algo, ayúdalo con información sobre la plataforma.`
-    : `You are Coquí, the official friend and guide for the LecturaPR educational platform for K-5 students in Puerto Rico. Your role is to welcome the student to the dashboard, briefly introduce the available options (Lessons, Exercises, Assessments), and motivate them to explore. Be friendly, brief, and enthusiastic. If the student asks you something, help them with information about the platform.`;
+    ? `Eres Coquí, el amigo y guía oficial de la plataforma educativa FluenxIA para estudiantes de K-5 en Puerto Rico. Tu rol es dar la bienvenida al estudiante al dashboard, presentar brevemente las opciones disponibles (Lecciones, Ejercicios, Evaluaciones), y motivarlo a explorar. Sé amigable, breve y entusiasta. Si el estudiante te pregunta algo, ayúdalo con información sobre la plataforma.`
+    : `You are Coquí, the official friend and guide for the FluenxIA educational platform for K-5 students in Puerto Rico. Your role is to welcome the student to the dashboard, briefly introduce the available options (Lessons, Exercises, Assessments), and motivate them to explore. Be friendly, brief, and enthusiastic. If the student asks you something, help them with information about the platform.`;
 
   // Voice session management
   const {
@@ -39,9 +40,10 @@ const StudentDashboardV2 = () => {
     isConnecting,
     isAIPlaying,
     startSession,
-    endSession
+    endSession,
+    sendText
   } = useCoquiSession({
-    activityId: 'dashboard-intro',
+    activityId: undefined, // System activity - no specific lesson/exercise
     activityType: 'system',
     voiceContext: {
       title: 'Dashboard Introduction',
@@ -60,6 +62,38 @@ const StudentDashboardV2 = () => {
       setMascotState('happy');
     }
   }, [isAIPlaying, isConnected]);
+
+  // Send initial greeting when connection is established
+  useEffect(() => {
+    if (!isConnected) return;
+    if (hasGreeted.current) return;
+    if (!sendText) {
+      console.warn('[StudentDashboard] ⚠️ sendText not available yet');
+      return;
+    }
+
+    hasGreeted.current = true;
+    
+    const greeting = language === 'es'
+      ? '¡Hola! Por favor, preséntate y explica cómo puedes ayudarme en mi dashboard.'
+      : 'Hello! Please introduce yourself and explain how you can help me on my dashboard.';
+    
+    console.log('[StudentDashboard] 👋 Sending initial greeting to Coquí');
+    console.log('[StudentDashboard] 📝 Greeting text:', greeting);
+    
+    // Small delay to ensure WebSocket is fully ready
+    setTimeout(() => {
+      sendText(greeting);
+      console.log('[StudentDashboard] ✅ Greeting sent!');
+    }, 100);
+  }, [isConnected, sendText, language]);
+
+  // Reset greeting flag when disconnecting
+  useEffect(() => {
+    if (!isConnected && hasGreeted.current) {
+      hasGreeted.current = false;
+    }
+  }, [isConnected]);
 
   // Handle Coquí click to start session
   const handleCoquiClick = async () => {

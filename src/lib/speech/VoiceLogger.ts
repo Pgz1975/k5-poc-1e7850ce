@@ -16,6 +16,12 @@ export async function logAIResponse({
   language
 }: LogAIResponseParams) {
   try {
+    // Skip logging if activityId is not a valid UUID (e.g., system activities)
+    if (!activityId) {
+      console.log('[VoiceLogger] Skipping log - system activity with no activityId');
+      return;
+    }
+
     const { error } = await supabase
       .from('voice_interactions')
       .insert({

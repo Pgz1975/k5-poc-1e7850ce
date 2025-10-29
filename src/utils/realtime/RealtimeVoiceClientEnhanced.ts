@@ -81,6 +81,15 @@ export class RealtimeVoiceClientEnhanced {
           try {
             this.audioContext = new AudioContext({ sampleRate: 24000 });
             console.log('[RealtimeVoiceClient] 🎵 AudioContext created');
+            
+            // CRITICAL: Resume AudioContext if suspended (browser autoplay policy)
+            if (this.audioContext.state === 'suspended') {
+              this.audioContext.resume().then(() => {
+                console.log('[RealtimeVoiceClient] 🔊 AudioContext resumed from suspended state');
+              });
+            }
+            console.log('[RealtimeVoiceClient] 🔊 AudioContext state:', this.audioContext.state);
+            
             resolve();
           } catch (error) {
             reject(error);
