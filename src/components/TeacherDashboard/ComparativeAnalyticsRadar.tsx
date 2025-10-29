@@ -9,31 +9,31 @@ export const ComparativeAnalyticsRadar = () => {
   const radarData = [
     {
       skill: t("Comprensión", "Comprehension"),
-      [t("Mi Clase", "My Class")]: mockComparativeData.skillsComparison.comprehension.thisClass,
-      [t("Escuela", "School")]: mockComparativeData.skillsComparison.comprehension.schoolAvg,
-      [t("Región", "Region")]: mockComparativeData.skillsComparison.comprehension.regionalAvg,
-      [t("Isla", "Island")]: mockComparativeData.skillsComparison.comprehension.islandAvg,
+      myClass: mockComparativeData.skillsComparison.comprehension.thisClass,
+      school: mockComparativeData.skillsComparison.comprehension.schoolAvg,
+      region: mockComparativeData.skillsComparison.comprehension.regionalAvg,
+      island: mockComparativeData.skillsComparison.comprehension.islandAvg,
     },
     {
       skill: t("Fluidez", "Fluency"),
-      [t("Mi Clase", "My Class")]: mockComparativeData.skillsComparison.fluency.thisClass,
-      [t("Escuela", "School")]: mockComparativeData.skillsComparison.fluency.schoolAvg,
-      [t("Región", "Region")]: mockComparativeData.skillsComparison.fluency.regionalAvg,
-      [t("Isla", "Island")]: mockComparativeData.skillsComparison.fluency.islandAvg,
+      myClass: mockComparativeData.skillsComparison.fluency.thisClass,
+      school: mockComparativeData.skillsComparison.fluency.schoolAvg,
+      region: mockComparativeData.skillsComparison.fluency.regionalAvg,
+      island: mockComparativeData.skillsComparison.fluency.islandAvg,
     },
     {
       skill: t("Vocabulario", "Vocabulary"),
-      [t("Mi Clase", "My Class")]: mockComparativeData.skillsComparison.vocabulary.thisClass,
-      [t("Escuela", "School")]: mockComparativeData.skillsComparison.vocabulary.schoolAvg,
-      [t("Región", "Region")]: mockComparativeData.skillsComparison.vocabulary.regionalAvg,
-      [t("Isla", "Island")]: mockComparativeData.skillsComparison.vocabulary.islandAvg,
+      myClass: mockComparativeData.skillsComparison.vocabulary.thisClass,
+      school: mockComparativeData.skillsComparison.vocabulary.schoolAvg,
+      region: mockComparativeData.skillsComparison.vocabulary.regionalAvg,
+      island: mockComparativeData.skillsComparison.vocabulary.islandAvg,
     },
     {
       skill: t("Pronunciación", "Pronunciation"),
-      [t("Mi Clase", "My Class")]: mockComparativeData.skillsComparison.pronunciation.thisClass,
-      [t("Escuela", "School")]: mockComparativeData.skillsComparison.pronunciation.schoolAvg,
-      [t("Región", "Region")]: mockComparativeData.skillsComparison.pronunciation.regionalAvg,
-      [t("Isla", "Island")]: mockComparativeData.skillsComparison.pronunciation.islandAvg,
+      myClass: mockComparativeData.skillsComparison.pronunciation.thisClass,
+      school: mockComparativeData.skillsComparison.pronunciation.schoolAvg,
+      region: mockComparativeData.skillsComparison.pronunciation.regionalAvg,
+      island: mockComparativeData.skillsComparison.pronunciation.islandAvg,
     },
   ];
 
@@ -53,28 +53,28 @@ export const ComparativeAnalyticsRadar = () => {
             <PolarRadiusAxis angle={90} domain={[0, 100]} />
             <Radar
               name={t("Mi Clase", "My Class")}
-              dataKey={t("Mi Clase", "My Class")}
+              dataKey="myClass"
               stroke="hsl(125, 100%, 71%)"
               fill="hsl(125, 100%, 71%)"
               fillOpacity={0.6}
             />
             <Radar
               name={t("Escuela", "School")}
-              dataKey={t("Escuela", "School")}
+              dataKey="school"
               stroke="hsl(176, 84%, 71%)"
               fill="hsl(176, 84%, 71%)"
               fillOpacity={0.4}
             />
             <Radar
               name={t("Región", "Region")}
-              dataKey={t("Región", "Region")}
+              dataKey="region"
               stroke="hsl(27, 100%, 71%)"
               fill="hsl(27, 100%, 71%)"
               fillOpacity={0.3}
             />
             <Radar
               name={t("Isla", "Island")}
-              dataKey={t("Isla", "Island")}
+              dataKey="island"
               stroke="hsl(329, 100%, 71%)"
               fill="hsl(329, 100%, 71%)"
               fillOpacity={0.2}

@@ -33,6 +33,9 @@ import { ComparativeAnalyticsRadar } from "@/components/TeacherDashboard/Compara
 import { BenchmarkingTable } from "@/components/TeacherDashboard/BenchmarkingTable";
 import { ScheduleComparisonSection } from "@/components/TeacherDashboard/ScheduleComparisonSection";
 import { GradeSchoolComparison } from "@/components/TeacherDashboard/GradeSchoolComparison";
+import { AccommodationsTracker } from "@/components/TeacherDashboard/AccommodationsTracker";
+import { CulturalContentTracker } from "@/components/TeacherDashboard/CulturalContentTracker";
+import { ParentCommunicationPanel } from "@/components/TeacherDashboard/ParentCommunicationPanel";
 import { 
   mockAIInsights, 
   mockErrorPatterns, 
@@ -290,6 +293,29 @@ const TeacherDashboardV2 = () => {
               <ScheduleComparisonSection />
 
               <GradeSchoolComparison />
+            </div>
+
+            {/* Cultural Localization Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg">
+                  <Award className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    {t("Localización Cultural", "Cultural Localization")}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {t("Seguimiento de acomodos, cultura puertorriqueña y comunicación", "Tracking accommodations, Puerto Rican culture and communication")}
+                  </p>
+                </div>
+              </div>
+
+              <AccommodationsTracker students={students} />
+              
+              <CulturalContentTracker />
+              
+              <ParentCommunicationPanel students={students} />
             </div>
 
             {/* Analytics Charts */}
