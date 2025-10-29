@@ -74,6 +74,12 @@ const AuthV2 = () => {
       navigate("/teacher-dashboard");
     } else if (userRole === "family") {
       navigate("/family-dashboard");
+    } else if (userRole === "school_director") {
+      navigate("/school-director-dashboard");
+    } else if (userRole === "regional_director") {
+      navigate("/regional-director-dashboard");
+    } else if (userRole === "depr_executive") {
+      navigate("/depr-executive-dashboard");
     } else {
       navigate("/dashboard");
     }
