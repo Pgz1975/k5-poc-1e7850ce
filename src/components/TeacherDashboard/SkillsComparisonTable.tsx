@@ -6,10 +6,15 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowUpDown } from "lucide-react";
 import { mockStudentSkillScores, StudentSkillScore } from "@/data/teacherSkillsData";
 import { Button } from "@/components/ui/button";
+import { StudentNamePill } from "./StudentNamePill";
 
 type SortField = "studentName" | "comprehension" | "fluency" | "vocabulary" | "pronunciation" | "overall";
 
-export const SkillsComparisonTable = () => {
+interface SkillsComparisonTableProps {
+  onStudentClick?: (student: any) => void;
+}
+
+export const SkillsComparisonTable = ({ onStudentClick }: SkillsComparisonTableProps) => {
   const { t } = useLanguage();
   const [sortField, setSortField] = useState<SortField>("overall");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
@@ -112,8 +117,11 @@ export const SkillsComparisonTable = () => {
             <TableBody>
               {sortedStudents.map((student) => (
                 <TableRow key={student.studentName}>
-                  <TableCell className="font-medium">
-                    {student.studentName}
+                  <TableCell>
+                    <StudentNamePill
+                      student={{ nameEs: student.studentName, nameEn: student.studentName }}
+                      onClick={() => onStudentClick?.(student)}
+                    />
                   </TableCell>
                   <TableCell className="text-center">
                     {getScoreBadge(student.comprehension)}

@@ -37,6 +37,7 @@ import { AccommodationsTracker } from "@/components/TeacherDashboard/Accommodati
 import { CulturalContentTracker } from "@/components/TeacherDashboard/CulturalContentTracker";
 import { ParentCommunicationPanel } from "@/components/TeacherDashboard/ParentCommunicationPanel";
 import { StudentProfileDrawer } from "@/components/TeacherDashboard/StudentProfileDrawer";
+import { StudentNamePill } from "@/components/TeacherDashboard/StudentNamePill";
 import { 
   mockAIInsights, 
   mockErrorPatterns, 
@@ -245,7 +246,7 @@ const TeacherDashboardV2 = () => {
             </div>
 
             {/* Skills Comparison Table */}
-            <SkillsComparisonTable />
+            <SkillsComparisonTable onStudentClick={handleViewProfile} />
 
             {/* Assessment Results Section */}
             <AssessmentResultsSection />
@@ -319,11 +320,11 @@ const TeacherDashboardV2 = () => {
                 </div>
               </div>
 
-              <AccommodationsTracker students={students} />
+              <AccommodationsTracker students={students} onStudentClick={handleViewProfile} />
               
               <CulturalContentTracker />
               
-              <ParentCommunicationPanel students={students} />
+              <ParentCommunicationPanel students={students} onStudentClick={handleViewProfile} />
             </div>
 
             {/* Analytics Charts */}
@@ -396,8 +397,11 @@ const TeacherDashboardV2 = () => {
                   <TableBody>
                     {filteredStudents.map((student) => (
                       <TableRow key={student.id}>
-                        <TableCell className="font-medium">
-                          {t(student.nameEs, student.nameEn)}
+                        <TableCell>
+                          <StudentNamePill
+                            student={{ nameEs: student.nameEs, nameEn: student.nameEn }}
+                            onClick={() => handleViewProfile(student)}
+                          />
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">{student.grade}</Badge>

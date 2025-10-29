@@ -4,12 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { mockAccommodations, mockStudentAccommodations } from "@/data/culturalLocalization";
 import { FileText } from "lucide-react";
+import { StudentNamePill } from "./StudentNamePill";
 
 interface AccommodationsTrackerProps {
   students: any[];
+  onStudentClick?: (student: any) => void;
 }
 
-export const AccommodationsTracker = ({ students }: AccommodationsTrackerProps) => {
+export const AccommodationsTracker = ({ students, onStudentClick }: AccommodationsTrackerProps) => {
   const { t } = useLanguage();
 
   const getAccommodationBadge = (accKey: string) => {
@@ -55,8 +57,11 @@ export const AccommodationsTracker = ({ students }: AccommodationsTrackerProps) 
 
               return (
                 <TableRow key={student.id}>
-                  <TableCell className="font-medium">
-                    {t(student.nameEs, student.nameEn)}
+                  <TableCell>
+                    <StudentNamePill
+                      student={{ nameEs: student.nameEs, nameEn: student.nameEn }}
+                      onClick={() => onStudentClick?.(student)}
+                    />
                   </TableCell>
                   <TableCell>
                     {studentAccommodations.hasPEI ? (

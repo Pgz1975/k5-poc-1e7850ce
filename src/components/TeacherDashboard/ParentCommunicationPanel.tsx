@@ -17,12 +17,14 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { StudentNamePill } from "./StudentNamePill";
 
 interface ParentCommunicationPanelProps {
   students: any[];
+  onStudentClick?: (student: any) => void;
 }
 
-export const ParentCommunicationPanel = ({ students }: ParentCommunicationPanelProps) => {
+export const ParentCommunicationPanel = ({ students, onStudentClick }: ParentCommunicationPanelProps) => {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
 
@@ -150,8 +152,11 @@ export const ParentCommunicationPanel = ({ students }: ParentCommunicationPanelP
 
               return (
                 <TableRow key={pref.studentId}>
-                  <TableCell className="font-medium">
-                    {t(student.nameEs, student.nameEn)}
+                  <TableCell>
+                    <StudentNamePill
+                      student={{ nameEs: student.nameEs, nameEn: student.nameEn }}
+                      onClick={() => onStudentClick?.(student)}
+                    />
                   </TableCell>
                   <TableCell>
                     {getMethodBadge(pref.method)}
