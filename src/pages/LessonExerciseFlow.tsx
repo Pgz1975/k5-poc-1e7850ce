@@ -103,6 +103,15 @@ export default function LessonExerciseFlow() {
     } : undefined
   });
 
+  // Early return if no current exercise (MUST be after all hooks)
+  if (!currentExercise && !exercisesLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   // Fetch completed exercises
   const { data: completedData } = useQuery({
     queryKey: ['completed-exercises', lessonId, user?.id],
@@ -279,16 +288,8 @@ export default function LessonExerciseFlow() {
       endSession();
     };
   }, [endSession]);
-  
-  if (!currentExercise) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
 
-  const exerciseVoiceGuidance = currentExercise.voice_guidance ?? defaultExerciseGuidance;
+  const exerciseVoiceGuidance = currentExercise?.voice_guidance ?? defaultExerciseGuidance;
 
   const progressPercent = (completedExercises.size / exercises.length) * 100;
 
