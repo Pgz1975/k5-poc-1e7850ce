@@ -314,8 +314,8 @@ function handleSessionCreated(session: SessionState): void {
         type: 'server_vad',
         threshold: 0.45,
         prefix_padding_ms: 300,
-        silence_duration_ms: 1200,
-        create_response: true
+        silence_duration_ms: 800, // Reduced from 1200ms for faster response
+        create_response: true // Auto-respond after user stops speaking
       };
 
   const sessionConfig = {
