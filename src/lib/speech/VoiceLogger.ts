@@ -16,8 +16,10 @@ export async function logAIResponse({
   language
 }: LogAIResponseParams) {
   try {
-    // Skip logging if activityId is not a valid UUID (e.g., system activities like dashboard)
-    const isUUID = typeof activityId === 'string' && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(activityId);
+    // Skip logging if activityId is not a valid UUID (e.g., system activities)
+    const isUUID = typeof activityId === 'string' && 
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(activityId);
+    
     if (!isUUID) {
       console.log('[VoiceLogger] Skipping log - non-UUID activityId:', activityId);
       return;

@@ -4,8 +4,7 @@ import { Star, Sparkles, BookOpen, Target, ClipboardCheck, Flame, Trophy } from 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import CoquiMascot from "@/components/CoquiMascot";
-import { useState, useEffect } from "react";
-import { CoquiClickHint } from "@/components/StudentDashboard/CoquiClickHint";
+import { useState } from "react";
 import { CoquiLessonAssistantGuard } from "@/components/coqui/CoquiLessonAssistantGuard";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { useStudentProgress } from "@/hooks/useStudentProgress";
@@ -25,9 +24,7 @@ import { QuickActions } from "@/components/StudentDashboard/QuickActions";
 
 const StudentDashboardV2 = () => {
   const { t, language } = useLanguage();
-  const [mascotState, setMascotState] = useState<"happy" | "thinking" | "reading" | "exploring" | "correct" | "excited" | "speaking">("happy");
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [isAssistantConnected, setIsAssistantConnected] = useState(false);
   const { data: profile, isLoading } = useStudentProfile();
 
   // Dashboard voice guidance context
@@ -35,13 +32,9 @@ const StudentDashboardV2 = () => {
     ? `Eres Coquí, el amigo y guía oficial de la plataforma educativa FluenxIA para estudiantes de K-5 en Puerto Rico. Tu rol es dar la bienvenida al estudiante al dashboard, presentar brevemente las opciones disponibles (Lecciones, Ejercicios, Evaluaciones), y motivarlo a explorar. Sé amigable, breve y entusiasta. Si el estudiante te pregunta algo, ayúdalo con información sobre la plataforma.`
     : `You are Coquí, the official friend and guide for the FluenxIA educational platform for K-5 students in Puerto Rico. Your role is to welcome the student to the dashboard, briefly introduce the available options (Lessons, Exercises, Assessments), and motivate them to explore. Be friendly, brief, and enthusiastic. If the student asks you something, help them with information about the platform.`;
 
-  // Handle Coquí click to trigger hidden assistant's startSession
-  const handleCoquiClick = async () => {
-    if (isConnected || isConnecting) return;
-    localStorage.setItem("coqui-hint-dismissed", "true");
-    setIsConnecting(true);
-    // The hidden CoquiLessonAssistantGuard will auto-connect
-  };
+  const dashboardIntroGreeting = language === 'es'
+    ? '¡Hola! Por favor, preséntate y explica cómo puedes ayudarme en mi dashboard.'
+    : 'Hello! Please introduce yourself and explain how you can help me on my dashboard.';
 
   const lessonsProgress = useStudentProgress({
     activityType: "lesson",
@@ -186,21 +179,19 @@ const StudentDashboardV2 = () => {
                 {/* Interactive Mascot */}
                 <div className="flex justify-center">
                   <div className="relative inline-block">
-                    <div onClick={handleCoquiClick}>
-                      <CoquiMascot 
-                        state={isConnecting ? "waiting" : mascotState}
-                        size="large"
-                        position="inline"
-                        className={
-                          isConnecting 
-                            ? "animate-pulse cursor-wait drop-shadow-2xl" 
-                            : isConnected 
-                              ? "animate-breathe drop-shadow-2xl" 
-                              : "cursor-pointer hover:scale-105 transition-transform drop-shadow-2xl"
-                        }
-                      />
-                    </div>
-                    {!isConnected && !isConnecting && <CoquiClickHint />}
+                    <CoquiLessonAssistantGuard
+                      activityId="system-dashboard"
+                      activityType="system"
+                      position="inline"
+                      autoConnect={true}
+                      className="drop-shadow-2xl"
+                      voiceContext={{
+                        title: 'Dashboard Introduction',
+                        language: language === 'es' ? 'es-PR' : 'en-US',
+                        voiceGuidance: dashboardGuidance,
+                        coquiDialogue: dashboardIntroGreeting
+                      }}
+                    />
                   </div>
                 </div>
                 
@@ -216,36 +207,12 @@ const StudentDashboardV2 = () => {
                     {t("¿Qué quieres hacer hoy?", "What do you want to do today?")}
                   </p>
                   
-                  {/* Status Text */}
+                  {/* Status hint */}
                   <p className="text-lg md:text-xl font-semibold text-[hsl(176,84%,35%)] mt-4">
-                    {isConnecting
-                      ? t("Conectando...", "Connecting...")
-                      : isConnected
-                        ? t("¡Háblame! Estoy escuchando 👂", "Talk to me! I'm listening 👂")
-                        : t("Haz clic en Coquí para empezar", "Click on Coquí to start")
-                    }
+                    {t("Haz clic en Coquí para empezar", "Click on Coquí to start")}
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* Hidden voice assistant - drives behavior using lesson pipeline */}
-            <div className="hidden">
-              <CoquiLessonAssistantGuard
-                activityId="system-dashboard"
-                activityType="system"
-                position="inline"
-                autoConnect={false}
-                isConnecting={isConnecting}
-                voiceContext={{
-                  title: 'Dashboard Introduction',
-                  language: language === 'es' ? 'es-PR' : 'en-US',
-                  voiceGuidance: dashboardGuidance,
-                  coquiDialogue: language === 'es'
-                    ? '¡Hola! Soy Coquí, tu guía en FluenxIA. Bienvenido a tu panel de aprendizaje. Aquí puedes ver tus lecciones, practicar con ejercicios, y tomar evaluaciones. ¿En qué puedo ayudarte hoy?'
-                    : 'Hello! I\'m Coquí, your guide on FluenxIA. Welcome to your learning dashboard. Here you can see your lessons, practice with exercises, and take assessments. How can I help you today?'
-                }}
-              />
             </div>
 
 
