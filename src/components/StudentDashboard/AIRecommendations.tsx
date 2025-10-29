@@ -27,7 +27,7 @@ export const AIRecommendations = () => {
               </div>
               <div className="text-left">
                 <h2 className="text-2xl font-black text-[hsl(280,100%,35%)]">
-                  {t("Recomendaciones del Mentor IA", "AI Mentor Recommendations")}
+                  {t("Recomendaciones de Coquí", "Coquí's Recommendations")}
                 </h2>
                 <p className="text-sm font-bold text-gray-600">
                   {t("Actividades personalizadas para ti", "Personalized activities for you")}

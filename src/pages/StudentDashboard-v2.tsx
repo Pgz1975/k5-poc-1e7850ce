@@ -15,6 +15,10 @@ import { Badge } from "@/components/ui/badge";
 import { SkillsProgressSection } from "@/components/StudentDashboard/SkillsProgressSection";
 import { AIRecommendations } from "@/components/StudentDashboard/AIRecommendations";
 import { ReadingLevelPath } from "@/components/StudentDashboard/ReadingLevelPath";
+import { RecentActivitiesTimeline } from "@/components/StudentDashboard/RecentActivitiesTimeline";
+import { BilingualProgressComparison } from "@/components/StudentDashboard/BilingualProgressComparison";
+import { AchievementGallery } from "@/components/StudentDashboard/AchievementGallery";
+import { CulturalContentShowcase } from "@/components/StudentDashboard/CulturalContentShowcase";
 
 const StudentDashboardV2 = () => {
   const { t } = useLanguage();
@@ -246,6 +250,18 @@ const StudentDashboardV2 = () => {
               nextLevelXP={nextLevelXP}
               gradeLevel={profile?.gradeLevel ?? 0}
             />
+
+            {/* Recent Activities Timeline */}
+            <RecentActivitiesTimeline />
+
+            {/* Bilingual Progress Comparison */}
+            <BilingualProgressComparison />
+
+            {/* Achievement Gallery */}
+            <AchievementGallery />
+
+            {/* Cultural Content Showcase */}
+            <CulturalContentShowcase />
 
             {/* Talk to Coquí Section */}
             <CoquiVoiceChat />
