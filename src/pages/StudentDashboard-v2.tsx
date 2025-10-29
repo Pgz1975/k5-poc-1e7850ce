@@ -189,6 +189,10 @@ const StudentDashboardV2 = () => {
               </div>
             </div>
 
+            {/* Talk to Coquí Section */}
+            <CoquiVoiceChat />
+
+
             {/* Activity Cards - Duolingo Style with 3D Effect */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {activityCards.map((card) => {
@@ -270,9 +274,6 @@ const StudentDashboardV2 = () => {
 
             {/* Cultural Content Showcase */}
             <CulturalContentShowcase />
-
-            {/* Talk to Coquí Section */}
-            <CoquiVoiceChat />
 
             {/* Daily Goal Progress */}
             <div className="rounded-3xl border-4 border-[hsl(125,100%,65%)] bg-white p-8 shadow-[0_6px_0_hsl(125,100%,65%)]">
