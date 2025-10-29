@@ -323,7 +323,7 @@ function handleSessionCreated(session: SessionState): void {
     session: {
       modalities: ['text', 'audio'],
       instructions: fullInstructions,
-      voice: 'shimmer',
+      voice: 'ash',
       input_audio_format: 'pcm16',
       output_audio_format: 'pcm16',
       turn_detection: turnDetection,
