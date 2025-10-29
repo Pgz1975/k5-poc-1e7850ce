@@ -50,7 +50,9 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
     frequencyData, 
     audioLevel,
     startSession,
-    endSession
+    endSession,
+    sendText,
+    client
   } = useCoquiSession({
     activityId: exercise.id,
     activityType: 'exercise',

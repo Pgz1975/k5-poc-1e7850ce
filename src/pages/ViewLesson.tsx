@@ -74,7 +74,9 @@ export default function ViewLesson() {
     frequencyData, 
     audioLevel,
     startSession,
-    endSession
+    endSession,
+    sendText,
+    client
   } = useCoquiSession({
     activityId: id || '',
     activityType: 'lesson',
@@ -349,6 +351,10 @@ export default function ViewLesson() {
                 isAIPlaying={isAIPlaying}
                 frequencyData={frequencyData}
                 audioLevel={audioLevel}
+                sendText={sendText}
+                voiceGuidance={lesson.voice_guidance as string}
+                activityId={id}
+                client={client}
               />
             </CardContent>
           </Card>

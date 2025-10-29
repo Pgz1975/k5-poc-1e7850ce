@@ -40,7 +40,9 @@ export default function ViewAssessment() {
     frequencyData, 
     audioLevel,
     startSession,
-    endSession
+    endSession,
+    sendText,
+    client
   } = useCoquiSession({
     activityId: id || '',
     activityType: 'exercise',
@@ -184,6 +186,10 @@ export default function ViewAssessment() {
             isAIPlaying={isAIPlaying}
             frequencyData={frequencyData}
             audioLevel={audioLevel}
+            sendText={sendText}
+            voiceGuidance={assessment?.voice_guidance as string}
+            activityId={id}
+            client={client}
           />
         </div>
 
