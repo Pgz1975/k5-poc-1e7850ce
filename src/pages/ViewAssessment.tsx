@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import CoquiMascot from '@/components/CoquiMascot';
 import { CoquiLessonAssistant } from '@/components/coqui/CoquiLessonAssistant';
 import { MultipleChoicePlayer } from '@/components/ManualAssessment/players/MultipleChoicePlayer';
@@ -19,6 +20,7 @@ import { useUnitColor } from '@/hooks/useUnitColor';
 
 export default function ViewAssessment() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const { toast } = useToast();
   const { useV2Design } = useDesignVersion();
@@ -125,6 +127,19 @@ export default function ViewAssessment() {
       <Header />
 
       <main className="container mx-auto px-6 py-8 max-w-4xl relative">
+        {/* Back Button */}
+        <div className="mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/student-dashboard/assessments')}
+            className="gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            {t("Volver a Evaluaciones", "Back to Assessments")}
+          </Button>
+        </div>
+
         {/* Activity Title */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground mb-2">
