@@ -19,6 +19,8 @@ import { RecentActivitiesTimeline } from "@/components/StudentDashboard/RecentAc
 import { BilingualProgressComparison } from "@/components/StudentDashboard/BilingualProgressComparison";
 import { AchievementGallery } from "@/components/StudentDashboard/AchievementGallery";
 import { CulturalContentShowcase } from "@/components/StudentDashboard/CulturalContentShowcase";
+import { WeeklyUsageStats } from "@/components/StudentDashboard/WeeklyUsageStats";
+import { QuickActions } from "@/components/StudentDashboard/QuickActions";
 
 const StudentDashboardV2 = () => {
   const { t } = useLanguage();
@@ -237,6 +239,9 @@ const StudentDashboardV2 = () => {
               })}
             </div>
 
+            {/* Quick Actions */}
+            <QuickActions />
+
             {/* Reading Skills Progress Section */}
             <SkillsProgressSection />
 
@@ -250,6 +255,9 @@ const StudentDashboardV2 = () => {
               nextLevelXP={nextLevelXP}
               gradeLevel={profile?.gradeLevel ?? 0}
             />
+
+            {/* Weekly Usage Statistics */}
+            <WeeklyUsageStats />
 
             {/* Recent Activities Timeline */}
             <RecentActivitiesTimeline />
