@@ -36,6 +36,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import StudentLessonsProgress from "./pages/StudentLessonsProgress";
 import StudentLessonsProgressV2 from "./pages/StudentLessonsProgress-v2";
+import DeleteTestLesson from "./pages/DeleteTestLesson";
 import StudentExercisesProgress from "./pages/StudentExercisesProgress";
 import StudentExercisesProgressV2 from "./pages/StudentExercisesProgress-v2";
 import StudentAssessmentsProgress from "./pages/StudentAssessmentsProgress";
@@ -91,6 +92,7 @@ function AppRoutes() {
       <Route path="/generate-content" element={<ProtectedRoute><GenerateContent /></ProtectedRoute>} />
       <Route path="/generate-content-admin" element={<ProtectedRoute><GenerateContentAdmin /></ProtectedRoute>} />
       <Route path="/admin/test-g1-reset" element={<ProtectedRoute allowedRoles={["teacher_english", "teacher_spanish", "school_director", "regional_director", "depr_executive"]}><TestG1Reset /></ProtectedRoute>} />
+      <Route path="/delete-test-lesson" element={<DeleteTestLesson />} />
       <Route path="/demo" element={<ProtectedRoute><DemoHome /></ProtectedRoute>} />
       <Route path="/demo/:type/:id" element={<ProtectedRoute><DemoActivityPage /></ProtectedRoute>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
