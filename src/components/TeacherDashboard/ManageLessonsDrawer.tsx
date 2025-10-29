@@ -63,7 +63,9 @@ export const ManageLessonsDrawer = () => {
       <DrawerTrigger asChild>
         <Button variant="outline" className="gap-2" disabled>
           <Settings2 className="h-4 w-4" />
-          {t("Gestionar Lecciones", "Manage Lessons")}
+          <span className="hidden sm:inline">
+            {t("Gestionar Lecciones", "Manage Lessons")}
+          </span>
         </Button>
       </DrawerTrigger>
       <DrawerContent className="max-h-[90vh]">
