@@ -1,13 +1,28 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, TrendingUp, Clock, Star, Lightbulb, Target, Award, MessageSquare } from "lucide-react";
+import { BookOpen, TrendingUp, Clock, Star, Lightbulb, Target, Award, MessageSquare, Calendar, Bell, FileText, Video, HelpCircle, Download } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import CoquiMascot from "@/components/CoquiMascot";
 import { useState } from "react";
 import { toast } from "sonner";
+import { CollapsibleFamilySection } from "@/components/FamilyDashboard/CollapsibleFamilySection";
+import { 
+  studentProfile, 
+  weeklyActivity, 
+  weeklyStats,
+  skillsDetailed, 
+  recentActivities, 
+  achievements,
+  culturalVocabulary,
+  levelProgress
+} from "@/data/familyStudentData";
+import { aiRecommendations, weeklyChallenge } from "@/data/familyRecommendations";
+import { teacherMessages, progressReports, communicationPreferences } from "@/data/familyCommunication";
+import { parentGuides, videoTutorials, faqs } from "@/data/familyResources";
+import { weeklySchedule, goals, reminders } from "@/data/familyScheduleGoals";
 
 const FamilyDashboardV2 = () => {
   const { t } = useLanguage();
@@ -21,42 +36,9 @@ const FamilyDashboardV2 = () => {
     setMessageContent("");
   };
 
-  const weeklyProgress = [
-    { day: t("Lun", "Mon"), minutes: 25 },
-    { day: t("Mar", "Tue"), minutes: 30 },
-    { day: t("Mié", "Wed"), minutes: 28 },
-    { day: t("Jue", "Thu"), minutes: 35 },
-    { day: t("Vie", "Fri"), minutes: 32 },
-    { day: t("Sáb", "Sat"), minutes: 0 },
-    { day: t("Dom", "Sun"), minutes: 0 },
-  ];
-
-  const recommendations = [
-    {
-      titleEs: "Practicar Pronunciación",
-      titleEn: "Practice Pronunciation",
-      descriptionEs: "María necesita práctica adicional con palabras que contienen la letra 'r'.",
-      descriptionEn: "María needs additional practice with words containing the letter 'r'.",
-      icon: Lightbulb,
-      emoji: "💡",
-    },
-    {
-      titleEs: "Lectura en Voz Alta",
-      titleEn: "Read Aloud",
-      descriptionEs: "Lean juntos 15 minutos diarios para mejorar la fluidez.",
-      descriptionEn: "Read together for 15 minutes daily to improve fluency.",
-      icon: BookOpen,
-      emoji: "📚",
-    },
-    {
-      titleEs: "Vocabulario del Día",
-      titleEn: "Word of the Day",
-      descriptionEs: "Introduce una palabra nueva cada día durante las comidas.",
-      descriptionEn: "Introduce a new word each day during meals.",
-      icon: Target,
-      emoji: "🎯",
-    },
-  ];
+  const handleDownloadReport = () => {
+    toast.success(t("Descargando reporte...", "Downloading report..."));
+  };
 
   // Unit color palette for vibrant visualizations
   const unitColors = {
@@ -190,7 +172,7 @@ const FamilyDashboardV2 = () => {
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={280}>
-                <LineChart data={weeklyProgress}>
+                <LineChart data={weeklyActivity}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="day" stroke="#6b7280" />
                   <YAxis stroke="#6b7280" />
@@ -377,18 +359,29 @@ const FamilyDashboardV2 = () => {
                 </div>
               </div>
               <div className="grid md:grid-cols-3 gap-6">
-                {recommendations.map((rec, index) => (
+                {aiRecommendations.map((rec, index) => (
                   <div 
                     key={index} 
-                    className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border-3 border-gray-200 hover:border-lime-400 hover:shadow-lg transition-all"
+                    className={`rounded-2xl p-6 border-3 transition-all ${
+                      rec.priority === 'high' 
+                        ? 'bg-gradient-to-br from-orange-50 to-coral-50 border-orange-300' 
+                        : 'bg-gradient-to-br from-gray-50 to-white border-gray-200 hover:border-lime-400'
+                    } hover:shadow-lg`}
                   >
-                    <div className="text-5xl mb-4">{rec.emoji}</div>
-                    <h4 className="font-bold text-xl mb-3 text-gray-800">
-                      {t(rec.titleEs, rec.titleEn)}
-                    </h4>
-                    <p className="text-gray-600 leading-relaxed">
-                      {t(rec.descriptionEs, rec.descriptionEn)}
-                    </p>
+                    <div className="flex items-start gap-4">
+                      <div className="text-5xl">{rec.icon}</div>
+                      <div className="flex-1">
+                        <h4 className="font-bold text-xl mb-3 text-gray-800">
+                          {t(rec.titleEs, rec.titleEn)}
+                        </h4>
+                        <p className="text-gray-600 leading-relaxed">
+                          {t(rec.descriptionEs, rec.descriptionEn)}
+                        </p>
+                        <div className="mt-3 text-sm text-gray-600">
+                          ⏱️ {rec.estimatedTime} {t("min/día", "min/day")}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
