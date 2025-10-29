@@ -36,6 +36,7 @@ import { GradeSchoolComparison } from "@/components/TeacherDashboard/GradeSchool
 import { AccommodationsTracker } from "@/components/TeacherDashboard/AccommodationsTracker";
 import { CulturalContentTracker } from "@/components/TeacherDashboard/CulturalContentTracker";
 import { ParentCommunicationPanel } from "@/components/TeacherDashboard/ParentCommunicationPanel";
+import { StudentProfileDrawer } from "@/components/TeacherDashboard/StudentProfileDrawer";
 import { 
   mockAIInsights, 
   mockErrorPatterns, 
@@ -47,12 +48,19 @@ import { mockSkillsData } from "@/data/teacherSkillsData";
 const TeacherDashboardV2 = () => {
   const { t } = useLanguage();
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+  const [selectedStudentForProfile, setSelectedStudentForProfile] = useState<any | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [profileDrawerOpen, setProfileDrawerOpen] = useState(false);
   const [filters, setFilters] = useState<any>(null);
 
   const handleViewRecommendation = (studentName: string) => {
     setSelectedStudent(studentName);
     setDrawerOpen(true);
+  };
+
+  const handleViewProfile = (student: any) => {
+    setSelectedStudentForProfile(student);
+    setProfileDrawerOpen(true);
   };
 
   const handleFilterChange = (newFilters: any) => {
@@ -413,7 +421,12 @@ const TeacherDashboardV2 = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button variant="ghost" size="sm" className="gap-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="gap-1"
+                              onClick={() => handleViewProfile(student)}
+                            >
                               <Eye className="h-3 w-3" />
                               {t("Ver", "View")}
                             </Button>
@@ -446,6 +459,13 @@ const TeacherDashboardV2 = () => {
           open={drawerOpen}
           onOpenChange={setDrawerOpen}
           recommendation={selectedStudent ? mockStudentRecommendations[selectedStudent] : null}
+        />
+
+        {/* Student Profile Drawer */}
+        <StudentProfileDrawer
+          open={profileDrawerOpen}
+          onOpenChange={setProfileDrawerOpen}
+          student={selectedStudentForProfile}
         />
       </div>
     </>
