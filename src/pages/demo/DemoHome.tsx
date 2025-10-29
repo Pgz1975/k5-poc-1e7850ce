@@ -53,58 +53,91 @@ export default function DemoHome() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[hsl(329,100%,95%)] via-[hsl(45,100%,95%)] to-[hsl(125,100%,95%)]">
       <Header />
 
-      <main className="flex-1 py-10">
-        <div className="container max-w-5xl px-4 md:px-6 mx-auto space-y-8">
-          <div className="text-center space-y-4">
-            <AIDemoBadge className="mx-auto w-fit" />
-            <h1 className="text-4xl font-bold tracking-tight text-primary">
-              OpenAI Realtime Demo Lab
+      <main className="flex-1 py-12">
+        <div className="container max-w-6xl px-4 md:px-6 mx-auto space-y-10">
+          {/* Hero Section */}
+          <div className="text-center space-y-6 py-8">
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full border-4 border-[hsl(329,100%,85%)] shadow-lg">
+              <Sparkles className="h-6 w-6 text-[hsl(329,100%,45%)]" />
+              <span className="text-lg font-bold text-[hsl(329,100%,35%)]">AI Demo Lab</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-[hsl(329,100%,45%)] via-[hsl(45,100%,45%)] to-[hsl(125,100%,45%)] bg-clip-text text-transparent">
+              OpenAI Realtime Demos
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Explore isolated voice-first activities powered by the OpenAI Realtime API.
-              These demos are completely separate from production lessons and designed for
-              rapid experimentation.
+            <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto font-medium leading-relaxed">
+              🎤 Explore voice-first activities powered by the OpenAI Realtime API.<br/>
+              These demos are isolated from production and built for rapid experimentation.
             </p>
           </div>
 
+          {/* Loading State */}
           {loading ? (
-            <div className="flex items-center justify-center py-24">
-              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            <div className="flex flex-col items-center justify-center py-32 gap-4">
+              <Loader2 className="w-16 h-16 animate-spin text-[hsl(329,100%,45%)]" />
+              <p className="text-xl font-bold text-gray-700">Loading demos...</p>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2">
+            /* Activity Grid */
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
               {activities.map((activity) => (
-                <Card key={activity.id} className="p-6 relative overflow-hidden">
-                  <div className="absolute -top-6 -right-6 text-purple-200">
-                    <Sparkles className="w-20 h-20" />
+                <Card 
+                  key={activity.id} 
+                  className="relative overflow-hidden bg-white border-4 border-gray-800 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all duration-200 p-8"
+                >
+                  {/* Decorative Background Icon */}
+                  <div className="absolute -top-8 -right-8 text-[hsl(329,100%,90%)] opacity-50">
+                    <Sparkles className="w-32 h-32" />
                   </div>
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">
+
+                  <div className="relative flex flex-col gap-5">
+                    {/* Badges */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Badge 
+                        variant="outline" 
+                        className="px-4 py-1.5 text-sm font-bold border-3 border-[hsl(125,100%,85%)] bg-[hsl(125,100%,95%)] text-[hsl(125,100%,35%)] rounded-full"
+                      >
                         {languageLabels[activity.language] ?? activity.language}
                       </Badge>
-                      <Badge variant="secondary">
+                      <Badge 
+                        variant="secondary" 
+                        className="px-4 py-1.5 text-sm font-bold border-3 border-[hsl(45,100%,85%)] bg-[hsl(45,100%,95%)] text-[hsl(45,100%,35%)] rounded-full"
+                      >
                         {demoTypeLabels[activity.demo_type] ?? activity.demo_type}
                       </Badge>
                     </div>
-                    <div>
-                      <h2 className="text-xl font-semibold">{activity.title}</h2>
+
+                    {/* Title & Description */}
+                    <div className="space-y-3">
+                      <h2 className="text-2xl font-black text-gray-900 leading-tight">
+                        {activity.title}
+                      </h2>
                       {activity.description && (
-                        <p className="text-sm text-muted-foreground mt-2">
+                        <p className="text-base text-gray-600 font-medium leading-relaxed">
                           {activity.description}
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <Mic className="w-4 h-4" />
-                      <span>Realtime voice session with isolated demo storage</span>
+
+                    {/* Voice Info */}
+                    <div className="flex items-center gap-3 px-4 py-3 bg-[hsl(329,100%,98%)] rounded-2xl border-2 border-[hsl(329,100%,85%)]">
+                      <div className="p-2 bg-white rounded-xl border-2 border-[hsl(329,100%,85%)]">
+                        <Mic className="w-5 h-5 text-[hsl(329,100%,45%)]" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-700">
+                        Realtime voice session
+                      </span>
                     </div>
-                    <Button asChild>
+
+                    {/* CTA Button */}
+                    <Button 
+                      asChild 
+                      className="w-full h-14 text-lg font-black bg-gradient-to-r from-[hsl(329,100%,45%)] to-[hsl(329,100%,55%)] hover:from-[hsl(329,100%,50%)] hover:to-[hsl(329,100%,60%)] text-white border-4 border-gray-900 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all duration-200"
+                    >
                       <Link to={`/demo/${activity.demo_type}/${activity.id}`}>
-                        Enter Demo
+                        🎬 Enter Demo
                       </Link>
                     </Button>
                   </div>

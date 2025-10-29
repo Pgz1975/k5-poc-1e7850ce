@@ -97,11 +97,11 @@ export default function DemoActivityPage() {
         );
       default:
         return (
-          <Card className="p-12 text-center space-y-4">
-            <Construction className="w-12 h-12 mx-auto text-muted-foreground" />
-            <h2 className="text-2xl font-semibold">Demo Coming Soon</h2>
-            <p className="text-muted-foreground">
-              The {activity.demo_type} demo is not implemented yet. Check back later.
+          <Card className="p-16 text-center space-y-6 bg-white border-4 border-gray-800 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <Construction className="w-20 h-20 mx-auto text-[hsl(45,100%,45%)]" />
+            <h2 className="text-3xl font-black text-gray-900">Demo Coming Soon</h2>
+            <p className="text-lg text-gray-600 font-medium max-w-md mx-auto">
+              The {activity.demo_type} demo is not implemented yet. Check back later!
             </p>
           </Card>
         );
@@ -109,31 +109,37 @@ export default function DemoActivityPage() {
   }, [activity]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[hsl(329,100%,95%)] via-[hsl(45,100%,95%)] to-[hsl(125,100%,95%)]">
       <Header />
-      <main className="flex-1 py-10">
-        <div className="container max-w-4xl px-4 md:px-6 mx-auto space-y-6">
+      <main className="flex-1 py-12">
+        <div className="container max-w-5xl px-4 md:px-6 mx-auto space-y-8">
+          {/* Back Button */}
           <Button
-            variant="ghost"
-            className="w-fit"
+            variant="outline"
+            className="w-fit px-6 py-6 text-base font-bold border-4 border-gray-800 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all duration-200 bg-white"
             onClick={() => navigate("/demo")}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Back to demos
           </Button>
 
+          {/* Loading State */}
           {loading ? (
-            <div className="flex items-center justify-center py-24">
-              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            <div className="flex flex-col items-center justify-center py-32 gap-4">
+              <Loader2 className="w-16 h-16 animate-spin text-[hsl(329,100%,45%)]" />
+              <p className="text-xl font-bold text-gray-700">Loading demo...</p>
             </div>
           ) : !activity ? (
-            <Card className="p-12 text-center space-y-4">
-              <h2 className="text-2xl font-semibold">Demo not found</h2>
-              <p className="text-muted-foreground">
+            /* Error State */
+            <Card className="p-16 text-center space-y-6 bg-white border-4 border-gray-800 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <div className="text-6xl">😕</div>
+              <h2 className="text-3xl font-black text-gray-900">Demo not found</h2>
+              <p className="text-lg text-gray-600 font-medium max-w-md mx-auto">
                 This demo activity may have been removed. Please return to the demo list.
               </p>
             </Card>
           ) : (
+            /* Player Content */
             player
           )}
         </div>
