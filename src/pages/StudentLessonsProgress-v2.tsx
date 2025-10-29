@@ -45,24 +45,24 @@ const StudentLessonsProgressV2 = () => {
     enabled: !!user?.id,
   });
 
-  // Group lessons by domain
+  // Group lessons by domain_order (not domain_name) to prevent duplicates
   const domainGroups = useMemo(() => {
     if (!lessonsWithOrder) return [];
     
     const groups = lessonsWithOrder.reduce((acc, lesson) => {
-      const domain = lesson.domain_name || "Other";
       const domainOrder = lesson.domain_order ?? 999;
+      const domainName = lesson.domain_name || "Other";
       
-      if (!acc[domain]) {
-        acc[domain] = {
-          domain_name: domain,
+      if (!acc[domainOrder]) {
+        acc[domainOrder] = {
+          domain_name: domainName,
           domain_order: domainOrder,
           lessons: []
         };
       }
-      acc[domain].lessons.push(lesson);
+      acc[domainOrder].lessons.push(lesson);
       return acc;
-    }, {} as Record<string, { domain_name: string; domain_order: number; lessons: typeof lessonsWithOrder }>);
+    }, {} as Record<number, { domain_name: string; domain_order: number; lessons: typeof lessonsWithOrder }>);
 
     return Object.values(groups)
       .sort((a, b) => a.domain_order - b.domain_order)
