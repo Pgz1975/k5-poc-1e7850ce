@@ -17,6 +17,9 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherDashboardV2 from "./pages/TeacherDashboard-v2";
 import FamilyDashboard from "./pages/FamilyDashboard";
 import FamilyDashboardV2 from "./pages/FamilyDashboard-v2";
+import SchoolDirectorDashboard from "./pages/SchoolDirectorDashboard";
+import RegionalDirectorDashboard from "./pages/RegionalDirectorDashboard";
+import DEPRExecutiveDashboard from "./pages/DEPRExecutiveDashboard";
 import Activities from "./pages/Activities";
 import ActivitiesV2 from "./pages/Activities-v2";
 import ReadingExercise from "./pages/ReadingExercise";
@@ -70,6 +73,9 @@ function AppRoutes() {
       <Route path="/available-assessments" element={<ProtectedRoute><AvailableAssessments /></ProtectedRoute>} />
       <Route path="/teacher-dashboard" element={<ProtectedRoute allowedRoles={["teacher", "teacher_english", "teacher_spanish"]}>{useV2Design ? <TeacherDashboardV2 /> : <TeacherDashboard />}</ProtectedRoute>} />
       <Route path="/family-dashboard" element={<ProtectedRoute allowedRoles={["family"]}>{useV2Design ? <FamilyDashboardV2 /> : <FamilyDashboard />}</ProtectedRoute>} />
+      <Route path="/school-director-dashboard" element={<ProtectedRoute allowedRoles={["school_director"]}><SchoolDirectorDashboard /></ProtectedRoute>} />
+      <Route path="/regional-director-dashboard" element={<ProtectedRoute allowedRoles={["regional_director"]}><RegionalDirectorDashboard /></ProtectedRoute>} />
+      <Route path="/depr-executive-dashboard" element={<ProtectedRoute allowedRoles={["depr_executive"]}><DEPRExecutiveDashboard /></ProtectedRoute>} />
       <Route path="/reading-exercise" element={<ProtectedRoute allowedRoles={["student", "student_kindergarten", "student_1", "student_2", "student_3", "student_4", "student_5"]}><ReadingExercise /></ProtectedRoute>} />
       <Route path="/voice-test" element={<ProtectedRoute><VoiceTest /></ProtectedRoute>} />
       
