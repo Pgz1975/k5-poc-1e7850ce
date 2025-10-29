@@ -4,9 +4,8 @@ import { Star, Sparkles, BookOpen, Target, ClipboardCheck, Flame, Trophy } from 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import CoquiMascot from "@/components/CoquiMascot";
-import { useState, useEffect, useRef } from "react";
-import { useCoquiSession } from "@/hooks/useCoquiSession";
-import { CoquiClickHint } from "@/components/StudentDashboard/CoquiClickHint";
+import { useState } from "react";
+import { CoquiLessonAssistantGuard } from "@/components/coqui/CoquiLessonAssistantGuard";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { useStudentProgress } from "@/hooks/useStudentProgress";
 import { Link } from "react-router-dom";
@@ -25,10 +24,7 @@ import { QuickActions } from "@/components/StudentDashboard/QuickActions";
 
 const StudentDashboardV2 = () => {
   const { t, language } = useLanguage();
-  const [mascotState, setMascotState] = useState<"happy" | "thinking" | "reading" | "exploring" | "correct" | "excited" | "speaking">("happy");
-  const [audioLevel, setAudioLevel] = useState(-100);
-  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
-  const hasGreeted = useRef(false);
+  const [isAssistantConnected, setIsAssistantConnected] = useState(false);
   const { data: profile, isLoading } = useStudentProfile();
 
   // Dashboard voice guidance context
@@ -36,89 +32,9 @@ const StudentDashboardV2 = () => {
     ? `Eres Coquí, el amigo y guía oficial de la plataforma educativa FluenxIA para estudiantes de K-5 en Puerto Rico. Tu rol es dar la bienvenida al estudiante al dashboard, presentar brevemente las opciones disponibles (Lecciones, Ejercicios, Evaluaciones), y motivarlo a explorar. Sé amigable, breve y entusiasta. Si el estudiante te pregunta algo, ayúdalo con información sobre la plataforma.`
     : `You are Coquí, the official friend and guide for the FluenxIA educational platform for K-5 students in Puerto Rico. Your role is to welcome the student to the dashboard, briefly introduce the available options (Lessons, Exercises, Assessments), and motivate them to explore. Be friendly, brief, and enthusiastic. If the student asks you something, help them with information about the platform.`;
 
-  // Voice session management
-  const {
-    isConnected,
-    isConnecting,
-    isAIPlaying,
-    startSession,
-    endSession,
-    sendText
-  } = useCoquiSession({
-    activityId: undefined, // System activity - no specific lesson/exercise
-    activityType: 'system',
-    voiceContext: {
-      title: 'Dashboard Introduction',
-      language: language === 'es' ? 'es-PR' : 'en-US',
-      voiceGuidance: dashboardGuidance
-    },
-    onAudioLevel: (dbLevel) => {
-      setAudioLevel(dbLevel);
-      const isSpeaking = dbLevel > -45;
-      setIsUserSpeaking(isSpeaking);
-    }
-  });
-
-  // Update mascot state based on voice session
-  useEffect(() => {
-    if (isAIPlaying) {
-      setMascotState('speaking');
-    } else if (isUserSpeaking) {
-      setMascotState('thinking');
-    } else if (isConnected) {
-      setMascotState('exploring');
-    } else {
-      setMascotState('happy');
-    }
-  }, [isAIPlaying, isConnected, isUserSpeaking]);
-
-  // Send initial greeting when connection is established
-  useEffect(() => {
-    if (!isConnected) return;
-    if (hasGreeted.current) return;
-    if (!sendText) {
-      console.warn('[StudentDashboard] ⚠️ sendText not available yet');
-      return;
-    }
-
-    hasGreeted.current = true;
-    
-    const greeting = language === 'es'
-      ? '¡Hola! Por favor, preséntate y explica cómo puedes ayudarme en mi dashboard.'
-      : 'Hello! Please introduce yourself and explain how you can help me on my dashboard.';
-    
-    console.log('[StudentDashboard] 👋 Sending initial greeting to Coquí');
-    console.log('[StudentDashboard] 📝 Greeting text:', greeting);
-    
-    // Small delay to ensure WebSocket is fully ready
-    setTimeout(() => {
-      sendText(greeting);
-      console.log('[StudentDashboard] ✅ Greeting sent!');
-    }, 100);
-  }, [isConnected, sendText, language]);
-
-  // Reset greeting flag when disconnecting
-  useEffect(() => {
-    if (!isConnected && hasGreeted.current) {
-      hasGreeted.current = false;
-    }
-  }, [isConnected]);
-
-  // Handle Coquí click to start session
-  const handleCoquiClick = async () => {
-    if (isConnected || isConnecting) return;
-    localStorage.setItem("coqui-hint-dismissed", "true");
-    await startSession();
-  };
-
-  // Cleanup session on unmount
-  useEffect(() => {
-    return () => {
-      if (isConnected) {
-        endSession();
-      }
-    };
-  }, [isConnected, endSession]);
+  const dashboardIntroGreeting = language === 'es'
+    ? '¡Hola! Por favor, preséntate y explica cómo puedes ayudarme en mi dashboard.'
+    : 'Hello! Please introduce yourself and explain how you can help me on my dashboard.';
 
   const lessonsProgress = useStudentProgress({
     activityType: "lesson",
@@ -260,25 +176,20 @@ const StudentDashboardV2 = () => {
             {/* Welcome Section with Interactive Coquí */}
             <div className="rounded-3xl border-4 border-white bg-gradient-to-br from-[hsl(176,84%,95%)] to-[hsl(176,84%,85%)] p-8 md:p-12 shadow-[0_8px_0_rgba(255,255,255,0.8)]">
               <div className="grid md:grid-cols-[auto_1fr] gap-8 items-center">
-                {/* Interactive Mascot */}
+                {/* Interactive Mascot - Using CoquiLessonAssistantGuard */}
                 <div className="flex justify-center">
-                  <div className="relative inline-block">
-                    <div onClick={handleCoquiClick}>
-                      <CoquiMascot 
-                        state={isConnecting ? "waiting" : mascotState}
-                        size="large"
-                        position="inline"
-                        className={
-                          isConnecting 
-                            ? "animate-pulse cursor-wait drop-shadow-2xl" 
-                            : isConnected 
-                              ? "animate-breathe drop-shadow-2xl" 
-                              : "cursor-pointer hover:scale-105 transition-transform drop-shadow-2xl"
-                        }
-                      />
-                    </div>
-                    {!isConnected && !isConnecting && <CoquiClickHint />}
-                  </div>
+                  <CoquiLessonAssistantGuard
+                    activityId="system-dashboard"
+                    activityType="system"
+                    position="inline"
+                    autoConnect={true}
+                    voiceContext={{
+                      title: 'Dashboard Introduction',
+                      language: language === 'es' ? 'es-PR' : 'en-US',
+                      voiceGuidance: dashboardGuidance,
+                      coquiDialogue: dashboardIntroGreeting
+                    }}
+                  />
                 </div>
                 
                 {/* Text Content */}
@@ -293,16 +204,9 @@ const StudentDashboardV2 = () => {
                     {t("¿Qué quieres hacer hoy?", "What do you want to do today?")}
                   </p>
                   
-                  {/* Status Text */}
+                  {/* Status hint */}
                   <p className="text-lg md:text-xl font-semibold text-[hsl(176,84%,35%)] mt-4">
-                    {isConnecting
-                      ? t("Conectando...", "Connecting...")
-                      : isConnected
-                        ? isAIPlaying
-                          ? t("🐸 Coquí está hablando...", "🐸 Coquí is speaking...")
-                          : t("¡Háblame! Estoy escuchando 👂", "Talk to me! I'm listening 👂")
-                        : t("Haz clic en Coquí para empezar", "Click on Coquí to start")
-                    }
+                    {t("Haz clic en Coquí para empezar", "Click on Coquí to start")}
                   </p>
                 </div>
               </div>

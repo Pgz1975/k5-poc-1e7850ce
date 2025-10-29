@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 interface CoquiLessonAssistantProps {
   activityId: string;
-  activityType: 'lesson' | 'exercise';
+  activityType: 'lesson' | 'exercise' | 'system';
   voiceContext?: VoiceContextConfig;
   position?: 'fixed' | 'inline';
   className?: string;

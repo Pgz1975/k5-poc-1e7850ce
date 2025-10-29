@@ -4,7 +4,7 @@ import type { VoiceContextConfig } from "@/hooks/useCoquiSession";
 
 interface GuardProps {
   activityId: string;
-  activityType: "lesson" | "exercise";
+  activityType: "lesson" | "exercise" | "system";
   voiceContext?: VoiceContextConfig;
   position?: "fixed" | "inline";
   className?: string;
