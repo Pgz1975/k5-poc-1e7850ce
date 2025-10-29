@@ -26,6 +26,9 @@ import { AssessmentResultsSection } from "@/components/TeacherDashboard/Assessme
 import { StandardsAlignmentTable } from "@/components/TeacherDashboard/StandardsAlignmentTable";
 import { AdvancedFilterDrawer } from "@/components/TeacherDashboard/AdvancedFilterDrawer";
 import { ExportReportDialog } from "@/components/TeacherDashboard/ExportReportDialog";
+import { ResourceLibraryGrid } from "@/components/TeacherDashboard/ResourceLibraryGrid";
+import { TextRecommendationsSection } from "@/components/TeacherDashboard/TextRecommendationsSection";
+import { InterventionGuidesAccordion } from "@/components/TeacherDashboard/InterventionGuidesAccordion";
 import { 
   mockAIInsights, 
   mockErrorPatterns, 
@@ -38,10 +41,15 @@ const TeacherDashboardV2 = () => {
   const { t } = useLanguage();
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [filters, setFilters] = useState<any>(null);
 
   const handleViewRecommendation = (studentName: string) => {
     setSelectedStudent(studentName);
     setDrawerOpen(true);
+  };
+
+  const handleFilterChange = (newFilters: any) => {
+    setFilters(newFilters);
   };
 
   const unitColors = {
@@ -69,13 +77,31 @@ const TeacherDashboardV2 = () => {
   ];
 
   const students = [
-    { id: 1, nameEs: "María González", nameEn: "María González", grade: "3.2", activities: 24, lastActive: t("Hoy", "Today"), status: "success", riskLevel: "low" as const, hasRecommendation: false },
-    { id: 2, nameEs: "Juan Pérez", nameEn: "Juan Pérez", grade: "2.8", activities: 18, lastActive: t("Hoy", "Today"), status: "success", riskLevel: "low" as const, hasRecommendation: false },
-    { id: 3, nameEs: "Sofia Rodríguez", nameEn: "Sofia Rodríguez", grade: "3.5", activities: 28, lastActive: t("Ayer", "Yesterday"), status: "warning", riskLevel: "low" as const, hasRecommendation: false },
-    { id: 4, nameEs: "Carlos Torres", nameEn: "Carlos Torres", grade: "2.5", activities: 12, lastActive: t("Hace 3 días", "3 days ago"), status: "error", riskLevel: "high" as const, hasRecommendation: true },
-    { id: 5, nameEs: "Ana Díaz", nameEn: "Ana Díaz", grade: "2.9", activities: 16, lastActive: t("Hace 2 días", "2 days ago"), status: "error", riskLevel: "high" as const, hasRecommendation: true },
-    { id: 6, nameEs: "Luis Rivera", nameEn: "Luis Rivera", grade: "2.7", activities: 14, lastActive: t("Hace 4 días", "4 days ago"), status: "error", riskLevel: "high" as const, hasRecommendation: true },
+    { id: 1, nameEs: "María González", nameEn: "María González", grade: "3.2", activities: 24, lastActive: t("Hoy", "Today"), status: "success", riskLevel: "low" as const, hasRecommendation: false, readingLevel: "3", device: "tablet" },
+    { id: 2, nameEs: "Juan Pérez", nameEn: "Juan Pérez", grade: "2.8", activities: 18, lastActive: t("Hoy", "Today"), status: "success", riskLevel: "low" as const, hasRecommendation: false, readingLevel: "2", device: "mobile" },
+    { id: 3, nameEs: "Sofia Rodríguez", nameEn: "Sofia Rodríguez", grade: "3.5", activities: 28, lastActive: t("Ayer", "Yesterday"), status: "warning", riskLevel: "low" as const, hasRecommendation: false, readingLevel: "3", device: "computer" },
+    { id: 4, nameEs: "Carlos Torres", nameEn: "Carlos Torres", grade: "2.5", activities: 12, lastActive: t("Hace 3 días", "3 days ago"), status: "error", riskLevel: "high" as const, hasRecommendation: true, readingLevel: "2", device: "mobile" },
+    { id: 5, nameEs: "Ana Díaz", nameEn: "Ana Díaz", grade: "2.9", activities: 16, lastActive: t("Hace 2 días", "2 days ago"), status: "error", riskLevel: "high" as const, hasRecommendation: true, readingLevel: "2", device: "tablet" },
+    { id: 6, nameEs: "Luis Rivera", nameEn: "Luis Rivera", grade: "2.7", activities: 14, lastActive: t("Hace 4 días", "4 days ago"), status: "error", riskLevel: "high" as const, hasRecommendation: true, readingLevel: "3", device: "computer" },
   ];
+
+  const filteredStudents = students.filter(student => {
+    if (!filters) return true;
+    
+    if (filters.riskLevel && filters.riskLevel !== "all" && student.riskLevel !== filters.riskLevel) {
+      return false;
+    }
+    
+    if (filters.readingLevel && filters.readingLevel !== "all" && student.readingLevel !== filters.readingLevel) {
+      return false;
+    }
+    
+    if (filters.deviceType && filters.deviceType !== "all" && student.device !== filters.deviceType) {
+      return false;
+    }
+    
+    return true;
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -113,7 +139,7 @@ const TeacherDashboardV2 = () => {
               </div>
               <div className="flex gap-2">
                 <ManageLessonsDrawer />
-                <AdvancedFilterDrawer />
+                <AdvancedFilterDrawer onFilterChange={handleFilterChange} />
                 <ExportReportDialog />
               </div>
             </div>
@@ -212,6 +238,30 @@ const TeacherDashboardV2 = () => {
             {/* Standards Alignment */}
             <StandardsAlignmentTable />
 
+            {/* Teacher Resources Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-lime-400 to-lime-500 rounded-lg">
+                  <BookOpen className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    {t("Recursos del Maestro", "Teacher Resources")}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {t("Actividades, textos y guías alineadas con estándares", "Activities, texts and guides aligned with standards")}
+                  </p>
+                </div>
+              </div>
+
+              <ResourceLibraryGrid />
+
+              <div className="grid lg:grid-cols-2 gap-6">
+                <TextRecommendationsSection />
+                <InterventionGuidesAccordion />
+              </div>
+            </div>
+
             {/* Analytics Charts */}
             <div className="grid lg:grid-cols-2 gap-6">
               <Card className="border-2 border-gray-200 shadow-md hover:shadow-lg transition-all">
@@ -259,6 +309,11 @@ const TeacherDashboardV2 = () => {
                 <CardTitle>{t("Lista de Estudiantes", "Student List")}</CardTitle>
                 <CardDescription>
                   {t("Monitoreo individual con recomendaciones de IA", "Individual monitoring with AI recommendations")}
+                  {filters && (
+                    <span className="ml-2 text-purple-600 font-medium">
+                      ({filteredStudents.length} {t("de", "of")} {students.length} {t("mostrados", "shown")})
+                    </span>
+                  )}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -275,7 +330,7 @@ const TeacherDashboardV2 = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {students.map((student) => (
+                    {filteredStudents.map((student) => (
                       <TableRow key={student.id}>
                         <TableCell className="font-medium">
                           {t(student.nameEs, student.nameEn)}
