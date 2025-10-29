@@ -176,20 +176,23 @@ const StudentDashboardV2 = () => {
             {/* Welcome Section with Interactive Coquí */}
             <div className="rounded-3xl border-4 border-white bg-gradient-to-br from-[hsl(176,84%,95%)] to-[hsl(176,84%,85%)] p-8 md:p-12 shadow-[0_8px_0_rgba(255,255,255,0.8)]">
               <div className="grid md:grid-cols-[auto_1fr] gap-8 items-center">
-                {/* Interactive Mascot - Using CoquiLessonAssistantGuard */}
+                {/* Interactive Mascot */}
                 <div className="flex justify-center">
-                  <CoquiLessonAssistantGuard
-                    activityId="system-dashboard"
-                    activityType="system"
-                    position="inline"
-                    autoConnect={true}
-                    voiceContext={{
-                      title: 'Dashboard Introduction',
-                      language: language === 'es' ? 'es-PR' : 'en-US',
-                      voiceGuidance: dashboardGuidance,
-                      coquiDialogue: dashboardIntroGreeting
-                    }}
-                  />
+                  <div className="relative inline-block">
+                    <CoquiLessonAssistantGuard
+                      activityId="system-dashboard"
+                      activityType="system"
+                      position="inline"
+                      autoConnect={true}
+                      className="drop-shadow-2xl"
+                      voiceContext={{
+                        title: 'Dashboard Introduction',
+                        language: language === 'es' ? 'es-PR' : 'en-US',
+                        voiceGuidance: dashboardGuidance,
+                        coquiDialogue: dashboardIntroGreeting
+                      }}
+                    />
+                  </div>
                 </div>
                 
                 {/* Text Content */}
