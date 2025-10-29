@@ -11,7 +11,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
 import { ActivityActions } from "@/components/ActivityManagement/ActivityActions";
-import { UnitHeader } from "@/components/StudentDashboard/UnitHeader";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -270,15 +269,6 @@ export default function StudentAssessmentsProgressV2() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: groupIndex * 0.1 }}
                 >
-                  {/* Unit Header */}
-                  <UnitHeader
-                    unitNumber={groupIndex + 1}
-                    title={group.domain_name}
-                    color={colorScheme.headerBg}
-                    totalLessons={group.assessments.length}
-                    completedLessons={domainCompletedCount}
-                  />
-
                   {/* Assessment Cards Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-8">
                     {group.assessments.map((assessment: any, assessmentIndex: number) => {
