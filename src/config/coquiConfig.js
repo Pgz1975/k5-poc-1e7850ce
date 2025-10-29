@@ -15,10 +15,10 @@ export const coquiStates = {
   writing: '/assets/coqui/writing_taking_notes.png',
   
   // Feedback states
-  correct: '/assets/coqui/happy.png',
-  excellent: '/assets/coqui/excited.png',
-  happy: '/assets/coqui/happy.png',
-  excited: '/assets/coqui/excited.png',
+  correct: '/assets/coqui/coqui-animated.webm',
+  excellent: '/assets/coqui/coqui-animated.webm',
+  happy: '/assets/coqui/coqui-animated.webm',
+  excited: '/assets/coqui/coqui-animated.webm',
   
   // Achievement states
   showingScore: '/assets/coqui/holding_up_score_card.png',
@@ -43,16 +43,16 @@ export const coquiAnimations = {
   
   thinking: 'animate-pulse',
   
-  happy: 'animate-bounce-once',
-  correct: 'animate-bounce-once',
-  excited: 'animate-bounce-once',
-  excellent: 'animate-bounce-once',
+  happy: '',
+  correct: '',
+  excited: '',
+  excellent: '',
   
-  celebration: 'animate-jump',
-  perfectScore: 'animate-jump',
-  levelComplete: 'animate-jump',
-  gradeAdvancement: 'animate-jump',
-  dailyStreak: 'animate-jump',
+  celebration: '',
+  perfectScore: '',
+  levelComplete: '',
+  gradeAdvancement: '',
+  dailyStreak: '',
 };
 
 // Size presets

@@ -12,7 +12,7 @@ export const Hero = () => {
           {/* Centered Content */}
           <div className="space-y-8 text-center flex flex-col items-center">
             {/* Coquí Mascot - 150px width */}
-            <div className="w-[150px] animate-bounce-gentle">
+            <div className="w-[150px]">
               <CoquiMascot 
                 state="excited"
                 size="inline"

@@ -23,7 +23,7 @@ function HeroV2() {
                 state="happy" 
                 size="large"
                 position="inline"
-                className="z-10 animate-bounce-gentle drop-shadow-2xl w-48 h-48"
+                className="z-10 drop-shadow-2xl w-48 h-48"
               />
               <div className="absolute -top-2 right-0 animate-pulse">
                 <Sparkles className="w-12 h-12 text-student-yellow" />

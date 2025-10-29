@@ -109,7 +109,7 @@ export const MicrophonePermissionModal = ({
               state="happy"
               size="medium"
               position="inline"
-              className="animate-bounce-gentle"
+              className=""
             />
           </div>
 
