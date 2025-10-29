@@ -21,7 +21,34 @@ export const CoquiVoiceChat = () => {
   const [isMuted, setIsMuted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Use simplified session hook
+  // Dashboard-specific voice guidance
+  const dashboardGuidance = language === 'es' 
+    ? `Eres Coquí, el amigo y guía oficial de la plataforma educativa LecturaPR. 
+
+IMPORTANTE - ACENTO: Usa acento puertorriqueño natural y cálido.
+
+Tu rol es dar la bienvenida a estudiantes de Kindergarten a 5to grado y explicarles brevemente cómo usar la plataforma.
+
+SALUDO INICIAL (di esto cuando conectes):
+"¡Hola! Soy Coquí, tu amigo. Aquí puedes aprender en Lecciones, practicar en Ejercicios, y hacer Evaluaciones cuando estés listo. ¿Tienes alguna pregunta?"
+
+TONO: Amigable, breve, entusiasta pero no abrumador.
+EDAD: Recuerda que hablas con niños de 4 a 11 años.
+RESPUESTAS: Responde preguntas sobre la plataforma de forma simple y clara.`
+    : `You are Coquí, the official friend and guide for the LecturaPR educational platform.
+
+IMPORTANT - ACCENT: Use warm, clear American English.
+
+Your role is to welcome students from Kindergarten to 5th grade and briefly explain how to use the platform.
+
+INITIAL GREETING (say this when you connect):
+"Hello! I'm Coquí, your friend. Here you can learn in Lessons, practice in Exercises, and take Assessments when you're ready. Do you have any questions?"
+
+TONE: Friendly, brief, enthusiastic but not overwhelming.
+AGE: Remember you're speaking to children ages 4 to 11.
+RESPONSES: Answer questions about the platform in simple, clear language.`;
+
+  // Use simplified session hook with dashboard context
   const {
     isConnected,
     isConnecting,
@@ -29,7 +56,15 @@ export const CoquiVoiceChat = () => {
     transcript,
     startSession,
     endSession
-  } = useCoquiSession();
+  } = useCoquiSession({
+    activityId: 'dashboard-intro',
+    activityType: 'system',
+    voiceContext: {
+      title: 'Dashboard Introduction',
+      language: language === 'es' ? 'es-PR' : 'en-US',
+      voiceGuidance: dashboardGuidance
+    }
+  });
 
   // Convert transcript array to messages
   useEffect(() => {
@@ -71,15 +106,14 @@ export const CoquiVoiceChat = () => {
 
   const handleToggleConnection = async () => {
     if (isConnected) {
-      setMascotState('neutral');
       setMessages([]);
-      endSession();
+      await endSession();
+      setMascotState('neutral');
     } else {
       // Mark hint as dismissed when user clicks to connect
       localStorage.setItem("coqui-hint-dismissed", "true");
-      setMascotState('loading');
       await startSession();
-      setMascotState('happy');
+      // Don't manually set mascot state - let the effect handle it
     }
   };
 
@@ -90,13 +124,19 @@ export const CoquiVoiceChat = () => {
         <div className="flex flex-col items-center space-y-2">
           <div className="relative inline-block" onClick={!isConnected ? handleToggleConnection : undefined}>
             <CoquiMascot 
-              state={mascotState}
+              state={isConnecting ? "waiting" : mascotState}
               size="small"
               position="inline"
-              className={isConnected ? "animate-breathe" : "cursor-pointer"}
+              className={
+                isConnecting 
+                  ? "animate-pulse cursor-wait" 
+                  : isConnected 
+                    ? "animate-breathe" 
+                    : "cursor-pointer"
+              }
             />
             
-            {!isConnected && <CoquiClickHint />}
+            {!isConnected && !isConnecting && <CoquiClickHint />}
           </div>
           
           <div className="text-center">
@@ -104,55 +144,71 @@ export const CoquiVoiceChat = () => {
               {t("¡Habla con Coquí!", "Talk with Coquí!")}
             </h3>
             <p className="text-xs md:text-sm text-muted-foreground mt-1">
-              {isConnected 
-                ? t("Estoy escuchando... ¡Háblame!", "I'm listening... Talk to me!")
-                : t("Haz clic en Coquí para empezar", "Click on Coquí to start")
+              {isConnecting
+                ? t("Conectando...", "Connecting...")
+                : isConnected 
+                  ? t("Estoy escuchando... ¡Háblame!", "I'm listening... Talk to me!")
+                  : t("Haz clic en Coquí para empezar", "Click on Coquí to start")
               }
             </p>
           </div>
         </div>
 
-        {/* Conversation Display - Only show when connected */}
+        {/* Conversation Display - Simplified during intro, full after */}
         {isConnected && (
           <div className="bg-muted/30 rounded-lg p-3 min-h-[150px] max-h-[200px]">
-            <ScrollArea className="h-full pr-4" ref={scrollRef}>
-              {messages.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <p className="text-lg">
-                    {t(
-                      "Cuando empieces a hablar, nuestra conversación aparecerá aquí 💬",
-                      "When you start talking, our conversation will appear here 💬"
-                    )}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {messages.map((msg, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
-                    >
+            {isAIPlaying ? (
+              // Simplified view while Coquí is speaking
+              <div className="flex flex-col items-center justify-center h-full text-center py-8">
+                <div className="text-4xl mb-4 animate-bounce-gentle">🐸</div>
+                <p className="text-lg font-medium text-primary">
+                  {t("Coquí está hablando...", "Coquí is speaking...")}
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {t("Escucha la introducción", "Listen to the introduction")}
+                </p>
+              </div>
+            ) : (
+              // Full conversation view after intro for Q&A
+              <ScrollArea className="h-full pr-4" ref={scrollRef}>
+                {messages.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8">
+                    <p className="text-lg">
+                      {t(
+                        "Cuando empieces a hablar, nuestra conversación aparecerá aquí 💬",
+                        "When you start talking, our conversation will appear here 💬"
+                      )}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {messages.map((msg, idx) => (
                       <div
-                        className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
-                          msg.isUser
-                            ? 'bg-primary text-primary-foreground rounded-br-sm'
-                            : 'bg-secondary text-secondary-foreground rounded-bl-sm'
-                        }`}
+                        key={idx}
+                        className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                       >
-                        <div className="flex items-start gap-3">
-                          <span className="text-2xl flex-shrink-0 mt-0.5">
-                            {msg.isUser ? '👦' : '🐸'}
-                          </span>
-                          <p className="text-base md:text-lg leading-relaxed break-words">
-                            {msg.text}
-                          </p>
+                        <div
+                          className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
+                            msg.isUser
+                              ? 'bg-primary text-primary-foreground rounded-br-sm'
+                              : 'bg-secondary text-secondary-foreground rounded-bl-sm'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className="text-2xl flex-shrink-0 mt-0.5">
+                              {msg.isUser ? '👦' : '🐸'}
+                            </span>
+                            <p className="text-base md:text-lg leading-relaxed break-words">
+                              {msg.text}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            )}
           </div>
         )}
 

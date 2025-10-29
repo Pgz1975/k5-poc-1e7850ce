@@ -198,8 +198,7 @@ function getGradeName(gradeLevel: number): string {
 }
 
 function getVoiceForLanguage(language: string): string {
-  if (language === "es-PR") {
-    return "shimmer";
-  }
-  return "alloy";
+  // Always use "ash" voice for all languages
+  // Accent is controlled by instructions in getBaseInstructions()
+  return "ash";
 }
