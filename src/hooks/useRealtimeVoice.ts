@@ -22,14 +22,11 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
   const [isConnecting, setIsConnecting] = useState(false);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
   const [transcript, setTranscript] = useState<Array<{ text: string; isUser: boolean }>>([]);
-  const [frequencyData, setFrequencyData] = useState<Uint8Array>(new Uint8Array(128));
-  const [audioLevel, setAudioLevel] = useState<number>(0);
   const [client, setClient] = useState<RealtimeVoiceClientEnhanced | null>(null);
   const clientRef = useRef<RealtimeVoiceClientEnhanced | null>(null);
   const sessionIdRef = useRef<string>(crypto.randomUUID());
   const isDisconnecting = useRef(false);
   const isDisconnected = useRef(false);
-  const frequencyIntervalRef = useRef<number | null>(null);
   const { toast } = useToast();
 
   const connect = useCallback(async () => {
@@ -121,14 +118,6 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
       setClient(clientRef.current);
       console.log('[useRealtimeVoice] ✅ Client connected successfully');
       
-      // Start polling frequency data
-      frequencyIntervalRef.current = window.setInterval(() => {
-        if (clientRef.current) {
-          const data = clientRef.current.getFrequencyData();
-          setFrequencyData(new Uint8Array(data));
-        }
-      }, 50); // Update at ~20fps
-      
       toast({
         title: language === 'es-PR' ? '¡Conectado!' : 'Connected!',
         description: language === 'es-PR' 
@@ -161,12 +150,6 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
     console.log('[useRealtimeVoice] 🛑 Disconnecting...');
     isDisconnecting.current = true;
     
-    // Stop frequency polling
-    if (frequencyIntervalRef.current) {
-      clearInterval(frequencyIntervalRef.current);
-      frequencyIntervalRef.current = null;
-    }
-    
     try {
       if (clientRef.current) {
         await clientRef.current.disconnect();
@@ -177,8 +160,6 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
       setIsConnecting(false);
       setIsAIPlaying(false);
       setTranscript([]);
-      setFrequencyData(new Uint8Array(128));
-      setAudioLevel(0);
       
       console.log('[useRealtimeVoice] ✅ Disconnected successfully');
     } catch (error) {
@@ -199,22 +180,11 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
     clientRef.current?.sendText(text);
   }, []);
 
-  // Callback to update audio level from client
-  useEffect(() => {
-    if (onAudioLevel) {
-      const handler = (level: number) => setAudioLevel(level);
-      // This is managed via the onAudioLevel callback passed to the client
-    }
-  }, [onAudioLevel]);
-
   // Cleanup on unmount
   useEffect(() => {
     console.log('[useRealtimeVoice] 🎬 Hook mounted');
     return () => {
       console.log('[useRealtimeVoice] 🧹 Cleanup on unmount');
-      if (frequencyIntervalRef.current) {
-        clearInterval(frequencyIntervalRef.current);
-      }
       clientRef.current?.disconnect();
     };
   }, []);
@@ -227,8 +197,6 @@ export function useRealtimeVoice({ studentId, language, model, voiceGuidance, ac
     connect,
     disconnect,
     sendText,
-    client,
-    frequencyData,
-    audioLevel
+    client
   };
 }

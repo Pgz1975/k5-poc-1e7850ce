@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import CoquiMascot from '@/components/CoquiMascot';
+import { CoquiLessonAssistant } from '@/components/coqui/CoquiLessonAssistant';
 import { MultipleChoicePlayer } from '@/components/ManualAssessment/players/MultipleChoicePlayer';
 import { TrueFalsePlayer } from '@/components/ManualAssessment/players/TrueFalsePlayer';
 import { FillBlankPlayer } from '@/components/ManualAssessment/players/FillBlankPlayer';
@@ -15,9 +16,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { useDesignVersion } from '@/hooks/useDesignVersion';
 import { useUnitColor } from '@/hooks/useUnitColor';
-import { VoiceVisualizationPanel } from '@/components/voice/VoiceVisualizationPanel';
-import { useCoquiSession } from '@/hooks/useCoquiSession';
-import { CoquiVoiceBridge } from '@/components/coqui/CoquiVoiceBridge';
 
 export default function ViewAssessment() {
   const { id } = useParams();
@@ -31,43 +29,6 @@ export default function ViewAssessment() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [isPreConnecting, setIsPreConnecting] = useState(false);
   const [showExercise, setShowExercise] = useState(false);
-
-  // Voice session for audio visualization
-  const { 
-    isConnected, 
-    isConnecting, 
-    isAIPlaying, 
-    frequencyData, 
-    audioLevel,
-    startSession,
-    endSession,
-    sendText,
-    client
-  } = useCoquiSession({
-    activityId: id || '',
-    activityType: 'exercise',
-    voiceContext: assessment ? {
-      title: assessment.title,
-      subtype: assessment.assessment_type,
-      language: assessment.language,
-      voiceGuidance: assessment.voice_guidance,
-      content: assessment.content
-    } : undefined
-  });
-
-  // Auto-connect voice session when assessment loads
-  useEffect(() => {
-    if (assessment && !isConnected && !isConnecting) {
-      startSession();
-    }
-  }, [assessment, isConnected, isConnecting, startSession]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      endSession();
-    };
-  }, [endSession]);
 
   useEffect(() => {
     const fetchAssessment = async () => {
@@ -178,21 +139,6 @@ export default function ViewAssessment() {
           )}
         </div>
 
-        {/* Audio Waveform + Mascot Panel */}
-        <div className="mb-6">
-          <VoiceVisualizationPanel
-            isConnected={isConnected}
-            isConnecting={isConnecting}
-            isAIPlaying={isAIPlaying}
-            frequencyData={frequencyData}
-            audioLevel={audioLevel}
-            sendText={sendText}
-            voiceGuidance={assessment?.voice_guidance as string}
-            activityId={id}
-            client={client}
-          />
-        </div>
-
 
         {/* Question - Only for multiple choice and true/false */}
         {assessment.subtype !== 'fill_blank' && 
@@ -288,8 +234,8 @@ export default function ViewAssessment() {
           />
         )}
 
-        {/* Voice session bridge for cleanup */}
-        <CoquiVoiceBridge
+        {/* Coquí Assistant - Single voice stack, stays mounted */}
+        <CoquiLessonAssistant
           activityId={assessment.id}
           activityType="exercise"
           voiceContext={{
@@ -299,7 +245,9 @@ export default function ViewAssessment() {
             voiceGuidance: assessment.voice_guidance,
             content: assessment.content
           }}
-          endSessionRef={{ current: null }}
+          autoConnect={true}
+          isConnecting={isPreConnecting}
+          position="fixed"
         />
 
         {/* Feedback */}

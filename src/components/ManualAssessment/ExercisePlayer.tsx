@@ -12,9 +12,6 @@ import { ActivityActions } from '@/components/ActivityManagement/ActivityActions
 import { useUnitColor } from '@/hooks/useUnitColor';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
-import { VoiceVisualizationPanel } from '@/components/voice/VoiceVisualizationPanel';
-import { useHasParentVisualization } from '@/contexts/VoiceVisualizationContext';
-import { useCoquiSession } from '@/hooks/useCoquiSession';
 
 interface Exercise {
   id: string;
@@ -36,42 +33,11 @@ interface ExercisePlayerProps {
 export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: ExercisePlayerProps) {
   const { t } = useLanguage();
   const { colorScheme } = useUnitColor(exercise?.id);
-  const hasParentVisualization = useHasParentVisualization();
   
   // Guard against transient undefined props during transitions
   if (!exercise) {
     return null;
   }
-
-  const { 
-    isConnected, 
-    isConnecting, 
-    isAIPlaying, 
-    frequencyData, 
-    audioLevel,
-    startSession,
-    endSession,
-    sendText,
-    client
-  } = useCoquiSession({
-    activityId: exercise.id,
-    activityType: 'exercise',
-    voiceContext: { title: exercise.title, subtype: exercise.subtype }
-  });
-
-  // Auto-connect voice session when exercise loads (only if not embedded in lesson)
-  useEffect(() => {
-    if (exercise && !hasParentVisualization && !isConnected && !isConnecting) {
-      startSession();
-    }
-  }, [exercise, hasParentVisualization, isConnected, isConnecting, startSession]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      endSession();
-    };
-  }, [endSession]);
 
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);

@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CoquiLessonAssistantGuard } from "@/components/coqui/CoquiLessonAssistantGuard";
 import { CoquiVoiceBridge } from "@/components/coqui/CoquiVoiceBridge";
 import { CheckCircle, Lock, BookOpen } from "lucide-react";
 import { toast } from "sonner";
@@ -16,9 +17,6 @@ import { checkLessonLocked } from "@/utils/lessonUnlocking";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { useUnitColor } from "@/hooks/useUnitColor";
 import { cn } from "@/lib/utils";
-import { VoiceVisualizationPanel } from "@/components/voice/VoiceVisualizationPanel";
-import { VoiceVisualizationProvider } from "@/contexts/VoiceVisualizationContext";
-import { useCoquiSession } from "@/hooks/useCoquiSession";
 
 export default function ViewLesson() {
   const { id } = useParams();
@@ -65,41 +63,6 @@ export default function ViewLesson() {
       return data;
     },
   });
-
-  // Voice session for audio visualization (after lesson data is available)
-  const { 
-    isConnected, 
-    isConnecting, 
-    isAIPlaying, 
-    frequencyData, 
-    audioLevel,
-    startSession,
-    endSession,
-    sendText,
-    client
-  } = useCoquiSession({
-    activityId: id || '',
-    activityType: 'lesson',
-    voiceContext: lesson ? {
-      title: lesson.title,
-      language: language === 'es' ? 'es-PR' : 'en-US',
-      voiceGuidance: (lesson.voice_guidance as string) || undefined
-    } : undefined
-  });
-
-  // Auto-connect voice session when lesson loads
-  useEffect(() => {
-    if (lesson && !isConnected && !isConnecting) {
-      startSession();
-    }
-  }, [lesson, isConnected, isConnecting, startSession]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      endSession();
-    };
-  }, [endSession]);
 
   // Check if lesson is locked
   const { data: lockData, isLoading: lockLoading } = useQuery({
@@ -315,8 +278,7 @@ export default function ViewLesson() {
       <Header />
 
       <main className="flex-1 container mx-auto px-4 py-8 relative">
-        <VoiceVisualizationProvider>
-          <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-8">
           {/* Lesson Header - V2 Style */}
           <Card className={cn(
             "border-4 rounded-2xl",
@@ -324,7 +286,7 @@ export default function ViewLesson() {
             colorScheme?.shadow,
             "bg-white"
           )}>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 {/* Unit icon */}
                 <div className={cn(
@@ -343,19 +305,6 @@ export default function ViewLesson() {
                   )}
                 </div>
               </div>
-              
-              {/* Audio Waveform + Mascot Panel */}
-              <VoiceVisualizationPanel
-                isConnected={isConnected}
-                isConnecting={isConnecting}
-                isAIPlaying={isAIPlaying}
-                frequencyData={frequencyData}
-                audioLevel={audioLevel}
-                sendText={sendText}
-                voiceGuidance={lesson.voice_guidance as string}
-                activityId={id}
-                client={client}
-              />
             </CardContent>
           </Card>
 
@@ -402,18 +351,28 @@ export default function ViewLesson() {
               </CardContent>
           </Card>
 
-          {/* Voice session bridge for navigation guard */}
+          {/* Interactive Coquí Assistant - Single Instance */}
           {lesson && (
-            <CoquiVoiceBridge
-              activityId={lesson.id}
-              activityType="lesson"
-              voiceContext={{
-                title: lesson.title,
-                language: language === 'es' ? 'es-PR' : 'en-US',
-                voiceGuidance: (lesson.voice_guidance as string) || undefined
-              }}
-              endSessionRef={endSessionRef}
-            />
+            <>
+              <div className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}>
+                <CoquiLessonAssistantGuard
+                  activityId={lesson.id}
+                  activityType="lesson"
+                  position={isDesktop ? "inline" : "fixed"}
+                  voiceContext={lessonVoiceContext}
+                  className={isDesktop ? "hidden lg:block flex-shrink-0" : "lg:hidden"}
+                  autoConnect={true}
+                />
+              </div>
+              
+              {/* Voice session bridge for navigation guard */}
+              <CoquiVoiceBridge
+                activityId={lesson.id}
+                activityType="lesson"
+                voiceContext={lessonVoiceContext}
+                endSessionRef={endSessionRef}
+              />
+            </>
           )}
         </div>
 
@@ -455,8 +414,7 @@ export default function ViewLesson() {
               {t("Marcar como Completada", "Mark as Complete")}
             </Button>
           </div>
-          </div>
-        </VoiceVisualizationProvider>
+        </div>
       </main>
 
       <Footer />

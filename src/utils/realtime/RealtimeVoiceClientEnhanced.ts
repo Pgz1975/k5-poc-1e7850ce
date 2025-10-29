@@ -46,9 +46,6 @@ export class RealtimeVoiceClientEnhanced {
   private appendedSamplesSinceLastCommit = 0;
   private minCommitSamples = 2400; // 100ms at 24kHz
   private isResponseInProgress = false; // track if AI is generating a response
-  // Audio visualization
-  private analyserNode: AnalyserNode | null = null;
-  private frequencyDataArray = new Uint8Array(128);
 
   constructor(config: RealtimeVoiceConfig = {}) {
     this.config = config;
@@ -151,18 +148,9 @@ export class RealtimeVoiceClientEnhanced {
       });
       console.log('[RealtimeVoiceClient] 🎤 Microphone access granted');
 
-      // Create analyser for frequency visualization
-      this.analyserNode = this.audioContext.createAnalyser();
-      this.analyserNode.fftSize = 256;
-      this.frequencyDataArray = new Uint8Array(this.analyserNode.frequencyBinCount);
-      console.log('[RealtimeVoiceClient] 📊 Analyser node created');
-
       // Create audio worklet
       this.audioWorklet = new AudioWorkletNode(this.audioContext, 'pcm16-capture-processor');
       const source = this.audioContext.createMediaStreamSource(this.mediaStream);
-      
-      // Connect microphone to both analyser and worklet
-      source.connect(this.analyserNode);
       source.connect(this.audioWorklet);
 
       this.audioWorklet.port.onmessage = (event) => {
@@ -498,8 +486,6 @@ export class RealtimeVoiceClientEnhanced {
     this.heartbeatManager.stop();
     this.reconnectionManager.cancel();
     
-    this.analyserNode?.disconnect();
-    this.analyserNode = null;
     this.audioWorklet?.disconnect();
     this.mediaStream?.getTracks().forEach(track => track.stop());
     
@@ -541,15 +527,6 @@ export class RealtimeVoiceClientEnhanced {
 
   getPerformanceMetrics() {
     return this.performanceMonitor.getMetricsSummary();
-  }
-
-  getFrequencyData(): Uint8Array {
-    if (this.analyserNode && this.frequencyDataArray) {
-      const tempArray = new Uint8Array(this.analyserNode.frequencyBinCount);
-      this.analyserNode.getByteFrequencyData(tempArray);
-      this.frequencyDataArray.set(tempArray);
-    }
-    return this.frequencyDataArray;
   }
 
   private encodeContextPayload(payload: Record<string, unknown>): string | null {

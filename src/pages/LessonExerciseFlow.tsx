@@ -9,9 +9,8 @@ import { LessonCompletionScreen } from '@/components/LessonCompletion/LessonComp
 import { Progress } from '@/components/ui/progress';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { VoiceVisualizationProvider } from '@/contexts/VoiceVisualizationContext';
-import { VoiceVisualizationPanel } from '@/components/voice/VoiceVisualizationPanel';
-import { useCoquiSession } from '@/hooks/useCoquiSession';
+import { CoquiLessonAssistantGuard } from '@/components/coqui/CoquiLessonAssistantGuard';
+import { CoquiVoiceBridge } from '@/components/coqui/CoquiVoiceBridge';
 import { ActivityActions } from '@/components/ActivityManagement/ActivityActions';
 import { useUnitColor } from '@/hooks/useUnitColor';
 import { cn } from '@/lib/utils';
@@ -29,6 +28,9 @@ export default function LessonExerciseFlow() {
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [exerciseScores, setExerciseScores] = useState<Map<string, number>>(new Map());
   const [showCelebration, setShowCelebration] = useState(false);
+  
+  // Voice session management for navigation guard
+  const endSessionRef = useRef<(() => Promise<void>) | null>(null);
 
   // Fetch lesson details
   const { data: lesson, isLoading: lessonLoading } = useQuery({
@@ -69,48 +71,6 @@ export default function LessonExerciseFlow() {
     const idx = exercises.findIndex(e => e.id === currentExerciseId);
     return idx === -1 ? 0 : idx;
   }, [exercises, currentExerciseId]);
-
-  // Derive current exercise
-  const currentExercise = useMemo(() => {
-    if (!exercises || !currentExerciseId) return null;
-    return exercises.find(e => e.id === currentExerciseId) || null;
-  }, [exercises, currentExerciseId]);
-
-  // Voice session for exercise flow (MUST be before any conditional returns)
-  const defaultExerciseGuidance = currentExercise ? `Start by greeting the Grade 1 student and summarizing the exercise "${currentExercise.title}" (${currentExercise.subtype}). Read or paraphrase any instructions or prompts from the activity content, then invite the student to try. Use a Socratic approach: offer hints instead of direct answers, model pronunciation when needed, and avoid revealing the solution unless the student is stuck.` : '';
-  
-  const {
-    isConnected,
-    isConnecting,
-    isAIPlaying,
-    frequencyData,
-    audioLevel,
-    startSession,
-    endSession,
-    sendText,
-    client
-  } = useCoquiSession({
-    activityId: currentExercise?.id || '',
-    activityType: 'exercise',
-    voiceContext: currentExercise ? {
-      title: currentExercise.title,
-      subtype: currentExercise.subtype,
-      language: currentExercise.language,
-      voiceGuidance: currentExercise.voice_guidance ?? defaultExerciseGuidance,
-      coquiDialogue: currentExercise.coqui_dialogue,
-      pronunciationWords: currentExercise.pronunciation_words,
-      content: currentExercise.content as Record<string, unknown> | null
-    } : undefined
-  });
-
-  // Early return if no current exercise (MUST be after all hooks)
-  if (!currentExercise && !exercisesLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
 
   // Fetch completed exercises
   const { data: completedData } = useQuery({
@@ -234,14 +194,18 @@ export default function LessonExerciseFlow() {
 
   const handleBack = async () => {
     console.log('[LessonExerciseFlow] 🚦 Back button - cleaning up voice...');
-    // endSession will be called via useEffect cleanup
+    if (endSessionRef.current) {
+      await endSessionRef.current();
+    }
     await new Promise(resolve => setTimeout(resolve, 200));
     navigate('/student-dashboard/lessons');
   };
 
   const handleReturnToDashboard = async () => {
     console.log('[LessonExerciseFlow] 🚦 Return to dashboard - cleaning up voice...');
-    // endSession will be called via useEffect cleanup
+    if (endSessionRef.current) {
+      await endSessionRef.current();
+    }
     await new Promise(resolve => setTimeout(resolve, 200));
     navigate('/student-dashboard/lessons');
   };
@@ -275,44 +239,33 @@ export default function LessonExerciseFlow() {
     );
   }
 
-  // Auto-connect when exercise loads
-  useEffect(() => {
-    if (currentExercise && !isConnected && !isConnecting) {
-      startSession();
-    }
-  }, [currentExercise, isConnected, isConnecting, startSession]);
+  const currentExercise = exercises[currentExerciseIndex];
+  if (!currentExercise) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      endSession();
-    };
-  }, [endSession]);
+  const defaultExerciseGuidance = `Start by greeting the Grade 1 student and summarizing the exercise "${currentExercise.title}" (${currentExercise.subtype}). Read or paraphrase any instructions or prompts from the activity content, then invite the student to try. Use a Socratic approach: offer hints instead of direct answers, model pronunciation when needed, and avoid revealing the solution unless the student is stuck.`;
 
-  const exerciseVoiceGuidance = currentExercise?.voice_guidance ?? defaultExerciseGuidance;
+  const exerciseVoiceContext = {
+    title: currentExercise.title,
+    subtype: currentExercise.subtype,
+    language: currentExercise.language,
+    voiceGuidance: currentExercise.voice_guidance ?? defaultExerciseGuidance,
+    coquiDialogue: currentExercise.coqui_dialogue,
+    pronunciationWords: currentExercise.pronunciation_words,
+    content: currentExercise.content as Record<string, unknown> | null
+  };
 
   const progressPercent = (completedExercises.size / exercises.length) * 100;
 
   return (
-    <VoiceVisualizationProvider>
-      <div className="container mx-auto p-6 max-w-4xl animate-fade-in">
-        {/* Audio Waveform + Mascot Panel */}
-        <div className="mb-6">
-          <VoiceVisualizationPanel
-            isConnected={isConnected}
-            isConnecting={isConnecting}
-            isAIPlaying={isAIPlaying}
-            frequencyData={frequencyData}
-            audioLevel={audioLevel}
-            sendText={sendText}
-            voiceGuidance={exerciseVoiceGuidance}
-            activityId={currentExercise.id}
-            client={client}
-          />
-        </div>
-
-        {/* Progress Indicator */}
-        <div className="mb-6">
+    <div className="container mx-auto p-6 max-w-4xl animate-fade-in">
+      {/* Progress Indicator */}
+      <div className="mb-6">
         <div className="relative h-4 rounded-full bg-gray-200 overflow-hidden border-2 border-gray-300">
           <div 
             className={cn(
@@ -373,14 +326,28 @@ export default function LessonExerciseFlow() {
         })}
       </div>
 
-        {/* Current Exercise */}
-        <ExercisePlayer
-          exercise={currentExercise}
-          onComplete={(score, passed) => handleExerciseComplete(currentExercise.id, score, passed)}
-          onExit={handleBack}
-          voiceClient={client}
-        />
-      </div>
-    </VoiceVisualizationProvider>
+      {/* Current Exercise */}
+      <ExercisePlayer
+        exercise={currentExercise}
+        onComplete={(score, passed) => handleExerciseComplete(currentExercise.id, score, passed)}
+        onExit={handleBack}
+      />
+
+      {/* Interactive Coquí Assistant */}
+      <CoquiLessonAssistantGuard
+        activityId={currentExercise.id}
+        activityType="exercise"
+        voiceContext={exerciseVoiceContext}
+        autoConnect={true}
+      />
+      
+      {/* Voice session bridge for navigation guard */}
+      <CoquiVoiceBridge
+        activityId={currentExercise.id}
+        activityType="exercise"
+        voiceContext={exerciseVoiceContext}
+        endSessionRef={endSessionRef}
+      />
+    </div>
   );
 }
