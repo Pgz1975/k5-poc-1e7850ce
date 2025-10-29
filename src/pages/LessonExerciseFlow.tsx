@@ -70,6 +70,39 @@ export default function LessonExerciseFlow() {
     return idx === -1 ? 0 : idx;
   }, [exercises, currentExerciseId]);
 
+  // Derive current exercise
+  const currentExercise = useMemo(() => {
+    if (!exercises || !currentExerciseId) return null;
+    return exercises.find(e => e.id === currentExerciseId) || null;
+  }, [exercises, currentExerciseId]);
+
+  // Voice session for exercise flow (MUST be before any conditional returns)
+  const defaultExerciseGuidance = currentExercise ? `Start by greeting the Grade 1 student and summarizing the exercise "${currentExercise.title}" (${currentExercise.subtype}). Read or paraphrase any instructions or prompts from the activity content, then invite the student to try. Use a Socratic approach: offer hints instead of direct answers, model pronunciation when needed, and avoid revealing the solution unless the student is stuck.` : '';
+  
+  const {
+    isConnected,
+    isConnecting,
+    isAIPlaying,
+    frequencyData,
+    audioLevel,
+    startSession,
+    endSession,
+    sendText,
+    client
+  } = useCoquiSession({
+    activityId: currentExercise?.id || '',
+    activityType: 'exercise',
+    voiceContext: currentExercise ? {
+      title: currentExercise.title,
+      subtype: currentExercise.subtype,
+      language: currentExercise.language,
+      voiceGuidance: currentExercise.voice_guidance ?? defaultExerciseGuidance,
+      coquiDialogue: currentExercise.coqui_dialogue,
+      pronunciationWords: currentExercise.pronunciation_words,
+      content: currentExercise.content as Record<string, unknown> | null
+    } : undefined
+  });
+
   // Fetch completed exercises
   const { data: completedData } = useQuery({
     queryKey: ['completed-exercises', lessonId, user?.id],
@@ -232,35 +265,6 @@ export default function LessonExerciseFlow() {
       />
     );
   }
-
-  const currentExercise = exercises[currentExerciseIndex];
-  
-  // Voice session for exercise flow
-  const defaultExerciseGuidance = currentExercise ? `Start by greeting the Grade 1 student and summarizing the exercise "${currentExercise.title}" (${currentExercise.subtype}). Read or paraphrase any instructions or prompts from the activity content, then invite the student to try. Use a Socratic approach: offer hints instead of direct answers, model pronunciation when needed, and avoid revealing the solution unless the student is stuck.` : '';
-  
-  const {
-    isConnected,
-    isConnecting,
-    isAIPlaying,
-    frequencyData,
-    audioLevel,
-    startSession,
-    endSession,
-    sendText,
-    client
-  } = useCoquiSession({
-    activityId: currentExercise?.id || '',
-    activityType: 'exercise',
-    voiceContext: currentExercise ? {
-      title: currentExercise.title,
-      subtype: currentExercise.subtype,
-      language: currentExercise.language,
-      voiceGuidance: currentExercise.voice_guidance ?? defaultExerciseGuidance,
-      coquiDialogue: currentExercise.coqui_dialogue,
-      pronunciationWords: currentExercise.pronunciation_words,
-      content: currentExercise.content as Record<string, unknown> | null
-    } : undefined
-  });
 
   // Auto-connect when exercise loads
   useEffect(() => {
