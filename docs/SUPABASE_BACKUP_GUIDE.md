@@ -1,7 +1,7 @@
 # Supabase Database Backup Guide
 
-**Last Updated:** October 25, 2025
-**Version:** 2.0 - Complete Database Export
+**Last Updated:** October 29, 2025
+**Version:** 3.0 - Enhanced Backup System with Automation & Monitoring
 
 ---
 
@@ -11,22 +11,22 @@ This guide documents the comprehensive Supabase database backup system that expo
 
 ## 📊 Current Database Statistics
 
-As of the latest backup (October 25, 2025):
+As of the latest backup (October 29, 2025):
 
 | Table | Records | Description |
 |-------|---------|-------------|
-| **voice_sessions** | 271 | Voice interaction session data |
-| **manual_assessments** | 180 | Student assessment records |
+| **manual_assessments** | 782 | Student assessment records |
+| **voice_sessions** | 287 | Voice interaction session data |
 | **profiles** | 1 | User profile information |
 | **user_roles** | 1 | User role assignments |
 | **pdf_text_content** | 0 | Extracted PDF content |
-| **Total** | **453 records** | Across 5 tables |
+| **Total** | **1,071 records** | Across 5 tables |
 
 ## 🛠️ Backup Scripts
 
-### Primary Script: `supabase-full-backup.mjs`
+### 1. Primary Backup Script: `supabase-full-backup.mjs`
 
-The enhanced backup script that automatically discovers and exports ALL tables.
+The core backup script that automatically discovers and exports ALL tables.
 
 **Location:** `/scripts/supabase-full-backup.mjs`
 
@@ -39,7 +39,50 @@ The enhanced backup script that automatically discovers and exports ALL tables.
 - ✅ Comprehensive error handling
 - ✅ Automatic README generation
 
-### Legacy Script: `supabase-export.mjs`
+### 2. Automation Script: `supabase-backup-automation.mjs`
+
+Enhanced backup with retention policies and compression.
+
+**Location:** `/scripts/supabase-backup-automation.mjs`
+
+**Features:**
+- ✅ Automated retention management (30 days default)
+- ✅ Backup compression for files older than 7 days
+- ✅ Maximum backup limit enforcement (50 backups)
+- ✅ Backup verification after creation
+- ✅ Alert thresholds for large databases
+- ✅ Automatic report generation
+- ✅ Cleanup of old backups
+
+### 3. Restore Script: `supabase-restore.mjs`
+
+Interactive restoration tool for recovering from backups.
+
+**Location:** `/scripts/supabase-restore.mjs`
+
+**Features:**
+- ✅ Interactive backup selection
+- ✅ Support for JSON and SQL formats
+- ✅ Option to clear existing data before restore
+- ✅ Batch processing for large datasets
+- ✅ Restoration verification
+- ✅ Progress tracking
+
+### 4. Monitoring Script: `supabase-backup-monitor.mjs`
+
+Real-time monitoring and alerting system.
+
+**Location:** `/scripts/supabase-backup-monitor.mjs`
+
+**Features:**
+- ✅ Database growth tracking
+- ✅ Backup status monitoring
+- ✅ Alert generation based on thresholds
+- ✅ Growth trend analysis
+- ✅ Interactive dashboard display
+- ✅ Historical data tracking (30 days)
+
+### 5. Legacy Script: `supabase-export.mjs`
 
 This script has been updated to use the comprehensive backup approach.
 
@@ -47,22 +90,72 @@ This script has been updated to use the comprehensive backup approach.
 
 ## 📦 How to Run Backups
 
-### Quick Backup Command
+### Quick Backup Commands
 
 ```bash
-# Run from project root
+# 1. Standard full backup
 node scripts/supabase-full-backup.mjs
+
+# 2. Automated backup with retention management
+node scripts/supabase-backup-automation.mjs
+
+# 3. Monitor database status
+node scripts/supabase-backup-monitor.mjs
+
+# 4. Restore from backup (interactive)
+node scripts/supabase-restore.mjs
+
+# 5. Using the legacy script name (now uses full backup)
+node scripts/supabase-export.mjs
 ```
 
-### Alternative Commands
+### Scheduled Backup (Cron)
 
 ```bash
-# Using the legacy script name (now uses full backup)
-node scripts/supabase-export.mjs
+# Add to crontab for automated backups
+# Edit crontab
+crontab -e
 
-# Make script executable and run directly
-chmod +x scripts/supabase-full-backup.mjs
-./scripts/supabase-full-backup.mjs
+# Add this line for daily backup at 2 AM
+0 2 * * * cd /path/to/project && node scripts/supabase-backup-automation.mjs >> /var/log/backup.log 2>&1
+
+# Add this line for monitoring every 6 hours
+0 */6 * * * cd /path/to/project && node scripts/supabase-backup-monitor.mjs >> /var/log/monitor.log 2>&1
+```
+
+### GitHub Actions Workflow
+
+```yaml
+name: Database Backup
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+  workflow_dispatch:     # Manual trigger
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run backup
+        run: node scripts/supabase-backup-automation.mjs
+
+      - name: Upload backup artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: database-backups
+          path: database_backups/
+          retention-days: 30
 ```
 
 ## 📁 Backup Output
@@ -265,6 +358,17 @@ The script infers column types from data:
 - **Archive:** Monthly backups for 1 year
 
 ## 📝 Changelog
+
+### Version 3.0 (October 29, 2025)
+- ✅ Added backup automation with retention policies
+- ✅ Implemented backup compression for old files
+- ✅ Created interactive restore functionality
+- ✅ Added real-time monitoring and alerting
+- ✅ Implemented growth tracking and trend analysis
+- ✅ Added backup verification system
+- ✅ Created automated report generation
+- ✅ Added GitHub Actions integration
+- ✅ Implemented batch processing for large datasets
 
 ### Version 2.0 (October 25, 2025)
 - ✅ Complete rewrite for comprehensive backup

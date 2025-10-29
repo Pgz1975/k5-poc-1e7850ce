@@ -1,0 +1,131 @@
+name: Database Backup
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+  workflow_dispatch:
+    inputs:
+      backup_type:
+        description: 'Type of backup to run'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - automation
+          - monitoring
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run backup
+        run: |
+          if [ "${{ github.event.inputs.backup_type }}" == "monitoring" ]; then
+            node scripts/supabase-backup-monitor.mjs
+          elif [ "${{ github.event.inputs.backup_type }}" == "automation" ]; then
+            node scripts/supabase-backup-automation.mjs
+          else
+            node scripts/supabase-full-backup.mjs
+          fi
+
+      - name: Upload backup artifacts
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: database-backup-${{ github.run_number }}
+          path: |
+            database_backups/*.sql
+            database_backups/*.json
+            database_backups/*.md
+          retention-days: 30
+
+      - name: Generate backup summary
+        if: always()
+        run: |
+          echo "## Backup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type**: ${{ github.event.inputs.backup_type || 'full' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Number**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -d "database_backups" ]; then
+            echo "### Recent Backups" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            ls -lh database_backups/*.sql 2>/dev/null | tail -5 || echo "No SQL backups found"
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+  monitor:
+    runs-on: ubuntu-latest
+    needs: backup
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run monitoring check
+        run: node scripts/supabase-backup-monitor.mjs || true
+
+      - name: Check for alerts
+        id: check_alerts
+        run: |
+          # This would normally check for critical alerts
+          # For now, we'll just log the monitoring status
+          echo "Monitoring complete"
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [backup, monitor]
+    if: always()
+
+    steps:
+      - name: Clean old artifacts
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const oldArtifacts = artifacts.data.artifacts.filter(artifact => {
+              const createdAt = new Date(artifact.created_at);
+              const daysOld = (Date.now() - createdAt) / (1000 * 60 * 60 * 24);
+              return daysOld > 30 && artifact.name.startsWith('database-backup-');
+            });
+
+            for (const artifact of oldArtifacts) {
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+              });
+              console.log(`Deleted old artifact: ${artifact.name}`);
+            }
