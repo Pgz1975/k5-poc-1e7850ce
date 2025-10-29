@@ -12,6 +12,9 @@ import { Link } from "react-router-dom";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { SkillsProgressSection } from "@/components/StudentDashboard/SkillsProgressSection";
+import { AIRecommendations } from "@/components/StudentDashboard/AIRecommendations";
+import { ReadingLevelPath } from "@/components/StudentDashboard/ReadingLevelPath";
 
 const StudentDashboardV2 = () => {
   const { t } = useLanguage();
@@ -229,6 +232,20 @@ const StudentDashboardV2 = () => {
                 );
               })}
             </div>
+
+            {/* Reading Skills Progress Section */}
+            <SkillsProgressSection />
+
+            {/* AI Mentor Recommendations */}
+            <AIRecommendations />
+
+            {/* Reading Level Progression Path */}
+            <ReadingLevelPath 
+              currentLevel={currentLevel}
+              currentXP={currentXP}
+              nextLevelXP={nextLevelXP}
+              gradeLevel={profile?.gradeLevel ?? 0}
+            />
 
             {/* Talk to Coquí Section */}
             <CoquiVoiceChat />
