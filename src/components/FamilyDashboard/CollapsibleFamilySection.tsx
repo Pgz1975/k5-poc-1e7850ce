@@ -8,7 +8,8 @@ interface CollapsibleFamilySectionProps {
   id: string;
   title: string;
   icon: LucideIcon;
-  subtitle?: string;
+  subtitle?: string; // New preferred prop
+  description?: string; // Backward-compat alias for subtitle
   summaryContent?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
@@ -59,6 +60,7 @@ export function CollapsibleFamilySection({
   title,
   icon: Icon,
   subtitle,
+  description,
   summaryContent,
   children,
   defaultOpen = false,
@@ -82,6 +84,7 @@ export function CollapsibleFamilySection({
   };
 
   const colors = colorStyles[colorClass as keyof typeof colorStyles] || colorStyles.blue;
+  const resolvedSubtitle = subtitle ?? description;
 
   return (
     <Collapsible open={isOpen} onOpenChange={handleToggle}>
@@ -108,8 +111,8 @@ export function CollapsibleFamilySection({
                 </div>
                 <div className="text-left">
                   <h2 className="text-xl font-bold">{title}</h2>
-                  {subtitle && (
-                    <p className="text-sm text-muted-foreground">{subtitle}</p>
+                  {resolvedSubtitle && (
+                    <p className="text-sm text-muted-foreground">{resolvedSubtitle}</p>
                   )}
                 </div>
               </div>
