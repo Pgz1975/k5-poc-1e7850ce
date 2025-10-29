@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { coquiStates, coquiAnimations, coquiSizes, coquiPositions } from '@/config/coquiConfig';
-import coquiAnimatedWebm from '@/assets/coqui/coqui-animated.webm';
 
 /**
  * CoquiMascot - Animated mascot component for LecturaPR
@@ -27,7 +26,7 @@ export const CoquiMascot = ({
     // Get the media path for the current state, fallback to default
     const newMediaSrc = coquiStates[state] || coquiStates.default;
     setMediaSrc(newMediaSrc);
-    setIsVideo(newMediaSrc.endsWith('.webm') || newMediaSrc === coquiAnimatedWebm);
+    setIsVideo(newMediaSrc.endsWith('.webm'));
 
     // Get the animation for the current state
     const animation = coquiAnimations[state] || '';

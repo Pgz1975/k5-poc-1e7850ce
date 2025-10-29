@@ -1,9 +1,9 @@
 // Coquí mascot state configuration
 export const coquiStates = {
   // Idle and neutral states - using animated webm
-  idle: '/src/assets/coqui/coqui-animated.webm',
-  neutral: '/src/assets/coqui/coqui-animated.webm',
-  loading: '/src/assets/coqui/coqui-animated.webm',
+  idle: '/assets/coqui/coqui-animated.webm',
+  neutral: '/assets/coqui/coqui-animated.webm',
+  loading: '/assets/coqui/coqui-animated.webm',
   
   // Activity states
   thinking: '/assets/coqui/thinking.png',
@@ -31,7 +31,7 @@ export const coquiStates = {
   perfectScore: '/assets/coqui/confetti_celebration.png',
   
   // Fallback
-  default: '/src/assets/coqui/coqui-animated.webm',
+  default: '/assets/coqui/coqui-animated.webm',
 };
 
 // Animation classes for each state
