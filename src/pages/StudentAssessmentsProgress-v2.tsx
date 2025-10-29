@@ -38,7 +38,7 @@ export default function StudentAssessmentsProgressV2() {
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.gradeLevel && !!profile?.learningLanguages,
+    enabled: profile?.gradeLevel !== undefined && profile?.gradeLevel !== null && !!profile?.learningLanguages,
   });
 
   // Fetch lesson ordering to get domain information
@@ -55,7 +55,7 @@ export default function StudentAssessmentsProgressV2() {
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.gradeLevel,
+    enabled: profile?.gradeLevel !== undefined && profile?.gradeLevel !== null,
   });
 
   // Create completion map
@@ -280,15 +280,7 @@ export default function StudentAssessmentsProgressV2() {
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: assessmentIndex * 0.05 }}
-                          className="relative"
                         >
-                          <div className="absolute top-2 right-2 z-10">
-                            <ActivityActions 
-                              activity={{ id: assessment.id, title: assessment.title }} 
-                              redirectPath="/student-dashboard/assessments"
-                              size="sm"
-                            />
-                          </div>
                           <AssessmentCardV2
                             id={assessment.id}
                             title={assessment.title}
