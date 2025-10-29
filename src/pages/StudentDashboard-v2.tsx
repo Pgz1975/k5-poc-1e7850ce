@@ -4,7 +4,7 @@ import { Star, Sparkles, BookOpen, Target, ClipboardCheck, Flame, Trophy } from 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import CoquiMascot from "@/components/CoquiMascot";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCoquiSession } from "@/hooks/useCoquiSession";
 import { CoquiClickHint } from "@/components/StudentDashboard/CoquiClickHint";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
@@ -26,6 +26,7 @@ import { QuickActions } from "@/components/StudentDashboard/QuickActions";
 const StudentDashboardV2 = () => {
   const { t, language } = useLanguage();
   const [mascotState, setMascotState] = useState<"happy" | "thinking" | "reading" | "exploring" | "correct" | "excited" | "speaking">("happy");
+  const hasGreeted = useRef(false);
   const { data: profile, isLoading } = useStudentProfile();
 
   // Dashboard voice guidance context
@@ -39,7 +40,8 @@ const StudentDashboardV2 = () => {
     isConnecting,
     isAIPlaying,
     startSession,
-    endSession
+    endSession,
+    sendText
   } = useCoquiSession({
     activityId: 'dashboard-intro',
     activityType: 'system',
@@ -60,6 +62,27 @@ const StudentDashboardV2 = () => {
       setMascotState('happy');
     }
   }, [isAIPlaying, isConnected]);
+
+  // Send initial greeting when connection is established
+  useEffect(() => {
+    if (isConnected && !hasGreeted.current && sendText) {
+      hasGreeted.current = true;
+      
+      const greeting = language === 'es'
+        ? '¡Hola! Por favor, preséntate y explica cómo puedes ayudarme en mi dashboard.'
+        : 'Hello! Please introduce yourself and explain how you can help me on my dashboard.';
+      
+      console.log('[StudentDashboard] 👋 Sending initial greeting to Coquí');
+      sendText(greeting);
+    }
+  }, [isConnected, sendText, language]);
+
+  // Reset greeting flag when disconnecting
+  useEffect(() => {
+    if (!isConnected && hasGreeted.current) {
+      hasGreeted.current = false;
+    }
+  }, [isConnected]);
 
   // Handle Coquí click to start session
   const handleCoquiClick = async () => {
