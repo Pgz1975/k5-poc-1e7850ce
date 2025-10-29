@@ -1,6 +1,6 @@
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon, Mic, TestTube, FileEdit, Shield, RotateCcw } from "lucide-react";
+import { BookOpen, Menu, X, LogOut, User, Sparkles, GraduationCap, Users, Home as HomeIcon, Mic, FileEdit, Shield, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -90,7 +90,6 @@ export const Header = () => {
       return [
         { label: t("Panel de Admin", "Admin Dashboard"), href: "/admin-dashboard", icon: Shield },
         { label: t("Crear Contenido", "Create Content"), href: "/create-assessment", icon: FileEdit },
-        { label: t("Prueba de Voz", "Voice Test"), href: "/voice-test", icon: TestTube },
       ];
     }
 
@@ -99,9 +98,7 @@ export const Header = () => {
     if (userRole?.startsWith("student")) {
       return [
         { label: t("Mi Panel", "My Dashboard"), href: "/student-dashboard", icon: HomeIcon },
-        { label: t("Práctica de Lectura", "Reading Practice"), href: "/reading-exercise", icon: BookOpen },
         { label: t("Práctica de Pronunciación", "Pronunciation Practice"), href: "/activities", icon: Mic },
-        { label: t("Prueba de Voz", "Voice Test"), href: "/voice-test", icon: TestTube },
       ];
     }
     
@@ -110,7 +107,6 @@ export const Header = () => {
       return [
         { label: t("Panel de Maestros", "Teacher Dashboard"), href: "/teacher-dashboard", icon: GraduationCap },
         { label: t("Crear Contenido", "Create Content"), href: "/create-assessment", icon: FileEdit },
-        { label: t("Prueba de Voz", "Voice Test"), href: "/voice-test", icon: TestTube },
       ];
     }
     
