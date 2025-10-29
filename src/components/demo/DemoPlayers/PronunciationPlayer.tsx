@@ -289,109 +289,136 @@ export function PronunciationPlayer({ activityId, language, content }: Pronuncia
   }
 
   return (
-    <div className="space-y-6">
-      <Badge variant="outline" className="bg-rose-50 border-rose-200 text-rose-700">
-        🎤 Pronunciation Demo - Coaching with Live Feedback
-      </Badge>
+    <div className="space-y-8">
+      {/* Header Badge */}
+      <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-pink-100 to-pink-50 rounded-full border-4 border-pink-300 shadow-lg">
+        <Mic className="h-6 w-6 text-pink-600" />
+        <span className="text-lg font-bold text-pink-700">
+          🎤 Pronunciation Coaching - Live Feedback
+        </span>
+      </div>
 
-      <Card className="p-6 space-y-4">
-        <h2 className="text-xl font-semibold">{content.question}</h2>
-        <p className="text-muted-foreground">
-          Say the word out loud. The AI coach listens and gives instant feedback.
-        </p>
-        
-        {confidence > 0 && (
-          <div className="p-4 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/20">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold uppercase tracking-wide">Confidence Score</span>
-              <span className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                {(confidence * 100).toFixed(0)}%
-              </span>
+      {/* Main Card */}
+      <Card className="p-8 bg-white border-4 border-gray-800 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <div className="space-y-6">
+          {/* Question */}
+          <div className="space-y-3">
+            <h2 className="text-3xl font-black text-gray-900">{content.question}</h2>
+            <p className="text-lg text-gray-600 font-medium">
+              🎙️ Say the word out loud. The AI coach listens and gives instant feedback!
+            </p>
+          </div>
+          
+          {/* Confidence Score */}
+          {confidence > 0 && (
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-50 border-4 border-purple-300">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-black uppercase tracking-wide text-purple-700">
+                  Confidence Score
+                </span>
+                <span className="text-5xl font-black bg-gradient-to-r from-pink-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent">
+                  {(confidence * 100).toFixed(0)}%
+                </span>
+              </div>
+              <div className="w-full h-6 bg-white/50 rounded-full overflow-hidden border-3 border-purple-400">
+                <div 
+                  className="h-full transition-all duration-500 ease-out rounded-full"
+                  style={{
+                    width: `${confidence * 100}%`,
+                    backgroundColor: confidence > 0.7 ? 'hsl(125, 100%, 71%)' : 
+                                   confidence > 0.4 ? 'hsl(45, 100%, 71%)' : 
+                                   'hsl(11, 100%, 67%)'
+                  }}
+                />
+              </div>
             </div>
-            <div className="w-full h-4 bg-muted/50 rounded-full overflow-hidden border">
-              <div 
-                className="h-full transition-all duration-500 ease-out"
-                style={{
-                  width: `${confidence * 100}%`,
-                  backgroundColor: confidence > 0.7 ? 'hsl(var(--success))' : 
-                                 confidence > 0.4 ? 'hsl(45, 93%, 47%)' : 
-                                 'hsl(var(--destructive))'
-                }}
+          )}
+
+          {/* Answer Options */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {content.answers.map((answer, index) => {
+              const isSelected = selectedAnswer === index;
+              const cardColor = isSelected 
+                ? (answer.isCorrect ? "from-lime-100 to-lime-50 border-lime-400" : "from-peach-100 to-peach-50 border-peach-400")
+                : "from-cyan-50 to-cyan-25 border-cyan-200";
+              
+              return (
+                <Card
+                  key={answer.text}
+                  className={`p-6 bg-gradient-to-br ${cardColor} border-4 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-2xl font-black text-gray-900">{answer.text}</h3>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="font-bold border-3 border-gray-800 bg-white hover:bg-gray-100 rounded-xl"
+                      onClick={() => handleModelPronunciation(answer.text)}
+                    >
+                      <Volume2 className="w-4 h-4 mr-1" />
+                      Model
+                    </Button>
+                  </div>
+                  <p className="text-sm text-gray-600 font-medium">
+                    Pronunciations: {answer.pronunciation.join(" · ")}
+                  </p>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Microphone Interface */}
+          <div className="rounded-2xl border-4 border-pink-300 bg-gradient-to-br from-pink-50 to-pink-25 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-white rounded-xl border-3 border-pink-400">
+                  <Mic className="w-6 h-6 text-pink-600" />
+                </div>
+                <span className="text-lg font-bold text-gray-800">
+                  {isListening ? "🎤 Listening..." : "Tap start to begin practicing"}
+                </span>
+              </div>
+              <Button 
+                onClick={handleStartListening} 
+                disabled={isListening}
+                className="px-6 py-6 text-lg font-black bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white border-4 border-gray-900 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all disabled:opacity-50"
+              >
+                {isListening ? "🎙️ Listening" : "▶️ Start Practice"}
+              </Button>
+            </div>
+
+            {/* Audio Waveform */}
+            <div className="mt-4">
+              <AudioWaveform
+                frequencyData={frequencyData}
+                audioLevel={audioLevel}
+                isActive={isListening || isAIPlaying}
               />
             </div>
           </div>
-        )}
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {content.answers.map((answer, index) => {
-            const isSelected = selectedAnswer === index;
-            return (
-              <Card
-                key={answer.text}
-                className={`p-4 border ${
-                  isSelected ? (answer.isCorrect ? "border-green-400" : "border-amber-400") : ""
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-semibold">{answer.text}</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleModelPronunciation(answer.text)}
-                  >
-                    <Volume2 className="w-4 h-4 mr-1" />
-                    Model
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Pronunciations: {answer.pronunciation.join(" · ")}
-                </p>
-              </Card>
-            );
-          })}
+          {/* Spoken Word Display */}
+          {spokenWord && (
+            <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-25 border-4 border-purple-300 rounded-2xl">
+              <p className="text-lg text-gray-700 font-medium">
+                Heard: <span className="font-black text-gray-900">{spokenWord}</span>{" "}
+                {confidence > 0 && (
+                  <span className="ml-2 px-3 py-1 bg-white rounded-full border-2 border-purple-400 text-sm font-bold">
+                    {(confidence * 100).toFixed(0)}% confidence
+                  </span>
+                )}
+                {matchSimilarity > 0 && (
+                  <span className="ml-2 px-3 py-1 bg-lime-200 rounded-full border-2 border-lime-400 text-sm font-bold text-lime-900">
+                    ✓ {(matchSimilarity * 100).toFixed(0)}% match
+                  </span>
+                )}
+              </p>
+            </Card>
+          )}
         </div>
-
-        <div className="rounded-lg border bg-muted/40 p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Mic className="w-5 h-5 text-rose-500" />
-              <span className="font-medium">
-                {isListening ? "Listening..." : "Tap start to begin practicing"}
-              </span>
-            </div>
-            <Button onClick={handleStartListening} disabled={isListening}>
-              {isListening ? "Listening" : "Start Practice"}
-            </Button>
-          </div>
-
-          <div className="mt-4">
-            <AudioWaveform
-              frequencyData={frequencyData}
-              audioLevel={audioLevel}
-              isActive={isListening || isAIPlaying}
-            />
-          </div>
-        </div>
-
-        {spokenWord && (
-          <Card className="p-4 bg-slate-50">
-            <p className="text-sm text-muted-foreground">
-              Heard: <span className="font-semibold">{spokenWord}</span>{" "}
-              {confidence > 0 && (
-                <span className="ml-2">
-                  (Confidence: {(confidence * 100).toFixed(0)}%)
-                </span>
-              )}
-              {matchSimilarity > 0 && (
-                <span className="ml-2 text-success font-medium">
-                  ✓ {(matchSimilarity * 100).toFixed(0)}% match
-                </span>
-              )}
-            </p>
-          </Card>
-        )}
       </Card>
 
+      {/* Feedback Section */}
       {showFeedback && selectedAnswer !== null && (
         <PronunciationFeedback
           spokenWord={spokenWord}

@@ -6,7 +6,7 @@ import { AIDemoBadge } from "@/components/demo/AIDemoBadge";
 import { useRealtimeDemo } from "@/hooks/useRealtimeDemo";
 import { useReadingMetrics } from "@/hooks/useReadingMetrics";
 import { logDemoInteraction, updateDemoSession } from "@/features/demo/api";
-import { CheckCircle2, PauseCircle, PlayCircle, RefreshCcw } from "lucide-react";
+import { CheckCircle2, PauseCircle, PlayCircle, RefreshCcw, BookOpen } from "lucide-react";
 
 interface PassageWord {
   id: number;
@@ -214,41 +214,62 @@ export function ReadFlowPlayer({ content, activityId, language }: ReadFlowPlayer
   }, [metrics, content.passage.words.length]);
 
   return (
-    <div className="space-y-6">
-      <AIDemoBadge className="bg-purple-50 border-purple-200 text-purple-700">
-        ✨ ReadFlow Demo - Interactive Reading Coach
-      </AIDemoBadge>
+    <div className="space-y-8">
+      {/* Header Badge */}
+      <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-purple-100 to-purple-50 rounded-full border-4 border-purple-300 shadow-lg">
+        <BookOpen className="h-6 w-6 text-purple-600" />
+        <span className="text-lg font-bold text-purple-700">
+          ✨ ReadFlow - Interactive Reading Coach
+        </span>
+      </div>
 
-      <Card className="p-6 bg-gradient-to-r from-purple-50 to-blue-50">
-        <h2 className="text-2xl font-bold text-center">{content.passage.title}</h2>
-        <p className="mt-2 text-center text-muted-foreground">
-          Track reading fluency, pronunciation, and pace with live feedback.
+      {/* Title Card */}
+      <Card className="p-8 bg-gradient-to-br from-cyan-100 to-cyan-50 border-4 border-cyan-300 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <h2 className="text-3xl font-black text-center text-gray-900">{content.passage.title}</h2>
+        <p className="mt-3 text-center text-lg text-gray-600 font-medium">
+          📖 Track reading fluency, pronunciation, and pace with live feedback.
         </p>
       </Card>
 
+      {/* Control Buttons */}
       <div className="flex flex-wrap items-center gap-4">
         {!isReading ? (
-          <Button onClick={handleStart} size="lg">
-            <PlayCircle className="mr-2 h-5 w-5" /> Start Reading
+          <Button 
+            onClick={handleStart} 
+            size="lg"
+            className="px-8 py-6 text-lg font-black bg-gradient-to-r from-lime-500 to-lime-600 hover:from-lime-600 hover:to-lime-700 text-white border-4 border-gray-900 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all"
+          >
+            <PlayCircle className="mr-2 h-6 w-6" /> ▶️ Start Reading
           </Button>
         ) : (
-          <Button onClick={handlePause} size="lg" variant="secondary">
-            <PauseCircle className="mr-2 h-5 w-5" /> Pause
+          <Button 
+            onClick={handlePause} 
+            size="lg" 
+            className="px-8 py-6 text-lg font-black bg-gradient-to-r from-peach-500 to-peach-600 hover:from-peach-600 hover:to-peach-700 text-white border-4 border-gray-900 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all"
+          >
+            <PauseCircle className="mr-2 h-6 w-6" /> ⏸️ Pause
           </Button>
         )}
-        <Button onClick={handleReset} variant="ghost">
+        <Button 
+          onClick={handleReset} 
+          className="px-6 py-6 font-bold border-4 border-gray-800 bg-white hover:bg-gray-100 text-gray-900 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all"
+        >
           <RefreshCcw className="mr-2 h-5 w-5" /> Reset
         </Button>
         {showResults && (
-          <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-green-700">
-            <CheckCircle2 className="h-4 w-4" />
-            Completed
+          <div className="inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-lime-200 to-lime-100 px-6 py-3 border-4 border-lime-400 text-lime-900 font-black shadow-lg">
+            <CheckCircle2 className="h-5 w-5" />
+            ✅ Completed
           </div>
         )}
       </div>
 
-      <Card ref={containerRef} className="p-8 max-h-[400px] overflow-y-auto scroll-smooth space-y-4">
-        <div className="text-lg leading-relaxed">
+      {/* Reading Passage */}
+      <Card 
+        ref={containerRef} 
+        className="p-8 max-h-[400px] overflow-y-auto scroll-smooth bg-white border-4 border-gray-800 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+      >
+        <div className="text-xl leading-relaxed">
           {content.passage.words.map((word, index) => {
             const state = wordStates.get(index) ?? "pending";
             const isCurrent = index === currentWordIndex && isReading;
@@ -258,12 +279,12 @@ export function ReadFlowPlayer({ content, activityId, language }: ReadFlowPlayer
                 key={word.id ?? index}
                 id={`word-${index}`}
                 className={cn(
-                  "inline-block mx-1 px-2 py-1 rounded transition-all duration-200",
-                  state === "pending" && "bg-gray-100",
-                  state === "correct" && "bg-green-200 text-green-800",
-                  state === "error" && "bg-red-200 text-red-800",
-                  state === "skipped" && "bg-yellow-200 text-yellow-800",
-                  isCurrent && "ring-4 ring-blue-400 scale-110",
+                  "inline-block mx-1.5 px-3 py-1.5 rounded-xl transition-all duration-200 font-medium",
+                  state === "pending" && "bg-gray-100 text-gray-700",
+                  state === "correct" && "bg-lime-200 text-lime-900 border-2 border-lime-400",
+                  state === "error" && "bg-coral-200 text-coral-900 border-2 border-coral-400",
+                  state === "skipped" && "bg-peach-200 text-peach-900 border-2 border-peach-400",
+                  isCurrent && "ring-4 ring-cyan-400 scale-110 font-bold",
                 )}
               >
                 {word.text}
@@ -273,20 +294,34 @@ export function ReadFlowPlayer({ content, activityId, language }: ReadFlowPlayer
         </div>
       </Card>
 
-      <Card className="p-6">
-        <h3 className="text-xl font-semibold mb-4">Reading Metrics</h3>
-        <div className="grid gap-4 md:grid-cols-4">
-          <Metric label="Accuracy" value={`${Math.round(summary.accuracy * 100)}%`} />
-          <Metric label="Words per Minute" value={summary.wcpm.toString()} />
-          <Metric label="Words Correct" value={`${summary.correct}/${summary.total}`} />
-          <Metric label="Progress" value={`${Math.round(summary.completion * 100)}%`} />
+      {/* Reading Metrics */}
+      <Card className="p-8 bg-gradient-to-br from-pink-50 to-pink-25 border-4 border-pink-300 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <h3 className="text-2xl font-black mb-6 text-gray-900">📊 Reading Metrics</h3>
+        <div className="grid gap-6 md:grid-cols-4">
+          <div className="bg-white rounded-2xl p-6 border-3 border-pink-400 shadow-lg">
+            <p className="text-sm font-bold text-gray-600 mb-2">Accuracy</p>
+            <p className="text-4xl font-black text-pink-600">{Math.round(summary.accuracy * 100)}%</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border-3 border-cyan-400 shadow-lg">
+            <p className="text-sm font-bold text-gray-600 mb-2">Words/Min</p>
+            <p className="text-4xl font-black text-cyan-600">{summary.wcpm}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border-3 border-lime-400 shadow-lg">
+            <p className="text-sm font-bold text-gray-600 mb-2">Correct</p>
+            <p className="text-4xl font-black text-lime-600">{summary.correct}/{summary.total}</p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 border-3 border-purple-400 shadow-lg">
+            <p className="text-sm font-bold text-gray-600 mb-2">Progress</p>
+            <p className="text-4xl font-black text-purple-600">{Math.round(summary.completion * 100)}%</p>
+          </div>
         </div>
       </Card>
 
+      {/* Results Card */}
       {showResults && (
-        <Card className="p-6 bg-green-50 border border-green-200">
-          <h3 className="text-xl font-bold text-green-800 mb-4">Great reading!</h3>
-          <p className="text-green-700">
+        <Card className="p-10 bg-gradient-to-br from-lime-100 to-lime-50 border-4 border-lime-400 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h3 className="text-3xl font-black text-lime-900 mb-4 text-center">🎉 Great reading!</h3>
+          <p className="text-xl text-lime-800 font-bold text-center">
             Accuracy {Math.round(summary.accuracy * 100)}% • Speed {summary.wcpm} WCPM
           </p>
         </Card>

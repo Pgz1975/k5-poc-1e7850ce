@@ -225,63 +225,75 @@ export function SpeedQuizPlayer({ activityId, language, content }: SpeedQuizPlay
   }
 
   return (
-    <div className="space-y-6">
-      <Badge variant="outline" className="bg-yellow-50 border-yellow-200 text-yellow-700">
-        ⚡ Speed Quiz Demo - Rapid-Fire Mode
-      </Badge>
+    <div className="space-y-8">
+      {/* Header Badge */}
+      <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-br from-peach-100 to-peach-50 rounded-full border-4 border-peach-300 shadow-lg">
+        <Zap className="h-6 w-6 text-peach-600" />
+        <span className="text-lg font-bold text-peach-700">
+          ⚡ Speed Quiz - Rapid-Fire Mode
+        </span>
+      </div>
 
       {!isPlaying && results.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Zap className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
-          <h2 className="text-2xl font-bold mb-4">Ready for a speed challenge?</h2>
-          <p className="text-muted-foreground mb-6">
-            Answer as fast as you can. Faster correct answers earn more points!
+        /* Start Screen */
+        <Card className="p-16 text-center bg-gradient-to-br from-peach-100 to-peach-50 border-4 border-peach-300 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="mb-6 inline-flex items-center justify-center w-24 h-24 bg-white rounded-3xl border-4 border-peach-400 shadow-lg">
+            <Zap className="w-14 h-14 text-peach-600" />
+          </div>
+          <h2 className="text-4xl font-black mb-4 text-gray-900">Ready for a speed challenge?</h2>
+          <p className="text-xl text-gray-600 font-medium mb-8 max-w-md mx-auto">
+            ⚡ Answer as fast as you can. Faster correct answers earn more points!
           </p>
-          <Button onClick={startQuiz} size="lg">
-            Start Quiz
+          <Button 
+            onClick={startQuiz} 
+            size="lg"
+            className="px-10 py-7 text-xl font-black bg-gradient-to-r from-peach-500 to-peach-600 hover:from-peach-600 hover:to-peach-700 text-white border-4 border-gray-900 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all"
+          >
+            🚀 Start Quiz
           </Button>
         </Card>
       ) : isPlaying ? (
+        /* Playing State */
         <>
-          <Card className="p-8">
-            <div className="flex items-center justify-between mb-4">
-              <Badge>
+          <Card className="p-10 bg-white border-4 border-gray-800 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center justify-between mb-6">
+              <Badge className="px-4 py-2 text-base font-bold border-3 border-cyan-400 bg-cyan-100 text-cyan-900 rounded-full">
                 Question {currentQuestion + 1} / {content.questions.length}
               </Badge>
-              <div className="flex items-center gap-2">
-                <Timer className="w-4 h-4" />
-                <span className="font-mono">{(timeRemaining / 1000).toFixed(1)}s</span>
+              <div className="flex items-center gap-3 px-5 py-2 bg-pink-100 border-3 border-pink-400 rounded-full">
+                <Timer className="w-5 h-5 text-pink-600" />
+                <span className="font-mono text-xl font-black text-pink-900">
+                  {(timeRemaining / 1000).toFixed(1)}s
+                </span>
               </div>
             </div>
 
             <Progress
-              value={
-                (timeRemaining / content.questions[currentQuestion].time_limit_ms) * 100
-              }
-              className="mb-6"
+              value={(timeRemaining / content.questions[currentQuestion].time_limit_ms) * 100}
+              className="mb-8 h-4 bg-gray-200 border-3 border-gray-800 rounded-full overflow-hidden"
             />
 
-            <h3 className="text-2xl font-bold text-center mb-6">
+            <h3 className="text-3xl md:text-4xl font-black text-center mb-8 text-gray-900 leading-tight">
               {content.questions[currentQuestion].statement}
             </h3>
-            <p className="text-center text-muted-foreground">
-              Say "Verdadero" or "Falso" out loud
+            <p className="text-center text-xl text-gray-600 font-bold">
+              🎤 Say "Verdadero" or "Falso" out loud
             </p>
           </Card>
 
-          <Card className="p-6">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-sm text-muted-foreground">Score</p>
-                <p className="text-3xl font-bold text-yellow-600">{score}</p>
+          <Card className="p-8 bg-gradient-to-br from-lime-100 to-lime-50 border-4 border-lime-300 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="grid grid-cols-3 gap-6 text-center">
+              <div className="bg-white rounded-2xl p-6 border-3 border-peach-400 shadow-lg">
+                <p className="text-sm font-bold text-gray-600 mb-2">Score</p>
+                <p className="text-5xl font-black text-peach-600">{score}</p>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Streak</p>
-                <p className="text-3xl font-bold text-green-600">{streak} 🔥</p>
+              <div className="bg-white rounded-2xl p-6 border-3 border-coral-400 shadow-lg">
+                <p className="text-sm font-bold text-gray-600 mb-2">Streak</p>
+                <p className="text-5xl font-black text-coral-600">{streak} 🔥</p>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Correct</p>
-                <p className="text-3xl font-bold text-blue-600">
+              <div className="bg-white rounded-2xl p-6 border-3 border-cyan-400 shadow-lg">
+                <p className="text-sm font-bold text-gray-600 mb-2">Correct</p>
+                <p className="text-5xl font-black text-cyan-600">
                   {results.filter((r) => r.correct).length}
                 </p>
               </div>
@@ -289,16 +301,17 @@ export function SpeedQuizPlayer({ activityId, language, content }: SpeedQuizPlay
           </Card>
         </>
       ) : (
-        <Card className="p-8 bg-gradient-to-r from-yellow-50 to-orange-50">
-          <h3 className="text-2xl font-bold text-center mb-6">🏆 Quiz Complete!</h3>
-          <div className="grid grid-cols-2 gap-6 mb-6">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">Final Score</p>
-              <p className="text-4xl font-bold text-yellow-600">{score}</p>
+        /* Results Screen */
+        <Card className="p-12 bg-gradient-to-br from-peach-100 to-peach-50 border-4 border-peach-300 rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h3 className="text-4xl font-black text-center mb-8 text-gray-900">🏆 Quiz Complete!</h3>
+          <div className="grid grid-cols-2 gap-8 mb-10">
+            <div className="text-center bg-white rounded-3xl p-8 border-4 border-peach-400 shadow-lg">
+              <p className="text-sm font-bold text-gray-600 mb-3">Final Score</p>
+              <p className="text-6xl font-black text-peach-600">{score}</p>
             </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">Accuracy</p>
-              <p className="text-4xl font-bold text-green-600">
+            <div className="text-center bg-white rounded-3xl p-8 border-4 border-lime-400 shadow-lg">
+              <p className="text-sm font-bold text-gray-600 mb-3">Accuracy</p>
+              <p className="text-6xl font-black text-lime-600">
                 {results.length
                   ? ((results.filter((r) => r.correct).length / results.length) * 100).toFixed(0)
                   : 0}
@@ -306,8 +319,12 @@ export function SpeedQuizPlayer({ activityId, language, content }: SpeedQuizPlay
               </p>
             </div>
           </div>
-          <Button onClick={startQuiz} size="lg" className="w-full">
-            Play Again
+          <Button 
+            onClick={startQuiz} 
+            size="lg" 
+            className="w-full h-16 text-xl font-black bg-gradient-to-r from-peach-500 to-peach-600 hover:from-peach-600 hover:to-peach-700 text-white border-4 border-gray-900 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-all"
+          >
+            🔄 Play Again
           </Button>
         </Card>
       )}
