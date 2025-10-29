@@ -61,7 +61,7 @@ export const ManageLessonsDrawer = () => {
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2" disabled>
           <Settings2 className="h-4 w-4" />
           {t("Gestionar Lecciones", "Manage Lessons")}
         </Button>
