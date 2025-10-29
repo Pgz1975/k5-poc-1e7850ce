@@ -20,12 +20,15 @@ import { UsageMetricsGrid } from "@/components/TeacherDashboard/UsageMetricsGrid
 import { ReadingProgressSection } from "@/components/TeacherDashboard/ReadingProgressSection";
 import { DeviceAnalyticsChart } from "@/components/TeacherDashboard/DeviceAnalyticsChart";
 import { CategoryAnalyticsChart } from "@/components/TeacherDashboard/CategoryAnalyticsChart";
+import { SkillDetailCard } from "@/components/TeacherDashboard/SkillDetailCard";
+import { SkillsComparisonTable } from "@/components/TeacherDashboard/SkillsComparisonTable";
 import { 
   mockAIInsights, 
   mockErrorPatterns, 
   mockResponseTimeData, 
   mockStudentRecommendations 
 } from "@/data/teacherAnalytics";
+import { mockSkillsData } from "@/data/teacherSkillsData";
 
 const TeacherDashboardV2 = () => {
   const { t } = useLanguage();
@@ -182,6 +185,28 @@ const TeacherDashboardV2 = () => {
               <DeviceAnalyticsChart />
               <CategoryAnalyticsChart />
             </div>
+
+            {/* Skills Breakdown Section */}
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-1">
+                  {t("Desglose de Habilidades", "Skills Breakdown")}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {t("Análisis detallado por área de competencia", "Detailed analysis by skill area")}
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <SkillDetailCard skill={mockSkillsData.comprehension} />
+                <SkillDetailCard skill={mockSkillsData.fluency} />
+                <SkillDetailCard skill={mockSkillsData.vocabulary} />
+                <SkillDetailCard skill={mockSkillsData.pronunciation} />
+              </div>
+            </div>
+
+            {/* Skills Comparison Table */}
+            <SkillsComparisonTable />
 
             {/* Analytics Charts */}
             <div className="grid lg:grid-cols-2 gap-6">
