@@ -192,8 +192,8 @@ const Auth = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Iniciar Sesión - LecturaPR", "Sign In - LecturaPR")}</title>
-        <meta name="description" content={t("Inicia sesión en LecturaPR", "Sign in to LecturaPR")} />
+        <title>{t("Iniciar Sesión - FluenxIA", "Sign In - FluenxIA")}</title>
+        <meta name="description" content={t("Inicia sesión en FluenxIA para acceder a tu plataforma de fluidez bilingüe impulsada por AI", "Sign in to FluenxIA to access your AI-powered bilingual fluency platform")} />
       </Helmet>
 
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-secondary/5 p-4">
@@ -204,7 +204,7 @@ const Auth = () => {
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
             </div>
-            <CardTitle className="text-2xl">LecturaPR</CardTitle>
+            <CardTitle className="text-2xl">FluenxIA</CardTitle>
             <CardDescription>
               {t(
                 "Plataforma de lectura y aprendizaje bilingüe con AI",

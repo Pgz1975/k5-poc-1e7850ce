@@ -204,8 +204,8 @@ const AuthV2 = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Iniciar Sesión - LecturaPR", "Sign In - LecturaPR")}</title>
-        <meta name="description" content={t("Inicia sesión en LecturaPR", "Sign in to LecturaPR")} />
+        <title>{t("Iniciar Sesión - FluenxIA", "Sign In - FluenxIA")}</title>
+        <meta name="description" content={t("Inicia sesión en FluenxIA para acceder a tu plataforma de fluidez bilingüe impulsada por AI", "Sign in to FluenxIA to access your AI-powered bilingual fluency platform")} />
       </Helmet>
 
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-purple-50 to-pink-50 p-4 relative overflow-hidden">
@@ -234,7 +234,7 @@ const AuthV2 = () => {
                 <BookOpen className="h-8 w-8 text-cyan-500" />
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">LecturaPR</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">FluenxIA</h1>
             <p className="text-cyan-50 text-sm">
               {t(
                 "Plataforma de lectura bilingüe con AI",

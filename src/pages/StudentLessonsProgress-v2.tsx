@@ -177,7 +177,7 @@ const StudentLessonsProgressV2 = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <Helmet>
-        <title>{t("Mis Lecciones", "My Lessons")} - LecturaPR</title>
+        <title>{t("Mis Lecciones", "My Lessons")} - FluenxIA</title>
       </Helmet>
       
       <Header />

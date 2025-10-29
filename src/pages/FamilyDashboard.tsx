@@ -39,7 +39,7 @@ const FamilyDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Portal Familiar - LecturaPR", "Family Portal - LecturaPR")}</title>
+        <title>{t("Portal Familiar - FluenxIA", "Family Portal - FluenxIA")}</title>
         <meta name="description" content={t("Portal para familias monitorear progreso de lectura", "Family portal to monitor reading progress")} />
       </Helmet>
 

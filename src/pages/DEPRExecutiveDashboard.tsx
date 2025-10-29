@@ -27,7 +27,7 @@ const DEPRExecutiveDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Panel Ejecutivo DEPR - LecturaPR", "DEPR Executive Dashboard - LecturaPR")}</title>
+        <title>{t("Panel Ejecutivo DEPR - FluenxIA", "DEPR Executive Dashboard - FluenxIA")}</title>
         <meta name="description" content={t("Panel de control ejecutivo del Departamento de Educación", "Department of Education executive control panel")} />
       </Helmet>
 

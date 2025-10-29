@@ -23,8 +23,8 @@ export const MicrophonePermissionModal = ({
 
   const content = {
     es: {
-      title: "¡Bienvenido a LecturaPR!",
-      message: "Para poder ayudarte con tus lecciones y prácticas de lectura, necesito acceso a tu micrófono.",
+      title: "¡Bienvenido a FluenxIA!",
+      message: "Para practicar tu fluidez en pronunciación y lectura, necesito acceso a tu micrófono.",
       features: [
         "🗣️ Practicar pronunciación",
         "💬 Conversar conmigo durante las lecciones",
@@ -38,8 +38,8 @@ export const MicrophonePermissionModal = ({
       error: "No se pudo acceder al micrófono. Por favor, verifica los permisos de tu navegador."
     },
     en: {
-      title: "Welcome to LecturaPR!",
-      message: "To help you with your lessons and reading practice, I need access to your microphone.",
+      title: "Welcome to FluenxIA!",
+      message: "To practice your pronunciation fluency and reading, I need access to your microphone.",
       features: [
         "🗣️ Practice pronunciation",
         "💬 Talk with me during lessons",

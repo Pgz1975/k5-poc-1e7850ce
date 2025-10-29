@@ -74,7 +74,7 @@ export default function GeneratedAssessment() {
   return (
     <>
       <Helmet>
-        <title>{t('Evaluación - LecturaPR', 'Assessment - LecturaPR')}</title>
+        <title>{t('Evaluación - FluenxIA', 'Assessment - FluenxIA')}</title>
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50">

@@ -21,14 +21,17 @@ export const Hero = () => {
               />
             </div>
             
-            <h1 className="font-heading font-bold text-4xl md:text-5xl leading-tight">
-              <span className="text-primary animate-fade-in">
-                {t("¡Aprende a Leer con Coquí!", "Learn to Read with Coquí!")}
+            <h1 className="font-heading font-bold text-4xl md:text-6xl leading-tight">
+              <span className="text-primary animate-fade-in block mb-2">
+                FluenxIA
+              </span>
+              <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-accent via-primary to-secondary bg-clip-text text-transparent">
+                {t("Fluidez impulsada por Inteligencia Artificial", "Fluency powered by Artificial Intelligence")}
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl font-semibold text-foreground/70">
-              {t("Tu amigo bilingüe de El Yunque", "Your bilingual friend from El Yunque")}
+            <p className="text-xl md:text-2xl font-semibold text-foreground/70 mt-4">
+              {t("Tu compañero bilingüe con AI para dominar español e inglés", "Your bilingual AI companion to master Spanish and English")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -56,8 +59,8 @@ export const Hero = () => {
             {/* Simple baseline */}
             <p className="text-base md:text-lg text-foreground/60 max-w-2xl pt-6 leading-relaxed">
               {t(
-                "Una plataforma educativa bilingüe que adapta el contenido al nivel de cada estudiante, con mentor AI y seguimiento de progreso para K-5.",
-                "A bilingual educational platform that adapts content to each student's level, with AI mentor and progress tracking for K-5."
+                "Desarrolla fluidez real en lectura, pronunciación y comprensión con tecnología AI que se adapta a tu nivel. Diseñado para estudiantes K-5 en Puerto Rico.",
+                "Develop real fluency in reading, pronunciation and comprehension with AI technology that adapts to your level. Designed for K-5 students in Puerto Rico."
               )}
             </p>
           </div>

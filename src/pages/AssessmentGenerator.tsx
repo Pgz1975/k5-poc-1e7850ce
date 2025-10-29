@@ -72,7 +72,7 @@ export default function AssessmentGenerator() {
   return (
     <>
       <Helmet>
-        <title>{t('Generador de Evaluaciones - LecturaPR', 'Assessment Generator - LecturaPR')}</title>
+        <title>{t('Generador de Evaluaciones - FluenxIA', 'Assessment Generator - FluenxIA')}</title>
         <meta name="description" content={t(
           'Crea evaluaciones educativas personalizadas para estudiantes K-5',
           'Create personalized educational assessments for K-5 students'

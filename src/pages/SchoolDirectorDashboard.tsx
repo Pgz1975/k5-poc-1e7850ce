@@ -33,7 +33,7 @@ const SchoolDirectorDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Panel Director Escolar - LecturaPR", "School Director Dashboard - LecturaPR")}</title>
+        <title>{t("Panel Director Escolar - FluenxIA", "School Director Dashboard - FluenxIA")}</title>
         <meta name="description" content={t("Panel de control para directores escolares", "School director control panel")} />
       </Helmet>
 

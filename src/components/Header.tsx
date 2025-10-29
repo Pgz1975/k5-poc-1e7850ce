@@ -131,7 +131,7 @@ export const Header = () => {
         <div className="flex items-center gap-2">
           <BookOpen className="h-8 w-8 text-primary" />
           <span className="font-bold text-xl bg-gradient-hero bg-clip-text text-transparent">
-            LecturaPR
+            FluenxIA
           </span>
         </div>
 

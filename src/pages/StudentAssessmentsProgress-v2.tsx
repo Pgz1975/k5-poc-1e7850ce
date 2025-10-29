@@ -187,7 +187,7 @@ export default function StudentAssessmentsProgressV2() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <Helmet>
-        <title>{t("Mis Evaluaciones - LecturaPR", "My Assessments - LecturaPR")}</title>
+        <title>{t("Mis Evaluaciones - FluenxIA", "My Assessments - FluenxIA")}</title>
       </Helmet>
 
       <Header />

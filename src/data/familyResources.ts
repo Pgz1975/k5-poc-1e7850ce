@@ -114,15 +114,15 @@ export const faqs = [
   {
     questionEs: "¿Cómo descargo la app en mi teléfono?",
     questionEn: "How do I download the app on my phone?",
-    answerEs: "La plataforma funciona directamente en su navegador web (Chrome, Safari, etc.). No es necesario descargar una aplicación. Simplemente visite lecturaPR.com desde cualquier dispositivo.",
-    answerEn: "The platform works directly in your web browser (Chrome, Safari, etc.). No app download is necessary. Simply visit lecturaPR.com from any device.",
+    answerEs: "La plataforma funciona directamente en su navegador web (Chrome, Safari, etc.). No es necesario descargar una aplicación. Simplemente visite www.fluenxia.com desde cualquier dispositivo.",
+    answerEn: "The platform works directly in your web browser (Chrome, Safari, etc.). No app download is necessary. Simply visit www.fluenxia.com from any device.",
   },
 ];
 
 export const supportInfo = {
   phone: "+1 (787) 555-0123",
   whatsapp: "+1 (787) 555-0123",
-  email: "soporte@lecturapr.com",
+  email: "soporte@fluenxia.com",
   hours: {
     es: "Lunes a Viernes: 8:00 AM - 6:00 PM AST",
     en: "Monday to Friday: 8:00 AM - 6:00 PM AST",

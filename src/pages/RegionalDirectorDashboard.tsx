@@ -32,7 +32,7 @@ const RegionalDirectorDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Panel Director Regional - LecturaPR", "Regional Director Dashboard - LecturaPR")}</title>
+        <title>{t("Panel Director Regional - FluenxIA", "Regional Director Dashboard - FluenxIA")}</title>
         <meta name="description" content={t("Panel de control para directores regionales", "Regional director control panel")} />
       </Helmet>
 

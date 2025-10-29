@@ -223,7 +223,7 @@ export default function ViewLesson() {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <Helmet>
-          <title>{t("Lección Bloqueada", "Locked Lesson")} - LecturaPR</title>
+          <title>{t("Lección Bloqueada", "Locked Lesson")} - FluenxIA</title>
         </Helmet>
 
         <Header />
@@ -272,7 +272,7 @@ export default function ViewLesson() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-primary/5">
       <Helmet>
-        <title>{lesson.title} - LecturaPR</title>
+        <title>{lesson.title} - FluenxIA</title>
       </Helmet>
 
       <Header />

@@ -136,7 +136,7 @@ const TeacherDashboardV2 = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Panel del Maestro - LecturaPR", "Teacher Dashboard - LecturaPR")}</title>
+        <title>{t("Panel de Maestros - FluenxIA", "Teacher Dashboard - FluenxIA")}</title>
         <meta name="description" content={t("Panel de control para maestros", "Teacher control panel")} />
       </Helmet>
 

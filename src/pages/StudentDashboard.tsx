@@ -31,7 +31,7 @@ const StudentDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Mi Panel - LecturaPR", "My Dashboard - LecturaPR")}</title>
+        <title>{t("Mi Panel - FluenxIA", "My Dashboard - FluenxIA")}</title>
         <meta name="description" content={t("Panel de estudiante", "Student dashboard")} />
       </Helmet>
 

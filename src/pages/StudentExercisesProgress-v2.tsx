@@ -210,7 +210,7 @@ export default function StudentExercisesProgressV2() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <Helmet>
-        <title>{t("Mis Ejercicios - LecturaPR", "My Exercises - LecturaPR")}</title>
+        <title>{t("Mis Ejercicios - FluenxIA", "My Exercises - FluenxIA")}</title>
       </Helmet>
 
       <Header />

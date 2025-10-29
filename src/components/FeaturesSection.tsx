@@ -7,30 +7,51 @@ export const FeaturesSection = () => {
   const features = [
     {
       coquiState: "reading",
-      titleEs: "📚 Lectura Adaptativa",
-      titleEn: "📚 Adaptive Reading",
-      descriptionEs: "¡Coquí lee contigo! Historias que se adaptan a tu nivel y crecen contigo.",
-      descriptionEn: "Coquí reads with you! Stories that adapt to your level and grow with you.",
+      titleEs: "📚 Lectura Adaptativa AI",
+      titleEn: "📚 AI Adaptive Reading",
+      descriptionEs: "Textos que se ajustan automáticamente a tu nivel de fluidez con soporte en tiempo real.",
+      descriptionEn: "Texts that automatically adjust to your fluency level with real-time support.",
       bgColor: "bg-gradient-to-br from-primary/10 via-green-50 to-primary/5",
-      emoji: "📚",
+    },
+    {
+      coquiState: "speaking",
+      titleEs: "🎤 Pronunciación Inteligente",
+      titleEn: "🎤 Intelligent Pronunciation",
+      descriptionEs: "AI que escucha tu voz y te ayuda a pronunciar correctamente en español e inglés.",
+      descriptionEn: "AI that listens to your voice and helps you pronounce correctly in Spanish and English.",
+      bgColor: "bg-gradient-to-br from-blue-100 via-blue-50 to-blue-100/50",
     },
     {
       coquiState: "graduation",
-      titleEs: "🎓 Mentor AI Bilingüe",
-      titleEn: "🎓 Bilingual AI Mentor",
-      descriptionEs: "¡Coquí te ayuda en español e inglés! Respuestas al instante y mucho ánimo.",
-      descriptionEn: "Coquí helps you in Spanish and English! Instant answers and lots of encouragement.",
-      bgColor: "bg-gradient-to-br from-accent/10 via-blue-50 to-accent/5",
-      emoji: "🎓",
+      titleEs: "🎓 Mentor Bilingüe 24/7",
+      titleEn: "🎓 24/7 Bilingual Mentor",
+      descriptionEs: "Coquí responde tus preguntas en español o inglés cuando lo necesites.",
+      descriptionEn: "Coquí answers your questions in Spanish or English whenever you need.",
+      bgColor: "bg-gradient-to-br from-accent/10 via-purple-50 to-accent/5",
     },
     {
       coquiState: "score",
-      titleEs: "⭐ Seguimiento de Progreso",
-      titleEn: "⭐ Progress Tracking",
-      descriptionEs: "¡Mira cuánto has crecido! Gana estrellas y comparte con tu familia.",
-      descriptionEn: "See how much you've grown! Earn stars and share with your family.",
+      titleEs: "📊 Seguimiento Personalizado",
+      titleEn: "📊 Personalized Tracking",
+      descriptionEs: "Progreso detallado en fluidez, pronunciación, comprensión y vocabulario.",
+      descriptionEn: "Detailed progress in fluency, pronunciation, comprehension and vocabulary.",
       bgColor: "bg-gradient-to-br from-yellow-100 via-yellow-50 to-secondary/10",
-      emoji: "⭐",
+    },
+    {
+      coquiState: "exploring",
+      titleEs: "🌴 Contenido Puertorriqueño",
+      titleEn: "🌴 Puerto Rican Content",
+      descriptionEs: "Historias sobre El Yunque, el coquí y nuestra cultura única adaptadas a tu nivel.",
+      descriptionEn: "Stories about El Yunque, the coquí and our unique culture adapted to your level.",
+      bgColor: "bg-gradient-to-br from-green-100 via-green-50 to-green-100/50",
+    },
+    {
+      coquiState: "happy",
+      titleEs: "🎮 Aprendizaje Gamificado",
+      titleEn: "🎮 Gamified Learning",
+      descriptionEs: "Medallas, desafíos y celebraciones que hacen el desarrollo de fluidez emocionante.",
+      descriptionEn: "Medals, challenges and celebrations that make fluency development exciting.",
+      bgColor: "bg-gradient-to-br from-orange-100 via-orange-50 to-orange-100/50",
     },
   ];
 
@@ -38,13 +59,13 @@ export const FeaturesSection = () => {
     <section className="py-20 md:py-32 bg-gradient-to-b from-yellow-50 via-white to-green-50 relative overflow-hidden">
       <div className="container px-4 md:px-6 relative">
         <div className="text-center mb-16 space-y-4">
-          <h2 className="font-heading font-bold text-primary">
-            {t("¿Qué Haremos Juntos?", "What Will We Do Together?")}
+          <h2 className="font-heading font-bold text-3xl md:text-4xl text-primary mb-4">
+            {t("Características de FluenxIA", "FluenxIA Features")}
           </h2>
-          <p className="text-2xl font-bold text-accent max-w-2xl mx-auto">
+          <p className="text-xl font-semibold text-foreground/70">
             {t(
-              "¡Aventuras de lectura con tu amigo Coquí!",
-              "Reading adventures with your friend Coquí!"
+              "Tecnología AI que desarrolla fluidez real en ambos idiomas",
+              "AI technology that develops real fluency in both languages"
             )}
           </p>
         </div>

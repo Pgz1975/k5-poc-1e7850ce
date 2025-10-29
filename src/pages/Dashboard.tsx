@@ -44,7 +44,7 @@ const Dashboard = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Seleccionar Portal - LecturaPR", "Select Portal - LecturaPR")}</title>
+        <title>{t("Seleccionar Portal - FluenxIA", "Select Portal - FluenxIA")}</title>
         <meta name="description" content={t("Selecciona tu portal para acceder a la plataforma", "Select your portal to access the platform")} />
       </Helmet>
 

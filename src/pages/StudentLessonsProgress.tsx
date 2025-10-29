@@ -189,7 +189,7 @@ export default function StudentLessonsProgress() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/5">
       <Helmet>
-        <title>{t("Mis Lecciones - LecturaPR", "My Lessons - LecturaPR")}</title>
+        <title>{t("Mis Lecciones - FluenxIA", "My Lessons - FluenxIA")}</title>
       </Helmet>
 
       <Header />

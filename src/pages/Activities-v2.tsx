@@ -13,7 +13,7 @@ const ActivitiesV2 = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Mis Actividades - LecturaPR", "My Activities - LecturaPR")}</title>
+        <title>{t("Mis Actividades - FluenxIA", "My Activities - FluenxIA")}</title>
         <meta name="description" content={t("Actividades de lectura y práctica", "Reading and practice activities")} />
       </Helmet>
 

@@ -13,12 +13,12 @@ export const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-primary" />
-              <span className="font-bold text-lg">LecturaPR</span>
+              <span className="font-bold text-lg">FluenxIA</span>
             </div>
             <p className="text-sm text-muted-foreground">
               {t(
-                "Plataforma educativa bilingüe para el desarrollo de la lectura.",
-                "Bilingual educational platform for reading development."
+                "Plataforma de fluidez bilingüe impulsada por inteligencia artificial.",
+                "Bilingual fluency platform powered by artificial intelligence."
               )}
             </p>
           </div>
@@ -49,7 +49,7 @@ export const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>soporte@lecturapr.edu</span>
+                <span>soporte@fluenxia.com</span>
               </li>
               <li className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />

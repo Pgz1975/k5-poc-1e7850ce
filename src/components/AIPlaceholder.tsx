@@ -15,39 +15,48 @@ export const AIPlaceholder = () => {
                   <Bot className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-2xl">
-                    {t("Mentor AI Inteligente", "Intelligent AI Mentor")}
+                  <h3 className="font-bold text-2xl md:text-3xl">
+                    {t("Tecnología AI de FluenxIA", "FluenxIA's AI Technology")}
                   </h3>
-                  <p className="text-muted-foreground">
-                    {t("Powered by OpenAI Realtime API & Gemini AI", "Powered by OpenAI Realtime API & Gemini AI")}
+                  <p className="text-muted-foreground text-lg">
+                    {t(
+                      "Potenciado por OpenAI Realtime API & Google Gemini",
+                      "Powered by OpenAI Realtime API & Google Gemini"
+                    )}
                   </p>
                 </div>
               </div>
 
               <div className="space-y-4 mb-8">
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-lg leading-relaxed">
                   {t(
-                    "Nuestro asistente AI bilingüe utiliza tecnología de vanguardia para:",
-                    "Our bilingual AI assistant uses cutting-edge technology to:"
+                    "FluenxIA integra las tecnologías de inteligencia artificial más avanzadas del mundo para crear una experiencia de aprendizaje verdaderamente personalizada. Nuestro sistema analiza en tiempo real la fluidez de cada estudiante y adapta automáticamente el contenido, la dificultad y el tipo de soporte necesario.",
+                    "FluenxIA integrates the world's most advanced artificial intelligence technologies to create a truly personalized learning experience. Our system analyzes each student's fluency in real-time and automatically adapts content, difficulty, and the type of support needed."
+                  )}
+                </p>
+                <p className="text-muted-foreground font-medium mt-6">
+                  {t(
+                    "Capacidades principales:",
+                    "Core capabilities:"
                   )}
                 </p>
                 <ul className="space-y-2">
                   {[
                     {
-                      es: "Adaptar el contenido al nivel de cada estudiante",
-                      en: "Adapt content to each student's level",
+                      es: "Evaluar y mejorar fluidez en lectura en tiempo real",
+                      en: "Assess and improve reading fluency in real-time",
                     },
                     {
-                      es: "Proporcionar retroalimentación inmediata en tiempo real",
-                      en: "Provide immediate real-time feedback",
+                      es: "Corregir pronunciación con retroalimentación inmediata",
+                      en: "Correct pronunciation with immediate feedback",
                     },
                     {
-                      es: "Detectar y corregir errores de pronunciación",
-                      en: "Detect and correct pronunciation errors",
+                      es: "Adaptar complejidad de textos según nivel de fluidez",
+                      en: "Adapt text complexity based on fluency level",
                     },
                     {
-                      es: "Crear planes de aprendizaje personalizados",
-                      en: "Create personalized learning plans",
+                      es: "Crear rutas de aprendizaje personalizadas por estudiante",
+                      en: "Create personalized learning paths per student",
                     },
                     {
                       es: "Comunicarse naturalmente en español e inglés",

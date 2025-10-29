@@ -74,7 +74,7 @@ export default function AvailableAssessments() {
   return (
     <>
       <Helmet>
-        <title>{t("Lecciones Disponibles - LecturaPR", "Available Lessons - LecturaPR")}</title>
+        <title>{t("Lecciones Disponibles - FluenxIA", "Available Lessons - FluenxIA")}</title>
         <meta name="description" content={t("Lecciones y actividades de lectura", "Reading lessons and activities")} />
       </Helmet>
 

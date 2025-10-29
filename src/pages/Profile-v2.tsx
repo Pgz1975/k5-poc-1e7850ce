@@ -302,7 +302,7 @@ const ProfileV2 = () => {
   return (
     <>
       <Helmet>
-        <title>{t("Mi Perfil - LecturaPR", "My Profile - LecturaPR")}</title>
+        <title>{t("Mi Perfil - FluenxIA", "My Profile - FluenxIA")}</title>
         <meta name="description" content={t("Gestiona tu perfil", "Manage your profile")} />
       </Helmet>
 
