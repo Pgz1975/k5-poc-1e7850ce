@@ -8,8 +8,8 @@ import { useState, useEffect, useRef } from "react";
 import { useCoquiSession } from "@/hooks/useCoquiSession";
 import { CoquiClickHint } from "@/components/StudentDashboard/CoquiClickHint";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
-import { useStudentProgress } from "@/hooks/useStudentProgress";
 import { Link } from "react-router-dom";
+import { useStudentProgress } from "@/hooks/useStudentProgress";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -212,7 +212,7 @@ const StudentDashboardV2 = () => {
           <div className="container px-4 md:px-6 max-w-7xl mx-auto space-y-8">
             
             {/* Top Stats Bar with Duolingo-style Gamification */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Streak Counter */}
               <div className="rounded-2xl border-4 border-[hsl(27,100%,65%)] bg-white p-6 shadow-[0_6px_0_hsl(27,100%,65%)] hover:shadow-[0_8px_0_hsl(27,100%,65%)] hover:-translate-y-0.5 transition-all">
                 <div className="flex items-center gap-4">
@@ -255,6 +255,19 @@ const StudentDashboardV2 = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Demo Lab Link */}
+              <Link to="/demo" className="rounded-2xl border-4 border-[hsl(250,100%,75%)] bg-white p-6 shadow-[0_6px_0_hsl(250,100%,75%)] hover:shadow-[0_8px_0_hsl(250,100%,75%)] hover:-translate-y-0.5 transition-all block">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <Sparkles className="h-12 w-12 text-[hsl(250,100%,65%)] fill-[hsl(250,100%,65%)]" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-[hsl(250,100%,45%)]">{t("Laboratorio", "Lab")}</div>
+                    <div className="text-sm font-bold text-gray-600">{t("demos de IA", "AI demos")}</div>
+                  </div>
+                </div>
+              </Link>
             </div>
 
             {/* Welcome Section with Interactive Coquí */}
