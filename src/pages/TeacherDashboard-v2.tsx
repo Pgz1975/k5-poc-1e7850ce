@@ -24,6 +24,8 @@ import { SkillDetailCard } from "@/components/TeacherDashboard/SkillDetailCard";
 import { SkillsComparisonTable } from "@/components/TeacherDashboard/SkillsComparisonTable";
 import { AssessmentResultsSection } from "@/components/TeacherDashboard/AssessmentResultsSection";
 import { StandardsAlignmentTable } from "@/components/TeacherDashboard/StandardsAlignmentTable";
+import { AdvancedFilterDrawer } from "@/components/TeacherDashboard/AdvancedFilterDrawer";
+import { ExportReportDialog } from "@/components/TeacherDashboard/ExportReportDialog";
 import { 
   mockAIInsights, 
   mockErrorPatterns, 
@@ -111,14 +113,8 @@ const TeacherDashboardV2 = () => {
               </div>
               <div className="flex gap-2">
                 <ManageLessonsDrawer />
-                <Button variant="outline" className="gap-2">
-                  <Filter className="h-4 w-4" />
-                  {t("Filtros", "Filters")}
-                </Button>
-                <Button className="gap-2">
-                  <Download className="h-4 w-4" />
-                  {t("Exportar Reporte", "Export Report")}
-                </Button>
+                <AdvancedFilterDrawer />
+                <ExportReportDialog />
               </div>
             </div>
 
