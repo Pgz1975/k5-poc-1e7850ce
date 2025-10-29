@@ -65,16 +65,27 @@ const StudentDashboardV2 = () => {
 
   // Send initial greeting when connection is established
   useEffect(() => {
-    if (isConnected && !hasGreeted.current && sendText) {
-      hasGreeted.current = true;
-      
-      const greeting = language === 'es'
-        ? '¡Hola! Por favor, preséntate y explica cómo puedes ayudarme en mi dashboard.'
-        : 'Hello! Please introduce yourself and explain how you can help me on my dashboard.';
-      
-      console.log('[StudentDashboard] 👋 Sending initial greeting to Coquí');
-      sendText(greeting);
+    if (!isConnected) return;
+    if (hasGreeted.current) return;
+    if (!sendText) {
+      console.warn('[StudentDashboard] ⚠️ sendText not available yet');
+      return;
     }
+
+    hasGreeted.current = true;
+    
+    const greeting = language === 'es'
+      ? '¡Hola! Por favor, preséntate y explica cómo puedes ayudarme en mi dashboard.'
+      : 'Hello! Please introduce yourself and explain how you can help me on my dashboard.';
+    
+    console.log('[StudentDashboard] 👋 Sending initial greeting to Coquí');
+    console.log('[StudentDashboard] 📝 Greeting text:', greeting);
+    
+    // Small delay to ensure WebSocket is fully ready
+    setTimeout(() => {
+      sendText(greeting);
+      console.log('[StudentDashboard] ✅ Greeting sent!');
+    }, 100);
   }, [isConnected, sendText, language]);
 
   // Reset greeting flag when disconnecting
