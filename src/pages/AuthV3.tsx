@@ -5,35 +5,43 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { BookOpen, Mail, Lock, User, Chrome } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
-import { demoUsers, createDemoUsers } from "@/utils/createDemoUsers";
+import { demoUsers } from "@/utils/createDemoUsers";
+import CoquiMascot from "@/components/CoquiMascot";
+
+const unitColors = {
+  pink: 'hsl(329, 100%, 71%)',
+  coral: 'hsl(11, 100%, 67%)',
+  peach: 'hsl(27, 100%, 71%)',
+  yellow: 'hsl(48, 100%, 71%)',
+  lime: 'hsl(125, 100%, 71%)',
+  cyan: 'hsl(176, 84%, 71%)',
+  purple: 'hsl(250, 100%, 85%)',
+};
 
 const emailSchema = z.string().email();
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
 
 const AuthV3 = () => {
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const { signUp, signIn, resetPassword, user, loading } = useAuth();
   const navigate = useNavigate();
   
+  const [activeTab, setActiveTab] = useState<"signin" | "signup" | "reset">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"student" | "teacher_english" | "family">("student");
+  const [role, setRole] = useState<"student" | "teacher" | "family">("student");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [demoUsersCreated, setDemoUsersCreated] = useState(false);
 
   useEffect(() => {
     if (user && !loading) {
-      // Redirect based on role
       redirectBasedOnRole();
     }
   }, [user, loading]);
@@ -41,7 +49,6 @@ const AuthV3 = () => {
   const redirectBasedOnRole = async () => {
     if (!user) return;
 
-    // Check if admin user
     if (user.email === "admin@demo.com") {
       navigate("/admin-dashboard");
       return;
@@ -51,7 +58,8 @@ const AuthV3 = () => {
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .maybeSingle();
+      .limit(1)
+      .single();
 
     if (error) {
       console.error("Error fetching user role:", error);
@@ -59,19 +67,18 @@ const AuthV3 = () => {
       return;
     }
 
-    // Handle navigation based on role
-    const role = data?.role;
-    if (role === "student" || role?.startsWith("student_")) {
+    const userRole = data?.role;
+    if (userRole === "student" || userRole?.startsWith("student_")) {
       navigate("/student-dashboard");
-    } else if (role === "teacher_english" || role === "teacher_spanish") {
+    } else if (userRole === "teacher_english" || userRole === "teacher_spanish") {
       navigate("/teacher-dashboard");
-    } else if (role === "family") {
+    } else if (userRole === "family") {
       navigate("/family-dashboard");
-    } else if (role === "school_director") {
+    } else if (userRole === "school_director") {
       navigate("/school-director-dashboard");
-    } else if (role === "regional_director") {
+    } else if (userRole === "regional_director") {
       navigate("/regional-director-dashboard");
-    } else if (role === "depr_executive") {
+    } else if (userRole === "depr_executive") {
       navigate("/depr-executive-dashboard");
     } else {
       navigate("/dashboard");
@@ -92,7 +99,12 @@ const AuthV3 = () => {
         throw new Error("Full name is required");
       }
 
-      const { error } = await signUp(email, password, fullName, role);
+      // Auto-assign language-specific teacher role based on current language
+      const finalRole = role === "teacher" 
+        ? (language === "es" ? "teacher_spanish" : "teacher_english")
+        : role;
+
+      const { error } = await signUp(email, password, fullName, finalRole as any);
 
       if (error) {
         setError(error.message);
@@ -183,8 +195,8 @@ const AuthV3 = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-purple-50 to-pink-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary"></div>
       </div>
     );
   }
@@ -196,57 +208,108 @@ const AuthV3 = () => {
         <meta name="description" content={t("Inicia sesión en FluenxIA para acceder a tu plataforma de fluidez bilingüe impulsada por AI", "Sign in to FluenxIA to access your AI-powered bilingual fluency platform")} />
       </Helmet>
 
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-primary/5 to-secondary/5 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-purple-50 to-pink-50 p-4 relative overflow-hidden">
+        {/* Language Toggle - Top Right */}
+        <div className="fixed top-4 right-4 z-20">
+          <button
+            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            className="bg-white border-4 border-cyan-300 rounded-2xl px-6 py-3 font-bold text-gray-700 hover:border-cyan-400 hover:shadow-lg transition-all flex items-center gap-2"
+          >
+            <span className="text-xl">{language === 'es' ? '🇪🇸' : '🇺🇸'}</span>
+            <span>{language === 'es' ? 'ES' : 'EN'}</span>
+          </button>
+        </div>
+
+        {/* Decorative Coquí in corner */}
+        <div className="fixed bottom-8 right-8 hidden lg:block">
+          <CoquiMascot state="happy" size="medium" />
+        </div>
+
+        {/* Auth Card */}
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border-4 border-cyan-300 overflow-hidden relative z-10">
+          {/* Header */}
+          <div className="bg-gradient-to-br from-cyan-400 to-purple-400 p-8 text-center">
             <div className="flex items-center justify-center mb-4">
-              <div className="h-12 w-12 rounded-full bg-gradient-hero flex items-center justify-center">
-                <BookOpen className="h-6 w-6 text-white" />
+              <div className="h-16 w-16 rounded-2xl bg-white shadow-lg flex items-center justify-center">
+                <BookOpen className="h-8 w-8 text-cyan-500" />
               </div>
             </div>
-            <CardTitle className="text-2xl">FluenxIA</CardTitle>
-            <CardDescription>
+            <h1 className="text-3xl font-bold text-white mb-2">FluenxIA</h1>
+            <p className="text-cyan-50 text-sm">
               {t(
-                "Plataforma de lectura y aprendizaje bilingüe con AI",
-                "Bilingual reading and learning platform with AI"
+                "Plataforma de lectura bilingüe con AI",
+                "Bilingual reading platform with AI"
               )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="signin">{t("Entrar", "Sign In")}</TabsTrigger>
-                <TabsTrigger value="signup">{t("Registro", "Sign Up")}</TabsTrigger>
-                <TabsTrigger value="reset">{t("Recuperar", "Reset")}</TabsTrigger>
-              </TabsList>
+            </p>
+          </div>
 
-              {error && (
-                <Alert variant="destructive" className="mt-4">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+          {/* Tab Switcher */}
+          <div className="bg-gray-50 px-6 py-4 border-b-4 border-gray-200">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveTab("signin")}
+                className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${
+                  activeTab === "signin"
+                    ? "bg-cyan-400 text-white shadow-lg scale-105"
+                    : "bg-white text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {t("Entrar", "Sign In")}
+              </button>
+              <button
+                onClick={() => setActiveTab("signup")}
+                className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${
+                  activeTab === "signup"
+                    ? "bg-purple-400 text-white shadow-lg scale-105"
+                    : "bg-white text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {t("Registro", "Sign Up")}
+              </button>
+              <button
+                onClick={() => setActiveTab("reset")}
+                className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${
+                  activeTab === "reset"
+                    ? "bg-pink-400 text-white shadow-lg scale-105"
+                    : "bg-white text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {t("Recuperar", "Reset")}
+              </button>
+            </div>
+          </div>
 
-              {success && (
-                <Alert className="mt-4 bg-success/10 text-success border-success/20">
-                  <AlertDescription>{success}</AlertDescription>
-                </Alert>
-              )}
+          {/* Content */}
+          <div className="p-6 space-y-4">
+            {error && (
+              <Alert variant="destructive" className="border-4 rounded-xl">
+                <AlertDescription className="font-medium">{error}</AlertDescription>
+              </Alert>
+            )}
 
-              <TabsContent value="signin" className="space-y-4">
+            {success && (
+              <Alert className="bg-green-50 text-green-800 border-4 border-green-300 rounded-xl">
+                <AlertDescription className="font-medium">{success}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Sign In Tab */}
+            {activeTab === "signin" && (
+              <div className="space-y-4">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">
+                    <Label htmlFor="signin-email" className="text-gray-700 font-bold">
                       {t("Correo electrónico", "Email")}
                     </Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Mail className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
                       <Input
                         id="signin-email"
                         type="email"
                         placeholder="tu@email.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10"
+                        className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-cyan-400 text-base"
                         autoComplete="email"
                         required
                       />
@@ -254,64 +317,69 @@ const AuthV3 = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">
+                    <Label htmlFor="signin-password" className="text-gray-700 font-bold">
                       {t("Contraseña", "Password")}
                     </Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Lock className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
                       <Input
                         id="signin-password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10"
+                        className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-cyan-400 text-base"
                         autoComplete="current-password"
                         required
                       />
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? t("Entrando...", "Signing in...") : t("Entrar", "Sign In")}
-                  </Button>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full h-14 bg-gradient-to-r from-cyan-400 to-cyan-500 text-white font-bold rounded-xl shadow-[0_4px_0_hsl(176,84%,60%)] hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-4 border-cyan-600"
+                  >
+                    {isLoading ? t("Entrando...", "Signing in...") : t("Entrar 🚀", "Sign In 🚀")}
+                  </button>
                 </form>
 
-                <div className="relative">
+                {/* Divider */}
+                <div className="relative py-2">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
+                    <div className="w-full border-t-2 border-gray-200"></div>
                   </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">
+                  <div className="relative flex justify-center">
+                    <span className="bg-white px-4 text-xs font-bold text-gray-500 uppercase">
                       {t("O continúa con", "Or continue with")}
                     </span>
                   </div>
                 </div>
 
-                <Button
+                {/* Google Sign In */}
+                <button
                   type="button"
-                  variant="outline"
-                  className="w-full gap-2"
                   onClick={handleGoogleSignIn}
+                  className="w-full h-14 bg-white border-4 border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
                 >
-                  <Chrome className="h-4 w-4" />
+                  <Chrome className="h-5 w-5" />
                   Google
-                </Button>
+                </button>
 
+                {/* Demo Users */}
                 <div className="mt-6 space-y-3">
-                  <p className="text-sm font-medium text-center">
-                    {t("Acceso rápido - Cuentas populares:", "Quick access - Popular accounts:")}
+                  <p className="text-sm font-bold text-center text-gray-700">
+                    {t("Acceso Rápido - Cuentas Demo:", "Quick Access - Demo Accounts:")}
                   </p>
                   <div className="grid gap-2">
-                    {demoUsers.slice(0, 5).map((demo) => (
-                      <Button
+                    {demoUsers.map((demo) => (
+                      <button
                         key={demo.email}
                         type="button"
-                        variant="secondary"
-                        className="w-full justify-start gap-3 h-auto py-3"
                         onClick={() => handleDemoLogin(demo)}
                         disabled={isLoading}
+                        className="w-full bg-gradient-to-br from-gray-50 to-white border-4 border-gray-200 rounded-3xl p-3 hover:border-cyan-300 hover:shadow-[0_6px_0_hsl(176,84%,85%)] hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-3"
                       >
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-muted">
+                        <div className="h-12 w-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
                           <img 
                             src={demo.avatar} 
                             alt={demo.fullName}
@@ -319,243 +387,162 @@ const AuthV3 = () => {
                           />
                         </div>
                         <div className="flex flex-col items-start flex-1 min-w-0">
-                          <span className="font-semibold text-sm">
+                          <span className="font-bold text-sm text-gray-800">
                             {demo.fullName}
                           </span>
-                          <span className="text-xs text-muted-foreground truncate w-full">
+                          <span className="text-xs text-gray-500 truncate w-full">
                             {demo.email}
                           </span>
                         </div>
-                      </Button>
+                      </button>
                     ))}
                   </div>
                 </div>
-              </TabsContent>
-
-              <TabsContent value="signup" className="space-y-4">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">
-                      {t("Nombre completo", "Full name")}
-                    </Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-name"
-                        type="text"
-                        placeholder={t("Tu nombre", "Your name")}
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">
-                      {t("Correo electrónico", "Email")}
-                    </Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="tu@email.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10"
-                        autoComplete="email"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">
-                      {t("Contraseña", "Password")}
-                    </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10"
-                        autoComplete="new-password"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>{t("Tipo de cuenta", "Account type")}</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <Button
-                        type="button"
-                        variant={role === "student" ? "default" : "outline"}
-                        onClick={() => setRole("student")}
-                      >
-                        {t("Estudiante", "Student")}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={role === "teacher_english" ? "default" : "outline"}
-                        onClick={() => setRole("teacher_english")}
-                      >
-                        {t("Maestro", "Teacher")}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={role === "family" ? "default" : "outline"}
-                        onClick={() => setRole("family")}
-                      >
-                        {t("Familia", "Family")}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? t("Creando cuenta...", "Creating account...") : t("Crear cuenta", "Create account")}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="reset" className="space-y-4">
-                <form onSubmit={handleResetPassword} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="reset-email">
-                      {t("Correo electrónico", "Email")}
-                    </Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="reset-email"
-                        type="email"
-                        placeholder="tu@email.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10"
-                        autoComplete="email"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? t("Enviando...", "Sending...") : t("Enviar enlace", "Send link")}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-            
-            {/* Demo Credentials */}
-            <div className="mt-6 pt-4 border-t border-border/40">
-              <p className="text-xs text-muted-foreground text-center mb-2 font-semibold">
-                {t("Credenciales de demostración:", "Demo credentials:")}
-              </p>
-              
-              <div className="space-y-3">
-                {/* Students by Grade */}
-                <div>
-                  <p className="text-[10px] font-medium text-muted-foreground/80 mb-1">
-                    {t("Estudiantes por Grado:", "Students by Grade:")}
-                  </p>
-                  <div className="grid grid-cols-1 gap-0.5 text-xs text-muted-foreground">
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("Kínder", "Kindergarten")}:</span>
-                      <span className="font-mono text-[9px]">kindergarten@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("1er Grado", "1st Grade")}:</span>
-                      <span className="font-mono text-[9px]">student1@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("2do Grado", "2nd Grade")}:</span>
-                      <span className="font-mono text-[9px]">student2@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("3er Grado", "3rd Grade")}:</span>
-                      <span className="font-mono text-[9px]">student3@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("4to Grado", "4th Grade")}:</span>
-                      <span className="font-mono text-[9px]">student4@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("5to Grado", "5th Grade")}:</span>
-                      <span className="font-mono text-[9px]">student5@demo.com</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Teachers */}
-                <div>
-                  <p className="text-[10px] font-medium text-muted-foreground/80 mb-1">
-                    {t("Maestros:", "Teachers:")}
-                  </p>
-                  <div className="grid grid-cols-1 gap-0.5 text-xs text-muted-foreground">
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("Inglés", "English")}:</span>
-                      <span className="font-mono text-[9px]">teacher-english@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("Español", "Spanish")}:</span>
-                      <span className="font-mono text-[9px]">teacher-spanish@demo.com</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Administrative */}
-                <div>
-                  <p className="text-[10px] font-medium text-muted-foreground/80 mb-1">
-                    {t("Administrativos:", "Administrative:")}
-                  </p>
-                  <div className="grid grid-cols-1 gap-0.5 text-xs text-muted-foreground">
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("Director Escolar", "School Director")}:</span>
-                      <span className="font-mono text-[9px]">school-director@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("Director Regional", "Regional Director")}:</span>
-                      <span className="font-mono text-[9px]">regional-director@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("Admin Español", "Spanish Admin")}:</span>
-                      <span className="font-mono text-[9px]">spanish-admin@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("Admin Inglés", "English Admin")}:</span>
-                      <span className="font-mono text-[9px]">english-admin@demo.com</span>
-                    </div>
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("Ejecutivo DEPR", "DEPR Executive")}:</span>
-                      <span className="font-mono text-[9px]">depr-executive@demo.com</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Family */}
-                <div>
-                  <p className="text-[10px] font-medium text-muted-foreground/80 mb-1">
-                    {t("Familia:", "Family:")}
-                  </p>
-                  <div className="grid grid-cols-1 gap-0.5 text-xs text-muted-foreground">
-                    <div className="flex items-center justify-between py-0.5">
-                      <span className="text-[10px]">{t("Cuenta Familiar", "Family Account")}:</span>
-                      <span className="font-mono text-[9px]">family@demo.com</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="text-center text-[10px] text-muted-foreground/70 mt-2 pt-2 border-t border-border/20">
-                  {t("Contraseña para todos:", "Password for all:")} <span className="font-mono font-semibold">demo123</span>
-                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            )}
+
+            {/* Sign Up Tab */}
+            {activeTab === "signup" && (
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-name" className="text-gray-700 font-bold">
+                    {t("Nombre completo", "Full name")}
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="signup-name"
+                      type="text"
+                      placeholder={t("Tu nombre", "Your name")}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-purple-400 text-base"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email" className="text-gray-700 font-bold">
+                    {t("Correo electrónico", "Email")}
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-purple-400 text-base"
+                      autoComplete="email"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password" className="text-gray-700 font-bold">
+                    {t("Contraseña", "Password")}
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-purple-400 text-base"
+                      autoComplete="new-password"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-gray-700 font-bold">
+                    {t("Tipo de cuenta", "Account type")}
+                  </Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRole("student")}
+                      className={`py-3 px-4 rounded-xl font-bold text-sm transition-all border-4 ${
+                        role === "student"
+                          ? "bg-purple-400 text-white border-purple-600 scale-105"
+                          : "bg-white text-gray-600 border-gray-300 hover:border-purple-300"
+                      }`}
+                    >
+                      {t("Estudiante", "Student")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRole("teacher")}
+                      className={`py-3 px-4 rounded-xl font-bold text-sm transition-all border-4 ${
+                        role === "teacher"
+                          ? "bg-purple-400 text-white border-purple-600 scale-105"
+                          : "bg-white text-gray-600 border-gray-300 hover:border-purple-300"
+                      }`}
+                    >
+                      {t("Maestro", "Teacher")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRole("family")}
+                      className={`py-3 px-4 rounded-xl font-bold text-sm transition-all border-4 ${
+                        role === "family"
+                          ? "bg-purple-400 text-white border-purple-600 scale-105"
+                          : "bg-white text-gray-600 border-gray-300 hover:border-purple-300"
+                      }`}
+                    >
+                      {t("Familia", "Family")}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-14 bg-gradient-to-r from-purple-400 to-purple-500 text-white font-bold rounded-xl shadow-[0_4px_0_hsl(250,100%,75%)] hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-4 border-purple-600"
+                >
+                  {isLoading ? t("Creando cuenta...", "Creating account...") : t("Crear Cuenta 🎉", "Create Account 🎉")}
+                </button>
+              </form>
+            )}
+
+            {/* Reset Password Tab */}
+            {activeTab === "reset" && (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email" className="text-gray-700 font-bold">
+                    {t("Correo electrónico", "Email")}
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="reset-email"
+                      type="email"
+                      placeholder="tu@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-12 h-14 border-4 border-gray-300 rounded-xl focus:border-pink-400 text-base"
+                      autoComplete="email"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-14 bg-gradient-to-r from-pink-400 to-pink-500 text-white font-bold rounded-xl shadow-[0_4px_0_hsl(329,100%,60%)] hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-4 border-pink-600"
+                >
+                  {isLoading ? t("Enviando...", "Sending...") : t("Enviar Enlace 📧", "Send Link 📧")}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );
