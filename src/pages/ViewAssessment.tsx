@@ -38,7 +38,9 @@ export default function ViewAssessment() {
     isConnecting, 
     isAIPlaying, 
     frequencyData, 
-    audioLevel 
+    audioLevel,
+    startSession,
+    endSession
   } = useCoquiSession({
     activityId: id || '',
     activityType: 'exercise',
@@ -50,6 +52,20 @@ export default function ViewAssessment() {
       content: assessment.content
     } : undefined
   });
+
+  // Auto-connect voice session when assessment loads
+  useEffect(() => {
+    if (assessment && !isConnected && !isConnecting) {
+      startSession();
+    }
+  }, [assessment, isConnected, isConnecting, startSession]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      endSession();
+    };
+  }, [endSession]);
 
   useEffect(() => {
     const fetchAssessment = async () => {

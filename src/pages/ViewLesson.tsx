@@ -72,7 +72,9 @@ export default function ViewLesson() {
     isConnecting, 
     isAIPlaying, 
     frequencyData, 
-    audioLevel 
+    audioLevel,
+    startSession,
+    endSession
   } = useCoquiSession({
     activityId: id || '',
     activityType: 'lesson',
@@ -82,6 +84,20 @@ export default function ViewLesson() {
       voiceGuidance: (lesson.voice_guidance as string) || undefined
     } : undefined
   });
+
+  // Auto-connect voice session when lesson loads
+  useEffect(() => {
+    if (lesson && !isConnected && !isConnecting) {
+      startSession();
+    }
+  }, [lesson, isConnected, isConnecting, startSession]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      endSession();
+    };
+  }, [endSession]);
 
   // Check if lesson is locked
   const { data: lockData, isLoading: lockLoading } = useQuery({

@@ -43,11 +43,33 @@ export function ExercisePlayer({ exercise, onComplete, onExit, voiceClient }: Ex
     return null;
   }
 
-  const { isConnected, isConnecting, isAIPlaying, frequencyData, audioLevel } = useCoquiSession({
+  const { 
+    isConnected, 
+    isConnecting, 
+    isAIPlaying, 
+    frequencyData, 
+    audioLevel,
+    startSession,
+    endSession
+  } = useCoquiSession({
     activityId: exercise.id,
     activityType: 'exercise',
     voiceContext: { title: exercise.title, subtype: exercise.subtype }
   });
+
+  // Auto-connect voice session when exercise loads (only if not embedded in lesson)
+  useEffect(() => {
+    if (exercise && !hasParentVisualization && !isConnected && !isConnecting) {
+      startSession();
+    }
+  }, [exercise, hasParentVisualization, isConnected, isConnecting, startSession]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      endSession();
+    };
+  }, [endSession]);
 
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
