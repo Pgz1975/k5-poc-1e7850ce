@@ -26,6 +26,8 @@ import { QuickActions } from "@/components/StudentDashboard/QuickActions";
 const StudentDashboardV2 = () => {
   const { t, language } = useLanguage();
   const [mascotState, setMascotState] = useState<"happy" | "thinking" | "reading" | "exploring" | "correct" | "excited" | "speaking">("happy");
+  const [audioLevel, setAudioLevel] = useState(-100);
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const hasGreeted = useRef(false);
   const { data: profile, isLoading } = useStudentProfile();
 
@@ -49,6 +51,11 @@ const StudentDashboardV2 = () => {
       title: 'Dashboard Introduction',
       language: language === 'es' ? 'es-PR' : 'en-US',
       voiceGuidance: dashboardGuidance
+    },
+    onAudioLevel: (dbLevel) => {
+      setAudioLevel(dbLevel);
+      const isSpeaking = dbLevel > -45;
+      setIsUserSpeaking(isSpeaking);
     }
   });
 
@@ -56,12 +63,14 @@ const StudentDashboardV2 = () => {
   useEffect(() => {
     if (isAIPlaying) {
       setMascotState('speaking');
-    } else if (isConnected) {
+    } else if (isUserSpeaking) {
       setMascotState('thinking');
+    } else if (isConnected) {
+      setMascotState('exploring');
     } else {
       setMascotState('happy');
     }
-  }, [isAIPlaying, isConnected]);
+  }, [isAIPlaying, isConnected, isUserSpeaking]);
 
   // Send initial greeting when connection is established
   useEffect(() => {
