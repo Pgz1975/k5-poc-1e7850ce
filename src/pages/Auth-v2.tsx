@@ -364,40 +364,6 @@ const AuthV2 = () => {
                   <Chrome className="h-5 w-5" />
                   Google
                 </button>
-
-                {/* Demo Users */}
-                <div className="mt-6 space-y-3">
-                  <p className="text-sm font-bold text-center text-gray-700">
-                    {t("Acceso Rápido - Cuentas Demo:", "Quick Access - Demo Accounts:")}
-                  </p>
-                  <div className="grid gap-2">
-                    {demoUsers.map((demo) => (
-                      <button
-                        key={demo.email}
-                        type="button"
-                        onClick={() => handleDemoLogin(demo)}
-                        disabled={isLoading}
-                        className="w-full bg-gradient-to-br from-gray-50 to-white border-4 border-gray-200 rounded-3xl p-3 hover:border-cyan-300 hover:shadow-[0_6px_0_hsl(176,84%,85%)] hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-3"
-                      >
-                        <div className="h-12 w-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                          <img 
-                            src={demo.avatar} 
-                            alt={demo.fullName}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                        <div className="flex flex-col items-start flex-1 min-w-0">
-                          <span className="font-bold text-sm text-gray-800">
-                            {demo.fullName}
-                          </span>
-                          <span className="text-xs text-gray-500 truncate w-full">
-                            {demo.email}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
             )}
 
