@@ -4,7 +4,7 @@ import { Star, Sparkles, BookOpen, Target, ClipboardCheck, Flame, Trophy } from 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import CoquiMascot from "@/components/CoquiMascot";
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { CoquiClickHint } from "@/components/StudentDashboard/CoquiClickHint";
 import { CoquiLessonAssistantGuard } from "@/components/coqui/CoquiLessonAssistantGuard";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
@@ -26,20 +26,23 @@ import { QuickActions } from "@/components/StudentDashboard/QuickActions";
 const StudentDashboardV2 = () => {
   const { t, language } = useLanguage();
   const [mascotState, setMascotState] = useState<"happy" | "thinking" | "reading" | "exploring" | "correct" | "excited" | "speaking">("happy");
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
   const { data: profile, isLoading } = useStudentProfile();
+  const connectionLockRef = useRef(false);
 
   // Dashboard voice guidance context
   const dashboardGuidance = language === 'es' 
     ? `Eres Coquí, el amigo y guía oficial de la plataforma educativa FluenxIA para estudiantes de K-5 en Puerto Rico. Tu rol es dar la bienvenida al estudiante al dashboard, presentar brevemente las opciones disponibles (Lecciones, Ejercicios, Evaluaciones), y motivarlo a explorar. Sé amigable, breve y entusiasta. Si el estudiante te pregunta algo, ayúdalo con información sobre la plataforma.`
     : `You are Coquí, the official friend and guide for the FluenxIA educational platform for K-5 students in Puerto Rico. Your role is to welcome the student to the dashboard, briefly introduce the available options (Lessons, Exercises, Assessments), and motivate them to explore. Be friendly, brief, and enthusiastic. If the student asks you something, help them with information about the platform.`;
 
-  // Handle Coquí click to trigger hidden assistant's startSession
+  // Handle Coquí click to trigger the assistant (with connection lock)
   const handleCoquiClick = async () => {
-    if (isConnected || isConnecting) return;
+    if (connectionLockRef.current) {
+      console.log('[StudentDashboard] ⏭️ Connection already in progress');
+      return;
+    }
     localStorage.setItem("coqui-hint-dismissed", "true");
-    setIsConnecting(true);
+    connectionLockRef.current = true; // Lock to prevent double sessions
+    console.log('[StudentDashboard] 🔒 Connection locked');
     // The hidden CoquiLessonAssistantGuard will auto-connect
   };
 
@@ -188,19 +191,17 @@ const StudentDashboardV2 = () => {
                   <div className="relative inline-block">
                     <div onClick={handleCoquiClick}>
                       <CoquiMascot 
-                        state={isConnecting ? "waiting" : mascotState}
+                        state={connectionLockRef.current ? "speaking" : mascotState}
                         size="large"
                         position="inline"
                         className={
-                          isConnecting 
-                            ? "animate-pulse cursor-wait drop-shadow-2xl" 
-                            : isConnected 
-                              ? "animate-breathe drop-shadow-2xl" 
-                              : "cursor-pointer hover:scale-105 transition-transform drop-shadow-2xl"
+                          connectionLockRef.current
+                            ? "animate-breathe drop-shadow-2xl cursor-pointer" 
+                            : "cursor-pointer hover:scale-105 transition-transform drop-shadow-2xl"
                         }
                       />
                     </div>
-                    {!isConnected && !isConnecting && <CoquiClickHint />}
+                    {!connectionLockRef.current && <CoquiClickHint />}
                   </div>
                 </div>
                 
@@ -218,11 +219,9 @@ const StudentDashboardV2 = () => {
                   
                   {/* Status Text */}
                   <p className="text-lg md:text-xl font-semibold text-[hsl(176,84%,35%)] mt-4">
-                    {isConnecting
-                      ? t("Conectando...", "Connecting...")
-                      : isConnected
-                        ? t("¡Háblame! Estoy escuchando 👂", "Talk to me! I'm listening 👂")
-                        : t("Haz clic en Coquí para empezar", "Click on Coquí to start")
+                    {connectionLockRef.current
+                      ? t("¡Háblame! Estoy escuchando 👂", "Talk to me! I'm listening 👂")
+                      : t("Haz clic en Coquí para empezar", "Click on Coquí to start")
                     }
                   </p>
                 </div>
@@ -235,8 +234,7 @@ const StudentDashboardV2 = () => {
                 activityId="system-dashboard"
                 activityType="system"
                 position="inline"
-                autoConnect={false}
-                isConnecting={isConnecting}
+                autoConnect={connectionLockRef.current}
                 voiceContext={{
                   title: 'Dashboard Introduction',
                   language: language === 'es' ? 'es-PR' : 'en-US',
