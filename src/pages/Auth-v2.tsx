@@ -35,7 +35,7 @@ const AuthV2 = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"student" | "teacher_english" | "family">("student");
+  const [role, setRole] = useState<"student" | "teacher" | "family">("student");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -92,7 +92,12 @@ const AuthV2 = () => {
         throw new Error("Full name is required");
       }
 
-      const { error } = await signUp(email, password, fullName, role);
+      // Auto-assign language-specific teacher role based on current language
+      const finalRole = role === "teacher" 
+        ? (language === "es" ? "teacher_spanish" : "teacher_english")
+        : role;
+
+      const { error } = await signUp(email, password, fullName, finalRole as any);
 
       if (error) {
         setError(error.message);
@@ -463,9 +468,9 @@ const AuthV2 = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setRole("teacher_english")}
+                      onClick={() => setRole("teacher")}
                       className={`py-3 px-2 rounded-xl font-bold text-sm transition-all ${
-                        role === "teacher_english"
+                        role === "teacher"
                           ? "bg-gradient-to-br from-cyan-400 to-cyan-500 text-white shadow-lg scale-105"
                           : "bg-white border-4 border-gray-300 text-gray-700 hover:border-cyan-300"
                       }`}
