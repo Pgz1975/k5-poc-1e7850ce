@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import CoquiMascot from '@/components/CoquiMascot';
-import { CoquiLessonAssistant } from '@/components/coqui/CoquiLessonAssistant';
 import { MultipleChoicePlayer } from '@/components/ManualAssessment/players/MultipleChoicePlayer';
 import { TrueFalsePlayer } from '@/components/ManualAssessment/players/TrueFalsePlayer';
 import { FillBlankPlayer } from '@/components/ManualAssessment/players/FillBlankPlayer';
@@ -16,6 +15,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { useDesignVersion } from '@/hooks/useDesignVersion';
 import { useUnitColor } from '@/hooks/useUnitColor';
+import { VoiceVisualizationPanel } from '@/components/voice/VoiceVisualizationPanel';
+import { useCoquiSession } from '@/hooks/useCoquiSession';
+import { CoquiVoiceBridge } from '@/components/coqui/CoquiVoiceBridge';
 
 export default function ViewAssessment() {
   const { id } = useParams();
@@ -29,6 +31,25 @@ export default function ViewAssessment() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [isPreConnecting, setIsPreConnecting] = useState(false);
   const [showExercise, setShowExercise] = useState(false);
+
+  // Voice session for audio visualization
+  const { 
+    isConnected, 
+    isConnecting, 
+    isAIPlaying, 
+    frequencyData, 
+    audioLevel 
+  } = useCoquiSession({
+    activityId: id || '',
+    activityType: 'exercise',
+    voiceContext: assessment ? {
+      title: assessment.title,
+      subtype: assessment.assessment_type,
+      language: assessment.language,
+      voiceGuidance: assessment.voice_guidance,
+      content: assessment.content
+    } : undefined
+  });
 
   useEffect(() => {
     const fetchAssessment = async () => {
@@ -139,6 +160,17 @@ export default function ViewAssessment() {
           )}
         </div>
 
+        {/* Audio Waveform + Mascot Panel */}
+        <div className="mb-6">
+          <VoiceVisualizationPanel
+            isConnected={isConnected}
+            isConnecting={isConnecting}
+            isAIPlaying={isAIPlaying}
+            frequencyData={frequencyData}
+            audioLevel={audioLevel}
+          />
+        </div>
+
 
         {/* Question - Only for multiple choice and true/false */}
         {assessment.subtype !== 'fill_blank' && 
@@ -234,8 +266,8 @@ export default function ViewAssessment() {
           />
         )}
 
-        {/* Coquí Assistant - Single voice stack, stays mounted */}
-        <CoquiLessonAssistant
+        {/* Voice session bridge for cleanup */}
+        <CoquiVoiceBridge
           activityId={assessment.id}
           activityType="exercise"
           voiceContext={{
@@ -245,9 +277,7 @@ export default function ViewAssessment() {
             voiceGuidance: assessment.voice_guidance,
             content: assessment.content
           }}
-          autoConnect={true}
-          isConnecting={isPreConnecting}
-          position="fixed"
+          endSessionRef={{ current: null }}
         />
 
         {/* Feedback */}
