@@ -16,6 +16,10 @@ import { ErrorPatternChart } from "@/components/TeacherDashboard/ErrorPatternCha
 import { ResponseTimeChart } from "@/components/TeacherDashboard/ResponseTimeChart";
 import { RiskIndicatorBadge } from "@/components/TeacherDashboard/RiskIndicatorBadge";
 import { StudentRecommendationDrawer } from "@/components/TeacherDashboard/StudentRecommendationDrawer";
+import { UsageMetricsGrid } from "@/components/TeacherDashboard/UsageMetricsGrid";
+import { ReadingProgressSection } from "@/components/TeacherDashboard/ReadingProgressSection";
+import { DeviceAnalyticsChart } from "@/components/TeacherDashboard/DeviceAnalyticsChart";
+import { CategoryAnalyticsChart } from "@/components/TeacherDashboard/CategoryAnalyticsChart";
 import { 
   mockAIInsights, 
   mockErrorPatterns, 
@@ -165,6 +169,18 @@ const TeacherDashboardV2 = () => {
                   />
                 ))}
               </div>
+            </div>
+
+            {/* Usage Metrics Section */}
+            <UsageMetricsGrid />
+
+            {/* Reading Progress Section */}
+            <ReadingProgressSection />
+
+            {/* Device & Category Analytics */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              <DeviceAnalyticsChart />
+              <CategoryAnalyticsChart />
             </div>
 
             {/* Analytics Charts */}
