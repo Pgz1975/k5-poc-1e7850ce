@@ -22,6 +22,8 @@ import { DeviceAnalyticsChart } from "@/components/TeacherDashboard/DeviceAnalyt
 import { CategoryAnalyticsChart } from "@/components/TeacherDashboard/CategoryAnalyticsChart";
 import { SkillDetailCard } from "@/components/TeacherDashboard/SkillDetailCard";
 import { SkillsComparisonTable } from "@/components/TeacherDashboard/SkillsComparisonTable";
+import { AssessmentResultsSection } from "@/components/TeacherDashboard/AssessmentResultsSection";
+import { StandardsAlignmentTable } from "@/components/TeacherDashboard/StandardsAlignmentTable";
 import { 
   mockAIInsights, 
   mockErrorPatterns, 
@@ -207,6 +209,12 @@ const TeacherDashboardV2 = () => {
 
             {/* Skills Comparison Table */}
             <SkillsComparisonTable />
+
+            {/* Assessment Results Section */}
+            <AssessmentResultsSection />
+
+            {/* Standards Alignment */}
+            <StandardsAlignmentTable />
 
             {/* Analytics Charts */}
             <div className="grid lg:grid-cols-2 gap-6">
