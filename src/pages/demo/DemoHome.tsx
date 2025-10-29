@@ -82,65 +82,91 @@ export default function DemoHome() {
           ) : (
             /* Activity Grid */
             <div className="grid gap-6 md:grid-cols-2">
-              {activities.map((activity) => (
-                <Card 
-                  key={activity.id} 
-                  className="relative overflow-hidden bg-white border border-gray-200 rounded-xl hover:shadow-lg transition-shadow duration-200 p-6"
-                >
-                  {/* Decorative Background Icon */}
-                  <div className="absolute -top-4 -right-4 text-purple-100 opacity-40">
-                    <Sparkles className="w-24 h-24" />
-                  </div>
+              {activities.map((activity, index) => {
+                // Only enable first two pronunciation demos
+                const isPronunciation = activity.demo_type === "pronunciation";
+                const isFirstTwo = index < 2;
+                const isEnabled = isPronunciation && isFirstTwo;
 
-                  <div className="relative flex flex-col gap-4">
-                    {/* Badges */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge 
-                        variant="outline" 
-                        className="px-3 py-1 text-xs font-semibold border-green-200 bg-green-50 text-green-700 rounded-full"
-                      >
-                        {languageLabels[activity.language] ?? activity.language}
-                      </Badge>
-                      <Badge 
-                        variant="secondary" 
-                        className="px-3 py-1 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 rounded-full"
-                      >
-                        {demoTypeLabels[activity.demo_type] ?? activity.demo_type}
-                      </Badge>
+                return (
+                  <Card 
+                    key={activity.id} 
+                    className={`relative overflow-hidden bg-white border border-gray-200 rounded-xl transition-shadow duration-200 p-6 ${
+                      isEnabled ? 'hover:shadow-lg' : 'opacity-60'
+                    }`}
+                  >
+                    {/* Decorative Background Icon */}
+                    <div className="absolute -top-4 -right-4 text-purple-100 opacity-40">
+                      <Sparkles className="w-24 h-24" />
                     </div>
 
-                    {/* Title & Description */}
-                    <div className="space-y-2">
-                      <h2 className="text-xl font-bold text-gray-900">
-                        {activity.title}
-                      </h2>
-                      {activity.description && (
-                        <p className="text-sm text-gray-600 leading-relaxed">
-                          {activity.description}
-                        </p>
+                    <div className="relative flex flex-col gap-4">
+                      {/* Badges */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge 
+                          variant="outline" 
+                          className="px-3 py-1 text-xs font-semibold border-green-200 bg-green-50 text-green-700 rounded-full"
+                        >
+                          {languageLabels[activity.language] ?? activity.language}
+                        </Badge>
+                        <Badge 
+                          variant="secondary" 
+                          className="px-3 py-1 text-xs font-semibold border-blue-200 bg-blue-50 text-blue-700 rounded-full"
+                        >
+                          {demoTypeLabels[activity.demo_type] ?? activity.demo_type}
+                        </Badge>
+                        {!isEnabled && (
+                          <Badge 
+                            variant="outline" 
+                            className="px-3 py-1 text-xs font-semibold border-orange-200 bg-orange-50 text-orange-700 rounded-full"
+                          >
+                            Coming Soon
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Title & Description */}
+                      <div className="space-y-2">
+                        <h2 className="text-xl font-bold text-gray-900">
+                          {activity.title}
+                        </h2>
+                        {activity.description && (
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {activity.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Voice Info */}
+                      <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 rounded-lg border border-purple-100">
+                        <Mic className="w-4 h-4 text-purple-600" />
+                        <span className="text-sm font-medium text-gray-700">
+                          Realtime voice session
+                        </span>
+                      </div>
+
+                      {/* CTA Button */}
+                      {isEnabled ? (
+                        <Button 
+                          asChild 
+                          className="w-full mt-2"
+                        >
+                          <Link to={`/demo/${activity.demo_type}/${activity.id}`}>
+                            Enter Demo
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button 
+                          disabled 
+                          className="w-full mt-2"
+                        >
+                          In Development
+                        </Button>
                       )}
                     </div>
-
-                    {/* Voice Info */}
-                    <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 rounded-lg border border-purple-100">
-                      <Mic className="w-4 h-4 text-purple-600" />
-                      <span className="text-sm font-medium text-gray-700">
-                        Realtime voice session
-                      </span>
-                    </div>
-
-                    {/* CTA Button */}
-                    <Button 
-                      asChild 
-                      className="w-full mt-2"
-                    >
-                      <Link to={`/demo/${activity.demo_type}/${activity.id}`}>
-                        Enter Demo
-                      </Link>
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           )}
         </div>
