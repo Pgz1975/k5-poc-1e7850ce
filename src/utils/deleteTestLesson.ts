@@ -33,6 +33,14 @@ export async function deleteTestLessonAndExercises() {
 
     if (voiceSessionsError) throw voiceSessionsError;
 
+    // Step 2.5: Delete voice_assessment_results
+    const { error: voiceAssessmentResultsError } = await supabase
+      .from('voice_assessment_results')
+      .delete()
+      .in('assessment_id', assessmentIds);
+
+    if (voiceAssessmentResultsError) throw voiceAssessmentResultsError;
+
     // Step 3: Delete completed_activity
     const { error: completedActivityError } = await supabase
       .from('completed_activity')
