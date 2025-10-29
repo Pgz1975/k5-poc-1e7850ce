@@ -14,7 +14,6 @@ import { DomainHeader } from "@/components/StudentDashboard/DomainHeader";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
-import { ActivityActions } from "@/components/ActivityManagement/ActivityActions";
 
 export default function StudentExercisesProgress() {
   const { t, language } = useLanguage();
@@ -245,26 +244,18 @@ export default function StudentExercisesProgress() {
                   const isCompleted = completedMap.has(exercise.id);
                   
                   return (
-                    <div key={exercise.id} className="relative">
-                      <div className="absolute top-2 right-2 z-10">
-                        <ActivityActions 
-                          activity={{ id: exercise.id, title: exercise.title }} 
-                          redirectPath="/student-dashboard/exercises"
-                          size="sm"
-                        />
-                      </div>
-                      <ExerciseCard
-                        id={exercise.id}
-                        title={exercise.title}
-                        description={exercise.description}
-                        type={exercise.type}
-                        subtype={exercise.subtype}
-                        parentLessonTitle={exercise.parent_lesson?.title}
-                        isCompleted={isCompleted}
-                        completionData={completedMap.get(exercise.id)}
-                        category={exercise.subject_area}
-                      />
-                    </div>
+                    <ExerciseCard
+                      key={exercise.id}
+                      id={exercise.id}
+                      title={exercise.title}
+                      description={exercise.description}
+                      type={exercise.type}
+                      subtype={exercise.subtype}
+                      parentLessonTitle={exercise.parent_lesson?.title}
+                      isCompleted={isCompleted}
+                      completionData={completedMap.get(exercise.id)}
+                      category={exercise.subject_area}
+                    />
                   );
                 })}
               </div>

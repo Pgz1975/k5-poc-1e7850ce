@@ -10,7 +10,6 @@ import { ExerciseCardV2 } from "@/components/StudentDashboard/ExerciseCard-v2";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo } from "react";
-import { ActivityActions } from "@/components/ActivityManagement/ActivityActions";
 import { UnitHeader } from "@/components/StudentDashboard/UnitHeader";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -334,15 +333,7 @@ export default function StudentExercisesProgressV2() {
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: exerciseIndex * 0.05 }}
-                          className="relative"
                         >
-                          <div className="absolute top-2 right-2 z-10">
-                            <ActivityActions 
-                              activity={{ id: exercise.id, title: exercise.title }} 
-                              redirectPath="/student-dashboard/exercises"
-                              size="sm"
-                            />
-                          </div>
                           <ExerciseCardV2
                             id={exercise.id}
                             title={exercise.title}
