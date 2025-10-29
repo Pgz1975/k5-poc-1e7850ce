@@ -164,9 +164,33 @@ const StudentDashboardV2 = () => {
               </div>
             </div>
 
+            {/* Welcome Section with Mascot */}
             <div className="rounded-3xl border-4 border-white bg-gradient-to-br from-[hsl(176,84%,95%)] to-[hsl(176,84%,85%)] p-8 md:p-12 shadow-[0_8px_0_rgba(255,255,255,0.8)]">
-              <CoquiVoiceChat />
+              <div className="grid md:grid-cols-[auto_1fr] gap-8 items-center">
+                <div className="flex justify-center">
+                  <CoquiMascot 
+                    state={mascotState}
+                    size="large"
+                    position="inline"
+                    className="drop-shadow-2xl"
+                  />
+                </div>
+                <div className="text-center md:text-left">
+                  <Badge className="mb-4 text-base px-4 py-2 bg-white border-2 border-[hsl(176,84%,55%)] text-[hsl(176,84%,35%)] shadow-[0_3px_0_hsl(176,84%,55%)]">
+                    {getGradeLabel(profile?.gradeLevel ?? 0)}
+                  </Badge>
+                  <h1 className="text-4xl md:text-6xl font-black mb-4 text-[hsl(176,84%,25%)]">
+                    {t("¡Hola, ", "Hello, ")}{profile?.fullName || t("Estudiante", "Student")}! 👋
+                  </h1>
+                  <p className="text-xl md:text-2xl font-bold text-[hsl(176,84%,30%)]">
+                    {t("¿Qué quieres hacer hoy?", "What do you want to do today?")}
+                  </p>
+                </div>
+              </div>
             </div>
+
+            {/* Talk to Coquí Section */}
+            <CoquiVoiceChat />
 
 
             {/* Activity Cards - Duolingo Style with 3D Effect */}
