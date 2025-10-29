@@ -3,9 +3,10 @@ import { Footer } from "@/components/Footer";
 import { Star, Sparkles, BookOpen, Target, ClipboardCheck, Flame, Trophy } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
-import { CoquiVoiceChat } from "@/components/StudentDashboard/CoquiVoiceChat";
 import CoquiMascot from "@/components/CoquiMascot";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useCoquiSession } from "@/hooks/useCoquiSession";
+import { CoquiClickHint } from "@/components/StudentDashboard/CoquiClickHint";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { useStudentProgress } from "@/hooks/useStudentProgress";
 import { Link } from "react-router-dom";
@@ -23,9 +24,58 @@ import { WeeklyUsageStats } from "@/components/StudentDashboard/WeeklyUsageStats
 import { QuickActions } from "@/components/StudentDashboard/QuickActions";
 
 const StudentDashboardV2 = () => {
-  const { t } = useLanguage();
-  const [mascotState, setMascotState] = useState("happy");
+  const { t, language } = useLanguage();
+  const [mascotState, setMascotState] = useState<"happy" | "thinking" | "reading" | "exploring" | "correct" | "excited" | "speaking">("happy");
   const { data: profile, isLoading } = useStudentProfile();
+
+  // Dashboard voice guidance context
+  const dashboardGuidance = language === 'es' 
+    ? `Eres Coquí, el amigo y guía oficial de la plataforma educativa LecturaPR para estudiantes de K-5 en Puerto Rico. Tu rol es dar la bienvenida al estudiante al dashboard, presentar brevemente las opciones disponibles (Lecciones, Ejercicios, Evaluaciones), y motivarlo a explorar. Sé amigable, breve y entusiasta. Si el estudiante te pregunta algo, ayúdalo con información sobre la plataforma.`
+    : `You are Coquí, the official friend and guide for the LecturaPR educational platform for K-5 students in Puerto Rico. Your role is to welcome the student to the dashboard, briefly introduce the available options (Lessons, Exercises, Assessments), and motivate them to explore. Be friendly, brief, and enthusiastic. If the student asks you something, help them with information about the platform.`;
+
+  // Voice session management
+  const {
+    isConnected,
+    isConnecting,
+    isAIPlaying,
+    startSession,
+    endSession
+  } = useCoquiSession({
+    activityId: 'dashboard-intro',
+    activityType: 'system',
+    voiceContext: {
+      title: 'Dashboard Introduction',
+      language: language === 'es' ? 'es-PR' : 'en-US',
+      voiceGuidance: dashboardGuidance
+    }
+  });
+
+  // Update mascot state based on voice session
+  useEffect(() => {
+    if (isAIPlaying) {
+      setMascotState('speaking');
+    } else if (isConnected) {
+      setMascotState('thinking');
+    } else {
+      setMascotState('happy');
+    }
+  }, [isAIPlaying, isConnected]);
+
+  // Handle Coquí click to start session
+  const handleCoquiClick = async () => {
+    if (isConnected || isConnecting) return;
+    localStorage.setItem("coqui-hint-dismissed", "true");
+    await startSession();
+  };
+
+  // Cleanup session on unmount
+  useEffect(() => {
+    return () => {
+      if (isConnected) {
+        endSession();
+      }
+    };
+  }, [isConnected, endSession]);
 
   const lessonsProgress = useStudentProgress({
     activityType: "lesson",
@@ -164,17 +214,31 @@ const StudentDashboardV2 = () => {
               </div>
             </div>
 
-            {/* Welcome Section with Mascot */}
+            {/* Welcome Section with Interactive Coquí */}
             <div className="rounded-3xl border-4 border-white bg-gradient-to-br from-[hsl(176,84%,95%)] to-[hsl(176,84%,85%)] p-8 md:p-12 shadow-[0_8px_0_rgba(255,255,255,0.8)]">
               <div className="grid md:grid-cols-[auto_1fr] gap-8 items-center">
+                {/* Interactive Mascot */}
                 <div className="flex justify-center">
-                  <CoquiMascot 
-                    state={mascotState}
-                    size="large"
-                    position="inline"
-                    className="drop-shadow-2xl"
-                  />
+                  <div className="relative inline-block">
+                    <div onClick={handleCoquiClick}>
+                      <CoquiMascot 
+                        state={isConnecting ? "waiting" : mascotState}
+                        size="large"
+                        position="inline"
+                        className={
+                          isConnecting 
+                            ? "animate-pulse cursor-wait drop-shadow-2xl" 
+                            : isConnected 
+                              ? "animate-breathe drop-shadow-2xl" 
+                              : "cursor-pointer hover:scale-105 transition-transform drop-shadow-2xl"
+                        }
+                      />
+                    </div>
+                    {!isConnected && !isConnecting && <CoquiClickHint />}
+                  </div>
                 </div>
+                
+                {/* Text Content */}
                 <div className="text-center md:text-left">
                   <Badge className="mb-4 text-base px-4 py-2 bg-white border-2 border-[hsl(176,84%,55%)] text-[hsl(176,84%,35%)] shadow-[0_3px_0_hsl(176,84%,55%)]">
                     {getGradeLabel(profile?.gradeLevel ?? 0)}
@@ -185,12 +249,21 @@ const StudentDashboardV2 = () => {
                   <p className="text-xl md:text-2xl font-bold text-[hsl(176,84%,30%)]">
                     {t("¿Qué quieres hacer hoy?", "What do you want to do today?")}
                   </p>
+                  
+                  {/* Status Text */}
+                  <p className="text-lg md:text-xl font-semibold text-[hsl(176,84%,35%)] mt-4">
+                    {isConnecting
+                      ? t("Conectando...", "Connecting...")
+                      : isConnected
+                        ? isAIPlaying
+                          ? t("🐸 Coquí está hablando...", "🐸 Coquí is speaking...")
+                          : t("¡Háblame! Estoy escuchando 👂", "Talk to me! I'm listening 👂")
+                        : t("Haz clic en Coquí para empezar", "Click on Coquí to start")
+                    }
+                  </p>
                 </div>
               </div>
             </div>
-
-            {/* Talk to Coquí Section */}
-            <CoquiVoiceChat />
 
 
             {/* Activity Cards - Duolingo Style with 3D Effect */}
