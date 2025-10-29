@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { coquiStates, coquiAnimations, coquiSizes, coquiPositions } from '@/config/coquiConfig';
+import coquiAnimatedWebm from '@/assets/coqui/coqui-animated.webm';
 
 /**
  * CoquiMascot - Animated mascot component for LecturaPR
@@ -18,13 +19,15 @@ export const CoquiMascot = ({
   alt = null
 }) => {
   const [currentAnimation, setCurrentAnimation] = useState('');
-  const [imageSrc, setImageSrc] = useState(coquiStates.default);
+  const [mediaSrc, setMediaSrc] = useState(coquiStates.default);
+  const [isVideo, setIsVideo] = useState(false);
 
-  // Update image and animation when state changes
+  // Update image/video and animation when state changes
   useEffect(() => {
-    // Get the image path for the current state, fallback to default
-    const newImageSrc = coquiStates[state] || coquiStates.default;
-    setImageSrc(newImageSrc);
+    // Get the media path for the current state, fallback to default
+    const newMediaSrc = coquiStates[state] || coquiStates.default;
+    setMediaSrc(newMediaSrc);
+    setIsVideo(newMediaSrc.endsWith('.webm') || newMediaSrc === coquiAnimatedWebm);
 
     // Get the animation for the current state
     const animation = coquiAnimations[state] || '';
@@ -43,17 +46,30 @@ export const CoquiMascot = ({
   const sizeClass = coquiSizes[size] || coquiSizes.default;
   const positionClass = coquiPositions[position] || coquiPositions['bottom-right'];
   const animationClass = currentAnimation;
+  
   return (
     <div 
       className={`${positionClass} z-50 transition-opacity duration-200 ${className}`} 
       role="img" 
       aria-label={alt || `Coquí mascot in ${state} state`}
     >
-      <img
-        src={imageSrc}
-        alt={alt || `Coquí mascot in ${state} state`}
-        className={`${sizeClass} ${animationClass} object-contain`}
-      />
+      {isVideo ? (
+        <video
+          src={mediaSrc}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className={`${sizeClass} ${animationClass} object-contain`}
+          aria-label={alt || `Coquí mascot in ${state} state`}
+        />
+      ) : (
+        <img
+          src={mediaSrc}
+          alt={alt || `Coquí mascot in ${state} state`}
+          className={`${sizeClass} ${animationClass} object-contain`}
+        />
+      )}
     </div>
   );
 };
