@@ -1,3 +1,3 @@
 8. teacher login and dashboard : link teacher@demo.com to teacher role
 
-9. teacher dashboard : The dashboard lacks predictive analytics or automated feedback features to help teachers identify struggling students or patterns in performance. Integrate mock AI analytics that visualize trends (e.g., “Most common errors by domain,” “Average response time per student,” “Students needing intervention”). Enable automatic generation of individualized learning recommendations based on error patterns.
+9. teacher dashboard : The dashboard lacks predictive analytics or automated feedback features to help teachers identify struggling students or patterns in performance. Integrate mock AI analytics that visualize trends (e.g., “Most common errors by domain,” “Average response time per student,” “Students needing intervention”). simulate automatic generation of individualized learning recommendations based on error patterns.
