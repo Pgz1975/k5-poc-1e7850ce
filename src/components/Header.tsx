@@ -75,14 +75,9 @@ export const Header = () => {
 
   // Role-based navigation
   const getNavItems = (): NavItem[] => {
-    // Non-authenticated users see marketing links
+    // Non-authenticated users see no navigation links
     if (!user) {
-      return [
-        { label: t("Inicio", "Home"), href: "/" },
-        { label: t("Estudiantes", "Students"), href: "#students" },
-        { label: t("Maestros", "Teachers"), href: "#teachers" },
-        { label: t("Familias", "Families"), href: "#families" },
-      ];
+      return [];
     }
 
     // Admin user (using email check until role system is updated)
