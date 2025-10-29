@@ -1,0 +1,1 @@
+The family dashboard shows current performance but doesn’t forecast next goals or milestones (e.g., “At this rate, María will reach Level 4 by December”).              Implement predictive AI to estimate upcoming milestones and generate motivational notifications for parents.
