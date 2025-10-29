@@ -343,104 +343,328 @@ const FamilyDashboardV2 = () => {
               </div>
             </div>
 
-            {/* Recommendations Section */}
-            <div className="bg-white rounded-3xl p-8 border-4 border-lime-300 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-12 w-12 rounded-2xl bg-lime-400 flex items-center justify-center">
-                  <Lightbulb className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {t("Sugerencias para Apoyar en Casa 🏡", "Suggestions to Support at Home 🏡")}
-                  </h2>
-                  <p className="text-gray-600">
-                    {t("Actividades recomendadas por el mentor AI", "Activities recommended by AI mentor")}
-                  </p>
-                </div>
-              </div>
-              <div className="grid md:grid-cols-3 gap-6">
-                {aiRecommendations.map((rec, index) => (
-                  <div 
-                    key={index} 
-                    className={`rounded-2xl p-6 border-3 transition-all ${
-                      rec.priority === 'high' 
-                        ? 'bg-gradient-to-br from-orange-50 to-coral-50 border-orange-300' 
-                        : 'bg-gradient-to-br from-gray-50 to-white border-gray-200 hover:border-lime-400'
-                    } hover:shadow-lg`}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="text-5xl">{rec.icon}</div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-xl mb-3 text-gray-800">
-                          {t(rec.titleEs, rec.titleEn)}
-                        </h4>
-                        <p className="text-gray-600 leading-relaxed">
-                          {t(rec.descriptionEs, rec.descriptionEn)}
-                        </p>
-                        <div className="mt-3 text-sm text-gray-600">
-                          ⏱️ {rec.estimatedTime} {t("min/día", "min/day")}
+            {/* Collapsible Sections */}
+            <div className="space-y-6">
+              {/* AI Mentor Recommendations */}
+              <CollapsibleFamilySection
+                id="ai-recommendations"
+                title={t("Sugerencias para Apoyar en Casa 🏡", "Suggestions to Support at Home 🏡")}
+                subtitle={t("Actividades recomendadas por el mentor AI", "Activities recommended by AI mentor")}
+                icon={Lightbulb}
+                colorClass="lime"
+                defaultOpen={true}
+              >
+                <div className="grid md:grid-cols-3 gap-6">
+                  {aiRecommendations.map((rec, index) => (
+                    <div 
+                      key={index} 
+                      className={`rounded-2xl p-6 border-3 transition-all ${
+                        rec.priority === 'high' 
+                          ? 'bg-gradient-to-br from-orange-50 to-coral-50 border-orange-300' 
+                          : 'bg-gradient-to-br from-gray-50 to-white border-gray-200 hover:border-lime-400'
+                      } hover:shadow-lg`}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="text-5xl">{rec.icon}</div>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-xl mb-3 text-gray-800">
+                            {t(rec.titleEs, rec.titleEn)}
+                          </h4>
+                          <p className="text-gray-600 leading-relaxed">
+                            {t(rec.descriptionEs, rec.descriptionEn)}
+                          </p>
+                          <div className="mt-3 text-sm text-gray-600">
+                            ⏱️ {rec.estimatedTime} {t("min/día", "min/day")}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  ))}
+                </div>
+              </CollapsibleFamilySection>
 
-            {/* Message Teacher Section */}
-            <div className="bg-gradient-to-br from-orange-100 to-coral-50 rounded-3xl p-8 border-4 border-orange-300 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-12 w-12 rounded-2xl bg-orange-400 flex items-center justify-center">
-                  <MessageSquare className="h-6 w-6 text-white" />
+              {/* Recent Activities & Achievements */}
+              <CollapsibleFamilySection
+                id="recent-activities"
+                title={t("Actividades Recientes y Logros", "Recent Activities & Achievements")}
+                subtitle={t("Últimas actividades completadas y reconocimientos", "Latest completed activities and achievements")}
+                icon={Star}
+                colorClass="purple"
+                defaultOpen={false}
+              >
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Recent Activities */}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">
+                      {t("Actividades Recientes", "Recent Activities")}
+                    </h3>
+                    <div className="space-y-3">
+                      {recentActivities.map((activity, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                          <BookOpen className="h-5 w-5 text-purple-600" />
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-800">
+                              {t(activity.titleEs, activity.titleEn)}
+                            </p>
+                            <p className="text-sm text-gray-600">{activity.time}</p>
+                          </div>
+                          <div className="text-sm font-bold text-purple-600">
+                            {activity.comprehensionScore}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Achievements */}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">
+                      {t("Logros Recientes", "Recent Achievements")}
+                    </h3>
+                    <div className="space-y-3">
+                      {achievements.map((achievement, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
+                          <div className="text-2xl">{achievement.icon}</div>
+                          <div className="flex-1">
+                            <p className="font-bold text-gray-800">
+                              {t(achievement.titleEs, achievement.titleEn)}
+                            </p>
+                            <p className="text-sm text-gray-600">{achievement.date}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {t("Enviar Mensaje a la Maestra 💌", "Message Teacher 💌")}
-                  </h2>
-                  <p className="text-gray-600">
-                    {t("Comunícate con la maestra de María", "Communicate with María's teacher")}
-                  </p>
+              </CollapsibleFamilySection>
+
+              {/* Communication & Reports */}
+              <CollapsibleFamilySection
+                id="communication"
+                title={t("Comunicación y Reportes", "Communication & Reports")}
+                subtitle={t("Mensajes de la maestra y reportes de progreso", "Teacher messages and progress reports")}
+                icon={MessageSquare}
+                colorClass="orange"
+                defaultOpen={false}
+              >
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Send Message */}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">
+                      {t("Enviar Mensaje a la Maestra", "Message Teacher")}
+                    </h3>
+                    <form onSubmit={handleSendMessage} className="space-y-4">
+                      <div>
+                        <label htmlFor="subject" className="block text-sm font-bold text-gray-700 mb-2">
+                          {t("Asunto", "Subject")}
+                        </label>
+                        <input
+                          id="subject"
+                          type="text"
+                          value={messageSubject}
+                          onChange={(e) => setMessageSubject(e.target.value)}
+                          placeholder={t("Ejemplo: Pregunta sobre tarea", "Example: Question about homework")}
+                          className="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-400 focus:outline-none text-gray-800"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="message" className="block text-sm font-bold text-gray-700 mb-2">
+                          {t("Mensaje", "Message")}
+                        </label>
+                        <textarea
+                          id="message"
+                          value={messageContent}
+                          onChange={(e) => setMessageContent(e.target.value)}
+                          placeholder={t("Escribe tu mensaje aquí...", "Write your message here...")}
+                          rows={4}
+                          className="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-400 focus:outline-none text-gray-800 resize-none"
+                          required
+                        />
+                      </div>
+                      
+                      <button
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-orange-400 to-coral-400 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                      >
+                        {t("Enviar Mensaje 📧", "Send Message 📧")}
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Teacher Messages & Reports */}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">
+                      {t("Mensajes y Reportes", "Messages & Reports")}
+                    </h3>
+                    <div className="space-y-3">
+                      {teacherMessages.map((message, index) => (
+                        <div key={index} className="p-3 bg-blue-50 rounded-xl border border-blue-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <MessageSquare className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium text-gray-800">{message.from}</span>
+                            <span className="text-sm text-gray-500 ml-auto">{message.date}</span>
+                          </div>
+                          <p className="text-sm text-gray-700">
+                            {t(message.subjectEs, message.subjectEn)}
+                          </p>
+                        </div>
+                      ))}
+                      
+                      <button
+                        onClick={handleDownloadReport}
+                        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-medium py-3 px-4 rounded-xl hover:bg-blue-700 transition-colors"
+                      >
+                        <Download className="h-4 w-4" />
+                        {t("Descargar Reporte Mensual", "Download Monthly Report")}
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <form onSubmit={handleSendMessage} className="space-y-4">
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-bold text-gray-700 mb-2">
-                    {t("Asunto", "Subject")}
-                  </label>
-                  <input
-                    id="subject"
-                    type="text"
-                    value={messageSubject}
-                    onChange={(e) => setMessageSubject(e.target.value)}
-                    placeholder={t("Ejemplo: Pregunta sobre tarea", "Example: Question about homework")}
-                    className="w-full px-4 py-3 rounded-xl border-3 border-orange-200 focus:border-orange-400 focus:outline-none text-gray-800 font-medium"
-                    required
-                  />
+              </CollapsibleFamilySection>
+
+              {/* Resources & Support */}
+              <CollapsibleFamilySection
+                id="resources"
+                title={t("Recursos y Apoyo para Padres", "Resources & Support for Parents")}
+                subtitle={t("Guías, videos y preguntas frecuentes", "Guides, videos and frequently asked questions")}
+                icon={HelpCircle}
+                colorClass="blue"
+                defaultOpen={false}
+              >
+                <div className="grid md:grid-cols-3 gap-6">
+                  {/* Parent Guides */}
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-blue-600" />
+                      {t("Guías para Padres", "Parent Guides")}
+                    </h3>
+                    <div className="space-y-2">
+                      {parentGuides.map((guide, index) => (
+                        <div key={index} className="p-3 bg-blue-50 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors">
+                          <p className="font-medium text-gray-800">
+                            {t(guide.titleEs, guide.titleEn)}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {t(guide.descriptionEs, guide.descriptionEn)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Video Tutorials */}
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <Video className="h-5 w-5 text-blue-600" />
+                      {t("Videos Tutoriales", "Video Tutorials")}
+                    </h3>
+                    <div className="space-y-2">
+                      {videoTutorials.map((video, index) => (
+                        <div key={index} className="p-3 bg-blue-50 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors">
+                          <p className="font-medium text-gray-800">
+                            {t(video.titleEs, video.titleEn)}
+                          </p>
+                          <p className="text-sm text-gray-600">{video.duration}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* FAQs */}
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <HelpCircle className="h-5 w-5 text-blue-600" />
+                      {t("Preguntas Frecuentes", "Frequently Asked Questions")}
+                    </h3>
+                    <div className="space-y-2">
+                      {faqs.map((faq, index) => (
+                        <div key={index} className="p-3 bg-blue-50 rounded-lg hover:bg-blue-100 cursor-pointer transition-colors">
+                          <p className="font-medium text-gray-800">
+                            {t(faq.questionEs, faq.questionEn)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                
-                <div>
-                  <label htmlFor="message" className="block text-sm font-bold text-gray-700 mb-2">
-                    {t("Mensaje", "Message")}
-                  </label>
-                  <textarea
-                    id="message"
-                    value={messageContent}
-                    onChange={(e) => setMessageContent(e.target.value)}
-                    placeholder={t("Escribe tu mensaje aquí...", "Write your message here...")}
-                    rows={4}
-                    className="w-full px-4 py-3 rounded-xl border-3 border-orange-200 focus:border-orange-400 focus:outline-none text-gray-800 font-medium resize-none"
-                    required
-                  />
+              </CollapsibleFamilySection>
+
+              {/* Schedule & Goals */}
+              <CollapsibleFamilySection
+                id="schedule-goals"
+                title={t("Horario y Metas", "Schedule & Goals")}
+                subtitle={t("Planificación semanal y objetivos de aprendizaje", "Weekly planning and learning objectives")}
+                icon={Calendar}
+                colorClass="cyan"
+                defaultOpen={false}
+              >
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Weekly Schedule */}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">
+                      {t("Horario Semanal", "Weekly Schedule")}
+                    </h3>
+                    <div className="space-y-2">
+                      {weeklySchedule.map((day, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-cyan-50 rounded-lg">
+                          <span className="font-medium text-gray-800">{t(day.dayEs, day.dayEn)}</span>
+                          <span className="text-sm text-gray-600">{day.planned ? `${t("Planificado", "Planned")}: ${day.planned}` : "—"}</span>
+                          <span className="text-sm text-gray-500">{day.actual ? `${t("Real", "Actual")}: ${day.actual}` : ""}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Goals & Reminders */}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">
+                      {t("Metas y Recordatorios", "Goals & Reminders")}
+                    </h3>
+                    
+                    <div className="mb-6">
+                      <h4 className="text-lg font-medium text-gray-700 mb-3">
+                        {t("Metas del Mes", "Monthly Goals")}
+                      </h4>
+                      <div className="space-y-2">
+                        {goals.customGoals.map((goal, index) => (
+                          <div key={index} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                            <Target className="h-4 w-4 text-green-600" />
+                            <span className="text-gray-800">
+                              {t(goal.titleEs, goal.titleEn)}
+                            </span>
+                            <Badge className={`ml-auto ${goal.completed ? 'bg-green-500' : 'bg-yellow-500'} text-white`}>
+                              {goal.completed ? t("Completado", "Completed") : `${goal.progress}/${goal.target}`}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-lg font-medium text-gray-700 mb-3">
+                        {t("Recordatorios", "Reminders")}
+                      </h4>
+                      <div className="space-y-2">
+                        {[
+                          { textEs: `${t("Lectura diaria", "Daily reading")} ${reminders.dailyReading.time}`, textEn: `${t("Daily reading", "Daily reading")} ${reminders.dailyReading.time}`, time: reminders.dailyReading.time },
+                          { textEs: `${t("Reporte semanal", "Weekly report")} ${reminders.weeklyReport.day} ${reminders.weeklyReport.time}`, textEn: `${t("Weekly report", "Weekly report")} ${reminders.weeklyReport.day} ${reminders.weeklyReport.time}`, time: reminders.weeklyReport.time },
+                          { textEs: t("Notificaciones de logros", "Achievement notifications"), textEn: t("Achievement notifications", "Achievement notifications"), time: "" },
+                        ].map((rem, index) => (
+                          <div key={index} className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
+                            <Bell className="h-4 w-4 text-yellow-600" />
+                            <span className="text-gray-800">
+                              {t(rem.textEs, rem.textEn)}
+                            </span>
+                            {rem.time && <span className="text-sm text-gray-500 ml-auto">{rem.time}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-orange-400 to-coral-400 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all border-3 border-orange-500"
-                >
-                  {t("Enviar Mensaje 📧", "Send Message 📧")}
-                </button>
-              </form>
+              </CollapsibleFamilySection>
             </div>
           </div>
         </main>

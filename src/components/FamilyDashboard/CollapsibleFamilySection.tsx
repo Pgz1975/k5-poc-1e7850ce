@@ -8,8 +8,8 @@ interface CollapsibleFamilySectionProps {
   id: string;
   title: string;
   icon: LucideIcon;
-  description?: string;
-  summaryContent: ReactNode;
+  subtitle?: string;
+  summaryContent?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
   colorClass?: string; // e.g., "pink", "cyan", "purple", "lime"
@@ -58,7 +58,7 @@ export function CollapsibleFamilySection({
   id,
   title,
   icon: Icon,
-  description,
+  subtitle,
   summaryContent,
   children,
   defaultOpen = false,
@@ -108,8 +108,8 @@ export function CollapsibleFamilySection({
                 </div>
                 <div className="text-left">
                   <h2 className="text-xl font-bold">{title}</h2>
-                  {description && (
-                    <p className="text-sm text-muted-foreground">{description}</p>
+                  {subtitle && (
+                    <p className="text-sm text-muted-foreground">{subtitle}</p>
                   )}
                 </div>
               </div>
