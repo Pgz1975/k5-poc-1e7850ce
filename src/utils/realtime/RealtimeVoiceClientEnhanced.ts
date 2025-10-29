@@ -303,13 +303,12 @@ export class RealtimeVoiceClientEnhanced {
           break;
 
         case 'input_audio_buffer.speech_stopped':
-          console.log('[RealtimeVoiceClient] 🤐 User stopped speaking (server VAD)');
+          console.log('[RealtimeVoiceClient] 🤐 User stopped speaking');
           this.isUserSpeaking = false;
-          // Server VAD will auto-create response (no manual commit needed)
           break;
 
         case 'response.created':
-          console.log('[RealtimeVoiceClient] 🎬 AI response started (auto-created by server VAD)');
+          console.log('[RealtimeVoiceClient] 🎬 AI response started - pausing user audio');
           this.isResponseInProgress = true;
           
           // Clear audio buffer to prevent VAD from triggering another response

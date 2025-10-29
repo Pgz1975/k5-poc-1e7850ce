@@ -31,8 +31,6 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
   const hasAttemptedConnection = useRef(false);
   const previousActivityId = useRef<string | undefined>(activityId);
   const connectionAttempts = useRef(0);
-  const hasGreetedRef = useRef(false); // Track if we've greeted
-  const greetingCooldownRef = useRef(false); // Cooldown to prevent rapid re-greeting
   const MAX_CONNECTION_ATTEMPTS = 3;
 
   const targetLanguage = language === 'es' ? 'es-PR' : 'en-US';
@@ -81,29 +79,6 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
       connectionAttempts.current = 0;
     }
   }, [isConnected]);
-
-  // One-time greeting after connection (matching lesson behavior)
-  useEffect(() => {
-    if (!isConnected || hasGreetedRef.current || greetingCooldownRef.current) return;
-    if (!voiceContext?.coquiDialogue) return;
-
-    console.log('[useCoquiSession] 👋 Sending one-time greeting');
-    hasGreetedRef.current = true;
-    greetingCooldownRef.current = true;
-
-    // Send greeting after a brief delay (like lessons do)
-    const timer = setTimeout(() => {
-      sendText(voiceContext.coquiDialogue!);
-      console.log('[useCoquiSession] ✅ Greeting sent:', voiceContext.coquiDialogue);
-      
-      // Reset cooldown after 5 seconds
-      setTimeout(() => {
-        greetingCooldownRef.current = false;
-      }, 5000);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [isConnected, voiceContext?.coquiDialogue, sendText]);
 
   // Reconnect when activityId changes (ensures correct context per exercise)
   useEffect(() => {
@@ -157,8 +132,6 @@ export function useCoquiSession({ activityId, activityType, voiceContext, onAudi
   const endSession = useCallback(async () => {
     console.log('[useCoquiSession] 🛑 Ending session');
     hasAttemptedConnection.current = false; // Reset flag on disconnect
-    hasGreetedRef.current = false; // Reset greeting flag
-    greetingCooldownRef.current = false; // Reset cooldown
     
     await disconnect();
     
