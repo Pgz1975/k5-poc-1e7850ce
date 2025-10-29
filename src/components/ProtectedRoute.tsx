@@ -25,6 +25,7 @@ export const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) 
           .from("user_roles")
           .select("role")
           .eq("user_id", user.id)
+          .limit(1)
           .single();
 
         if (error) throw error;

@@ -58,7 +58,8 @@ const AuthV2 = () => {
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .maybeSingle();
+      .limit(1)
+      .single();
 
     if (error) {
       console.error("Error fetching user role:", error);
