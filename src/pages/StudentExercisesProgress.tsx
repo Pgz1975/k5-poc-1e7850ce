@@ -43,7 +43,7 @@ export default function StudentExercisesProgress() {
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.gradeLevel && !!profile?.learningLanguages,
+    enabled: profile?.gradeLevel !== undefined && profile?.gradeLevel !== null && !!profile?.learningLanguages,
   });
 
   // Fetch lesson ordering to get domain information
@@ -60,7 +60,7 @@ export default function StudentExercisesProgress() {
       if (error) throw error;
       return data;
     },
-    enabled: !!profile?.gradeLevel,
+    enabled: profile?.gradeLevel !== undefined && profile?.gradeLevel !== null,
   });
 
   // Create completion map
