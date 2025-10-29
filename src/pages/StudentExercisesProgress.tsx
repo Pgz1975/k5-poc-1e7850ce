@@ -90,38 +90,55 @@ export default function StudentExercisesProgress() {
       });
     });
 
-    // Group exercises by domain
-    const groups = new Map<string, any>();
+    // Group exercises by domain_order first (to prevent duplicates), then by domain_name
+    const domainOrderGroups = new Map<number, Map<string, any>>();
     
     allExercises.forEach(exercise => {
       const domainInfo = domainMap.get(exercise.parent_lesson_id);
-      const domainName = domainInfo?.domain_name || t("Sin categoría", "Uncategorized");
-      const domainOrder = domainInfo?.domain_order ?? 999;
+      if (!domainInfo) return; // Skip exercises without ordering info
       
-      if (!groups.has(domainName)) {
-        groups.set(domainName, {
+      const domainOrder = domainInfo.domain_order ?? 999;
+      const domainName = domainInfo.domain_name || t("Sin categoría", "Uncategorized");
+      
+      // Initialize domain_order group if needed
+      if (!domainOrderGroups.has(domainOrder)) {
+        domainOrderGroups.set(domainOrder, new Map());
+      }
+      
+      const domainGroup = domainOrderGroups.get(domainOrder)!;
+      
+      // Initialize domain_name group if needed
+      if (!domainGroup.has(domainName)) {
+        domainGroup.set(domainName, {
           domain_name: domainName,
           domain_order: domainOrder,
           exercises: [],
         });
       }
       
-      groups.get(domainName)!.exercises.push({
+      domainGroup.get(domainName)!.exercises.push({
         ...exercise,
-        display_order: domainInfo?.display_order ?? 999,
+        display_order: domainInfo.display_order ?? 999,
       });
     });
 
-    // Sort domains by domain_order
-    return Array.from(groups.values())
-      .sort((a, b) => a.domain_order - b.domain_order)
-      .map(group => ({
-        ...group,
-        exercises: group.exercises.sort((a: any, b: any) => 
-          (a.display_order ?? 999) - (b.display_order ?? 999) ||
-          (a.order_in_lesson ?? 999) - (b.order_in_lesson ?? 999)
-        ),
-      }));
+    // Flatten into array and sort
+    const result: any[] = [];
+    Array.from(domainOrderGroups.entries())
+      .sort(([a], [b]) => a - b) // Sort by domain_order
+      .forEach(([_, domainGroup]) => {
+        Array.from(domainGroup.values()).forEach(group => {
+          result.push({
+            ...group,
+            exercises: group.exercises.sort((a: any, b: any) => 
+              (a.display_order ?? 999) - (b.display_order ?? 999) ||
+              (a.order_in_lesson ?? 999) - (b.order_in_lesson ?? 999)
+            ),
+          });
+        });
+      });
+
+    return result;
   }, [allExercises, lessonOrdering, t]);
 
   const calculateStars = (avgScore: number | null): number => {
