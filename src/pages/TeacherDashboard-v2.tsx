@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatCard } from "@/components/ui/stat-card";
-import { Users, TrendingUp, BookOpen, AlertCircle, Download, Filter, Brain, Eye, Target, Award, Edit } from "lucide-react";
+import { Users, TrendingUp, BookOpen, AlertCircle, Download, Filter, Brain, Eye, Target, Award, Edit, FileText, BarChart3, Globe } from "lucide-react";
+import { CollapsibleDashboardSection } from "@/components/TeacherDashboard/CollapsibleDashboardSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from "recharts";
@@ -188,54 +189,72 @@ const TeacherDashboardV2 = () => {
               />
             </div>
 
-            {/* AI Insights Hero Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg">
-                  <Brain className="h-6 w-6 text-white" />
+            {/* Section 1: AI Insights & Recommendations */}
+            <CollapsibleDashboardSection
+              id="ai-insights"
+              title={t("Perspectivas de IA", "AI Insights")}
+              icon={Brain}
+              description={t("Análisis automático y recomendaciones personalizadas", "Automated analysis and personalized recommendations")}
+              colorClass="text-[hsl(262,100%,45%)]"
+              borderColorClass="border-[hsl(262,100%,65%)]"
+              iconBgClass="bg-[hsl(262,100%,95%)]"
+              defaultOpen={true}
+              summaryContent={
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-[hsl(262,100%,98%)] rounded-xl p-4 border-2 border-[hsl(262,100%,80%)]">
+                    <div className="text-3xl font-black text-[hsl(262,100%,45%)]">3</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Perspectivas Activas", "Active Insights")}</div>
+                  </div>
+                  <div className="bg-[hsl(262,100%,98%)] rounded-xl p-4 border-2 border-[hsl(262,100%,80%)]">
+                    <div className="text-lg font-bold text-[hsl(262,100%,45%)]">{t("Alta Prioridad", "High Priority")}</div>
+                    <div className="text-sm text-gray-600">{t("3 estudiantes necesitan atención", "3 students need attention")}</div>
+                  </div>
+                  <div className="bg-[hsl(262,100%,98%)] rounded-xl p-4 border-2 border-[hsl(262,100%,80%)]">
+                    <div className="text-lg font-bold text-[hsl(262,100%,45%)]">85%</div>
+                    <div className="text-sm text-gray-600">{t("Precisión de IA", "AI Accuracy")}</div>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {t("Perspectivas Impulsadas por IA", "AI-Powered Insights")}
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {t("Análisis automático para identificar tendencias y oportunidades", "Automated analysis to identify trends and opportunities")}
-                  </p>
-                </div>
-              </div>
-              
+              }
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {mockAIInsights.map((insight) => (
-                  <AIInsightCard
-                    key={insight.id}
-                    {...insight}
-                  />
+                  <AIInsightCard key={insight.id} {...insight} />
                 ))}
               </div>
-            </div>
+              <UsageMetricsGrid />
+            </CollapsibleDashboardSection>
 
-            {/* Usage Metrics Section */}
-            <UsageMetricsGrid />
-
-            {/* Reading Progress Section */}
-            <ReadingProgressSection />
-
-            {/* Device & Category Analytics */}
-            <div className="grid lg:grid-cols-2 gap-6">
-              <DeviceAnalyticsChart />
-              <CategoryAnalyticsChart />
-            </div>
-
-            {/* Skills Breakdown Section */}
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-1">
-                  {t("Desglose de Habilidades", "Skills Breakdown")}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  {t("Análisis detallado por área de competencia", "Detailed analysis by skill area")}
-                </p>
-              </div>
+            {/* Section 2: Reading & Skills Performance */}
+            <CollapsibleDashboardSection
+              id="reading-skills"
+              title={t("Lectura y Habilidades", "Reading & Skills")}
+              icon={BookOpen}
+              description={t("Análisis detallado del rendimiento de lectura", "Detailed reading performance analysis")}
+              colorClass="text-[hsl(176,84%,45%)]"
+              borderColorClass="border-[hsl(176,84%,55%)]"
+              iconBgClass="bg-[hsl(176,84%,95%)]"
+              summaryContent={
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-[hsl(176,84%,98%)] rounded-xl p-4 border-2 border-[hsl(176,84%,75%)]">
+                    <div className="text-2xl font-black text-[hsl(176,84%,35%)]">87%</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Promedio de Clase", "Class Average")}</div>
+                  </div>
+                  <div className="bg-[hsl(125,100%,98%)] rounded-xl p-4 border-2 border-[hsl(125,100%,75%)]">
+                    <div className="text-lg font-bold text-[hsl(125,100%,35%)]">{t("Vocabulario", "Vocabulary")}: 90%</div>
+                    <div className="text-sm text-gray-600">{t("Mejor Habilidad", "Top Skill")}</div>
+                  </div>
+                  <div className="bg-[hsl(11,100%,98%)] rounded-xl p-4 border-2 border-[hsl(11,100%,75%)]">
+                    <div className="text-lg font-bold text-[hsl(11,100%,35%)]">{t("Pronunciación", "Pronunciation")}: 82%</div>
+                    <div className="text-sm text-gray-600">{t("Necesita Enfoque", "Needs Focus")}</div>
+                  </div>
+                  <div className="bg-[hsl(45,100%,98%)] rounded-xl p-4 border-2 border-[hsl(45,100%,75%)]">
+                    <div className="text-2xl font-black text-[hsl(125,100%,35%)]">↑ 12%</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Esta Semana", "This Week")}</div>
+                  </div>
+                </div>
+              }
+            >
+              <ReadingProgressSection />
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <SkillDetailCard skill={mockSkillsData.comprehension} />
@@ -243,130 +262,170 @@ const TeacherDashboardV2 = () => {
                 <SkillDetailCard skill={mockSkillsData.vocabulary} />
                 <SkillDetailCard skill={mockSkillsData.pronunciation} />
               </div>
-            </div>
 
-            {/* Skills Comparison Table */}
-            <SkillsComparisonTable onStudentClick={handleViewProfile} />
+              <SkillsComparisonTable onStudentClick={handleViewProfile} />
 
-            {/* Assessment Results Section */}
-            <AssessmentResultsSection />
-
-            {/* Standards Alignment */}
-            <StandardsAlignmentTable />
-
-            {/* Teacher Resources Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-lime-400 to-lime-500 rounded-lg">
-                  <BookOpen className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {t("Recursos del Maestro", "Teacher Resources")}
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {t("Actividades, textos y guías alineadas con estándares", "Activities, texts and guides aligned with standards")}
-                  </p>
-                </div>
+              <div className="grid lg:grid-cols-2 gap-6">
+                <DeviceAnalyticsChart />
+                <CategoryAnalyticsChart />
               </div>
 
-              <ResourceLibraryGrid />
+              <div className="grid lg:grid-cols-2 gap-6">
+                <Card className="border-2 border-gray-200 shadow-md hover:shadow-lg transition-all">
+                  <CardHeader>
+                    <CardTitle>{t("Progreso de la Clase", "Class Progress")}</CardTitle>
+                    <CardDescription>{t("Evolución del promedio mensual", "Monthly average evolution")}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={classProgressData}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
+                        <Legend />
+                        <Line type="monotone" dataKey="progress" stroke="hsl(190, 100%, 65%)" strokeWidth={3} name={t("Promedio", "Average")} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+                <ErrorPatternChart data={mockErrorPatterns} />
+              </div>
+              
+              <ResponseTimeChart data={mockResponseTimeData} />
+            </CollapsibleDashboardSection>
 
+            {/* Section 3: Assessment & Standards */}
+            <CollapsibleDashboardSection
+              id="assessment-standards"
+              title={t("Evaluaciones y Estándares", "Assessments & Standards")}
+              icon={Award}
+              description={t("Seguimiento de evaluaciones y alineación de estándares", "Track assessments and standards alignment")}
+              colorClass="text-[hsl(329,100%,45%)]"
+              borderColorClass="border-[hsl(329,100%,65%)]"
+              iconBgClass="bg-[hsl(329,100%,95%)]"
+              summaryContent={
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-[hsl(329,100%,98%)] rounded-xl p-4 border-2 border-[hsl(329,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(329,100%,35%)]">87%</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Promedio Última Evaluación", "Latest Assessment Avg")}</div>
+                  </div>
+                  <div className="bg-[hsl(329,100%,98%)] rounded-xl p-4 border-2 border-[hsl(329,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(329,100%,35%)]">12</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Estándares Rastreados", "Standards Tracked")}</div>
+                  </div>
+                  <div className="bg-[hsl(329,100%,98%)] rounded-xl p-4 border-2 border-[hsl(329,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(11,100%,45%)]">2</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Necesitan Reevaluación", "Need Reassessment")}</div>
+                  </div>
+                </div>
+              }
+            >
+              <AssessmentResultsSection />
+              <StandardsAlignmentTable />
+            </CollapsibleDashboardSection>
+
+            {/* Section 4: Teacher Resources & Planning */}
+            <CollapsibleDashboardSection
+              id="resources-planning"
+              title={t("Recursos y Planificación", "Resources & Planning")}
+              icon={FileText}
+              description={t("Biblioteca de recursos y guías de intervención", "Resource library and intervention guides")}
+              colorClass="text-[hsl(11,100%,45%)]"
+              borderColorClass="border-[hsl(11,100%,65%)]"
+              iconBgClass="bg-[hsl(11,100%,95%)]"
+              summaryContent={
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-[hsl(11,100%,98%)] rounded-xl p-4 border-2 border-[hsl(11,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(11,100%,35%)]">24</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Recursos Disponibles", "Available Resources")}</div>
+                  </div>
+                  <div className="bg-[hsl(11,100%,98%)] rounded-xl p-4 border-2 border-[hsl(11,100%,75%)]">
+                    <div className="text-lg font-bold text-[hsl(11,100%,35%)]">{t("El Coquí y la Luna", "El Coquí y la Luna")}</div>
+                    <div className="text-sm text-gray-600">{t("Añadido Recientemente", "Recently Added")}</div>
+                  </div>
+                  <div className="bg-[hsl(11,100%,98%)] rounded-xl p-4 border-2 border-[hsl(11,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(11,100%,35%)]">8</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Guías de Intervención", "Intervention Guides")}</div>
+                  </div>
+                </div>
+              }
+            >
+              <ResourceLibraryGrid />
               <div className="grid lg:grid-cols-2 gap-6">
                 <TextRecommendationsSection />
                 <InterventionGuidesAccordion />
               </div>
-            </div>
+            </CollapsibleDashboardSection>
 
-            {/* Comparative Analytics Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-white" />
+            {/* Section 5: Comparative Analytics */}
+            <CollapsibleDashboardSection
+              id="comparative-analytics"
+              title={t("Análisis Comparativo", "Comparative Analytics")}
+              icon={BarChart3}
+              description={t("Comparaciones con otras secciones y escuelas", "Compare with other sections and schools")}
+              colorClass="text-[hsl(200,100%,45%)]"
+              borderColorClass="border-[hsl(200,100%,65%)]"
+              iconBgClass="bg-[hsl(200,100%,95%)]"
+              summaryContent={
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-[hsl(200,100%,98%)] rounded-xl p-4 border-2 border-[hsl(200,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(200,100%,35%)]">2nd</div>
+                    <div className="text-sm font-bold text-gray-600">{t("de 4 Secciones", "out of 4 Sections")}</div>
+                  </div>
+                  <div className="bg-[hsl(125,100%,98%)] rounded-xl p-4 border-2 border-[hsl(125,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(125,100%,35%)]">+5%</div>
+                    <div className="text-sm font-bold text-gray-600">{t("vs Promedio Escolar", "vs School Average")}</div>
+                  </div>
+                  <div className="bg-[hsl(200,100%,98%)] rounded-xl p-4 border-2 border-[hsl(200,100%,75%)]">
+                    <div className="text-lg font-bold text-[hsl(200,100%,35%)]">{t("Lunes 9-10am", "Mon 9-10am")}</div>
+                    <div className="text-sm text-gray-600">{t("Mejor Período", "Best Period")}</div>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {t("Análisis Comparativo", "Comparative Analytics")}
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {t("Comparaciones con otros grupos y horarios", "Comparisons with other groups and schedules")}
-                  </p>
-                </div>
-              </div>
-
+              }
+            >
               <div className="grid lg:grid-cols-2 gap-6">
                 <ComparativeAnalyticsRadar />
                 <BenchmarkingTable />
               </div>
-
               <ScheduleComparisonSection />
-
               <GradeSchoolComparison />
-            </div>
+            </CollapsibleDashboardSection>
 
-            {/* Cultural Localization Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg">
-                  <Award className="h-6 w-6 text-white" />
+            {/* Section 6: Cultural & Family Engagement */}
+            <CollapsibleDashboardSection
+              id="cultural-family"
+              title={t("Cultura y Familia", "Cultural & Family")}
+              icon={Globe}
+              description={t("IEP, contenido cultural y comunicación familiar", "IEP, cultural content, and family communication")}
+              colorClass="text-[hsl(27,100%,45%)]"
+              borderColorClass="border-[hsl(27,100%,65%)]"
+              iconBgClass="bg-[hsl(27,100%,95%)]"
+              summaryContent={
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-[hsl(27,100%,98%)] rounded-xl p-4 border-2 border-[hsl(27,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(27,100%,35%)]">3</div>
+                    <div className="text-sm font-bold text-gray-600">{t("IEP/504 Activos", "Active IEP/504s")}</div>
+                  </div>
+                  <div className="bg-[hsl(27,100%,98%)] rounded-xl p-4 border-2 border-[hsl(27,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(27,100%,35%)]">78%</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Contenido Cultural", "Cultural Content")}</div>
+                  </div>
+                  <div className="bg-[hsl(27,100%,98%)] rounded-xl p-4 border-2 border-[hsl(27,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(27,100%,35%)]">12</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Comunicaciones", "Communications")}</div>
+                  </div>
+                  <div className="bg-[hsl(27,100%,98%)] rounded-xl p-4 border-2 border-[hsl(27,100%,75%)]">
+                    <div className="text-3xl font-black text-[hsl(11,100%,45%)]">2</div>
+                    <div className="text-sm font-bold text-gray-600">{t("Seguimientos", "Need Follow-up")}</div>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {t("Localización Cultural", "Cultural Localization")}
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {t("Seguimiento de acomodos, cultura puertorriqueña y comunicación", "Tracking accommodations, Puerto Rican culture and communication")}
-                  </p>
-                </div>
-              </div>
-
+              }
+            >
               <AccommodationsTracker students={students} onStudentClick={handleViewProfile} />
-              
               <CulturalContentTracker />
-              
               <ParentCommunicationPanel students={students} onStudentClick={handleViewProfile} />
-            </div>
-
-            {/* Analytics Charts */}
-            <div className="grid lg:grid-cols-2 gap-6">
-              <Card className="border-2 border-gray-200 shadow-md hover:shadow-lg transition-all">
-                <CardHeader>
-                  <CardTitle>{t("Progreso de la Clase", "Class Progress")}</CardTitle>
-                  <CardDescription>
-                    {t("Evolución del promedio mensual", "Monthly average evolution")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={classProgressData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))', 
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
-                        }}
-                      />
-                      <Legend />
-                      <Line 
-                        type="monotone" 
-                        dataKey="progress" 
-                        stroke="hsl(190, 100%, 65%)" 
-                        strokeWidth={3}
-                        name={t("Promedio", "Average")}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              <ErrorPatternChart data={mockErrorPatterns} />
-            </div>
-
-            {/* Response Time Analysis */}
-            <ResponseTimeChart data={mockResponseTimeData} />
+            </CollapsibleDashboardSection>
 
             {/* Enhanced Student List */}
             <Card className="border-2 border-gray-200 shadow-md hover:shadow-lg transition-all">
