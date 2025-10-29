@@ -29,6 +29,10 @@ import { ExportReportDialog } from "@/components/TeacherDashboard/ExportReportDi
 import { ResourceLibraryGrid } from "@/components/TeacherDashboard/ResourceLibraryGrid";
 import { TextRecommendationsSection } from "@/components/TeacherDashboard/TextRecommendationsSection";
 import { InterventionGuidesAccordion } from "@/components/TeacherDashboard/InterventionGuidesAccordion";
+import { ComparativeAnalyticsRadar } from "@/components/TeacherDashboard/ComparativeAnalyticsRadar";
+import { BenchmarkingTable } from "@/components/TeacherDashboard/BenchmarkingTable";
+import { ScheduleComparisonSection } from "@/components/TeacherDashboard/ScheduleComparisonSection";
+import { GradeSchoolComparison } from "@/components/TeacherDashboard/GradeSchoolComparison";
 import { 
   mockAIInsights, 
   mockErrorPatterns, 
@@ -260,6 +264,32 @@ const TeacherDashboardV2 = () => {
                 <TextRecommendationsSection />
                 <InterventionGuidesAccordion />
               </div>
+            </div>
+
+            {/* Comparative Analytics Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    {t("Análisis Comparativo", "Comparative Analytics")}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {t("Comparaciones con otros grupos y horarios", "Comparisons with other groups and schedules")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-6">
+                <ComparativeAnalyticsRadar />
+                <BenchmarkingTable />
+              </div>
+
+              <ScheduleComparisonSection />
+
+              <GradeSchoolComparison />
             </div>
 
             {/* Analytics Charts */}
