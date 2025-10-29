@@ -1,17 +1,37 @@
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Users, TrendingUp, BookOpen, AlertCircle, Download, Filter } from "lucide-react";
+import { StatCard } from "@/components/ui/stat-card";
+import { Users, TrendingUp, BookOpen, AlertCircle, Download, Filter, Brain, Eye, Target } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Helmet } from "react-helmet";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { ManageLessonsDrawer } from "@/components/TeacherDashboard/ManageLessonsDrawer";
+import { AIInsightCard } from "@/components/TeacherDashboard/AIInsightCard";
+import { ErrorPatternChart } from "@/components/TeacherDashboard/ErrorPatternChart";
+import { ResponseTimeChart } from "@/components/TeacherDashboard/ResponseTimeChart";
+import { RiskIndicatorBadge } from "@/components/TeacherDashboard/RiskIndicatorBadge";
+import { StudentRecommendationDrawer } from "@/components/TeacherDashboard/StudentRecommendationDrawer";
+import { 
+  mockAIInsights, 
+  mockErrorPatterns, 
+  mockResponseTimeData, 
+  mockStudentRecommendations 
+} from "@/data/teacherAnalytics";
 
 const TeacherDashboard = () => {
   const { t } = useLanguage();
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleViewRecommendation = (studentName: string) => {
+    setSelectedStudent(studentName);
+    setDrawerOpen(true);
+  };
 
   const classData = [
     { month: t("Ago", "Aug"), promedio: 75, meta: 80 },
@@ -29,11 +49,12 @@ const TeacherDashboard = () => {
   ];
 
   const students = [
-    { id: 1, nameEs: "María González", nameEn: "María González", grade: "3.2", activities: 24, lastActive: t("Hoy", "Today"), status: "success" },
-    { id: 2, nameEs: "Juan Pérez", nameEn: "Juan Pérez", grade: "2.8", activities: 18, lastActive: t("Hoy", "Today"), status: "success" },
-    { id: 3, nameEs: "Sofia Rodríguez", nameEn: "Sofia Rodríguez", grade: "3.5", activities: 28, lastActive: t("Ayer", "Yesterday"), status: "warning" },
-    { id: 4, nameEs: "Carlos Martínez", nameEn: "Carlos Martínez", grade: "2.5", activities: 12, lastActive: t("Hace 3 días", "3 days ago"), status: "error" },
-    { id: 5, nameEs: "Ana Torres", nameEn: "Ana Torres", grade: "3.0", activities: 20, lastActive: t("Hoy", "Today"), status: "success" },
+    { id: 1, nameEs: "María González", nameEn: "María González", grade: "3.2", activities: 24, lastActive: t("Hoy", "Today"), status: "success", riskLevel: "low" as const, hasRecommendation: false },
+    { id: 2, nameEs: "Juan Pérez", nameEn: "Juan Pérez", grade: "2.8", activities: 18, lastActive: t("Hoy", "Today"), status: "success", riskLevel: "low" as const, hasRecommendation: false },
+    { id: 3, nameEs: "Sofia Rodríguez", nameEn: "Sofia Rodríguez", grade: "3.5", activities: 28, lastActive: t("Ayer", "Yesterday"), status: "warning", riskLevel: "low" as const, hasRecommendation: false },
+    { id: 4, nameEs: "Carlos Torres", nameEn: "Carlos Torres", grade: "2.5", activities: 12, lastActive: t("Hace 3 días", "3 days ago"), status: "error", riskLevel: "high" as const, hasRecommendation: true },
+    { id: 5, nameEs: "Ana Díaz", nameEn: "Ana Díaz", grade: "2.9", activities: 16, lastActive: t("Hace 2 días", "2 days ago"), status: "error", riskLevel: "high" as const, hasRecommendation: true },
+    { id: 6, nameEs: "Luis Rivera", nameEn: "Luis Rivera", grade: "2.7", activities: 14, lastActive: t("Hace 4 días", "4 days ago"), status: "error", riskLevel: "high" as const, hasRecommendation: true },
   ];
 
   return (
@@ -43,11 +64,11 @@ const TeacherDashboard = () => {
         <meta name="description" content={t("Panel de control para maestros", "Teacher control panel")} />
       </Helmet>
 
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50">
         <Header />
         
         <main className="flex-1 py-8">
-          <div className="container px-4 md:px-6 space-y-8">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-8">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -73,70 +94,61 @@ const TeacherDashboard = () => {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {t("Total Estudiantes", "Total Students")}
-                  </CardTitle>
-                  <Users className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">25</div>
-                  <p className="text-xs text-muted-foreground">
-                    {t("3 nuevos este mes", "3 new this month")}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {t("Promedio de Clase", "Class Average")}
-                  </CardTitle>
-                  <TrendingUp className="h-4 w-4 text-success" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">87%</div>
-                  <p className="text-xs text-success">
-                    +5% {t("vs mes anterior", "vs last month")}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {t("Actividades Esta Semana", "Activities This Week")}
-                  </CardTitle>
-                  <BookOpen className="h-4 w-4 text-secondary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">342</div>
-                  <p className="text-xs text-muted-foreground">
-                    {t("13.7 por estudiante", "13.7 per student")}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {t("Requieren Atención", "Need Attention")}
-                  </CardTitle>
-                  <AlertCircle className="h-4 w-4 text-destructive" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">3</div>
-                  <p className="text-xs text-muted-foreground">
-                    {t("Estudiantes en riesgo", "Students at risk")}
-                  </p>
-                </CardContent>
-              </Card>
+              <StatCard
+                icon={Users}
+                value="25"
+                label={t("Total Estudiantes", "Total Students")}
+                color="lime"
+              />
+              <StatCard
+                icon={TrendingUp}
+                value="87%"
+                label={t("Promedio de Clase", "Class Average")}
+                color="yellow"
+              />
+              <StatCard
+                icon={BookOpen}
+                value="342"
+                label={t("Actividades Esta Semana", "Activities This Week")}
+                color="peach"
+              />
+              <StatCard
+                icon={AlertCircle}
+                value="3"
+                label={t("Requieren Atención", "Need Attention")}
+                color="coral"
+              />
             </div>
 
-            {/* Charts */}
+            {/* AI Insights Hero Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg">
+                  <Brain className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    {t("Perspectivas Impulsadas por IA", "AI-Powered Insights")}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {t("Análisis automático para identificar tendencias y oportunidades", "Automated analysis to identify trends and opportunities")}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {mockAIInsights.map((insight) => (
+                  <AIInsightCard
+                    key={insight.id}
+                    {...insight}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Analytics Charts */}
             <div className="grid lg:grid-cols-2 gap-6">
-              <Card>
+              <Card className="border-2 border-gray-200 shadow-md hover:shadow-lg transition-all">
                 <CardHeader>
                   <CardTitle>{t("Progreso de la Clase", "Class Progress")}</CardTitle>
                   <CardDescription>
@@ -160,14 +172,14 @@ const TeacherDashboard = () => {
                       <Line 
                         type="monotone" 
                         dataKey="promedio" 
-                        stroke="hsl(var(--primary))" 
-                        strokeWidth={2}
+                        stroke="hsl(190, 100%, 65%)" 
+                        strokeWidth={3}
                         name={t("Promedio", "Average")}
                       />
                       <Line 
                         type="monotone" 
                         dataKey="meta" 
-                        stroke="hsl(var(--success))" 
+                        stroke="hsl(125, 100%, 55%)" 
                         strokeWidth={2}
                         strokeDasharray="5 5"
                         name={t("Meta", "Goal")}
@@ -177,42 +189,18 @@ const TeacherDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("Distribución de Habilidades", "Skills Distribution")}</CardTitle>
-                  <CardDescription>
-                    {t("Nivel de dominio por categoría", "Proficiency level by category")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={skillsDistribution}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="skill" angle={-45} textAnchor="end" height={80} />
-                      <YAxis />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--card))', 
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
-                        }}
-                      />
-                      <Legend />
-                      <Bar dataKey="bajo" fill="hsl(var(--destructive))" name={t("Bajo", "Low")} />
-                      <Bar dataKey="medio" fill="hsl(var(--accent))" name={t("Medio", "Medium")} />
-                      <Bar dataKey="alto" fill="hsl(var(--success))" name={t("Alto", "High")} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <ErrorPatternChart data={mockErrorPatterns} />
             </div>
 
-            {/* Student List */}
-            <Card>
+            {/* Response Time Analysis */}
+            <ResponseTimeChart data={mockResponseTimeData} />
+
+            {/* Enhanced Student List */}
+            <Card className="border-2 border-gray-200 shadow-md hover:shadow-lg transition-all">
               <CardHeader>
                 <CardTitle>{t("Lista de Estudiantes", "Student List")}</CardTitle>
                 <CardDescription>
-                  {t("Monitoreo individual de progreso y actividad", "Individual progress and activity monitoring")}
+                  {t("Monitoreo individual con recomendaciones de IA", "Individual monitoring with AI recommendations")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -223,7 +211,8 @@ const TeacherDashboard = () => {
                       <TableHead>{t("Nivel", "Level")}</TableHead>
                       <TableHead>{t("Actividades", "Activities")}</TableHead>
                       <TableHead>{t("Última Actividad", "Last Active")}</TableHead>
-                      <TableHead>{t("Estado", "Status")}</TableHead>
+                      <TableHead>{t("Riesgo", "Risk")}</TableHead>
+                      <TableHead>{t("Recomendación IA", "AI Rec.")}</TableHead>
                       <TableHead>{t("Acciones", "Actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -237,26 +226,40 @@ const TeacherDashboard = () => {
                           <Badge variant="outline">{student.grade}</Badge>
                         </TableCell>
                         <TableCell>{student.activities}</TableCell>
-                        <TableCell className="text-muted-foreground">
+                        <TableCell className="text-muted-foreground text-sm">
                           {student.lastActive}
                         </TableCell>
                         <TableCell>
-                          <Badge 
-                            variant={
-                              student.status === "success" ? "default" : 
-                              student.status === "warning" ? "secondary" : 
-                              "destructive"
-                            }
-                          >
-                            {student.status === "success" && t("Activo", "Active")}
-                            {student.status === "warning" && t("Moderado", "Moderate")}
-                            {student.status === "error" && t("En Riesgo", "At Risk")}
-                          </Badge>
+                          <RiskIndicatorBadge level={student.riskLevel} />
                         </TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm">
-                            {t("Ver Detalles", "View Details")}
-                          </Button>
+                          {student.hasRecommendation ? (
+                            <Badge className="bg-purple-100 text-purple-700 border-purple-300">
+                              <Brain className="h-3 w-3 mr-1" />
+                              {t("Disponible", "Available")}
+                            </Badge>
+                          ) : (
+                            <span className="text-gray-400 text-sm">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="sm" className="gap-1">
+                              <Eye className="h-3 w-3" />
+                              {t("Ver", "View")}
+                            </Button>
+                            {student.hasRecommendation && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="gap-1 bg-purple-50 hover:bg-purple-100"
+                                onClick={() => handleViewRecommendation(t(student.nameEs, student.nameEn))}
+                              >
+                                <Target className="h-3 w-3" />
+                                {t("Plan IA", "AI Plan")}
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -268,6 +271,13 @@ const TeacherDashboard = () => {
         </main>
 
         <Footer />
+
+        {/* Student Recommendation Drawer */}
+        <StudentRecommendationDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          recommendation={selectedStudent ? mockStudentRecommendations[selectedStudent] : null}
+        />
       </div>
     </>
   );
