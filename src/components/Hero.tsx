@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import CoquiMascot from "@/components/CoquiMascot";
+import logoFluenxia from "@/assets/logo-fluenxia.png";
 
 export const Hero = () => {
   const { t } = useLanguage();
@@ -21,14 +22,16 @@ export const Hero = () => {
               />
             </div>
             
-            <h1 className="font-heading font-bold text-4xl md:text-6xl leading-tight">
-              <span className="text-primary animate-fade-in block mb-2">
-                FluenxIA
-              </span>
-              <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-accent via-primary to-secondary bg-clip-text text-transparent">
+            <div className="space-y-4">
+              <img 
+                src={logoFluenxia} 
+                alt="FluenxIA" 
+                className="w-full max-w-2xl mx-auto animate-fade-in"
+              />
+              <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-accent via-primary to-secondary bg-clip-text text-transparent">
                 {t("Fluidez impulsada por Inteligencia Artificial", "Fluency powered by Artificial Intelligence")}
-              </span>
-            </h1>
+              </p>
+            </div>
             
             <p className="text-xl md:text-2xl font-semibold text-foreground/70 mt-4">
               {t("Tu compañero bilingüe con AI para dominar español e inglés", "Your bilingual AI companion to master Spanish and English")}
