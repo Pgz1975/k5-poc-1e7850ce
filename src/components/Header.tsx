@@ -123,7 +123,7 @@ export const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 shadow-soft">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-2">
-          <img src={logotype} alt="FluenxIA" className="h-8 w-8" />
+          <img src={logotype} alt="FluenxIA" className="h-8 w-auto" />
           <span className="font-bold text-xl bg-gradient-hero bg-clip-text text-transparent">
             FluenxIA
           </span>
