@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.test-g1-reset]
 verify_jwt = false
+
+[functions.setup-demo-users]
+verify_jwt = false
