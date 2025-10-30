@@ -13,6 +13,7 @@ interface DemoUser {
   role: string;
   grade_level?: number;
   language_specialization?: string;
+  avatar_url?: string;
 }
 
 serve(async (req) => {
@@ -48,6 +49,7 @@ serve(async (req) => {
         full_name: "Demo Teacher First Grade",
         role: "teacher_english",
         language_specialization: "en",
+        avatar_url: `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/avatars/demo-teacher.jpg`,
       },
       {
         email: "student1@login.com",
@@ -55,30 +57,35 @@ serve(async (req) => {
         full_name: "Demo Student First Grade",
         role: "student_1",
         grade_level: 1,
+        avatar_url: `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/avatars/demo-student.jpg`,
       },
       {
         email: "family@login.com",
         password: "demo1234",
         full_name: "Demo Parent First Grade",
         role: "family",
+        avatar_url: `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/avatars/demo-parent.jpg`,
       },
       {
         email: "school-director@login.com",
         password: "demo1234",
         full_name: "Demo School Director",
         role: "school_director",
+        avatar_url: `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/avatars/demo-director.jpg`,
       },
       {
         email: "regional-director@login.com",
         password: "demo1234",
         full_name: "Demo Regional Director",
         role: "regional_director",
+        avatar_url: `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/avatars/demo-regional-director.jpg`,
       },
       {
         email: "depr-executive@login.com",
         password: "demo1234",
         full_name: "Demo DEPR Administrator",
         role: "depr_executive",
+        avatar_url: `${Deno.env.get("SUPABASE_URL")}/storage/v1/object/public/avatars/demo-administrator.jpg`,
       },
     ];
 
@@ -134,6 +141,7 @@ serve(async (req) => {
             full_name: user.full_name,
             grade_level: user.grade_level,
             language_specialization: user.language_specialization,
+            avatar_url: user.avatar_url,
           });
 
         if (profileError) {
