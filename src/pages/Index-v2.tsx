@@ -8,6 +8,7 @@ import CoquiMascot from "@/components/CoquiMascot";
 import { WhatIsFluenxIA } from "@/components/WhatIsFluenxIA";
 import { ForPuertoRico } from "@/components/ForPuertoRico";
 import { BookOpen, Mic, Trophy, Sparkles } from "lucide-react";
+import logoFluenxia from "@/assets/logo-fluenxia.png";
 
 function HeroV2() {
   const { t } = useLanguage();
@@ -33,14 +34,16 @@ function HeroV2() {
 
           {/* Right Column - Content */}
           <div className="text-center lg:text-left space-y-6 animate-fade-in">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-student-pink via-student-peach to-student-yellow block mb-3">
-                FluenxIA
-              </span>
-              <span className="text-2xl md:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-student-lime to-student-coral">
+            <div className="space-y-4">
+              <img 
+                src={logoFluenxia} 
+                alt="FluenxIA" 
+                className="w-full max-w-xl mx-auto lg:mx-0 animate-fade-in"
+              />
+              <p className="text-2xl md:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-student-lime to-student-coral">
                 {t("Fluidez impulsada por Inteligencia Artificial", "Fluency powered by Artificial Intelligence")}
-              </span>
-            </h1>
+              </p>
+            </div>
             
             <p className="text-lg md:text-xl text-foreground/80">
               {t(
