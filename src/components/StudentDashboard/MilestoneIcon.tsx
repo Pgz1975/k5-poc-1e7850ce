@@ -13,7 +13,7 @@ export const MilestoneIcon = ({
   type, 
   number, 
   unlocked,
-  color = "bg-gradient-to-br from-yellow-400 to-orange-500"
+  color = "bg-gradient-to-br from-primary to-secondary"
 }: MilestoneIconProps) => {
   const Icon = type === "trophy" ? Trophy : type === "shield" ? Award : Target;
   
@@ -27,20 +27,20 @@ export const MilestoneIcon = ({
       <div className={cn(
         "w-16 h-16 rounded-full flex items-center justify-center",
         "shadow-[0_6px_0_rgba(0,0,0,0.15)]",
-        unlocked ? color : "bg-gray-300 grayscale opacity-50"
+        unlocked ? color : "bg-muted grayscale opacity-50"
       )}>
         <Icon 
           className={cn(
             "w-8 h-8",
-            unlocked ? "text-white" : "text-gray-400"
+            unlocked ? "text-white" : "text-muted-foreground"
           )} 
           strokeWidth={2.5} 
         />
         
         {/* Number badge for shields */}
         {number && type === "shield" && unlocked && (
-          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full shadow-sm border-2 border-gray-200 flex items-center justify-center">
-            <span className="text-xs font-bold text-gray-700">{number}</span>
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-card rounded-full shadow-sm border-2 border-border flex items-center justify-center">
+            <span className="text-xs font-bold text-foreground">{number}</span>
           </div>
         )}
       </div>

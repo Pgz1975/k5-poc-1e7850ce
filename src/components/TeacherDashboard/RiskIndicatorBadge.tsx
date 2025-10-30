@@ -13,17 +13,17 @@ export function RiskIndicatorBadge({ level }: RiskIndicatorBadgeProps) {
     high: {
       icon: AlertTriangle,
       label: t("Alto Riesgo", "High Risk"),
-      className: "bg-red-100 text-red-700 border-red-300"
+      className: "bg-destructive/10 text-destructive border-destructive/30"
     },
     medium: {
       icon: AlertCircle,
       label: t("Riesgo Moderado", "Moderate Risk"),
-      className: "bg-yellow-100 text-yellow-700 border-yellow-300"
+      className: "bg-warning/10 text-warning border-warning/30"
     },
     low: {
       icon: CheckCircle,
       label: t("En Progreso", "On Track"),
-      className: "bg-green-100 text-green-700 border-green-300"
+      className: "bg-success/10 text-success border-success/30"
     }
   }[level];
 
