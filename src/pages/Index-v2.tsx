@@ -40,7 +40,7 @@ function HeroV2() {
                 alt="FluenxIA" 
                 className="w-full max-w-xl mx-auto lg:mx-0 animate-fade-in"
               />
-              <p className="text-2xl md:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-student-lime to-student-coral">
+              <p className="text-2xl md:text-3xl font-semibold text-[#395060]">
                 {t("Fluidez impulsada por Inteligencia Artificial", "Fluency powered by Artificial Intelligence")}
               </p>
             </div>
