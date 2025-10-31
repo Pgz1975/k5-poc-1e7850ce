@@ -210,20 +210,11 @@ serve(async (req) => {
     
     console.log(`[Token] Creating ${language} session for student:`, studentId || 'anonymous');
 
-    // Create OpenAI Realtime session
+    // Create OpenAI Realtime session (only model, voice, instructions are supported)
     const sessionBody = {
       model: 'gpt-realtime-2025-08-28',
       voice: config.voice,
-      instructions: config.instructions,
-      turn_detection: config.turnDetection,
-      // Add metadata for monitoring
-      metadata: {
-        language,
-        studentId: studentId || 'anonymous',
-        grade: sessionMetadata?.grade,
-        activity: sessionMetadata?.activity || 'student-guide-demo',
-        timestamp: new Date().toISOString()
-      }
+      instructions: config.instructions
     };
 
     console.log(`[Token] Requesting OpenAI session with voice: ${config.voice}`);
@@ -266,14 +257,7 @@ serve(async (req) => {
     // Return session data with language info
     const responseData = {
       ...sessionData,
-      language,
-      voice: config.voice,
-      // Include success metadata
-      metadata: {
-        language,
-        voice: config.voice,
-        created_at: new Date().toISOString()
-      }
+      language
     };
 
     return new Response(JSON.stringify(responseData), {

@@ -266,7 +266,24 @@ export class StudentGuideRealtimeClient {
     this.dataChannel = this.peerConnection.createDataChannel('oai-events');
     
     this.dataChannel.onopen = () => {
-      console.log('[RealtimeClient] Data channel opened');
+      console.log('[RealtimeClient] Data channel opened, configuring session...');
+      
+      // Send session configuration with turn_detection
+      const sessionConfig: OpenAIEvent = {
+        type: 'session.update',
+        session: {
+          turn_detection: {
+            type: 'server_vad',
+            threshold: 0.5,
+            prefix_padding_ms: 300,
+            silence_duration_ms: 500,
+            create_response: true
+          }
+        }
+      };
+      
+      this.sendEvent(sessionConfig);
+      console.log('[RealtimeClient] Session configuration sent');
     };
 
     this.dataChannel.onmessage = (event) => {
@@ -342,7 +359,10 @@ export class StudentGuideRealtimeClient {
         // Audio is handled by the WebRTC connection automatically
         break;
       case 'session.created':
-        console.log('[RealtimeClient] Session created:', event.session?.id);
+        console.log('[RealtimeClient] ✅ Session created:', event.session?.id);
+        break;
+      case 'session.updated':
+        console.log('[RealtimeClient] ✅ Session configured with VAD');
         break;
       case 'error':
         this.handleError({
