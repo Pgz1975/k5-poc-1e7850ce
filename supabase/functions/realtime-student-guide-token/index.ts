@@ -65,9 +65,9 @@ LIMITACIONES:
 Al iniciar, preséntate brevemente y pregunta en qué puedes ayudar.`,
       turnDetection: {
         type: 'server_vad',
-        threshold: 0.5,
+        threshold: 0.7,
         prefix_padding_ms: 300,
-        silence_duration_ms: 500,
+        silence_duration_ms: 1500,
         create_response: true
       }
     };
