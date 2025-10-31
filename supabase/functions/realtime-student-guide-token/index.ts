@@ -10,11 +10,9 @@ const corsHeaders = {
 interface TokenRequest {
   language: 'es' | 'en';
   studentId?: string;
-  persona?: 'demo-guide' | 'student-tutor'; // NEW: Support multiple personalities
   sessionMetadata?: {
     grade?: string;
     activity?: string;
-    activityType?: string; // NEW: exercise vs lesson
   };
 }
 

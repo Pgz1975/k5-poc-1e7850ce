@@ -6,13 +6,10 @@ import { Helmet } from "react-helmet";
 import CoquiMascot from "@/components/CoquiMascot";
 import { useState, useEffect, useRef } from "react";
 import { useCoquiSession } from "@/hooks/useCoquiSession";
-import { useRealtimeVoiceWebRTC } from "@/hooks/useRealtimeVoiceWebRTC";
 import { CoquiClickHint } from "@/components/StudentDashboard/CoquiClickHint";
 import { useStudentProfile } from "@/hooks/useStudentProfile";
 import { Link } from "react-router-dom";
 import { useStudentProgress } from "@/hooks/useStudentProgress";
-import { useAuth } from "@/contexts/AuthContext";
-import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -28,39 +25,26 @@ import { QuickActions } from "@/components/StudentDashboard/QuickActions";
 
 const StudentDashboardV2 = () => {
   const { t, language } = useLanguage();
-  const { user } = useAuth();
   const [mascotState, setMascotState] = useState<"happy" | "thinking" | "reading" | "exploring" | "correct" | "excited" | "speaking">("happy");
   const [audioLevel, setAudioLevel] = useState(-100);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const hasGreeted = useRef(false);
   const { data: profile, isLoading } = useStudentProfile();
-  
-  // Check feature flag for WebRTC migration (with fallback to WebSocket)
-  const { isEnabled: useWebRTC, isLoading: flagLoading } = useFeatureFlag(
-    'voice_webrtc_migration',
-    user?.id || 'anonymous'
-  );
 
   // Dashboard voice guidance context
   const dashboardGuidance = language === 'es' 
     ? `Eres Coquí, el amigo y guía oficial de la plataforma educativa FluenxIA para estudiantes de K-5 en Puerto Rico. Tu rol es dar la bienvenida al estudiante al dashboard, presentar brevemente las opciones disponibles (Lecciones, Ejercicios, Evaluaciones), y motivarlo a explorar. Sé amigable, breve y entusiasta. Si el estudiante te pregunta algo, ayúdalo con información sobre la plataforma.`
     : `You are Coquí, the official friend and guide for the FluenxIA educational platform for K-5 students in Puerto Rico. Your role is to welcome the student to the dashboard, briefly introduce the available options (Lessons, Exercises, Assessments), and motivate them to explore. Be friendly, brief, and enthusiastic. If the student asks you something, help them with information about the platform.`;
 
-  // WebRTC implementation (NEW - uses ephemeral tokens)
-  const webrtcVoice = useRealtimeVoiceWebRTC({
-    studentId: user?.id || 'anonymous',
-    language: language === 'es' ? 'es' : 'en',
-    activityType: 'dashboard',
-    persona: 'student-tutor', // Use professional male tutor personality
-    onAudioLevel: (dbLevel) => {
-      setAudioLevel(dbLevel);
-      const isSpeaking = dbLevel > -45;
-      setIsUserSpeaking(isSpeaking);
-    },
-  });
-
-  // WebSocket implementation (FALLBACK - legacy implementation)
-  const websocketVoice = useCoquiSession({
+  // Voice session management
+  const {
+    isConnected,
+    isConnecting,
+    isAIPlaying,
+    startSession,
+    endSession,
+    sendText
+  } = useCoquiSession({
     activityId: undefined, // System activity - no specific lesson/exercise
     activityType: 'system',
     voiceContext: {
@@ -74,43 +58,6 @@ const StudentDashboardV2 = () => {
       setIsUserSpeaking(isSpeaking);
     }
   });
-
-  // Determine which implementation to use based on feature flag
-  // Normalize the API between WebRTC and WebSocket implementations
-  const isConnected = !flagLoading && useWebRTC ? webrtcVoice.isConnected : websocketVoice.isConnected;
-  const isConnecting = !flagLoading && useWebRTC ? webrtcVoice.isConnecting : websocketVoice.isConnecting;
-  const isAIPlaying = !flagLoading && useWebRTC ? webrtcVoice.isAIPlaying : websocketVoice.isAIPlaying;
-  
-  const startSession = async () => {
-    if (!flagLoading && useWebRTC) {
-      await webrtcVoice.connect();
-    } else {
-      await websocketVoice.startSession();
-    }
-  };
-  
-  const endSession = async () => {
-    if (!flagLoading && useWebRTC) {
-      await webrtcVoice.disconnect();
-    } else {
-      await websocketVoice.endSession();
-    }
-  };
-  
-  const sendText = (text: string) => {
-    if (!flagLoading && useWebRTC) {
-      webrtcVoice.sendText(text);
-    } else {
-      websocketVoice.sendText(text);
-    }
-  };
-
-  // Log which implementation is being used (for debugging)
-  useEffect(() => {
-    if (!flagLoading) {
-      console.log(`[StudentDashboard] 🔧 Using ${useWebRTC ? 'WebRTC (NEW)' : 'WebSocket (LEGACY)'} voice implementation`);
-    }
-  }, [useWebRTC, flagLoading]);
 
   // Update mascot state based on voice session
   useEffect(() => {
