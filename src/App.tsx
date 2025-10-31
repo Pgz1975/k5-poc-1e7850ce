@@ -50,6 +50,7 @@ import DesignPreview from "./pages/DesignPreview";
 import DemoHome from "./pages/demo/DemoHome";
 import DemoActivityPage from "./pages/demo/DemoActivityPage";
 import RealtimeStudentGuideDemo from "./pages/demo/RealtimeStudentGuideDemo";
+import VoiceMonitoringDashboard from "./pages/VoiceMonitoringDashboard";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { useDesignVersion } from "@/hooks/useDesignVersion";
@@ -99,6 +100,7 @@ function AppRoutes() {
       <Route path="/demo" element={<ProtectedRoute><DemoHome /></ProtectedRoute>} />
       <Route path="/demo/:type/:id" element={<ProtectedRoute><DemoActivityPage /></ProtectedRoute>} />
       <Route path="/demo/realtime-guide" element={<ProtectedRoute><RealtimeStudentGuideDemo /></ProtectedRoute>} />
+      <Route path="/voice-monitoring" element={<ProtectedRoute allowedRoles={["teacher_english", "teacher_spanish", "school_director", "regional_director", "depr_executive"]}><VoiceMonitoringDashboard /></ProtectedRoute>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
