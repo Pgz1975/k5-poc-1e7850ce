@@ -49,6 +49,7 @@ import TestG1Reset from "./pages/admin/TestG1Reset";
 import DesignPreview from "./pages/DesignPreview";
 import DemoHome from "./pages/demo/DemoHome";
 import DemoActivityPage from "./pages/demo/DemoActivityPage";
+import RealtimeStudentGuideDemo from "./pages/demo/RealtimeStudentGuideDemo";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { useDesignVersion } from "@/hooks/useDesignVersion";
@@ -97,6 +98,7 @@ function AppRoutes() {
       <Route path="/delete-test-lesson" element={<DeleteTestLesson />} />
       <Route path="/demo" element={<ProtectedRoute><DemoHome /></ProtectedRoute>} />
       <Route path="/demo/:type/:id" element={<ProtectedRoute><DemoActivityPage /></ProtectedRoute>} />
+      <Route path="/demo/realtime-guide" element={<ProtectedRoute><RealtimeStudentGuideDemo /></ProtectedRoute>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

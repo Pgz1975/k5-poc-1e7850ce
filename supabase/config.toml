@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.setup-demo-users]
 verify_jwt = false
+
+[functions.realtime-student-guide-token]
+verify_jwt = false
